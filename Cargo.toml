@@ -1,0 +1,51 @@
+# Cargo workspace: the Git engine (no Tauri), the synthetic repository generator and the app.
+[workspace]
+resolver = "3"
+members = ["crates/git-core", "crates/repo-gen", "src-tauri"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+authors = ["NoBlame contributors"]
+# No licence has been chosen yet (open question in docs/roadmap.md).
+publish = false
+
+[workspace.dependencies]
+clap = { version = "4.6", features = ["derive"] }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+tempfile = "3.27.0"
+thiserror = "2"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "process", "io-util", "sync", "time"] }
+tokio-util = "0.7"
+tracing = "0.1.44"
+
+[workspace.lints.rust]
+unsafe_code = "deny"
+missing_docs = "warn"
+
+[workspace.lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+dbg_macro = "deny"
+todo = "warn"
+print_stdout = "warn"
+pedantic = { level = "warn", priority = -1 }
+# Pedantic lints that cost more than they help in this codebase.
+module_name_repetitions = "allow"
+must_use_candidate = "allow"
+missing_errors_doc = "allow"
+# Tauri injects `State`, `AppHandle` and windows by value into commands.
+needless_pass_by_value = "allow"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = 3
+panic = "abort"
+strip = true
+
+# The generator and benchmarks run optimized dependencies even in dev builds.
+[profile.dev.package."*"]
+opt-level = 2
