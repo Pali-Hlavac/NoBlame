@@ -1,0 +1,22 @@
+[package]
+name = "git-core"
+description = "NoBlame's Git engine: repository reads, git CLI runner, graph layout. No Tauri dependency."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+publish.workspace = true
+
+[dependencies]
+thiserror.workspace = true
+tokio = { workspace = true, features = ["process", "io-util", "macros", "rt"] }
+tokio-util.workspace = true
+tracing.workspace = true
+
+[dev-dependencies]
+noblame-repo-gen = { path = "../repo-gen" }
+tempfile.workspace = true
+tokio = { workspace = true, features = ["rt-multi-thread", "time"] }
+
+[lints]
+workspace = true
