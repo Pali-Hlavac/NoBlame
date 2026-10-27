@@ -1,0 +1,43 @@
+# Architecture decision records
+
+An ADR records one significant or expensive-to-reverse decision: the context, the options we
+considered, what we chose and what it costs us. ADRs are numbered and never deleted. When a
+decision changes, write a new ADR that supersedes the old one and update the old one's status.
+
+| ADR                                              | Topic                                                        | Milestone | Status   |
+| ------------------------------------------------ | ------------------------------------------------------------ | --------- | -------- |
+| [0001](0001-tauri-2-desktop-shell.md)            | Tauri 2 as the desktop shell                                 | M1        | Accepted |
+| [0002](0002-rust-owns-git-access.md)             | Rust owns all Git access; the webview never touches the repo | M1        | Accepted |
+| [0003](0003-tauri-specta-typed-ipc.md)           | tauri-specta for typed IPC                                   | M1        | Accepted |
+| [0004](0004-frontend-stack.md)                   | Frontend stack (React, TanStack Query, Zustand, shadcn/ui)   | M1        | Accepted |
+| [0005](0005-code-organization.md)                | Code organization (workspace, feature folders, modules)      | M1        | Accepted |
+| [0006](0006-error-model.md)                      | Error model (`AppError { code, message, hint }`)             | M1        | Accepted |
+| [0007](0007-git-engine.md)                       | Git engine: gix for reads, git CLI for writes; minimum git   | M1        | Accepted |
+| 0008                                             | Binary commit stream over Tauri channels                     | M2        | Planned  |
+| 0009                                             | Canvas graph rendering and lane layout                       | M2        | Planned  |
+| 0010                                             | On-disk graph cache                                          | M2        | Planned  |
+| 0011                                             | Background job model                                         | M5        | Planned  |
+| 0012                                             | Credentials and askpass                                      | M5        | Planned  |
+| 0013                                             | Diff viewer implementation                                   | M3        | Planned  |
+| 0014                                             | Conflict resolution UI                                       | M6        | Planned  |
+| [0015](0015-cli-single-instance-task-windows.md) | CLI, single instance and task windows                        | M1        | Accepted |
+| 0016                                             | Testing strategy                                             | M9        | Planned  |
+| 0017                                             | Auto-update via the Tauri updater                            | M9        | Planned  |
+| 0018                                             | Shell integration architecture                               | T1        | Planned  |
+| 0019                                             | Status cache service and overlays                            | T4        | Planned  |
+
+The kickoff prompt asked for ADRs 0001-0008 in M1. The ADR plan in
+[../roadmap.md](../roadmap.md) is newer and wins: ADR 0008 (binary commit stream) is written in
+M2 together with the code it describes, and ADR 0015 (CLI and task windows) is written in M1
+because M1 builds that code.
+
+## Writing an ADR
+
+1. Copy [template.md](template.md) to `NNNN-short-title.md` with the next free number (or the
+   number reserved in the roadmap's ADR plan).
+2. Describe the problem before the solution. List the options you really considered, including
+   the one you rejected for good reasons.
+3. Be concrete: name files, crates, versions and limits. A reader should be able to find the code
+   that implements the decision.
+4. Write down the bad consequences too. They are what the next reader needs most.
+5. Add the ADR to the table above and set its status in the roadmap's ADR plan.
