@@ -76,6 +76,8 @@ pub fn generate(spec: &Spec, dir: &Path) -> Result<Summary, GenError> {
         });
     }
     run_git(dir, &["reset", "--quiet", "--hard"])?;
+    // fast-import leaves one loose file per ref; clones keep them in `packed-refs`.
+    run_git(dir, &["pack-refs", "--all"])?;
     Ok(summary)
 }
 
