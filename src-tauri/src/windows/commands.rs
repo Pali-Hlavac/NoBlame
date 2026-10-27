@@ -23,7 +23,9 @@ pub fn get_window_context(
 #[tauri::command]
 #[specta::specta]
 pub fn take_repository_requests(registry: State<'_, WindowRegistry>) -> Vec<String> {
-    registry.take_repository_requests()
+    let paths = registry.take_repository_requests();
+    tracing::debug!(?paths, "repository requests taken");
+    paths
 }
 
 /// Opens `task` for `path` in a new window, like `noblame <task> <path>` does.
