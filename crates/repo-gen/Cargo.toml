@@ -1,0 +1,25 @@
+[package]
+name = "noblame-repo-gen"
+description = "Generates deterministic synthetic Git repositories (10k to 1M+ commits) for tests and benchmarks."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+publish.workspace = true
+
+[lib]
+name = "noblame_repo_gen"
+
+[[bin]]
+name = "noblame-repo-gen"
+path = "src/main.rs"
+
+[dependencies]
+clap.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true
