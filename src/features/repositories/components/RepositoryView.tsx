@@ -1,58 +1,56 @@
-import { ConstructionIcon, ExternalLinkIcon } from "lucide-react";
+import { FolderPlusIcon } from "lucide-react";
 
-import { TASKS, useOpenTaskWindow } from "@/features/windows";
+import { GraphView } from "@/features/graph";
 import type { RepositoryTab } from "@/features/workspace";
-import type { TaskKind } from "@/shared/ipc/bindings";
+import { ErrorState } from "@/shared/components/ErrorState";
+import { LoadingState } from "@/shared/components/LoadingState";
+import { toIpcError } from "@/shared/ipc/client";
 import { Button } from "@/shared/ui/button";
 
-/** Task windows offered from the placeholder, to try the window plumbing. */
-const PREVIEW_TASKS: readonly TaskKind[] = ["log", "commit", "fileHistory"];
-/** Milestone in `docs/roadmap.md` that opens repositories and draws the graph. */
-const REPOSITORY_MILESTONE = "M2";
+import { useRepositorySession } from "../api/session";
+import { useCreateRepository } from "../hooks/useOpenRepository";
+import { CommitGraphNotice } from "./CommitGraphNotice";
+import { RepositoryHeader } from "./RepositoryHeader";
 
-/**
- * Content of a repository tab. M1 only shows the requested path: reading the repository
- * and the commit graph are milestone M2, and the UI says so.
- */
+/** One repository tab: header, commit-graph offer and the commit graph. */
 export function RepositoryView({ tab }: { tab: RepositoryTab }) {
-  const openTaskWindow = useOpenTaskWindow();
+  const session = useRepositorySession(tab.path);
+  const create = useCreateRepository();
+
+  if (session.isPending) return <LoadingState label="Opening repository…" className="h-full" />;
+  if (session.error) {
+    const notARepository = toIpcError(session.error).code === "NOT_A_REPOSITORY";
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-2">
+        <ErrorState
+          error={session.error}
+          title={`Could not open ${tab.title}`}
+          onRetry={() => void session.refetch()}
+        />
+        {notARepository && (
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={create.pending}
+            onClick={() => {
+              void create.create(tab.path).then(() => session.refetch());
+            }}
+          >
+            <FolderPlusIcon aria-hidden />
+            Create a repository here
+          </Button>
+        )}
+      </div>
+    );
+  }
+
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-12">
-      <header>
-        <h1 className="text-2xl font-semibold">{tab.title}</h1>
-        <p className="text-sm break-all text-muted-foreground select-text">{tab.path}</p>
-      </header>
-      <section
-        aria-label="Placeholder"
-        className="flex gap-3 rounded-md border border-dashed border-border p-4 text-sm"
-      >
-        <ConstructionIcon className="mt-0.5 size-4 shrink-0 text-warning" aria-hidden />
-        <p>
-          Placeholder: the repository is not read yet. Opening repositories and the commit graph
-          arrive in milestone {REPOSITORY_MILESTONE}.
-        </p>
-      </section>
-      <section aria-labelledby="task-windows-heading" className="grid gap-3">
-        <h2 id="task-windows-heading" className="text-sm font-medium">
-          Task windows (placeholders)
-        </h2>
-        <div className="flex flex-wrap gap-2">
-          {PREVIEW_TASKS.map((task) => (
-            <Button
-              key={task}
-              variant="outline"
-              size="sm"
-              disabled={openTaskWindow.isPending}
-              onClick={() => {
-                openTaskWindow.mutate({ task, path: tab.path });
-              }}
-            >
-              <ExternalLinkIcon aria-hidden />
-              {TASKS[task].title}
-            </Button>
-          ))}
-        </div>
-      </section>
+    <div className="flex h-full flex-col">
+      <RepositoryHeader summary={session.data} />
+      <CommitGraphNotice summary={session.data} tabPath={tab.path} />
+      <div className="min-h-0 flex-1">
+        <GraphView repoId={session.data.id} repoPath={tab.path} />
+      </div>
     </div>
   );
 }

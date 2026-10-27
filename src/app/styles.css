@@ -23,6 +23,22 @@
   --destructive-foreground: oklch(0.985 0 0);
   --warning: oklch(0.62 0.15 65);
   --ring: oklch(0.72 0.16 75);
+  /* Commit graph lanes (cycled) and ref labels. */
+  --lane-0: oklch(0.55 0.15 250);
+  --lane-1: oklch(0.6 0.17 30);
+  --lane-2: oklch(0.58 0.14 150);
+  --lane-3: oklch(0.55 0.18 310);
+  --lane-4: oklch(0.65 0.15 80);
+  --lane-5: oklch(0.55 0.12 200);
+  --lane-6: oklch(0.55 0.2 0);
+  --lane-7: oklch(0.5 0.1 110);
+  --ref-branch: oklch(0.92 0.06 150);
+  --ref-branch-foreground: oklch(0.3 0.08 150);
+  --ref-remote: oklch(0.92 0.05 250);
+  --ref-remote-foreground: oklch(0.32 0.08 250);
+  --ref-tag: oklch(0.93 0.07 85);
+  --ref-tag-foreground: oklch(0.35 0.08 70);
+  --ref-head: oklch(0.8 0.15 85);
 }
 
 .dark {
@@ -43,6 +59,21 @@
   --destructive-foreground: oklch(0.985 0 0);
   --warning: oklch(0.8 0.14 80);
   --ring: oklch(0.82 0.15 85);
+  --lane-0: oklch(0.72 0.13 250);
+  --lane-1: oklch(0.74 0.14 30);
+  --lane-2: oklch(0.75 0.13 150);
+  --lane-3: oklch(0.72 0.15 310);
+  --lane-4: oklch(0.8 0.13 80);
+  --lane-5: oklch(0.74 0.1 200);
+  --lane-6: oklch(0.72 0.16 0);
+  --lane-7: oklch(0.72 0.09 110);
+  --ref-branch: oklch(0.35 0.07 150);
+  --ref-branch-foreground: oklch(0.9 0.07 150);
+  --ref-remote: oklch(0.35 0.06 250);
+  --ref-remote-foreground: oklch(0.88 0.06 250);
+  --ref-tag: oklch(0.38 0.07 80);
+  --ref-tag-foreground: oklch(0.9 0.08 85);
+  --ref-head: oklch(0.82 0.15 85);
 }
 
 @theme inline {
@@ -63,6 +94,13 @@
   --color-destructive-foreground: var(--destructive-foreground);
   --color-warning: var(--warning);
   --color-ring: var(--ring);
+  --color-ref-branch: var(--ref-branch);
+  --color-ref-branch-foreground: var(--ref-branch-foreground);
+  --color-ref-remote: var(--ref-remote);
+  --color-ref-remote-foreground: var(--ref-remote-foreground);
+  --color-ref-tag: var(--ref-tag);
+  --color-ref-tag-foreground: var(--ref-tag-foreground);
+  --color-ref-head: var(--ref-head);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

@@ -2,7 +2,7 @@ import { SearchIcon } from "lucide-react";
 import { Group, Panel, Separator } from "react-resizable-panels";
 
 import { CommandPalette, PALETTE_HOTKEY, usePaletteStore } from "@/features/command-palette";
-import { RepositoryList, openRepositories } from "@/features/repositories";
+import { RepositoryList, openRepositories, useSessionCleanup } from "@/features/repositories";
 import { useRepositoryRequests } from "@/features/windows";
 import { WorkspaceView } from "@/features/workspace";
 import { formatHotkey } from "@/shared/lib/hotkeys";
@@ -21,6 +21,7 @@ const SIDEBAR_SIZE = { default: "20%", min: "12%", max: "40%" } as const;
 export function MainWindow() {
   const commands = useAppCommands();
   useRepositoryRequests(openRepositories);
+  useSessionCleanup();
   const paletteLabel = `Command palette (${formatHotkey(PALETTE_HOTKEY, isMacPlatform())})`;
   const openPalette = (
     <Tooltip content={paletteLabel}>

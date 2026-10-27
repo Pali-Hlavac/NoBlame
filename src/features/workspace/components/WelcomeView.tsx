@@ -18,10 +18,12 @@ interface WelcomeViewProps {
   actions?: ReactNode;
   /** Something the user should know first (e.g. git is missing), shown above the actions. */
   notice?: ReactNode;
+  /** Shown below the actions, e.g. recently opened repositories. */
+  children?: ReactNode;
 }
 
 /** Landing tab shown on startup. */
-export function WelcomeView({ paletteHotkey, actions, notice }: WelcomeViewProps) {
+export function WelcomeView({ paletteHotkey, actions, notice, children }: WelcomeViewProps) {
   const shortcuts = [{ label: "Command palette", combo: paletteHotkey }, ...WELCOME_SHORTCUTS];
   return (
     <div className="mx-auto flex max-w-xl flex-col items-center gap-6 px-6 py-16 text-center">
@@ -32,6 +34,7 @@ export function WelcomeView({ paletteHotkey, actions, notice }: WelcomeViewProps
       </div>
       {notice}
       {actions && <div className="flex flex-wrap justify-center gap-2">{actions}</div>}
+      {children}
       <dl className="grid w-full max-w-xs grid-cols-[1fr_auto] gap-x-6 gap-y-2 text-left text-sm">
         {shortcuts.map((shortcut) => (
           <div key={shortcut.label} className="contents">

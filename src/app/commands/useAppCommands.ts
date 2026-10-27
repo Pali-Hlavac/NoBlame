@@ -2,6 +2,7 @@
 import {
   ExternalLinkIcon,
   FolderOpenIcon,
+  FolderPlusIcon,
   GitBranchIcon,
   InfoIcon,
   LayoutGridIcon,
@@ -15,7 +16,7 @@ import { APP_NAME } from "@/app.config";
 import { useAboutStore } from "@/features/about";
 import type { PaletteCommand } from "@/features/command-palette";
 import { useGitInfo } from "@/features/git-env";
-import { useOpenRepository } from "@/features/repositories";
+import { useCreateRepository, useOpenRepository } from "@/features/repositories";
 import { THEME_OPTIONS, useThemePreference } from "@/features/settings";
 import { TASKS, TASK_WINDOWS_MILESTONE, useOpenTaskWindow } from "@/features/windows";
 import { TAB_HOTKEYS, WELCOME_TAB, useActiveTab, useTabsStore } from "@/features/workspace";
@@ -27,6 +28,7 @@ const THEME_ICONS = { system: MonitorIcon, light: SunIcon, dark: MoonIcon } as c
 export function useAppCommands(): PaletteCommand[] {
   const { setPreference } = useThemePreference();
   const openRepository = useOpenRepository();
+  const createRepository = useCreateRepository();
   const openTaskWindow = useOpenTaskWindow();
   const gitInfo = useGitInfo();
   const activeTab = useActiveTab();
@@ -64,6 +66,14 @@ export function useAppCommands(): PaletteCommand[] {
       icon: FolderOpenIcon,
       keywords: ["folder", "browse"],
       run: () => void openRepository(),
+    },
+    {
+      id: "repository.create",
+      group: "Repository",
+      label: "Create repository…",
+      icon: FolderPlusIcon,
+      keywords: ["init", "new"],
+      run: () => void createRepository.create(),
     },
     ...taskCommands,
     {

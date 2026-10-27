@@ -1,5 +1,11 @@
-/** Public API of the repositories feature (repository tabs; reading repos arrives in M2). */
+/** Public API of the repositories feature: tabs, sessions, recent list, open and create. */
+export { RecentRepositories } from "./components/RecentRepositories";
 export { RepositoryList } from "./components/RepositoryList";
 export { RepositoryView } from "./components/RepositoryView";
-export { openRepositories, useOpenRepository } from "./hooks/useOpenRepository";
+export { useSessionCleanup } from "./hooks/useSessionCleanup";
+export {
+  openRepositories,
+  useCreateRepository,
+  useOpenRepository,
+} from "./hooks/useOpenRepository";
 export { repositoryName, repositoryTab } from "./lib/path";
