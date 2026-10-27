@@ -7,6 +7,7 @@ pub mod error;
 mod git_env;
 mod ipc;
 mod logging;
+mod repository;
 mod settings;
 pub mod storage;
 mod windows;
@@ -34,6 +35,7 @@ pub fn run(request: LaunchRequest) {
         .setup(move |app| {
             builder.mount_events(app);
             settings::init(app)?;
+            repository::init(app)?;
             windows::init(app);
             windows::launch(app.handle(), request)?;
             Ok(())

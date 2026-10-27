@@ -20,6 +20,24 @@ export const commands = {
 	takeRepositoryRequests: () => __TAURI_INVOKE<string[]>("take_repository_requests"),
 	/**  Opens `task` for `path` in a new window, like `noblame <task> <path>` does. */
 	openTaskWindow: (task: TaskKind, path: string) => typedError<null, AppError>(__TAURI_INVOKE("open_task_window", { task, path })),
+	/**  Opens the repository containing `path` (searching parent folders). */
+	openRepository: (path: string) => typedError<RepoSummary, AppError>(__TAURI_INVOKE("open_repository", { path })),
+	/**  Creates a repository in `path` with `git init` (open it with `open_repository` next). */
+	initRepository: (path: string) => typedError<null, AppError>(__TAURI_INVOKE("init_repository", { path })),
+	/**  Closes a repository session (when its tab closes). */
+	closeRepository: (id: number) => __TAURI_INVOKE<void>("close_repository", { id }),
+	/**  Builds the graph (or returns the cached one; `reload` forces a rebuild). */
+	loadGraph: (id: number, reload: boolean) => typedError<GraphSummary, AppError>(__TAURI_INVOKE("load_graph", { id, reload })),
+	/**  One block of graph rows in the binary format of `docs/architecture/ipc.md`. */
+	getGraphBlock: (id: number, block: number) => typedError<unknown, AppError>(__TAURI_INVOKE("get_graph_block", { id, block })),
+	/**  Text columns (id, summary, author, date, refs) for up to 500 rows. */
+	getCommitRows: (id: number, start: number, count: number) => typedError<CommitRowDto[], AppError>(__TAURI_INVOKE("get_commit_rows", { id, start, count })),
+	/**  Writes the commit-graph file (`git commit-graph write --reachable --changed-paths`). */
+	writeCommitGraph: (id: number) => typedError<RepoSummary, AppError>(__TAURI_INVOKE("write_commit_graph", { id })),
+	/**  Recently opened repositories, newest first. */
+	listRecentRepositories: () => typedError<RecentRepository[], AppError>(__TAURI_INVOKE("list_recent_repositories")),
+	/**  Removes a repository from the recent list and returns the rest. */
+	removeRecentRepository: (path: string) => typedError<RecentRepository[], AppError>(__TAURI_INVOKE("remove_recent_repository", { path })),
 };
 
 /** Events */
@@ -50,6 +68,26 @@ export type AppInfo = {
 	arch: string,
 };
 
+/**  Text columns of one graph row. */
+export type CommitRowDto = {
+	/**  Row number. */
+	row: number,
+	/**  Full commit id. */
+	id: string,
+	/**  First line of the message. */
+	summary: string,
+	/**  Author name. */
+	authorName: string,
+	/**  Author e-mail. */
+	authorEmail: string,
+	/**  Author time, seconds since the epoch. */
+	authorTime: number | null,
+	/**  Number of parents. */
+	parentCount: number,
+	/**  References pointing here. */
+	refs: RefLabel[],
+};
+
 /**  Stable, machine-readable error category the frontend can branch on. */
 export type ErrorCode = 
 /**  An unexpected failure inside the app; usually a bug. */
@@ -69,7 +107,11 @@ export type ErrorCode =
 /**  A git command failed; the message carries git's own explanation. */
 "GIT_FAILED" | 
 /**  The user cancelled the operation. */
-"CANCELLED";
+"CANCELLED" | 
+/**  The folder is not inside a Git repository. */
+"NOT_A_REPOSITORY" | 
+/**  Git refuses the repository (owned by another user, not in `safe.directory`). */
+"UNTRUSTED_REPOSITORY";
 
 /**  The git executable NoBlame will run, shown in the status bar and About dialog. */
 export type GitInfo = {
@@ -81,6 +123,101 @@ export type GitInfo = {
 	supported: boolean,
 	/**  Oldest version NoBlame supports. */
 	minimumVersion: string,
+};
+
+/**  Size and shape of a loaded graph. */
+export type GraphSummary = {
+	/**  Number of rows (commits). */
+	rows: number,
+	/**  Widest lane count. */
+	maxLanes: number,
+	/**  Rows per block returned by `get_graph_block`. */
+	blockRows: number,
+	/**  Row of the commit HEAD points to. */
+	headRow: number | null,
+	/**  Parent links dropped because objects are missing (partial clones). */
+	missingParents: number,
+	/**  How long building took, in milliseconds. */
+	buildMs: number | null,
+};
+
+/**  Where HEAD points. */
+export type HeadDto = 
+/**  On a branch with commits. */
+{ kind: "branch"; 
+/**  Short branch name. */
+name: string } | 
+/**  On a branch without commits yet. */
+{ kind: "unborn"; 
+/**  Short branch name. */
+name: string } | 
+/**  Detached at a commit. */
+{ kind: "detached"; 
+/**  Full commit id. */
+id: string };
+
+/**  One entry of the list as the UI sees it. */
+export type RecentRepository = {
+	/**  Work tree (or bare repository) path. */
+	path: string,
+	/**  Folder name. */
+	name: string,
+	/**  When it was last opened, seconds since the epoch. */
+	lastOpened: number | null,
+	/**  Whether the folder still exists (checked when the list is read). */
+	exists: boolean,
+};
+
+/**  Category of a reference label. */
+export type RefKindDto = 
+/**  Detached HEAD. */
+"head" | 
+/**  Local branch. */
+"branch" | 
+/**  Remote-tracking branch. */
+"remote" | 
+/**  Tag. */
+"tag";
+
+/**  A reference label on a row. */
+export type RefLabel = {
+	/**  Short name (`main`, `origin/main`, `v1.0`). */
+	name: string,
+	/**  Category. */
+	kind: RefKindDto,
+	/**  HEAD points here. */
+	isHead: boolean,
+};
+
+/**  How the repository is laid out on disk. */
+export type RepoKindDto = 
+/**  Has its own work tree. */
+"normal" | 
+/**  No work tree. */
+"bare" | 
+/**  Added with `git worktree add`. */
+"linkedWorktree" | 
+/**  A submodule. */
+"submodule";
+
+/**  An open repository. */
+export type RepoSummary = {
+	/**  Session id for later commands. */
+	id: number,
+	/**  Folder name, for tabs. */
+	name: string,
+	/**  Work tree, or the repository itself when bare. */
+	path: string,
+	/**  The `.git` directory. */
+	gitDir: string,
+	/**  Layout on disk. */
+	kind: RepoKindDto,
+	/**  Where HEAD points. */
+	head: HeadDto,
+	/**  History cut off by a shallow clone. */
+	isShallow: boolean,
+	/**  A commit-graph file exists. */
+	hasCommitGraph: boolean,
 };
 
 /**

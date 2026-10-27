@@ -1,0 +1,95 @@
+//! Tauri boundary for repositories and the commit graph.
+
+use tauri::State;
+
+use super::recent::{self, RecentRepository, RecentStore};
+use super::{CommitRowDto, GraphBytes, GraphSummary, RepoId, RepoSessions, RepoSummary, service};
+use crate::error::CommandResult;
+
+/// Opens the repository containing `path` (searching parent folders).
+#[tauri::command]
+#[specta::specta]
+pub async fn open_repository(
+    sessions: State<'_, RepoSessions>,
+    recent: State<'_, RecentStore>,
+    path: String,
+) -> CommandResult<RepoSummary> {
+    Ok(service::open(&sessions, &recent, path).await?)
+}
+
+/// Creates a repository in `path` with `git init` (open it with `open_repository` next).
+#[tauri::command]
+#[specta::specta]
+pub async fn init_repository(path: String) -> CommandResult<()> {
+    Ok(service::init(path).await?)
+}
+
+/// Closes a repository session (when its tab closes).
+#[tauri::command]
+#[specta::specta]
+pub fn close_repository(sessions: State<'_, RepoSessions>, id: RepoId) {
+    sessions.remove(id);
+}
+
+/// Builds the graph (or returns the cached one; `reload` forces a rebuild).
+#[tauri::command]
+#[specta::specta]
+pub async fn load_graph(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    reload: bool,
+) -> CommandResult<GraphSummary> {
+    Ok(service::load_graph(&sessions, id, reload).await?)
+}
+
+/// One block of graph rows in the binary format of `docs/architecture/ipc.md`.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_graph_block(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    block: u32,
+) -> CommandResult<GraphBytes> {
+    Ok(service::graph_block(&sessions, id, block).await?)
+}
+
+/// Text columns (id, summary, author, date, refs) for up to 500 rows.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_commit_rows(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    start: u32,
+    count: u32,
+) -> CommandResult<Vec<CommitRowDto>> {
+    Ok(service::rows(&sessions, id, start, count).await?)
+}
+
+/// Writes the commit-graph file (`git commit-graph write --reachable --changed-paths`).
+#[tauri::command]
+#[specta::specta]
+pub async fn write_commit_graph(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+) -> CommandResult<RepoSummary> {
+    Ok(service::write_commit_graph(&sessions, id).await?)
+}
+
+/// Recently opened repositories, newest first.
+#[tauri::command]
+#[specta::specta]
+pub async fn list_recent_repositories(
+    recent: State<'_, RecentStore>,
+) -> CommandResult<Vec<RecentRepository>> {
+    Ok(recent::list(&recent)?)
+}
+
+/// Removes a repository from the recent list and returns the rest.
+#[tauri::command]
+#[specta::specta]
+pub async fn remove_recent_repository(
+    recent: State<'_, RecentStore>,
+    path: String,
+) -> CommandResult<Vec<RecentRepository>> {
+    Ok(recent::remove(&recent, &path)?)
+}

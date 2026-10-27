@@ -12,6 +12,15 @@
     "allow-get-git-info",
     "allow-get-window-context",
     "allow-take-repository-requests",
-    "allow-open-task-window"
+    "allow-open-task-window",
+    "allow-open-repository",
+    "allow-init-repository",
+    "allow-close-repository",
+    "allow-load-graph",
+    "allow-get-graph-block",
+    "allow-get-commit-rows",
+    "allow-write-commit-graph",
+    "allow-list-recent-repositories",
+    "allow-remove-recent-repository"
   ]
 }

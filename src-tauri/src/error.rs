@@ -28,6 +28,10 @@ pub enum ErrorCode {
     GitFailed,
     /// The user cancelled the operation.
     Cancelled,
+    /// The folder is not inside a Git repository.
+    NotARepository,
+    /// Git refuses the repository (owned by another user, not in `safe.directory`).
+    UntrustedRepository,
 }
 
 /// Serializable error returned by every fallible Tauri command.

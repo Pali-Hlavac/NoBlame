@@ -12,6 +12,15 @@ const APP_COMMANDS: &[&str] = &[
     "get_window_context",
     "take_repository_requests",
     "open_task_window",
+    "open_repository",
+    "init_repository",
+    "close_repository",
+    "load_graph",
+    "get_graph_block",
+    "get_commit_rows",
+    "write_commit_graph",
+    "list_recent_repositories",
+    "remove_recent_repository",
 ];
 
 /// Common-Controls v6 manifest, embedded into every linked artifact on Windows.
