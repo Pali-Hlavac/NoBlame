@@ -18,10 +18,11 @@ const MAIN_REF: &str = "refs/heads/main";
 const MAIN_COMMIT_PERCENT: u32 = 40;
 /// A commit changes between 1 and this many files.
 const MAX_FILES_PER_COMMIT: u32 = 3;
-/// Time of the root commit (2008-01-10) and the gap between commits.
+/// Time of the root commit (2008-01-10) and the gap between commits (on average ~8 minutes,
+/// so a million commits span about 15 years).
 const START_TIME: u64 = 1_200_000_000;
 const MIN_GAP_SECS: u32 = 30;
-const MAX_EXTRA_GAP_SECS: u32 = 3_600;
+const MAX_EXTRA_GAP_SECS: u32 = 900;
 
 /// Counts of what was generated.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
