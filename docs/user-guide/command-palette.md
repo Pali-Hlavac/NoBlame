@@ -12,6 +12,7 @@ The command palette lets you run any command by typing part of its name.
 | Group      | Command                      | What it does                                      |
 | ---------- | ---------------------------- | ------------------------------------------------- |
 | Repository | Open repository…             | Choose a folder and open it in a new tab          |
+| Repository | Create repository…           | Choose a folder and create a new repository there |
 | Tabs       | Open Welcome tab             | Shows the Welcome tab (opens it again if closed)  |
 | Tabs       | Close current tab            | Closes the tab you are looking at (Ctrl/⌘+W)      |
 | Appearance | Theme: System / Light / Dark | Changes the color theme; NoBlame remembers it     |

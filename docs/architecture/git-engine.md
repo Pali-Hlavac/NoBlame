@@ -5,16 +5,45 @@ All Git access lives in `crates/git-core`, which has no Tauri dependency
 
 ## Which tool for which operation
 
-| Operation                                                | Tool        | Why                                                                                | Status |
-| -------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------- | ------ |
-| Locate git, report version                               | git CLI     | The user's git is what will run their hooks and credentials                        | M1     |
-| History walk, commit-graph, refs                         | `gix`       | In-process, no fork per call, streams millions of commits                          | M2     |
-| Trees, blobs, diffs, blame                               | `gix`       | Same; paging and caching under our control                                         | M3     |
-| Working tree status                                      | `gix` (tbd) | Must respect fsmonitor and untracked cache; benchmarked against `git status` in M4 | M4     |
-| Commit, merge, rebase, cherry-pick, revert, reset, stash | git CLI     | Hooks, signing, `rerere`, merge drivers and config behave as users expect          | M4–M6  |
-| Fetch, pull, push, clone                                 | git CLI     | Credential helpers, SSH, proxies, LFS                                              | M5     |
+| Operation                                                        | Tool        | Why                                                                                | Status      |
+| ---------------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------- | ----------- |
+| Locate git, report version; `git init`, `git commit-graph write` | git CLI     | The user's git is what will run their hooks and credentials                        | M1, M2 done |
+| History walk, commit-graph, refs                                 | `gix`       | In-process, no fork per call, streams millions of commits                          | M2 done     |
+| Trees, blobs, diffs, blame                                       | `gix`       | Same; paging and caching under our control                                         | M3          |
+| Working tree status                                              | `gix` (tbd) | Must respect fsmonitor and untracked cache; benchmarked against `git status` in M4 | M4          |
+| Commit, merge, rebase, cherry-pick, revert, reset, stash         | git CLI     | Hooks, signing, `rerere`, merge drivers and config behave as users expect          | M4–M6       |
+| Fetch, pull, push, clone                                         | git CLI     | Credential helpers, SSH, proxies, LFS                                              | M5          |
 
 Rule of thumb: **reads with `gix`, writes and network with the `git` CLI.**
+
+`gix` 0.90 is used without its default features: only `max-performance` (parallel pack access
+and caches), `revision` and `sha1` are enabled, so no network, worktree or status code is
+compiled in yet. SHA-256 repositories are not supported until the `sha256` feature is added.
+
+## Opening repositories
+
+`git_core::repo::Repository::discover(path)` (`crates/git-core/src/repo/`) searches upwards from
+`path` like `git` does, so a subfolder opens the repository that contains it. It uses `gix`'s trust
+mapping: repositories owned by the current user open with full trust; for any other repository the
+open options set `bail_if_untrusted(true)`, so a repository that git would refuse (owned by
+another user and not listed in `safe.directory`) is refused too. NoBlame never changes
+`safe.directory`.
+
+Failures are classified, not string-matched:
+
+| `gix` error class | `RepoError`      | Error code shown to the user                                                                |
+| ----------------- | ---------------- | ------------------------------------------------------------------------------------------- |
+| not found         | `NotARepository` | `NOT_A_REPOSITORY`                                                                          |
+| permission denied | `Untrusted`      | `UNTRUSTED_REPOSITORY` (hint: the exact `git config --global --add safe.directory` command) |
+| anything else     | `Gix(message)`   | `GIT_FAILED`                                                                                |
+
+`RepoInfo` describes what was opened: `work_dir` (none when bare), `git_dir`, `kind` (`Normal`,
+`Bare`, `LinkedWorktree`, `Submodule`), `head` (`Branch(name)`, `Unborn(name)` or
+`Detached(id)`), `is_shallow` and `has_commit_graph`. `Repository` is a thread-safe handle;
+`local()` gives a cheap per-thread `gix::Repository`.
+
+The commit graph built from a repository is described in
+[commit-graph.md](commit-graph.md).
 
 ## Minimum git version
 
@@ -76,3 +105,10 @@ The `-c` overrides above only affect how output is rendered. Untrusted repositor
 - `crates/git-core/tests/cli_run.rs`: the real git against repositories from the synthetic
   generator: version, read-only runs without `index.lock`, failures with stderr, stdin,
   cancellation, missing executables.
+- `crates/git-core/tests/repo_open.rs`: opening normal, bare, linked worktree, subfolder, unborn,
+  detached and shallow repositories, and a plain folder (`NotARepository`).
+- `crates/git-core/tests/graph_build.rs`: the graph against real repositories, see
+  [commit-graph.md](commit-graph.md).
+
+Not covered by an automated test yet: the untrusted-repository path (it needs a repository owned
+by another user).

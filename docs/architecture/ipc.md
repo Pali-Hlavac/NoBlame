@@ -42,6 +42,29 @@ A command that returns "not allowed" is missing from `APP_COMMANDS` or from a ca
 | `take_repository_requests` | `windows`  | no    | `string[]`              | Drains repositories requested from the command line        |
 | `open_task_window`         | `windows`  | yes   | `Result<null>`          | Opens a task window, like `noblame <task> <path>`          |
 
+### Repository commands (M2)
+
+All of them are granted to the main window only (`capabilities/main.json`). `id` is the session id
+returned by `open_repository`; a session lives as long as its tab.
+
+| Command                    | Async | Returns                         | Purpose                                                                    |
+| -------------------------- | ----- | ------------------------------- | -------------------------------------------------------------------------- |
+| `open_repository`          | yes   | `Result<RepoSummary>`           | Finds the repository containing a path, opens a session, records recent    |
+| `init_repository`          | yes   | `Result<null>`                  | Runs `git init -- <path>`; the caller opens it next with `open_repository` |
+| `close_repository`         | no    | `null`                          | Forgets a session (when its tab closes)                                    |
+| `load_graph`               | yes   | `Result<GraphSummary>`          | Builds the graph on a blocking thread (cached; `reload` forces a rebuild)  |
+| `get_graph_block`          | yes   | `Result<unknown>` (ArrayBuffer) | One block of 256 rows in the binary format below                           |
+| `get_commit_rows`          | yes   | `Result<CommitRowDto[]>`        | Text columns (id, summary, author, date, refs) for up to 500 rows          |
+| `write_commit_graph`       | yes   | `Result<RepoSummary>`           | Runs `git commit-graph write --reachable --changed-paths`                  |
+| `list_recent_repositories` | yes   | `Result<RecentRepository[]>`    | Recently opened repositories, newest first, with an `exists` flag          |
+| `remove_recent_repository` | yes   | `Result<RecentRepository[]>`    | Removes one entry and returns the rest                                     |
+
+Repository errors: `NOT_A_REPOSITORY` (neither the folder nor a parent is a repository; hint:
+choose another folder or create one), `UNTRUSTED_REPOSITORY` (owned by another user and not in
+`safe.directory`; the hint shows the `git config --global --add safe.directory` command, which
+NoBlame never runs itself), `GIT_FAILED` (gix could not read the repository), `NOT_FOUND`
+(session already closed).
+
 `get_git_info` errors: `GIT_NOT_FOUND` (with an install hint per OS), `GIT_UNUSABLE` (found but
 cannot start, does not answer within 10 s, or prints something that is not a git version).
 
@@ -62,6 +85,16 @@ The full, documented list is in `bindings.ts`. Important shapes:
 - `GitInfo { path; version; supported; minimumVersion }`
 - `WindowContext = { kind: "main" } | { kind: "task"; task: TaskKind; path: string }`
 - `TaskKind = "log" | "commit" | "diff" | "blame" | "fileHistory" | ... | "init"`
+- `RepoSummary { id; name; path; gitDir; kind; head; isShallow; hasCommitGraph }`, where `kind` is
+  `normal | bare | linkedWorktree | submodule` and `head` is `{ kind: "branch" | "unborn", name }`
+  or `{ kind: "detached", id }`
+- `GraphSummary { rows; maxLanes; blockRows; headRow; missingParents; buildMs }`
+- `CommitRowDto { row; id; summary; authorName; authorEmail; authorTime; parentCount; refs }`
+  with `refs: RefLabel[]`, `RefLabel { name; kind: "head" | "branch" | "remote" | "tag"; isHead }`
+
+Rust `f64` fields (`authorTime`, `buildMs`, `lastOpened`) are typed `number | null` in the
+bindings, because serde_json writes NaN and infinity as `null`. The UI handles `null` (an
+unknown date shows as empty).
 
 Paths cross the boundary as strings. Paths that are not valid Unicode are rejected with an
 `INVALID_INPUT` error for now instead of being changed silently. Git data (paths, messages) will
@@ -72,12 +105,34 @@ travel as bytes where round trips back to git are needed.
 - Commands are verbs (`get_commit`, `stage_hunks`); every command doing I/O is `async`.
 - No `i64`/`u64` in exported types (specta refuses them); use `f64` seconds for times and
   strings for exact large values.
-- Never send thousands of items as JSON. Use the binary channel below or paging.
+- Never send thousands of items as JSON. Use binary results (below) or paging.
 - Follow "Adding a Tauri command end to end" in [CLAUDE.md](../../CLAUDE.md).
 
-## Binary graph stream (planned, M2)
+## Binary graph blocks
 
-The commit graph is streamed as binary batches over a Tauri `Channel` so that a million rows
-never become JSON. The format (row layout, lane encoding, batch header, versioning) is designed
-and documented here in M2 together with [ADR 0008](../adr/README.md). Nothing is implemented
-yet.
+Graph geometry never travels as JSON. `get_graph_block(id, block)` returns rows
+`block * 256 .. block * 256 + 255` as raw bytes ([ADR 0008](../adr/0008-binary-graph-blocks.md)).
+The Rust side returns a `GraphBytes` value, which Tauri sends as a raw `InvokeResponseBody`, so
+the webview receives an `ArrayBuffer` without JSON encoding. Its TypeScript type in the bindings
+is `unknown`; `fetchGraphBlock` (`src/features/graph/api/graph.ts`) narrows it to `ArrayBuffer`
+and reports anything else as an `IPC_FAILURE`.
+
+Format (version 1, all numbers little-endian; source of truth:
+`crates/git-core/src/graph/encode.rs`, decoder: `src/features/graph/lib/decode.ts`):
+
+```text
+header (12 bytes): version u8, reserved u8, reserved u16, first_row u32, row_count u32
+per row (8 bytes): lane u16, color u16, flags u8, reserved u8, edge_count u16,
+then per edge (6 bytes): from u16, to u16, color u16
+```
+
+- `lane` is the column of the commit's node; `color` is the lane colour id truncated to 16 bits
+  (the UI cycles its palette with it).
+- `flags`: `FLAG_MERGE = 1` (more than one parent), `FLAG_HEAD = 2` (HEAD points here).
+- Each edge is a line from the centre of the previous row (lane `from`) to the centre of this
+  row (lane `to`). To draw rows `a..=b`, draw the edges of rows `a..=b+1`.
+- The decoder rejects other versions and truncated data with a `BlockFormatError`. Bump the
+  version byte whenever the layout changes.
+
+Commit text is not part of the blocks: `get_commit_rows` returns it in pages of 100 rows, only for
+what is on screen.

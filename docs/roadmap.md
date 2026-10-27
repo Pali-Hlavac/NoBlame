@@ -92,17 +92,61 @@ Next: M2. Start with the spike (history walk with `gix` + commit-graph on
 
 ### M2: Open repositories and the commit graph (the riskiest part, so it comes first)
 
-- [ ] Open / init / recent repositories (dashboard), several repos in tabs, detect bare/worktree/submodule
-- [ ] Spike first: history walk with `gix` + commit-graph file on a 1M-commit repo, measured
-- [ ] Lane layout in Rust (incremental, stable lane colors, merge/fork edges, octopus merges)
-- [ ] Streaming binary row batches over Tauri channels; format documented in `docs/architecture/ipc.md`
-- [ ] Virtualized canvas graph: row heights, HiDPI, selection, keyboard navigation, 60 fps
-- [ ] Columns: graph, message, author, date, hash; ref labels (branches, remotes, tags, HEAD, stash)
+- [x] Open / init / recent repositories (dashboard), several repos in tabs, detect bare/worktree/submodule
+- [x] Spike first: history walk with `gix` + commit-graph file on a 1M-commit repo, measured
+- [x] Lane layout in Rust (incremental, stable lane colors, merge/fork edges, octopus merges)
+- [x] Binary row batches; format documented in `docs/architecture/ipc.md`. Changed from
+      "streamed over channels" to on-demand 256-row blocks re-laid-out from checkpoints (ADR 0008).
+- [~] Virtualized canvas graph: row heights, HiDPI, selection, keyboard navigation done; 60 fps
+  and fast scrolling not measured yet, keyboard navigation not tried in the running app.
+- [~] Columns: graph, message, author, date, hash; ref labels for branches, remotes, tags and
+  HEAD done. Stash label moved to M4 (stash list).
 - [ ] "Artificial" rows for working tree and index changes at the top (as Git Extensions does)
-- [ ] Offer to write the commit-graph file (`--changed-paths`) when missing
+- [x] Offer to write the commit-graph file (`--changed-paths`) when missing (not yet clicked
+      through in the running app)
 - [ ] On-disk graph cache per repo; incremental update after fetch/commit — ADR 0010
 - [ ] File watcher (debounced) refreshing refs and status
-- [ ] Benchmarks recorded in `docs/development/performance.md`; targets revised
+- [~] Benchmarks recorded in `docs/development/performance.md` (graph build); targets not revised
+  until the cache exists and a real large repository (Linux) is measured
+
+Slices, in order (planned 2026-10-27):
+
+1. **Spike**: `gix` open + commit index from the commit-graph file + date-topological order on
+   `synthetic-1m`, measured with an example binary. Decide the graph data model from the numbers.
+2. **Open repositories** (`git-core::repo`): discover, kind (normal, bare, linked worktree,
+   submodule), HEAD, shallow, commit-graph present; refuse untrusted repositories like git.
+3. **Graph engine** (`git-core::graph`): refs as tips, commit index, order, lane layout with
+   checkpoints, binary block encoding, commit text for a row range; unit tests and benchmarks.
+4. **IPC**: repository sessions, `load_graph`, binary `get_graph_block`, paged
+   `get_commit_rows`, recent repositories, `init_repository`. ADR 0008.
+5. **UI**: dashboard (recent, open, init) in the Welcome tab; repository tab with the virtualized
+   canvas graph and columns, ref labels, selection and keyboard navigation. ADR 0009.
+6. **Commit-graph offer**: notice plus a button that runs `git commit-graph write`.
+7. **Artificial rows** for working tree and index changes.
+8. **On-disk cache** and incremental update. ADR 0010.
+9. **File watcher** refreshing refs and status.
+10. **Measure** on the synthetic repositories (and Linux if available); revise targets.
+
+#### Where we left off (2026-10-27, session 2)
+
+Done: slices 1–6. The spike showed history is cheap (1M commits: index 104 ms, order 36 ms,
+layout 190 ms) and refs dominate (10,570 loose refs 1.4 s, packed 242 ms); first screen of 1M
+commits 624 ms with packed refs, under the 1 s target. `Graph::build` benchmark: 558 ms (1M),
+96 ms (100k). Row order matches `git log --all --date-order` exactly (integration test).
+
+Verified in the running dev app (Windows 11): `noblame <path>` on first launch opens the
+1M-commit repository and draws it (graph built in ~1.5 s in the debug build), ref labels, HEAD
+outline and HEAD selection. Fixed during verification: the first-launch path was dropped
+(StrictMode drain, regression test added), graph column too wide, ref badges overflowing into the
+author column, generator dates running to 2066.
+
+Not verified in the running app: scrolling deep into the 1M history, keyboard navigation, the
+folder picker, "Create repository…", the recent list, the commit-graph button, closing tabs
+(session cleanup). These need someone at the keyboard; the logic is unit-tested.
+
+Next (slices 7–10): artificial working-tree rows, on-disk cache (ADR 0010), file watcher, then
+measure on a real large repository (Linux) and revise the targets. Optimisation candidate: peel
+refs with the packed-refs buffer (refs are now the largest cost).
 
 ### M3: Inspecting history
 
@@ -220,8 +264,8 @@ Move an item into a milestone when it is picked up.
 | 0005 | Code organization (workspace, feature folders, modules)            | M1        | Accepted |
 | 0006 | Error model (`AppError { code, message, hint }`)                   | M1        | Accepted |
 | 0007 | Git engine: gix for reads, git CLI for writes; minimum git version | M1        | Accepted |
-| 0008 | Binary commit stream over Tauri channels                           | M2        | Planned  |
-| 0009 | Canvas graph rendering and lane layout                             | M2        | Planned  |
+| 0008 | Binary graph blocks on demand (was: stream over channels)          | M2        | Accepted |
+| 0009 | Canvas graph rendering and lane layout                             | M2        | Accepted |
 | 0010 | On-disk graph cache                                                | M2        | Planned  |
 | 0011 | Background job model                                               | M5        | Planned  |
 | 0012 | Credentials and askpass                                            | M5        | Planned  |

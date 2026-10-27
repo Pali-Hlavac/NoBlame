@@ -16,8 +16,21 @@ All notable changes to NoBlame are documented here. The format follows
   title bar, the Welcome tab and About.
 - Main window: repository sidebar, tabs, status bar, command palette (`Ctrl+K` / `⌘K`),
   system/light/dark theme (saved), About dialog.
-- Repository tabs from the folder picker or the command line. **Placeholder:** the repository is
-  not read yet; the commit graph arrives in M2.
+- Repository tabs from the folder picker, the recent list or the command line.
+- Opening repositories (M2): subfolders resolve to the repository; normal, bare, linked worktree
+  and submodule repositories, shallow clones and detached HEAD are recognized; repositories git
+  would refuse (owned by another user, not in `safe.directory`) are refused with the command to
+  trust them, which NoBlame never runs itself.
+- Commit graph (M2): the full history drawn on a virtualized canvas with message, author, date
+  and commit columns, branch, remote-branch and tag labels, the current branch outlined, HEAD
+  selected on open, keyboard navigation (arrows, Page Up/Down, Home/End). The first screen of
+  a million-commit repository is ready in about 0.6 s (release build, commit-graph file present,
+  packed refs; measured outside the UI).
+- Welcome tab dashboard: recent repositories (missing folders dimmed, removable) and "Create
+  repository…" (`git init`), also offered when a folder is not a repository.
+- A notice offers to write the commit-graph file when a repository has none; it runs
+  `git commit-graph write` with `--reachable --changed-paths`.
+- Benchmarks (`pnpm bench`) for building the graph on generated repositories.
 - Git detection: finds the installed git (`NOBLAME_GIT`, `PATH`, well-known folders), shows its
   version in the status bar and About, warns below git 2.39 and explains how to install it.
 - Safe git command runner in `git-core`: argument arrays only, validated revisions, paths after
@@ -39,3 +52,7 @@ All notable changes to NoBlame are documented here. The format follows
   mixed separators on Windows; command-line paths are now normalized.
 - Found during M1 verification: typing "about" in the command palette selected "Close current
   tab"; search now ranks by the visible label.
+- Found during M2 verification: a repository passed to `noblame <path>` when the app was not
+  running yet opened no tab.
+- The synthetic repository generator now packs refs like a clone does and keeps a million
+  commits within about 15 years (it reached 2066 before).

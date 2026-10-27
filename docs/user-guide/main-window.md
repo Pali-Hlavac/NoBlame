@@ -18,14 +18,16 @@ Every open repository has its own tab, and there is a **Welcome** tab.
 - When the tab bar has focus, the left and right arrow keys move between tabs.
 - If you close every tab, click **Open Welcome tab** to get it back.
 
-**Placeholder in this version**: a repository tab shows the repository's name and path only.
-NoBlame does not read the repository yet; the commit graph arrives in the next milestone. The tab
-also has buttons that open the Log, Commit and File history windows, which are placeholders too.
+A repository tab shows the repository's name, branch and path at the top and its
+[commit graph](commit-graph.md) below. When you close the tab, NoBlame releases the repository.
+The Log, Commit and File history buttons in the tab open windows that are placeholders in this
+version. See [Opening repositories](opening-repositories.md).
 
 ## Welcome tab
 
-The Welcome tab has an **Open repository…** button, the most useful keyboard shortcuts and a tip
-for starting NoBlame from a terminal. If git is missing or too old, the Welcome tab shows what is
+The Welcome tab is your starting point. It has **Open repository…** and **Create repository…**
+buttons, the list of **Recent repositories**, the most useful keyboard shortcuts and a tip for
+starting NoBlame from a terminal. If git is missing or too old, the Welcome tab shows what is
 wrong, how to fix it and a **Check again** button.
 
 ## Status bar

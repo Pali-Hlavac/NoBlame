@@ -7,7 +7,7 @@
 | Generator tests       | `crates/repo-gen/tests/`              | real `git`                      | `pnpm test:rust` |
 | Frontend logic and UI | `src/**/*.test.ts(x)`                 | Vitest, Testing Library         | `pnpm test`      |
 | Bindings up to date   | `src-tauri/src/ipc.rs` test + CI diff | tauri-specta                    | `pnpm bindings`  |
-| Benchmarks            | `benches/` (from M2)                  | `criterion`, opt-in large repos | `pnpm bench`     |
+| Benchmarks            | `crates/git-core/benches/graph.rs`    | `criterion`, opt-in large repos | `pnpm bench`     |
 | End to end            | M9                                    | WebdriverIO + `tauri-driver`    |                  |
 
 CI runs everything on Linux, Windows and macOS (`.github/workflows/ci.yml`).
@@ -22,11 +22,29 @@ git alias that runs `sleep` through git's `sh`, which Git for Windows provides.
 Tests build repositories on the fly into temporary directories:
 
 - `noblame_repo_gen::generate(&Preset::Tiny.spec(), dir)` creates a 200-commit repository with
-  branches, merges, octopus merges, tags, `origin/*` remote refs and a commit-graph file, in well
-  under a second. `crates/git-core` uses it as a dev-dependency.
-- Focused fixtures (renames, conflicts, submodules, LFS pointers, non-UTF-8 names, CRLF, very
-  long paths, shallow clones, empty repositories) are added with the features that need them,
-  as small scripted builders in `crates/git-core/tests/support/`.
+  branches, merges, octopus merges, tags and `origin/*` remote refs in well under a second
+  (`write_commit_graph(dir)` adds a commit-graph file). `crates/git-core` uses it as a
+  dev-dependency.
+- `crates/git-core/tests/support/mod.rs` provides `Fixture`, a scripted repository for focused
+  cases. Git runs with an empty global config (`GIT_CONFIG_GLOBAL`), no system config
+  (`GIT_CONFIG_NOSYSTEM`), a fixed identity and a fixed clock that advances one minute per commit,
+  so results never depend on the developer's settings. Helpers: `new()`, `bare()`, `commit()`,
+  `commit_bytes()` (raw, e.g. non-UTF-8, messages), `merge()`, `git()` and `run()` (any git
+  command, e.g. `worktree add` or `clone --depth 1`).
+- More fixtures (renames, conflicts, submodules, LFS pointers, CRLF, very long paths) are added
+  with the features that need them.
+
+## Repository and graph tests
+
+- `crates/git-core/tests/repo_open.rs`: normal, bare, linked worktree, subfolder discovery,
+  unborn branch, detached HEAD, shallow clone, commit-graph detection, plain folder.
+- `crates/git-core/tests/graph_build.rs`: the full row order equals
+  `git log --all --date-order` on the tiny synthetic repository, with and without a commit-graph
+  file; commits newer than the commit-graph file; branch, tag and HEAD labels; merges and a
+  detached HEAD; non-UTF-8 messages; an empty repository; a shallow clone.
+- Unit tests in `crates/git-core/src/graph/tests.rs` lay out hand-built histories (linear, merge,
+  octopus, unrelated roots, clock skew) and check exact lanes and edges, and that blocks replayed
+  from checkpoints continue seamlessly.
 
 ## Synthetic repository generator
 
@@ -54,6 +72,10 @@ pnpm repos:generate --no-commit-graph       # skip the commit-graph file
 
 `.cache/` is git-ignored. `--force` deletes only folders named `synthetic-*`.
 
+After generation the refs are packed (`git pack-refs --all`), as in a clone: loose refs made
+reading 10,500 refs take 1.4 s instead of 0.24 s. Commits are on average about 8 minutes apart
+(30 s plus up to 15 minutes), so a million commits span about 15 years.
+
 Not simulated yet: renames, deletions, binary files, submodules, huge files. Add them when a
 feature needs them in benchmarks.
 
@@ -69,3 +91,18 @@ feature needs them in benchmarks.
 
 Every bug fixed gets a test that fails without the fix. Check it really does by reverting the fix
 locally once (done for the command palette ranking bug in M1).
+
+## Benchmarks and the graph spike
+
+- `crates/git-core/benches/graph.rs` (`pnpm bench`, or
+  `cargo bench -p git-core --bench graph`) measures `Graph::build` and `encode_block`. The tiny
+  repository is generated on the fly every run; `synthetic-100k` and `synthetic-1m` are used only
+  when they exist in `.cache/repos/` (the 1M group takes 10 samples).
+- `crates/git-core/examples/graph_spike.rs` prints the phase timings (open, refs, index, order,
+  layout), the time to the first screen and the cost of replaying blocks:
+
+  ```sh
+  cargo run --release -p git-core --example graph_spike -- .cache/repos/synthetic-1m
+  ```
+
+Record results in [performance.md](performance.md).

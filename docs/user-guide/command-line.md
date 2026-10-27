@@ -69,6 +69,7 @@ start.
 - **Windows**: in installed builds the prompt can come back before the help text appears. The
   text still prints; press Enter to get a fresh prompt.
 - A single unknown word is read as a folder name. For example `noblame comit` (a typo) opens the
-  main window with a tab named "comit". Use `noblame --help` to check task names.
+  main window with a tab named "comit", which says the folder is not a Git repository. Use
+  `noblame --help` to check task names.
 - Folder paths with characters that are not valid Unicode cannot be opened yet. NoBlame shows an
   error asking you to open a folder with a valid name.

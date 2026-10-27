@@ -16,9 +16,9 @@ and AI agents; these pages are the detail.
 ## Architecture
 
 - [overview.md](architecture/overview.md): components, data flow, threading model
-- [ipc.md](architecture/ipc.md): every command and event; the (planned) binary graph stream
+- [ipc.md](architecture/ipc.md): every command and event; the binary graph block format
 - [git-engine.md](architecture/git-engine.md): `gix` vs. the `git` CLI, the safe command runner
-- [commit-graph.md](architecture/commit-graph.md): walk, lane layout, caching, rendering (M2)
+- [commit-graph.md](architecture/commit-graph.md): walk, order, lane layout, blocks, rendering
 - [background-jobs.md](architecture/background-jobs.md): job model, progress, cancel, logs
 - [cli-and-windows.md](architecture/cli-and-windows.md): command line, single instance, task
   windows
@@ -32,6 +32,9 @@ One page per user-facing feature: behaviour, edge cases and status.
   About
 - [git-detection.md](features/git-detection.md): finding and checking the installed `git`
 - [cli.md](features/cli.md): the `noblame` command line and task windows
+- [repositories.md](features/repositories.md): opening, creating and recent repositories, the
+  commit-graph offer
+- [commit-graph.md](features/commit-graph.md): the commit graph and its columns
 
 ## User guide
 

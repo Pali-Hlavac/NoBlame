@@ -23,7 +23,7 @@ Tasks: `log commit diff blame filehistory pull push fetch switch merge rebase st
   `std::path::absolute` (no file system access: `.` is removed, and on Windows `..` and `/` are
   resolved). Symlinks are kept as typed.
 - Because a bare word may be a path, a mistyped task name (`noblame comit`) is read as a path.
-  M2's "not a repository" error makes that visible.
+  The tab then shows a "not a Git repository" error, which makes the typo visible.
 
 ## Printing help
 

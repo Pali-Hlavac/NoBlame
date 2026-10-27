@@ -3,7 +3,8 @@
 The main window's frame: sidebar, repository tabs, status bar, command palette, theme and About.
 User guide: [main-window.md](../user-guide/main-window.md).
 
-Status: **M1 done.** Repository tabs show a labelled placeholder until M2 reads repositories.
+Status: **M1 done; M2 in progress.** The Welcome tab is a dashboard and repository tabs show the
+real commit graph ([repositories.md](repositories.md), [commit-graph.md](commit-graph.md)).
 
 ## Layout
 
@@ -16,10 +17,10 @@ Status: **M1 done.** Repository tabs show a labelled placeholder until M2 reads 
 
 ## Tabs
 
-| Tab        | Content                                                                                                                                                                           |
-| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Welcome    | Logo, git problems (if any), "Open repository…", shortcuts, command-line tip                                                                                                      |
-| Repository | Name and path; **placeholder** notice ("opening repositories and the commit graph arrive in M2"); buttons that open Log, Commit and File history task windows (also placeholders) |
+| Tab        | Content                                                                                                                                                                                                 |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Welcome    | Dashboard: logo, git problems (if any), "Open repository…", "Create repository…", recent repositories, shortcuts, command-line tip                                                                      |
+| Repository | Header (name, HEAD, kind and shallow badges, path, Log/Commit/File history task window buttons, which are placeholders until M8), the commit-graph offer when the file is missing, and the commit graph |
 
 Closing the last tab shows "No open tabs" with a button to reopen Welcome. Shortcuts:
 `Ctrl/⌘+W` close, `Ctrl+Tab` / `Ctrl+Shift+Tab` cycle (ignored while a dialog is open), arrow
@@ -30,9 +31,9 @@ Tabs are not restored after a restart yet (M9).
 ## Command palette
 
 `Ctrl+K` (`⌘K` on macOS). Commands are grouped; search ranks by the visible label first, then
-by keywords. Commands in M1:
+by keywords. Commands:
 
-- Repository: Open repository…
+- Repository: Open repository…, Create repository…
 - Task windows (placeholders until M8): Open _Task_ window, for each of the 14 tasks, only when
   a repository tab is active
 - Tabs: Open Welcome tab, Close current tab
@@ -62,6 +63,6 @@ First version of the finch-on-a-branch logo: `assets/logo/noblame.svg`, copied t
 `pnpm icons`. The branch doubles as a Git branch (a main line, a forked line and commit nodes).
 Small-size variants and monochrome versions are M9.
 
-## Not in M1
+## Not yet
 
-Persisted window size and tabs, recent repositories (M2 dashboard), menus, settings page.
+Persisted window size and open tabs (M9), menus, settings page.

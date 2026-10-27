@@ -9,8 +9,8 @@ repositories (hundreds of thousands of commits, thousands of refs, huge working 
 Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 [docs/roadmap.md](docs/roadmap.md); requirements: [docs/project-brief.md](docs/project-brief.md).
 
-> Status: M1 (scaffold, tooling, CI, docs) is done; next is M2 (open repositories, commit
-> graph). Parts marked _(M2+)_ below are planned and do not exist yet.
+> Status: M1 done; M2 in progress (repositories and the commit graph work; cache, watcher and
+> working-tree rows are next). Parts marked _(later)_ below are planned and do not exist yet.
 
 ## Architecture
 
@@ -18,10 +18,10 @@ Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 React feature component
   → feature api hook (TanStack Query)            src/features/<f>/api/*.ts
   → typed client: unwrap(commands.x())           src/shared/ipc/client.ts + generated bindings.ts
-  ══ Tauri IPC (JSON commands, ACL-checked) ══    + binary Channel for graph rows
+  ══ Tauri IPC (JSON commands, ACL-checked) ══    + raw-bytes results for graph blocks
   → #[tauri::command] in <module>/commands.rs    thin: extract State, call service, map error
   → <module>/service.rs                          app logic (repo sessions, jobs, settings)
-  → crates/git-core                              no Tauri: gix reads, git CLI writes, graph layout, cache
+  → crates/git-core                              no Tauri: gix reads, git CLI writes, graph layout
   ← Result<T, DomainError> → From<DomainError> for AppError → { code, message, hint }
   ← client throws IpcError → ErrorState / toast
 ```
@@ -31,8 +31,9 @@ React feature component
   status use `gix`. Commit, merge, rebase, stash, fetch/pull/push run the user's `git` so
   hooks, credential helpers, signing, LFS and config behave as expected. See
   [docs/architecture/git-engine.md](docs/architecture/git-engine.md).
-- **Commit graph**: walked and laid out in `git-core::graph`, cached on disk per repo,
-  streamed as binary batches over a Tauri `Channel`, drawn on a virtualized canvas. See
+- **Commit graph**: walked and laid out in `git-core::graph` (checkpoint every 256 rows),
+  fetched by the UI as binary blocks on demand (`get_graph_block`), drawn on a virtualized
+  canvas; text columns are paged (`get_commit_rows`). On-disk cache: _(later, ADR 0010)_. See
   [docs/architecture/commit-graph.md](docs/architecture/commit-graph.md).
 - **Types are generated**: Rust types deriving `specta::Type` and commands listed in
   `src-tauri/src/ipc.rs` are exported to `src/shared/ipc/bindings.ts` (`pnpm bindings`).
@@ -44,28 +45,28 @@ React feature component
 
 ## Directory map
 
-| Path                      | What lives there                                                                                                                           |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `crates/git-core/`        | Git engine, no Tauri. `cli/`: locate git, version, safe `GitCommand`, cancellable run. _(M2+: `repo/ graph/ diff/ blame/ status/ cache/`)_ |
-| `crates/git-core/tests/`  | Integration tests against the real `git` and generated repos                                                                               |
-| `crates/repo-gen/`        | Synthetic repo generator (lib + `noblame-repo-gen` binary): fast-import stream, presets tiny…1m                                            |
-| `src-tauri/src/<module>/` | Tauri-side module: `mod.rs commands.rs service.rs error.rs types.rs` (`app_info git_env settings windows`)                                 |
-| `src-tauri/src/cli/`      | `clap` command line built from `TaskKind::ALL`; console attach for `--help` on Windows                                                     |
-| `src-tauri/src/windows/`  | Main/task windows, `WindowRegistry`, second-launch forwarding, `RepositoriesRequested` event                                               |
-| `src-tauri/src/ipc.rs`    | Command + event registry, bindings export                                                                                                  |
-| `src-tauri/src/error.rs`  | `AppError { code, message, hint }`, `ErrorCode`                                                                                            |
-| `src-tauri/build.rs`      | `APP_COMMANDS` (ACL permissions); Windows manifest for test binaries                                                                       |
-| `src-tauri/capabilities/` | ACL per window: `main.json` (`main`), `task.json` (`task-*`)                                                                               |
-| `src/app/`                | App shell: `App.tsx` (window context switch), `layout/` (main window, status bar), `commands/` (palette)                                   |
-| `src/features/<feature>/` | `about command-palette git-env repositories settings windows workspace`; public `index.ts` each                                            |
-| `src/features/graph/`     | _(M2)_ Canvas renderer, binary batch decoder, virtualization                                                                               |
-| `src/shared/ipc/`         | Generated `bindings.ts` + typed client (`unwrap`, `call`, `IpcError`)                                                                      |
-| `src/shared/ui/`          | shadcn/ui primitives                                                                                                                       |
-| `src/shared/components/`  | `EmptyState`, `ErrorState`, `LoadingState`, `ConfirmDialog`, `InlineError`                                                                 |
-| `assets/logo/noblame.svg` | Master logo; `pnpm icons` generates `src-tauri/icons/`; copy to `public/icon.svg` for the UI                                               |
-| `scripts/`                | Repo tooling: `check-file-size.mjs`                                                                                                        |
-| `docs/`                   | All documentation; start at `docs/README.md`                                                                                               |
-| `shell/`                  | _(Phase 2)_ Explorer, Finder and Linux file-manager add-ons                                                                                |
+| Path                      | What lives there                                                                                                                                             |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `crates/git-core/`        | Git engine, no Tauri. `cli/` (safe `GitCommand`), `repo/` (open with gix), `graph/` (index, order, layout, blocks). _(later: `diff/ blame/ status/ cache/`)_ |
+| `crates/git-core/tests/`  | Integration tests (`support/` fixture builder) against the real `git`; `benches/graph.rs`; `examples/graph_spike.rs`                                         |
+| `crates/repo-gen/`        | Synthetic repo generator (lib + `noblame-repo-gen` binary): fast-import stream, presets tiny…1m                                                              |
+| `src-tauri/src/<module>/` | Tauri-side module: `mod.rs commands.rs service.rs error.rs types.rs` (`app_info git_env repository settings windows`)                                        |
+| `src-tauri/src/cli/`      | `clap` command line built from `TaskKind::ALL`; console attach for `--help` on Windows                                                                       |
+| `src-tauri/src/windows/`  | Main/task windows, `WindowRegistry`, second-launch forwarding, `RepositoriesRequested` event                                                                 |
+| `src-tauri/src/ipc.rs`    | Command + event registry, bindings export                                                                                                                    |
+| `src-tauri/src/error.rs`  | `AppError { code, message, hint }`, `ErrorCode`                                                                                                              |
+| `src-tauri/build.rs`      | `APP_COMMANDS` (ACL permissions); Windows manifest for test binaries                                                                                         |
+| `src-tauri/capabilities/` | ACL per window: `main.json` (`main`), `task.json` (`task-*`)                                                                                                 |
+| `src/app/`                | App shell: `App.tsx` (window context switch), `layout/` (main window, status bar), `commands/` (palette)                                                     |
+| `src/features/<feature>/` | `about command-palette git-env graph repositories settings windows workspace`; public `index.ts` each                                                        |
+| `src/features/graph/`     | Canvas renderer, block decoder and LRU cache, scroll scaling, keyboard navigation                                                                            |
+| `src/shared/ipc/`         | Generated `bindings.ts` + typed client (`unwrap`, `call`, `IpcError`)                                                                                        |
+| `src/shared/ui/`          | shadcn/ui primitives                                                                                                                                         |
+| `src/shared/components/`  | `EmptyState`, `ErrorState`, `LoadingState`, `ConfirmDialog`, `InlineError`                                                                                   |
+| `assets/logo/noblame.svg` | Master logo; `pnpm icons` generates `src-tauri/icons/`; copy to `public/icon.svg` for the UI                                                                 |
+| `scripts/`                | Repo tooling: `check-file-size.mjs`                                                                                                                          |
+| `docs/`                   | All documentation; start at `docs/README.md`                                                                                                                 |
+| `shell/`                  | _(Phase 2)_ Explorer, Finder and Linux file-manager add-ons                                                                                                  |
 
 ## Conventions
 
@@ -108,22 +109,23 @@ React feature component
 
 ## Commands
 
-| Task                          | Command                                                                          |
-| ----------------------------- | -------------------------------------------------------------------------------- |
-| Install                       | `pnpm install`                                                                   |
-| Run the desktop app (dev)     | `pnpm app:dev`                                                                   |
-| Run with arguments (dev)      | `pnpm app:dev -- -- log <path>`                                                  |
-| Build installers              | `pnpm app:build`                                                                 |
-| Frontend tests                | `pnpm test` (watch: `pnpm test:watch`)                                           |
-| Rust tests                    | `pnpm test:rust`                                                                 |
-| Lint (TS + file sizes) / Rust | `pnpm lint` / `pnpm lint:rust`                                                   |
-| Type-check                    | `pnpm typecheck`                                                                 |
-| Format / check formatting     | `pnpm format` / `pnpm format:check`                                              |
-| Regenerate IPC bindings       | `pnpm bindings`                                                                  |
-| Generate synthetic repos      | `pnpm repos:generate [--preset 10k 100k 1m]` (into `.cache/repos/`, git-ignored) |
-| Regenerate app icons          | `pnpm icons` (from `assets/logo/noblame.svg`)                                    |
-| Benchmarks                    | `pnpm bench` (none yet; M2 adds them, see `docs/development/performance.md`)     |
-| Everything CI runs            | `pnpm check`                                                                     |
+| Task                          | Command                                                                                   |
+| ----------------------------- | ----------------------------------------------------------------------------------------- |
+| Install                       | `pnpm install`                                                                            |
+| Run the desktop app (dev)     | `pnpm app:dev`                                                                            |
+| Run with arguments (dev)      | `pnpm app:dev -- -- log <path>`                                                           |
+| Build installers              | `pnpm app:build`                                                                          |
+| Frontend tests                | `pnpm test` (watch: `pnpm test:watch`)                                                    |
+| Rust tests                    | `pnpm test:rust`                                                                          |
+| Lint (TS + file sizes) / Rust | `pnpm lint` / `pnpm lint:rust`                                                            |
+| Type-check                    | `pnpm typecheck`                                                                          |
+| Format / check formatting     | `pnpm format` / `pnpm format:check`                                                       |
+| Regenerate IPC bindings       | `pnpm bindings`                                                                           |
+| Generate synthetic repos      | `pnpm repos:generate [--preset 10k 100k 1m]` (into `.cache/repos/`, git-ignored)          |
+| Regenerate app icons          | `pnpm icons` (from `assets/logo/noblame.svg`)                                             |
+| Benchmarks                    | `pnpm bench` (graph build; 100k/1m when generated, see `docs/development/performance.md`) |
+| Graph timing on any repo      | `cargo run --release -p git-core --example graph_spike -- <repo>`                         |
+| Everything CI runs            | `pnpm check`                                                                              |
 
 ## Gotchas
 
@@ -157,6 +159,15 @@ React feature component
   (upgrade together); TypeScript `~6.0` until typescript-eslint supports 7; jsdom 27 (jsdom 30
   needs Node ≥ 22.22).
 - **cmdk ranks by `value`**: palette items use the visible label as `value`, never an id.
+- **StrictMode runs effects twice in dev**: never drop the result of a destructive call (like
+  `take_repository_requests`) in an effect cleanup.
+- **`f64` fields are `number | null`** in the bindings (serde writes NaN as null); handle null.
+- **gix 0.90 has one error type** (`gix::Error`): branch on `error.classify()`
+  (`is_not_found`, `is_permission_denied`), never on message text.
+- **Repository sessions live as long as their tab**: the session query uses `gcTime: Infinity`
+  and `useSessionCleanup` closes it; refetching would open a second backend session.
+- **Windows keeps pack files of open repositories mapped**: stop the app before regenerating or
+  deleting `.cache/repos/*`.
 - **Linux** dev needs `libwebkit2gtk-4.1-dev` and friends (see `docs/getting-started.md`).
 
 ## Where to find more

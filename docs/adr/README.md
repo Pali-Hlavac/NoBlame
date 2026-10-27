@@ -13,8 +13,8 @@ decision changes, write a new ADR that supersedes the old one and update the old
 | [0005](0005-code-organization.md)                | Code organization (workspace, feature folders, modules)      | M1        | Accepted |
 | [0006](0006-error-model.md)                      | Error model (`AppError { code, message, hint }`)             | M1        | Accepted |
 | [0007](0007-git-engine.md)                       | Git engine: gix for reads, git CLI for writes; minimum git   | M1        | Accepted |
-| 0008                                             | Binary commit stream over Tauri channels                     | M2        | Planned  |
-| 0009                                             | Canvas graph rendering and lane layout                       | M2        | Planned  |
+| [0008](0008-binary-graph-blocks.md)              | Binary graph blocks fetched on demand                        | M2        | Accepted |
+| [0009](0009-canvas-graph-and-lane-layout.md)     | Canvas graph rendering and lane layout                       | M2        | Accepted |
 | 0010                                             | On-disk graph cache                                          | M2        | Planned  |
 | 0011                                             | Background job model                                         | M5        | Planned  |
 | 0012                                             | Credentials and askpass                                      | M5        | Planned  |
@@ -29,7 +29,8 @@ decision changes, write a new ADR that supersedes the old one and update the old
 The kickoff prompt asked for ADRs 0001-0008 in M1. The ADR plan in
 [../roadmap.md](../roadmap.md) is newer and wins: ADR 0008 (binary commit stream) is written in
 M2 together with the code it describes, and ADR 0015 (CLI and task windows) is written in M1
-because M1 builds that code.
+because M1 builds that code. ADR 0008 was planned as "binary commit stream over Tauri
+channels"; the decision taken in M2 is on-demand binary blocks instead (see the ADR).
 
 ## Writing an ADR
 

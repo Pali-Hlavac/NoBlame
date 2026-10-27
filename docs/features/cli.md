@@ -7,6 +7,10 @@ running app. Architecture: [cli-and-windows.md](../architecture/cli-and-windows.
 Status: **M1: parsing, forwarding and windows done; task windows are placeholders** (labelled
 in the UI). The task UIs, path-scoped views and window reuse are M8.
 
+M2: a path passed on the very first launch (`noblame <path>` while NoBlame is not running) now
+opens its tab; development builds lost it because React StrictMode drained the request queue
+twice. Repository tabs now open real repositories ([repositories.md](repositories.md)).
+
 ## Reference
 
 ```
@@ -48,8 +52,8 @@ noblame --version
 
 ## Edge cases and limits
 
-- A mistyped task (`noblame comit`) is treated as a path; until M2 validates repositories this
-  opens a placeholder tab named "comit".
+- A mistyped task (`noblame comit`) is treated as a path; the tab named "comit" then shows "… is
+  not a Git repository" (with a "Create a repository here" button).
 - Paths that are not valid Unicode are refused with "NoBlame cannot open … yet".
 - On Windows release builds, the prompt may return before `--help` text appears (the app is a
   GUI program that attaches to the terminal).
