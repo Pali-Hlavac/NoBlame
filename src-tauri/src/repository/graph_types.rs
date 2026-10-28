@@ -20,6 +20,20 @@ pub struct GraphSummary {
     pub missing_parents: u32,
     /// How long building took, in milliseconds.
     pub build_ms: f64,
+    /// Counts the builds of this session's graph; row numbers of different generations do
+    /// not match, so the frontend keys its caches by it.
+    pub generation: u32,
+}
+
+/// The graph after a reload, and where the commit selected before it is now.
+#[derive(Debug, Clone, PartialEq, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct ReloadedGraph {
+    /// The new graph.
+    pub summary: GraphSummary,
+    /// Row of the previously selected commit; `None` when it is gone (amended, rebased) or
+    /// nothing was selected.
+    pub row: Option<u32>,
 }
 
 /// Category of a reference label.

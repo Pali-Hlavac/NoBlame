@@ -11,7 +11,9 @@ const PAGE_GC_TIME_MS = 60_000;
 export const graphKeys = {
   all: (repoId: number) => ["graph", repoId] as const,
   summary: (repoId: number) => ["graph", repoId, "summary"] as const,
-  page: (repoId: number, page: number) => ["graph", repoId, "page", page] as const,
+  /** Pages of one graph build: row numbers differ between generations. */
+  page: (repoId: number, generation: number, page: number) =>
+    ["graph", repoId, "page", generation, page] as const,
 };
 
 /** Builds the graph on first use (cached by the backend afterwards). */
@@ -24,10 +26,10 @@ export function useGraphSummary(repoId: number) {
 }
 
 /** Text of the rows on the given pages of {@link PAGE_ROWS} rows. */
-export function useCommitPages(repoId: number, pages: readonly number[]) {
+export function useCommitPages(repoId: number, generation: number, pages: readonly number[]) {
   return useQueries({
     queries: pages.map((page) => ({
-      queryKey: graphKeys.page(repoId, page),
+      queryKey: graphKeys.page(repoId, generation, page),
       queryFn: () => unwrap(commands.getCommitRows(repoId, page * PAGE_ROWS, PAGE_ROWS)),
       staleTime: Infinity,
       gcTime: PAGE_GC_TIME_MS,

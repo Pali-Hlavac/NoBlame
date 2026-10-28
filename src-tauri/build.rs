@@ -17,6 +17,8 @@ const APP_COMMANDS: &[&str] = &[
     "close_repository",
     "load_graph",
     "get_graph_block",
+    "reload_graph",
+    "refresh_repository",
     "get_ancestry_block",
     "get_commit_rows",
     "write_commit_graph",

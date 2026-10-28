@@ -3,18 +3,44 @@
 use tauri::State;
 
 use super::recent::{self, RecentRepository, RecentStore};
-use super::{CommitRowDto, GraphBytes, GraphSummary, RepoId, RepoSessions, RepoSummary, service};
+use super::{
+    CommitRowDto, GraphBytes, GraphSummary, ReloadedGraph, RepoId, RepoSessions, RepoSummary,
+    service,
+};
 use crate::error::CommandResult;
 
 /// Opens the repository containing `path` (searching parent folders).
 #[tauri::command]
 #[specta::specta]
 pub async fn open_repository(
+    app: tauri::AppHandle,
     sessions: State<'_, RepoSessions>,
     recent: State<'_, RecentStore>,
     path: String,
 ) -> CommandResult<RepoSummary> {
-    Ok(service::open(&sessions, &recent, path).await?)
+    Ok(service::open(&app, &sessions, &recent, path).await?)
+}
+
+/// Re-reads HEAD and the other facts of an open repository.
+#[tauri::command]
+#[specta::specta]
+pub async fn refresh_repository(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+) -> CommandResult<RepoSummary> {
+    Ok(service::refresh(&sessions, id).await?)
+}
+
+/// Rebuilds the graph after the repository changed; `row` (the selected commit) is mapped to
+/// that commit's row in the new graph.
+#[tauri::command]
+#[specta::specta]
+pub async fn reload_graph(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    row: Option<u32>,
+) -> CommandResult<ReloadedGraph> {
+    Ok(service::reload_graph(&sessions, id, row).await?)
 }
 
 /// Creates a repository in `path` with `git init` (open it with `open_repository` next).

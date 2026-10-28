@@ -62,6 +62,8 @@ returned by `open_repository`; a session lives as long as its tab.
 | `get_graph_block`          | yes   | `Result<unknown>` (ArrayBuffer) | One block of 256 rows in the binary format below                           |
 | `get_ancestry_block`       | yes   | `Result<unknown>` (ArrayBuffer) | Highlight overlay of one block for the history of `row` (format below)     |
 | `get_commit_rows`          | yes   | `Result<CommitRowDto[]>`        | Text columns (id, summary, author, date, refs) for up to 500 rows          |
+| `reload_graph`             | yes   | `Result<ReloadedGraph>`         | Rebuilds the graph; maps the selected `row` to that commit's new row       |
+| `refresh_repository`       | yes   | `Result<RepoSummary>`           | Re-reads HEAD and the other repository facts                               |
 | `write_commit_graph`       | yes   | `Result<RepoSummary>`           | Runs `git commit-graph write --reachable --changed-paths`                  |
 | `list_recent_repositories` | yes   | `Result<RecentRepository[]>`    | Recently opened repositories, newest first, with an `exists` flag          |
 | `remove_recent_repository` | yes   | `Result<RecentRepository[]>`    | Removes one entry and returns the rest                                     |
@@ -96,12 +98,15 @@ cannot start, does not answer within 10 s, or prints something that is not a git
 
 ## Events
 
-| Event                    | Payload | Sent when                                           | Listener reaction                             |
-| ------------------------ | ------- | --------------------------------------------------- | --------------------------------------------- |
-| `repositories-requested` | `null`  | A launch asked the main window to open a repository | Call `take_repository_requests` and open tabs |
+| Event                    | Payload                                    | Sent when                                                               | Listener reaction                                                                                                                      |
+| ------------------------ | ------------------------------------------ | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `repositories-requested` | `null`                                     | A launch asked the main window to open a repository                     | Call `take_repository_requests` and open tabs                                                                                          |
+| `repository-changed`     | `RepositoryChanged { id, refs, workTree }` | The watcher saw a change made outside the app (after a 300 ms debounce) | `workTree` or `refs`: refetch the status; `refs`: `refresh_repository`, then `reload_graph` and refetch everything read from the graph |
 
-Events carry no data on purpose: the main window also drains the queue when it starts, so a
-request that arrives before the window subscribed is not lost.
+`repositories-requested` carries no data on purpose: the main window also drains the queue when
+it starts, so a request that arrives before the window subscribed is not lost.
+`repository-changed` may carry data, because a missed change is harmless: the status is also
+read when the window regains focus.
 
 ## Types
 
@@ -175,6 +180,10 @@ edge_count bytes:  1 when the edge is lit, in the order of the same block's edge
 
 A `row` outside the graph fails with `INVALID_INPUT` ("row N is outside the
 graph").
+
+`GraphSummary.generation` counts the builds of a session's graph. Row numbers of different
+generations do not match, so text pages are keyed by it and the commit list remounts (fresh
+block caches) when it changes.
 
 Commit text is not part of the blocks: `get_commit_rows` returns it in pages of 100 rows, only for
 what is on screen.

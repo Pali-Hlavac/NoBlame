@@ -39,6 +39,13 @@ At the top of a repository tab you see:
 
 Below that is the [commit graph](commit-graph.md).
 
+## Changes made outside NoBlame
+
+NoBlame notices when you work on a repository elsewhere: commit in a terminal, switch branches,
+fetch, or save a file in your editor. The history, branches, stashes and the uncommitted
+changes update by themselves within a moment. Files your `.gitignore` excludes, such as build
+output, are not watched.
+
 ## "History loads much faster with a commit-graph file"
 
 Large repositories load faster when Git has written a summary of the history called a

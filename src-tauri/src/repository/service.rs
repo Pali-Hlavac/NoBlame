@@ -4,18 +4,21 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 use git_core::cli::Git;
-use git_core::graph::{BLOCK_ROWS, commit_rows};
+use git_core::graph::{BLOCK_ROWS, Graph, commit_rows};
 use git_core::repo::Repository;
 use tokio_util::sync::CancellationToken;
 
 use super::recent::{self, RecentStore};
+use super::sessions::Session;
 use super::{
-    CommitRowDto, GraphBytes, GraphSummary, RepoId, RepoSessions, RepoSummary, RepositoryError,
+    CommitRowDto, GraphBytes, GraphSummary, ReloadedGraph, RepoId, RepoSessions, RepoSummary,
+    RepositoryError, watch,
 };
 use crate::git_env::GitEnvError;
 
 /// Opens the repository containing `path` and records it as recently opened.
 pub async fn open(
+    app: &tauri::AppHandle,
     sessions: &RepoSessions,
     recent: &RecentStore,
     path: String,
@@ -23,6 +26,12 @@ pub async fn open(
     let repo = blocking(move || Repository::discover(&PathBuf::from(path))).await??;
     let (id, session) = sessions.insert(repo);
     let summary = RepoSummary::new(id, session.repo.info());
+    // Watching a huge tree takes a while on Linux (one inotify watch per folder): not awaited.
+    let app = app.clone();
+    let watched = std::sync::Arc::clone(&session);
+    tokio::task::spawn_blocking(move || {
+        watched.set_watcher(watch::start(&app, id, &watched.repo));
+    });
     // A full disk or read-only config folder must not stop the repository from opening.
     if let Err(error) = recent::record(recent, &summary) {
         tracing::warn!(%error, "could not update the recent repositories list");
@@ -48,15 +57,48 @@ pub async fn load_graph(
     id: RepoId,
     reload: bool,
 ) -> Result<GraphSummary, RepositoryError> {
-    let graph = sessions.get(id)?.graph(reload).await?;
-    Ok(GraphSummary {
+    let session = sessions.get(id)?;
+    let graph = session.graph(reload).await?;
+    Ok(summary_of(&session, &graph))
+}
+
+/// Rebuilds the graph after the repository changed, and finds the commit that was on `row`.
+pub async fn reload_graph(
+    sessions: &RepoSessions,
+    id: RepoId,
+    row: Option<u32>,
+) -> Result<ReloadedGraph, RepositoryError> {
+    let session = sessions.get(id)?;
+    let previous = session.loaded_graph().await;
+    let selected = previous.zip(row).and_then(|(graph, row)| graph.id_at(row));
+    let graph = session.graph(true).await?;
+    let row = selected.and_then(|commit| graph.row_of_id(&commit));
+    Ok(ReloadedGraph {
+        summary: summary_of(&session, &graph),
+        row,
+    })
+}
+
+/// Re-reads HEAD and the other repository facts (after a commit, checkout, ...).
+pub async fn refresh(sessions: &RepoSessions, id: RepoId) -> Result<RepoSummary, RepositoryError> {
+    let mut repo = sessions.get(id)?.repo.clone();
+    blocking(move || {
+        repo.refresh_info()?;
+        Ok::<_, RepositoryError>(RepoSummary::new(id, repo.info()))
+    })
+    .await?
+}
+
+fn summary_of(session: &Session, graph: &Graph) -> GraphSummary {
+    GraphSummary {
         rows: graph.row_count(),
         max_lanes: u32::from(graph.max_lanes()),
         block_rows: BLOCK_ROWS,
         head_row: graph.head_row(),
         missing_parents: u32::try_from(graph.missing_parents()).unwrap_or(u32::MAX),
         build_ms: millis(graph.timings.total()),
-    })
+        generation: session.generation(),
+    }
 }
 
 /// One encoded block of rows.

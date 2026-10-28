@@ -31,6 +31,13 @@ export const commands = {
 	/**  One block of graph rows in the binary format of `docs/architecture/ipc.md`. */
 	getGraphBlock: (id: number, block: number) => typedError<unknown, AppError>(__TAURI_INVOKE("get_graph_block", { id, block })),
 	/**
+	 *  Rebuilds the graph after the repository changed; `row` (the selected commit) is mapped to
+	 *  that commit's row in the new graph.
+	 */
+	reloadGraph: (id: number, row: number | null) => typedError<ReloadedGraph, AppError>(__TAURI_INVOKE("reload_graph", { id, row })),
+	/**  Re-reads HEAD and the other facts of an open repository. */
+	refreshRepository: (id: number) => typedError<RepoSummary, AppError>(__TAURI_INVOKE("refresh_repository", { id })),
+	/**
 	 *  Which nodes and lines of one block belong to the history of the commit on `row` (binary
 	 *  overlay, see `docs/architecture/ipc.md`).
 	 */
@@ -65,6 +72,7 @@ export const commands = {
 /** Events */
 export const events = {
 	repositoriesRequested: makeEvent<RepositoriesRequested, RepositoriesRequested>("repositories-requested"),
+	repositoryChanged: makeEvent<RepositoryChanged, RepositoryChanged>("repository-changed"),
 };
 
 /* Types */
@@ -191,6 +199,11 @@ export type GraphSummary = {
 	missingParents: number,
 	/**  How long building took, in milliseconds. */
 	buildMs: number | null,
+	/**
+	 *  Counts the builds of this session's graph; row numbers of different generations do
+	 *  not match, so the frontend keys its caches by it.
+	 */
+	generation: number,
 };
 
 /**  Where HEAD points. */
@@ -259,6 +272,17 @@ export type RefLabel = {
 	isHead: boolean,
 };
 
+/**  The graph after a reload, and where the commit selected before it is now. */
+export type ReloadedGraph = {
+	/**  The new graph. */
+	summary: GraphSummary,
+	/**
+	 *  Row of the previously selected commit; `None` when it is gone (amended, rebased) or
+	 *  nothing was selected.
+	 */
+	row: number | null,
+};
+
 /**  How the repository is laid out on disk. */
 export type RepoKindDto = 
 /**  Has its own work tree. */
@@ -300,6 +324,20 @@ export type RepositoriesRequested = null;
 export type RepositoriesSettings = {
 	/**  Each repository row has a "…" button with its actions. */
 	showActionsMenu?: boolean,
+};
+
+/**
+ *  A repository changed outside the app. The frontend reloads the graph (and everything read
+ *  from it) for `refs`, and re-reads the status for `workTree`. A missed event is harmless:
+ *  the status is also read when the window regains focus.
+ */
+export type RepositoryChanged = {
+	/**  The session. */
+	id: number,
+	/**  HEAD, a branch, a tag, a remote branch or the stash moved. */
+	refs: boolean,
+	/**  A file in the working tree or the index changed. */
+	workTree: boolean,
 };
 
 /**

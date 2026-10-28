@@ -11,6 +11,9 @@ publish.workspace = true
 gix = { version = "0.90", default-features = false, features = ["attributes", "max-performance", "revision", "sha1"] }
 thiserror.workspace = true
 tokio = { workspace = true, features = ["process", "io-util", "macros", "rt"] }
+# Pinned: 8.2.1 was days old when added (2026-10-28). CC0-1.0 / MIT OR Apache-2.0.
+notify = "=8.2.0"
+notify-debouncer-mini = "=0.7.0"
 tokio-util.workspace = true
 tracing.workspace = true
 

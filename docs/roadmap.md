@@ -109,7 +109,9 @@ Next: M2. Start with the spike (history walk with `gix` + commit-graph on
 - [x] Offer to write the commit-graph file (`--changed-paths`) when missing (not yet clicked
       through in the running app)
 - [ ] On-disk graph cache per repo; incremental update after fetch/commit — ADR 0010
-- [ ] File watcher (debounced) refreshing refs and status
+- [x] File watcher (debounced) refreshing refs and status: `notify` 8.2.0 (CC0-1.0) with
+      `notify-debouncer-mini` 0.7.0 (MIT/Apache); ignored files filtered with gix's excludes; a
+      refs change rebuilds the whole graph until the cache (ADR 0010) makes it incremental
 - [~] Benchmarks recorded in `docs/development/performance.md` (graph build); targets not revised
   until the cache exists and a real large repository (Linux) is measured
 

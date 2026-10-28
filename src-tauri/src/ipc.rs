@@ -25,7 +25,10 @@ pub fn builder() -> Builder<tauri::Wry> {
     Builder::<tauri::Wry>::new()
         // The UI always sends complete objects, so one shape per type is enough.
         .disable_serde_phases()
-        .events(collect_events![windows::RepositoriesRequested])
+        .events(collect_events![
+            windows::RepositoriesRequested,
+            repository::RepositoryChanged
+        ])
         .commands(collect_commands![
             app_info::commands::get_app_info,
             settings::commands::get_settings,
@@ -39,6 +42,8 @@ pub fn builder() -> Builder<tauri::Wry> {
             repository::commands::close_repository,
             repository::commands::load_graph,
             repository::commands::get_graph_block,
+            repository::commands::reload_graph,
+            repository::commands::refresh_repository,
             repository::commands::get_ancestry_block,
             repository::commands::get_commit_rows,
             repository::commands::write_commit_graph,

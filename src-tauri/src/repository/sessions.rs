@@ -1,10 +1,12 @@
 //! Open repositories ("sessions") and their lazily built graphs.
 
 use std::collections::HashMap;
+use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
 use git_core::graph::{Ancestry, Graph, GraphError};
 use git_core::repo::Repository;
+use git_core::watch::RepoWatcher;
 
 use super::{RepoId, RepositoryError};
 
@@ -15,6 +17,10 @@ pub struct Session {
     graph: tokio::sync::Mutex<Option<Arc<Graph>>>,
     /// The highlighted history of the last selected row, for the graph it was found in.
     ancestry: Mutex<Option<(Arc<Graph>, Ancestry)>>,
+    /// Builds of the graph so far.
+    generation: AtomicU32,
+    /// Reports changes made outside the app; stops when the session is dropped.
+    watcher: Mutex<Option<RepoWatcher>>,
 }
 
 impl Session {
@@ -37,7 +43,23 @@ impl Session {
         );
         let graph = Arc::new(graph);
         *slot = Some(Arc::clone(&graph));
+        self.generation.fetch_add(1, Ordering::Relaxed);
         Ok(graph)
+    }
+
+    /// The graph if it has been built, without building it.
+    pub async fn loaded_graph(&self) -> Option<Arc<Graph>> {
+        self.graph.lock().await.clone()
+    }
+
+    /// How many times the graph has been built.
+    pub fn generation(&self) -> u32 {
+        self.generation.load(Ordering::Relaxed)
+    }
+
+    /// Keeps `watcher` running for as long as the session lives.
+    pub fn set_watcher(&self, watcher: Option<RepoWatcher>) {
+        *self.watcher.lock().unwrap_or_else(PoisonError::into_inner) = watcher;
     }
 
     /// The highlight overlay of `block` for the history of `row`. Keeps the history of the last
@@ -87,6 +109,8 @@ impl RepoSessions {
             repo,
             graph: tokio::sync::Mutex::new(None),
             ancestry: Mutex::new(None),
+            generation: AtomicU32::new(0),
+            watcher: Mutex::new(None),
         });
         inner.sessions.insert(id, Arc::clone(&session));
         (id, session)

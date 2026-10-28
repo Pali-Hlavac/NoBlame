@@ -85,7 +85,7 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
     const page = Math.floor(highlight.row / PAGE_ROWS);
     if (!pages.includes(page)) pages.push(page);
   }
-  const pageResults = useCommitPages(repoId, pages);
+  const pageResults = useCommitPages(repoId, summary.generation, pages);
   const rowText = (row: number): CommitRowDto | undefined => {
     const index = pages.indexOf(Math.floor(row / PAGE_ROWS));
     return pageResults[index]?.data?.[row % PAGE_ROWS];
@@ -99,7 +99,8 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
     if (remembered !== undefined) {
       element.scrollTop = remembered;
     } else if (summary.headRow !== null) {
-      selectAny(repoPath, { kind: "commit", row: summary.headRow });
+      // First time shown: select HEAD, unless something is selected already (after a reload).
+      if (!selection) selectAny(repoPath, { kind: "commit", row: summary.headRow });
       const index = summary.headRow + rows.offset;
       element.scrollTop = scrollTopToReveal(index, 0, size.height, rows.count);
     }

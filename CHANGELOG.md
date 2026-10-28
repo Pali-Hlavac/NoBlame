@@ -52,6 +52,11 @@ All notable changes to NoBlame are documented here. The format follows
   and committer with their time zones, refs, and the branches, remote branches and tags that
   contain the commit (computed from the graph: 5.5 ms for the oldest of a million commits).
   It follows the commit selected in the active repository: the repository tab focused last.
+- Live updates (M2): open repositories are watched. Editing files updates the uncommitted
+  changes; a commit, checkout, fetch or stash made elsewhere reloads the header, graph,
+  Branches, Stashes and Commit details, keeping the selected commit (or following HEAD).
+  Ignored files (`.gitignore`) are not watched. New dependencies: `notify` 8.2.0 (CC0-1.0) and
+  `notify-debouncer-mini` 0.7.0 (MIT/Apache-2.0).
 - Uncommitted changes in the commit graph (M2): "Working tree changes" and "Staged changes" rows
   above the newest commit, with counts, joined to HEAD by a dashed line, selectable (Commit
   details shows the counts). Refreshed when the window regains focus. Settings can show a

@@ -130,6 +130,24 @@ impl Graph {
         self.head_commit.map(|commit| self.rows_of[commit as usize])
     }
 
+    /// The row of the commit with id `id`, if it is in the graph. A linear scan (about a
+    /// millisecond per million commits): used once per reload, not per row.
+    pub fn row_of_id(&self, id: &gix::oid) -> Option<u32> {
+        (0..self.index.len())
+            .find(|&commit| {
+                self.index
+                    .id(u32::try_from(commit).unwrap_or(u32::MAX))
+                    .as_ref()
+                    == id
+            })
+            .and_then(|commit| self.rows_of.get(commit).copied())
+    }
+
+    /// The id of the commit on `row`.
+    pub fn id_at(&self, row: u32) -> Option<gix::ObjectId> {
+        self.commit_at(row).map(|commit| *self.index.id(commit))
+    }
+
     /// The commit index shown on `row`.
     pub fn commit_at(&self, row: u32) -> Option<u32> {
         self.order.get(row as usize).copied()

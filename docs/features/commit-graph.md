@@ -52,6 +52,9 @@ truncated when the column is narrow.
 
 ## Uncommitted changes
 
+The graph reloads by itself when HEAD or a branch moves outside the app (see
+[repositories.md](repositories.md#live-updates)).
+
 When the repository has uncommitted changes, up to two rows sit above the newest commit (as in
 Git Extensions):
 
@@ -65,8 +68,7 @@ diffs and staging arrive in M4.
 
 The counts come from `get_status_summary` (`git status --porcelain=v2 -z`, read-only, so the
 user's fsmonitor, untracked cache and `status.showUntrackedFiles` apply). They are read when
-the repository opens and every time the window regains focus; the file watcher will refresh
-them as files change.
+the repository opens, whenever a file changes, and every time the window regains focus (watcher, see [repositories.md](repositories.md#live-updates)).
 
 **Settings → Commit graph → Show uncommitted changes as**: rows at the top of the commit graph
 (default), a summary in the repository header, or not shown. Bare repositories have none.
@@ -124,5 +126,4 @@ overlay is loading, its rows are drawn dimmed; it usually arrives within a few m
 
 ## Not yet
 
-Stash labels, on-disk cache, automatic refresh by a file watcher, the working tree file lists
-(M4), commit details and diffs (M3), resizable columns.
+Stash labels, on-disk cache and incremental reloads, the working tree file lists (M4), commit details and diffs (M3), resizable columns.

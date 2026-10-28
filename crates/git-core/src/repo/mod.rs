@@ -50,6 +50,11 @@ impl Repository {
         &self.info
     }
 
+    /// A handle that can move between threads (for background work such as watching).
+    pub fn thread_safe(&self) -> gix::ThreadSafeRepository {
+        self.inner.clone()
+    }
+
     /// A handle for the current thread. Creating one is cheap (no file access).
     pub fn local(&self) -> gix::Repository {
         self.inner.to_thread_local()

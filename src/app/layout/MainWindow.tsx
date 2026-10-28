@@ -2,6 +2,7 @@ import { CommandPalette } from "@/features/command-palette";
 import {
   RepositoryActionsContext,
   openRepositories,
+  useRepositoryChanges,
   useSessionCleanup,
 } from "@/features/repositories";
 import { useRepositoryRequests } from "@/features/windows";
@@ -30,6 +31,7 @@ function MainWorkbench({ saved }: { saved: SavedLayout | null }) {
   const commands = useAppCommands(MODULES);
   useRepositoryRequests(openRepositories);
   useSessionCleanup();
+  useRepositoryChanges();
   useTabHotkeys();
 
   return (

@@ -36,5 +36,13 @@ export function GraphView({ repoId, repoPath }: GraphViewProps) {
       />
     );
   }
-  return <GraphTable key={repoId} repoId={repoId} repoPath={repoPath} summary={summary.data} />;
+  // A new build (after a commit, fetch, ...) starts with fresh block caches.
+  return (
+    <GraphTable
+      key={`${repoId}:${summary.data.generation}`}
+      repoId={repoId}
+      repoPath={repoPath}
+      summary={summary.data}
+    />
+  );
 }

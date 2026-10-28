@@ -48,6 +48,29 @@ In the Repositories module, every open repository has a **…** button (on hover
 Copy path and Close, plus Pull, Fetch, Push and Commit… as labelled placeholders until M4/M5.
 **Settings → Repositories** hides it. See [workbench.md](workbench.md#modules).
 
+## Live updates
+
+Each open repository is watched for changes made outside NoBlame (a commit in a terminal, an
+editor saving a file, a fetch):
+
+- **Working tree or index changed** → the uncommitted changes are counted again.
+- **HEAD, a branch, a tag, a remote branch or the stash moved** → the header (current branch),
+  the graph, Branches, Stashes and Commit details reload. A selected commit stays selected; if
+  HEAD was selected, the selection follows HEAD (so after committing, the new commit is
+  selected); a selected commit that no longer exists falls back to HEAD.
+
+What is ignored:
+
+- objects, logs and lock files inside `.git`;
+- files that `.gitignore`, `info/exclude` or `core.excludesFile` ignore (builds writing into
+  `target/` or `node_modules/` cause no work).
+
+Bursts of changes are reported once, 300 ms after the last one. If watching cannot start (for
+example the Linux inotify limit, `fs.inotify.max_user_watches`), a warning is logged and the
+status is still re-read whenever the window regains focus. A refs change rebuilds the whole
+graph for now (about 1.5 s for a million commits in a debug build); the on-disk cache (ADR 0010)
+will make this incremental.
+
 ## Recent repositories
 
 - Shown on the Welcome tab and under **Recent** in the Repositories module (without the ones
