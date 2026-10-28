@@ -31,6 +31,10 @@ All notable changes to NoBlame are documented here. The format follows
   layout and the open tabs are restored on the next start; "Reset layout" in the palette; F6 /
   Shift+F6 move focus between regions, Alt+1 opens Repositories. The commit list hides the
   commit, author and date columns one by one when its pane gets narrow.
+- Toolbar for the active repository: Pull with a menu (Pull, Fetch, Fetch all remotes, Fetch
+  and prune), Push, Commit, Stashes, and the active repository with its current branch.
+  **Placeholders:** Pull, Fetch and Push arrive in M5 and Commit in M4; their buttons are
+  disabled and say so. Stashes opens the Stashes module.
 - Repositories module (Alt+1): open repositories with their submodules nested below them
   (recursively), then recent repositories; a click opens or focuses the repository's tab.
   Submodules that are not initialized are dimmed (initializing them arrives in M7).
@@ -73,5 +77,7 @@ All notable changes to NoBlame are documented here. The format follows
   tab"; search now ranks by the visible label.
 - Found during M2 verification: a repository passed to `noblame <path>` when the app was not
   running yet opened no tab.
+- Found during M2.5 verification: new tabs and modules opened in a new dock group each time
+  instead of joining the focused group.
 - The synthetic repository generator now packs refs like a clone does and keeps a million
   commits within about 15 years (it reached 2066 before).

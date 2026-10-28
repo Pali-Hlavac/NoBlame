@@ -21,6 +21,10 @@ export interface DockPanelLike {
 export interface DockApiLike {
   panels: readonly DockPanelLike[];
   activePanel: DockPanelLike | undefined;
+  /** Group with focus; new tabs open in it. */
+  activeGroup: { id: string } | undefined;
+  /** All groups; the first one is used when none has focus yet (at start-up). */
+  groups: readonly { id: string }[];
   getPanel: (id: string) => DockPanelLike | undefined;
   addPanel: (options: {
     id: string;
@@ -28,6 +32,7 @@ export interface DockApiLike {
     title: string;
     params: DocumentParams;
     inactive: boolean;
+    position?: { referenceGroup: string; direction: "within" };
   }) => unknown;
 }
 
@@ -44,12 +49,16 @@ export function reconcileDocuments(
   for (const tab of tabs) {
     const panel = api.getPanel(tab.id);
     if (!panel) {
+      // Without a position dockview opens a new group beside the others; tabs belong in the
+      // group the user is working in.
+      const group = api.activeGroup ?? api.groups[0];
       api.addPanel({
         id: tab.id,
         component: DOCUMENT_COMPONENT,
         title: tab.title,
         params: { tab },
         inactive: tab.id !== activeTabId,
+        ...(group && { position: { referenceGroup: group.id, direction: "within" } }),
       });
     } else if (panel.title !== tab.title) {
       panel.api.setTitle(tab.title);

@@ -17,3 +17,16 @@ export interface WorkbenchModule {
   /** The module's content. */
   component: ComponentType;
 }
+
+/** A toolbar button. Data, so the app shell decides what the toolbar offers. */
+export interface ToolbarAction {
+  id: string;
+  label: string;
+  icon: LucideIcon;
+  /** What the button does; missing for stubs. */
+  run?: () => void;
+  /** Set for stubs: the milestone that delivers the action (the button is disabled). */
+  milestone?: string;
+  /** Related actions in a drop-down next to the button (a split button). */
+  menu?: readonly ToolbarAction[];
+}

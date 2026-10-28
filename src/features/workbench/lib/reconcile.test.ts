@@ -29,6 +29,8 @@ function fakeDock(ids: string[] = [], active?: string) {
   });
   const api: DockApiLike = {
     panels,
+    activeGroup: undefined,
+    groups: [],
     get activePanel() {
       return panels.find((panel) => panel.id === activeId);
     },
@@ -75,5 +77,37 @@ describe("reconcileDocuments", () => {
     reconcileDocuments(dock, [tab("a"), tab("b")], "a");
     expect(dock.panels).toHaveLength(2);
     expect(dock.activePanel?.id).toBe("a");
+  });
+
+  it("opens new tabs in the active group", () => {
+    const dock = fakeDock(["a"], "a");
+    const added: unknown[] = [];
+    const api: DockApiLike = {
+      ...dock,
+      panels: dock.panels,
+      activePanel: dock.activePanel,
+      activeGroup: { id: "group-2" },
+      addPanel: (options) => {
+        added.push(options.position);
+      },
+    };
+    reconcileDocuments(api, [tab("a"), tab("b")], "a");
+    expect(added).toEqual([{ referenceGroup: "group-2", direction: "within" }]);
+  });
+
+  it("uses the first group when none has focus yet", () => {
+    const dock = fakeDock();
+    const added: unknown[] = [];
+    const api: DockApiLike = {
+      ...dock,
+      panels: dock.panels,
+      activePanel: undefined,
+      groups: [{ id: "first" }, { id: "second" }],
+      addPanel: (options) => {
+        added.push(options.position);
+      },
+    };
+    reconcileDocuments(api, [tab("a")], "a");
+    expect(added).toEqual([{ referenceGroup: "first", direction: "within" }]);
   });
 });

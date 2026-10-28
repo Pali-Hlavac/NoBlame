@@ -62,7 +62,15 @@ export function openModule(module: Pick<WorkbenchModule, "id" | "title">): void 
     return;
   }
   const params: ModuleParams = { moduleId: module.id };
-  api.addPanel({ id: module.id, component: MODULE_COMPONENT, title: module.title, params });
+  // Into the focused group as a tab (without a position dockview would open a new group).
+  const group = api.activeGroup ?? api.groups[0];
+  api.addPanel({
+    id: module.id,
+    component: MODULE_COMPONENT,
+    title: module.title,
+    params,
+    ...(group && { position: { referenceGroup: group.id, direction: "within" } }),
+  });
 }
 
 /**
