@@ -85,10 +85,10 @@ Bad:
   build, in the background.
 - Replace refs (`git replace`) and grafts are not taken into account. The graph ignored them
   before too.
-- Refs reading (230 ms for 10,570 refs) and layout (198 ms) still run on every build, so a
-  million-commit reload stays around half a second in a release build. Reading refs through
-  the packed-refs buffer, and laying out only the rows above the first changed one, are the
-  next steps if that matters.
+- Refs reading (230 ms for 10,570 refs) and layout still run on every build. After the fast
+  layout pass (slice 10: 198 → 67 ms for synthetic-1m, 1.5 s → 150 ms for Linux) a reload of
+  synthetic-1m takes about 330 ms and of Linux 265 ms. Reading refs through the packed-refs
+  buffer is the next step if that matters.
 
 ## Pros and cons of the options
 

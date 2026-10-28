@@ -23,16 +23,19 @@ Legend: `[x]` done · `[ ]` to do · `[~]` partially done / deferred (see note)
 | Platforms       | Windows 10/11 x64 (+ arm64 later), macOS 12+ (universal), Linux x64 (AppImage, .deb, .rpm).                                                                                                                                                                                                                                                                        |
 | E2E tests       | WebdriverIO + `tauri-driver` on Linux/Windows; no macOS E2E.                                                                                                                                                                                                                                                                                                       |
 
-### Performance targets (first guesses, to be measured and revised in M2)
+### Performance targets (measured on Linux, 1.5M commits, 2026-10-28)
 
-| Scenario (reference: Linux kernel, ~1.3M commits) | Target                               |
-| ------------------------------------------------- | ------------------------------------ |
-| First rows of the graph visible, first open       | < 1 s                                |
-| First rows visible, reopening (cache warm)        | < 300 ms                             |
-| Whole history indexed in the background           | < 30 s, UI responsive throughout     |
-| Scrolling the graph                               | 60 fps, no blank rows on fast scroll |
-| Memory for the graph index                        | < 200 bytes per commit               |
-| Working tree status, 100k files (fsmonitor on)    | < 1 s                                |
+| Scenario (reference: Linux kernel)             | Target                               | Measured (release, Windows 11)                                        |
+| ---------------------------------------------- | ------------------------------------ | --------------------------------------------------------------------- |
+| First rows of the graph visible, first open    | < 1 s                                | 482 ms with a commit-graph file; 10.9 s without (fresh clone)         |
+| First rows visible, reopening (cache warm)     | < 300 ms                             | about 320 ms (estimated from the phases)                              |
+| Whole history indexed in the background        | < 30 s, UI responsive throughout     | 9–13 s without a commit-graph file; the UI waits (not background yet) |
+| Scrolling the graph                            | 60 fps, no blank rows on fast scroll | not measured yet                                                      |
+| Memory for the graph                           | < 200 bytes per commit               | 88 bytes per commit                                                   |
+| Working tree status, 100k files (fsmonitor on) | < 1 s                                | 170 ms for 40,000 files; 100k not measured yet                        |
+
+The first open without a commit-graph file misses the target by far. Options: offer to write
+the file earlier (it took 11 s for Linux), or show rows while indexing. Decide in M3.
 
 ## Phase 1: main app
 
@@ -114,8 +117,9 @@ Next: M2. Start with the spike (history walk with `gix` + commit-graph on
 - [x] File watcher (debounced) refreshing refs and status: `notify` 8.2.0 (CC0-1.0) with
       `notify-debouncer-mini` 0.7.0 (MIT/Apache); ignored files filtered with gix's excludes; a
       refs change rebuilds the whole graph until the cache (ADR 0010) makes it incremental
-- [~] Benchmarks recorded in `docs/development/performance.md` (graph build); targets not revised
-  until the cache exists and a real large repository (Linux) is measured
+- [x] Benchmarks recorded in `docs/development/performance.md`; measured on the Linux kernel
+      (1.5M commits) and the targets revised above. Found and fixed: the layout pass scanned
+      every lane per row (1.5 s → 150 ms)
 
 Slices, in order (planned 2026-10-27):
 

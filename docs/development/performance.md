@@ -117,6 +117,32 @@ worst case: a million ancestors) finds its history in **3.5 ms**; its first over
 **245 ms**, paid once per selection (block states are kept). Before skipping the row output for
 blocks that are only passed through, that jump took 644 ms.
 
+### Linux kernel (M2 slice 10, 2026-10-28)
+
+`torvalds/linux` cloned with `--filter=blob:none --no-checkout` into `.cache/repos/linux` (2.1 GB,
+1,503,174 commits, 957 refs, up to **702 lanes** at once). `graph_spike`, release build:
+
+| Phase                     | No commit-graph file | With commit-graph file |
+| ------------------------- | -------------------- | ---------------------- |
+| refs                      | 25 ms                | 24 ms                  |
+| index                     | 9.3–12.9 s           | 203 ms                 |
+| order                     | 64 ms                | 63 ms                  |
+| layout, before / after    | 1.5 s / 150 ms       | 157 ms                 |
+| first screen              | 10.9 s               | **482 ms**             |
+| rebuild reusing the index | 265 ms               | 265 ms                 |
+
+- The commit-graph file took 11 s to write.
+- From the second open, the index comes from the cache: 39–44 ms to read and validate the 58 MB
+  file plus 35 ms to index, so a warm reopen is about 25 + 40 + 35 + 63 + 157 ≈ 320 ms.
+- Layout was 1.5 s because each row scanned all 702 lanes. The full pass now finds lanes
+  through a map and builds the outgoing lines only at checkpoints (`layout/fast.rs`):
+  150 ms, identical checkpoints (tested on random wide histories). synthetic-1m: 198 → 67 ms.
+- Memory (index, order, layout checkpoints): 88 bytes per commit (129 MB); synthetic-1m 56.
+- A block of 256 rows is 470 KB here (about 300 lines per row) and replays in 0.5 ms. The
+  canvas only draws 16 lanes, so the encoder could drop lines beyond them; not done yet.
+- Highlighting the newest commit's history: 5.8 ms; jumping to the last block 1.5 s (the lit
+  replay still uses the row-by-row step).
+
 ### Reusing the commit index (ADR 0010, 2026-10-28)
 
 `graph_spike`, release build, while the owner's dev app was running:

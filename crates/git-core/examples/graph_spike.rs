@@ -92,6 +92,12 @@ fn run(path: &std::path::Path) -> Result<(), Box<dyn std::error::Error>> {
             highlight.elapsed()
         );
     }
+    let memory = graph.memory_bytes();
+    println!(
+        "memory          {} KiB, {} bytes per commit",
+        memory / 1024,
+        memory / graph.index().len().max(1)
+    );
     // Reusing the index (what a reload after a commit and the on-disk cache do).
     let lookup = Instant::now();
     if let Some(first) = graph.index().len().checked_sub(1) {

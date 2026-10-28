@@ -12,6 +12,11 @@
 //! Lines can be "lit" to highlight the history of a selected commit (see [`super::Ancestry`]):
 //! a line is lit when the commit it starts from is lit. Plain layouts light nothing.
 
+mod fast;
+mod step;
+#[cfg(test)]
+mod tests;
+
 use super::CommitIndex;
 
 /// Rows per block: the unit of checkpoints and of data sent to the UI.
@@ -41,7 +46,7 @@ pub struct RowGeometry {
     pub edges: Vec<Edge>,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct Lane {
     awaits: u32,
     color: u32,
@@ -50,108 +55,12 @@ struct Lane {
 }
 
 /// Lane state between two rows.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub(super) struct LaneState {
     lanes: Vec<Option<Lane>>,
     /// Lines leaving the previous row: (lane at previous row, lane they continue in, lit).
     outgoing: Vec<(u16, u16, bool)>,
     next_color: u32,
-}
-
-impl LaneState {
-    /// Lays out the row of `commit`; `lit` lights the lines leaving it.
-    pub(super) fn step(&mut self, commit: u32, parents: &[u32], lit: bool, row: &mut RowGeometry) {
-        let node = match self.lanes.iter().position(|lane| awaits(*lane, commit)) {
-            Some(lane) => lane,
-            None => self.allocate(commit, false),
-        };
-        let color = self.lanes[node].map_or(0, |lane| lane.color);
-        row.lane = lane_id(node);
-        row.color = color;
-        row.edges.clear();
-        for &(from, lane, edge_lit) in &self.outgoing {
-            if let Some(state) = self.lanes[usize::from(lane)] {
-                let to = if state.awaits == commit {
-                    lane_id(node)
-                } else {
-                    lane
-                };
-                row.edges.push(Edge {
-                    from,
-                    to,
-                    color: state.color,
-                    lit: edge_lit,
-                });
-            }
-        }
-        for lane in &mut self.lanes {
-            if awaits(*lane, commit) {
-                *lane = None;
-            }
-        }
-        self.outgoing.clear();
-        let mut merge_lanes: Vec<usize> = Vec::new();
-        let mut joined: Vec<usize> = Vec::new();
-        let mut merge_edges: Vec<(u16, u16, bool)> = Vec::new();
-        if let Some((&first, rest)) = parents.split_first() {
-            self.lanes[node] = Some(Lane {
-                awaits: first,
-                color,
-                lit,
-            });
-            for &parent in rest {
-                let target = if let Some(existing) =
-                    self.lanes.iter().position(|lane| awaits(*lane, parent))
-                {
-                    joined.push(existing);
-                    existing
-                } else {
-                    let created = self.allocate(parent, lit);
-                    merge_lanes.push(created);
-                    created
-                };
-                merge_edges.push((lane_id(node), lane_id(target), lit));
-            }
-        }
-        // Straight lines first, then the lines leaving a merge; the order is stable for tests.
-        for (index, lane) in self.lanes.iter().enumerate() {
-            if let Some(lane) = lane
-                && !merge_lanes.contains(&index)
-            {
-                self.outgoing
-                    .push((lane_id(index), lane_id(index), lane.lit));
-            }
-        }
-        self.outgoing.extend(merge_edges);
-        // A lane joined by a lit merge line is lit below the join, not above it.
-        if lit {
-            for index in joined {
-                if let Some(lane) = self.lanes[index].as_mut() {
-                    lane.lit = true;
-                }
-            }
-        }
-        while matches!(self.lanes.last(), Some(None)) {
-            self.lanes.pop();
-        }
-    }
-
-    /// Puts a new lane waiting for `commit` into the first free slot.
-    fn allocate(&mut self, commit: u32, lit: bool) -> usize {
-        let lane = Some(Lane {
-            awaits: commit,
-            color: self.next_color,
-            lit,
-        });
-        self.next_color = self.next_color.wrapping_add(1);
-        if let Some(free) = self.lanes.iter().position(Option::is_none) {
-            self.lanes[free] = lane;
-            free
-        } else {
-            self.lanes.push(lane);
-            self.lanes.len() - 1
-        }
-    }
 }
 
 fn awaits(lane: Option<Lane>, commit: u32) -> bool {
@@ -172,19 +81,31 @@ pub struct Layout {
 }
 
 impl Layout {
-    /// Lays out every row of `order` (commit index per row) once, keeping checkpoints.
+    /// Lays out every row of `order` (commit index per row) once, keeping checkpoints. Uses
+    /// the fast stepper (no lines are drawn); see `fast.rs`.
     pub fn compute(index: &CommitIndex, order: &[u32]) -> Self {
-        let mut state = LaneState::default();
+        let mut stepper = fast::Stepper::default();
         let mut layout = Self::default();
-        let mut row = RowGeometry::default();
         for (number, &commit) in order.iter().enumerate() {
             if number % BLOCK_ROWS as usize == 0 {
-                layout.checkpoints.push(state.clone());
+                layout.checkpoints.push(stepper.checkpoint());
             }
-            state.step(commit, index.parents(commit), false, &mut row);
-            layout.max_lanes = layout.max_lanes.max(lane_id(state.lanes.len()));
+            stepper.step(commit, index.parents(commit));
+            layout.max_lanes = layout.max_lanes.max(lane_id(stepper.width()));
         }
         layout
+    }
+
+    /// Approximate heap memory of the checkpoints, in bytes.
+    pub fn memory_bytes(&self) -> usize {
+        self.checkpoints
+            .iter()
+            .map(|state| {
+                state.lanes.capacity() * std::mem::size_of::<Option<Lane>>()
+                    + state.outgoing.capacity() * std::mem::size_of::<(u16, u16, bool)>()
+            })
+            .sum::<usize>()
+            + self.checkpoints.capacity() * std::mem::size_of::<LaneState>()
     }
 
     /// The lane state at the start of `block` (nothing lit).

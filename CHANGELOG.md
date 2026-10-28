@@ -55,6 +55,9 @@ All notable changes to NoBlame are documented here. The format follows
 - Changed files module (M3, Alt+5): the files the selected commit changed, with status letters,
   renames and copies (as your git config detects them), and a parent choice for merge commits.
   **Placeholder:** the diff of a chosen file arrives with the diff tab; uncommitted files in M4.
+- Faster graph layout for wide histories: the Linux kernel (1.5M commits, 702 lanes) lays out
+  in 150 ms instead of 1.5 s, and shows its first screen in under half a second when it has a
+  commit-graph file.
 - Graph cache (M2, ADR 0010): rebuilding the graph after a change reads only new commits, and
   the commit index is saved in the app's cache folder, so reopening a repository does the same.
   Without a commit-graph file, indexing 100,000 commits drops from 368 ms to 4 ms.

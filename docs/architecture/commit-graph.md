@@ -107,6 +107,15 @@ produces exactly the same rows as the full pass.
 - **State**: selection and scroll position are kept per repository path in a Zustand store, so
   switching tabs keeps them.
 
+## Fast full layout pass
+
+`Layout::compute` does not draw lines; it only needs the lane state at every 256th row. It uses
+`layout/fast.rs`: lanes are found through a map from the awaited commit, free slots through a
+sorted set, and the outgoing lines are built only when a checkpoint is taken. The checkpoints
+are identical to those of the row-by-row step that blocks use (a test compares both on random
+wide histories). On the Linux kernel, with 702 lanes at once, this took the pass from 1.5 s to
+150 ms.
+
 ## Reusing the commit index (ADR 0010)
 
 `Graph::build_with(repo, base)` copies every commit that `base` (an earlier `CommitIndex`) knows

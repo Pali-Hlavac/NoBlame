@@ -61,6 +61,14 @@ impl CommitIndex {
         &self.parents[start..end]
     }
 
+    /// Approximate heap memory, in bytes (ids, times, parents and the sorted ids if built).
+    pub fn memory_bytes(&self) -> usize {
+        self.ids.capacity() * std::mem::size_of::<ObjectId>()
+            + self.times.capacity() * 8
+            + (self.parent_start.capacity() + self.parents.capacity()) * 4
+            + self.by_id.get().map_or(0, |by_id| by_id.capacity() * 4)
+    }
+
     /// The index of the commit with `id`. The first call sorts the ids (about 0.1 s for a
     /// million commits); later calls are binary searches.
     pub fn lookup(&self, id: &gix::oid) -> Option<u32> {

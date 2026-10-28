@@ -158,6 +158,14 @@ impl Graph {
         self.commit_at(row).map(|commit| *self.index.id(commit))
     }
 
+    /// Approximate heap memory of the graph, in bytes: index, row order and layout
+    /// checkpoints (not refs).
+    pub fn memory_bytes(&self) -> usize {
+        self.index.memory_bytes()
+            + (self.order.capacity() + self.rows_of.capacity()) * 4
+            + self.layout.memory_bytes()
+    }
+
     /// The commit index shown on `row`.
     pub fn commit_at(&self, row: u32) -> Option<u32> {
         self.order.get(row as usize).copied()
