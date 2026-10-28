@@ -7,6 +7,7 @@ and AI agents; these pages are the detail.
 
 - [project-brief.md](project-brief.md): what we are building and the requirements
 - [roadmap.md](roadmap.md): milestones, agreed decisions, ADR plan, where we left off
+- [design/workbench.md](design/workbench.md): proposed workbench layout and the owner's idea inbox
 - [CHANGELOG.md](../CHANGELOG.md): what changed, per release
 
 ## Getting started

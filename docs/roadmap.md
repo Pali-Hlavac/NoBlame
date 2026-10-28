@@ -9,18 +9,19 @@ Legend: `[x]` done · `[ ]` to do · `[~]` partially done / deferred (see note)
 
 ## Agreed product decisions
 
-| Decision        | Detail                                                                                                                                                                                                                                                                                                                          |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Name            | **NoBlame** (CLI and binary: `noblame`). Chosen without "Git" in it because the Git trademark policy does not allow "Git" as part of a new product name; describe it as "a Git client" or "NoBlame for Git". Defined in one place (`src/app.config.ts` + `tauri.conf.json` `productName`), kept in sync by a test.              |
-| Logo            | A **finch on a branch** (the branch doubles as a Git branch line). Simple, flat and readable at 16 px; works on light and dark backgrounds; one master SVG in `assets/logo/` from which all platform icons are generated (`pnpm tauri icon`). Must not use or resemble the Git logo (also covered by the Git trademark policy). |
-| Two phases      | Phase 1: the main app (Git Extensions-style). Phase 2: shell integration (TortoiseGit-style context menus, overlays). Phase 2 starts only when phase 1 is good enough for daily use.                                                                                                                                            |
-| Stack           | Tauri 2 + Rust; React + TypeScript + Vite + Tailwind 4 + shadcn/ui; TanStack Query + Zustand; `tauri-specta` (same stack as RipeMongo).                                                                                                                                                                                         |
-| Git engine      | Reads with `gix` (gitoxide); writes and network through the installed `git` CLI. ADR 0007.                                                                                                                                                                                                                                      |
-| Git requirement | The user's own `git` is required (not bundled in v1). Minimum version **2.39.0** (ADR 0007; revised from the tentative 2.40 because Debian 12 and Apple's Xcode CLT ship 2.39.x). The app detects it and explains how to install or upgrade.                                                                                    |
-| Commit graph    | Lane layout in Rust, binary row batches over Tauri channels, virtualized canvas rendering, on-disk graph cache per repo. ADRs 0008-0010.                                                                                                                                                                                        |
-| Entry points    | CLI (`noblame <command> <path>`), single instance, task windows. Built from M1. ADR 0015.                                                                                                                                                                                                                                       |
-| Platforms       | Windows 10/11 x64 (+ arm64 later), macOS 12+ (universal), Linux x64 (AppImage, .deb, .rpm).                                                                                                                                                                                                                                     |
-| E2E tests       | WebdriverIO + `tauri-driver` on Linux/Windows; no macOS E2E.                                                                                                                                                                                                                                                                    |
+| Decision        | Detail                                                                                                                                                                                                                                                                                                                                                             |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Name            | **NoBlame** (CLI and binary: `noblame`). Chosen without "Git" in it because the Git trademark policy does not allow "Git" as part of a new product name; describe it as "a Git client" or "NoBlame for Git". Defined in one place (`src/app.config.ts` + `tauri.conf.json` `productName`), kept in sync by a test.                                                 |
+| Logo            | A **finch on a branch** (the branch doubles as a Git branch line). Simple, flat and readable at 16 px; works on light and dark backgrounds; one master SVG in `assets/logo/` from which all platform icons are generated (`pnpm tauri icon`). Must not use or resemble the Git logo (also covered by the Git trademark policy).                                    |
+| Two phases      | Phase 1: the main app (Git Extensions-style). Phase 2: shell integration (TortoiseGit-style context menus, overlays). Phase 2 starts only when phase 1 is good enough for daily use.                                                                                                                                                                               |
+| Stack           | Tauri 2 + Rust; React + TypeScript + Vite + Tailwind 4 + shadcn/ui; TanStack Query + Zustand; `tauri-specta` (same stack as RipeMongo).                                                                                                                                                                                                                            |
+| Git engine      | Reads with `gix` (gitoxide); writes and network through the installed `git` CLI. ADR 0007.                                                                                                                                                                                                                                                                         |
+| Git requirement | The user's own `git` is required (not bundled in v1). Minimum version **2.39.0** (ADR 0007; revised from the tentative 2.40 because Debian 12 and Apple's Xcode CLT ship 2.39.x). The app detects it and explains how to install or upgrade.                                                                                                                       |
+| Commit graph    | Lane layout in Rust, binary row batches over Tauri channels, virtualized canvas rendering, on-disk graph cache per repo. ADRs 0008-0010.                                                                                                                                                                                                                           |
+| Entry points    | CLI (`noblame <command> <path>`), single instance, task windows. Built from M1. ADR 0015.                                                                                                                                                                                                                                                                          |
+| UI layout       | **Workbench** (agreed 2026-10-28): an activity bar opens modules (repositories with nested submodules, branches, commit details, changed files, stashes, ...) in a left dock; a main dock holds repository (graph) tabs and one diff tab, splittable side by side; one saved layout, open tabs restored. See [design/workbench.md](design/workbench.md); ADR 0020. |
+| Platforms       | Windows 10/11 x64 (+ arm64 later), macOS 12+ (universal), Linux x64 (AppImage, .deb, .rpm).                                                                                                                                                                                                                                                                        |
+| E2E tests       | WebdriverIO + `tauri-driver` on Linux/Windows; no macOS E2E.                                                                                                                                                                                                                                                                                                       |
 
 ### Performance targets (first guesses, to be measured and revised in M2)
 
@@ -145,12 +146,38 @@ folder picker, "Create repository…", the recent list, the commit-graph button,
 (session cleanup). These need someone at the keyboard; the logic is unit-tested.
 
 Next (slices 7–10): artificial working-tree rows, on-disk cache (ADR 0010), file watcher, then
-measure on a real large repository (Linux) and revise the targets. Optimisation candidate: peel
+measure on a real large repository (Linux) and revise the targets. Agreed (2026-10-28): build
+the M2.5 workbench first; see [design/workbench.md](design/workbench.md). Optimisation candidate: peel
 refs with the packed-refs buffer (refs are now the largest cost).
+
+### M2.5: Workbench layout (agreed 2026-10-28; see [design/workbench.md](design/workbench.md))
+
+Every later feature lands in this layout, so it comes before M3 and before the rest of M2
+(working-tree rows, cache, watcher), as agreed with the owner.
+
+- [ ] Spike and ADR 0020: docking library (dockview vs. flexlayout-react) for a left dock and a
+      main dock, with the canvas graph, our theme tokens, keyboard focus, saving/restoring layouts
+- [ ] Activity bar; left dock where modules open, stack as tabs or split, resize and collapse;
+      module registry (one feature folder per module)
+- [ ] Main dock with document tabs: repository (graph) tabs that can be split side by side or
+      above each other; room for the single diff tab (content in M3)
+- [ ] Active repository (last focused repository tab) and selected commit shared by all modules;
+      selecting a commit updates every related module
+- [ ] Modules: Repositories (open and recent, submodules nested as a tree, opening a repository
+      tab), Branches (local, remote, tags; read-only with filter), Commit details (message,
+      author/committer, dates, hash, parents, refs and tags containing it), Stashes (read-only)
+- [ ] Toolbar for the active repository: Pull ▾ (pull, fetch, fetch all, fetch and prune), Push,
+      Commit, Stashes, current branch. Operations arriving later are disabled and say which
+      milestone delivers them
+- [ ] One saved layout for all repositories; open tabs restored between sessions; "Reset layout"
+- [ ] Keyboard: move focus between regions (F6), shortcuts to open modules
+- [ ] Docs, user guide, ADR 0020
 
 ### M3: Inspecting history
 
-- [ ] Commit details: message, author/committer, parents, children, refs containing it, signature status
+- [ ] Commit details module, complete: children, signature status (the basics are in M2.5)
+- [ ] Changed files module for the selected commit; selecting a file shows it in the single diff
+      tab, which switches files in place and stays where it is docked (several diff tabs: later)
 - [ ] Diff viewer: unified and side-by-side, virtualized for huge diffs, syntax highlighting, whitespace options, word diff, image and binary handling — ADR 0013
 - [ ] Changed files list and file tree of any revision; open/save a file at a revision
 - [ ] File history (following renames) and blame with "blame previous revision"
@@ -164,14 +191,19 @@ refs with the packed-refs buffer (refs are now the largest cost).
 - [ ] Stage/unstage files, hunks and single lines; discard changes (with confirmation)
 - [ ] Commit dialog: message editor with templates, amend, sign-off, GPG/SSH signing via git, author override, hooks output shown
 - [ ] Commit message history and recent-message reuse
-- [ ] Stash: create (incl. untracked, keep index), list, show, apply, pop, drop
+- [ ] Stash: create from selected files (checkbox list, message, keep index, include untracked),
+      list (Stashes module), show (files and diffs in the dock), apply/pop a whole stash or only
+      selected files, drop with confirmation; stash label in the graph
 - [ ] `.gitignore` helper: ignore file/extension/folder from the status list
 
 ### M5: Branches, tags and remotes
 
 - [ ] Branches and tags: create, rename, delete (unmerged warning), checkout/switch, track upstream
-- [ ] Ahead/behind counts per branch; sidebar with branches, remotes, tags, stashes, submodules, worktrees
-- [ ] Fetch, pull (merge/rebase/ff-only), push (incl. tags, force-with-lease behind confirmation) as background jobs with progress
+- [ ] Ahead/behind counts per branch; actions in the Branches module (checkout, create, rename,
+      delete, track); Submodules and Worktrees modules
+- [ ] Toolbar operations: Fetch, Fetch all, Fetch and prune (`git fetch --prune`), Pull
+      (merge/rebase/ff-only), Push (incl. tags, force-with-lease behind confirmation) as background
+      jobs with progress
 - [ ] Credentials: git credential helpers; `GIT_ASKPASS`/`SSH_ASKPASS` helper that asks in the app — ADR 0012
 - [ ] Manage remotes; clone dialog (shallow, single branch, partial clone, recursive submodules)
 - [ ] Background job registry: progress, cancel, logs, "equivalent command" shown — ADR 0011
@@ -187,7 +219,8 @@ refs with the packed-refs buffer (refs are now the largest cost).
 
 ### M7: Advanced Git
 
-- [ ] Submodules: status, init/update, open as a repo tab, diff of submodule pointers
+- [ ] Submodules: status, init/update, diff of submodule pointers (listing and opening them is in
+      the M2.5 Repositories module)
 - [ ] Worktrees: list, add, remove, open
 - [ ] Git LFS: detect, show pointers vs. content, lock/unlock
 - [ ] Bisect workflow (good/bad/skip from the graph)
@@ -206,7 +239,7 @@ refs with the packed-refs buffer (refs are now the largest cost).
 
 - [ ] Final logo: refined finch-on-a-branch artwork, small-size variants (16/24/32 px), monochrome version for the macOS menu bar and Linux symbolic icons, installer and website artwork
 - [ ] Keyboard shortcuts everywhere; accessibility pass (focus, ARIA, contrast)
-- [ ] Remember window sizes, open repo tabs, layout and filters
+- [ ] Remember window sizes and filters (open tabs and layout are restored from M2.5)
 - [ ] E2E smoke tests: open repo, browse graph, commit, branch, merge — ADR 0016
 - [ ] Release workflow: build, sign, notarize installers for all platforms
 - [ ] Auto-update with the Tauri updater plugin — ADR 0017
@@ -243,6 +276,11 @@ Thin native add-ons that only build a command line and launch `noblame`. ADR 001
 
 Move an item into a milestone when it is picked up.
 
+The owner's idea inbox (with where each idea is planned) is in
+[design/workbench.md](design/workbench.md#ideas-inbox).
+
+- [ ] Pop out any dock panel into its own window (second monitor)
+
 - [ ] GitHub / GitLab / Azure DevOps / Bitbucket: pull requests, CI status on commits
 - [ ] Graph minimap and "branch focus" (dim everything not reachable from selected branches)
 - [ ] Repository statistics (commits per author over time, churn, hot files)
@@ -255,27 +293,28 @@ Move an item into a milestone when it is picked up.
 
 ## ADR plan
 
-| ADR  | Topic                                                              | Milestone | Status   |
-| ---- | ------------------------------------------------------------------ | --------- | -------- |
-| 0001 | Tauri 2 as the desktop shell                                       | M1        | Accepted |
-| 0002 | Rust owns all Git access; the webview never touches the repo       | M1        | Accepted |
-| 0003 | tauri-specta for typed IPC                                         | M1        | Accepted |
-| 0004 | Frontend stack (React, TanStack Query, Zustand, shadcn/ui)         | M1        | Accepted |
-| 0005 | Code organization (workspace, feature folders, modules)            | M1        | Accepted |
-| 0006 | Error model (`AppError { code, message, hint }`)                   | M1        | Accepted |
-| 0007 | Git engine: gix for reads, git CLI for writes; minimum git version | M1        | Accepted |
-| 0008 | Binary graph blocks on demand (was: stream over channels)          | M2        | Accepted |
-| 0009 | Canvas graph rendering and lane layout                             | M2        | Accepted |
-| 0010 | On-disk graph cache                                                | M2        | Planned  |
-| 0011 | Background job model                                               | M5        | Planned  |
-| 0012 | Credentials and askpass                                            | M5        | Planned  |
-| 0013 | Diff viewer implementation                                         | M3        | Planned  |
-| 0014 | Conflict resolution UI                                             | M6        | Planned  |
-| 0015 | CLI, single instance and task windows                              | M1        | Accepted |
-| 0016 | Testing strategy                                                   | M9        | Planned  |
-| 0017 | Auto-update via the Tauri updater                                  | M9        | Planned  |
-| 0018 | Shell integration architecture                                     | T1        | Planned  |
-| 0019 | Status cache service and overlays                                  | T4        | Planned  |
+| ADR  | Topic                                                               | Milestone | Status   |
+| ---- | ------------------------------------------------------------------- | --------- | -------- |
+| 0001 | Tauri 2 as the desktop shell                                        | M1        | Accepted |
+| 0002 | Rust owns all Git access; the webview never touches the repo        | M1        | Accepted |
+| 0003 | tauri-specta for typed IPC                                          | M1        | Accepted |
+| 0004 | Frontend stack (React, TanStack Query, Zustand, shadcn/ui)          | M1        | Accepted |
+| 0005 | Code organization (workspace, feature folders, modules)             | M1        | Accepted |
+| 0006 | Error model (`AppError { code, message, hint }`)                    | M1        | Accepted |
+| 0007 | Git engine: gix for reads, git CLI for writes; minimum git version  | M1        | Accepted |
+| 0008 | Binary graph blocks on demand (was: stream over channels)           | M2        | Accepted |
+| 0009 | Canvas graph rendering and lane layout                              | M2        | Accepted |
+| 0010 | On-disk graph cache                                                 | M2        | Planned  |
+| 0011 | Background job model                                                | M5        | Planned  |
+| 0012 | Credentials and askpass                                             | M5        | Planned  |
+| 0013 | Diff viewer implementation                                          | M3        | Planned  |
+| 0014 | Conflict resolution UI                                              | M6        | Planned  |
+| 0015 | CLI, single instance and task windows                               | M1        | Accepted |
+| 0016 | Testing strategy                                                    | M9        | Planned  |
+| 0017 | Auto-update via the Tauri updater                                   | M9        | Planned  |
+| 0018 | Shell integration architecture                                      | T1        | Planned  |
+| 0019 | Status cache service and overlays                                   | T4        | Planned  |
+| 0020 | Workbench layout: activity bar, side panel modules, docking library | M2.5      | Planned  |
 
 ## Working agreement
 
