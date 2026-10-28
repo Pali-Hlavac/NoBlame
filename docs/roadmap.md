@@ -176,10 +176,17 @@ Verified in the running dev app (Windows 11, through the WebView2 DevTools port)
 their counts, selecting them, the header summary setting, refresh on focus, an external edit, and
 external commits with HEAD or an older commit selected.
 
-Next: slice 8, the on-disk graph cache (ADR 0010): skip index/order/layout when the tips are
-unchanged, and extend the graph incrementally after a commit or fetch instead of rebuilding it
-(about 1.5 s for 1M commits in a debug build today). Then slice 10 (measure on a real large
-repository), then M3.
+Then, same session: slice 8 (index reuse and cache, ADR 0010) and slice 10 (Linux kernel
+measured, layout pass made 10× faster for wide histories, targets revised above). M2 is done
+except measuring scroll frame rates, which needs someone at the keyboard.
+
+M3 started: slice 1 (Changed files module). Not verified in the running app yet (the owner's dev
+instance was running, and a second one only forwards to it); covered by integration and unit
+tests. Next: slice 2, the diff tab (ADR 0013).
+
+Open decision: a fresh clone of a huge repository without a commit-graph file takes 10.9 s to
+show its first rows (Linux). Either offer `git commit-graph write` more prominently (11 s, once),
+or show rows while indexing in the background.
 
 ### M2.5: Workbench layout (agreed 2026-10-28; see [design/workbench.md](design/workbench.md))
 

@@ -9,8 +9,8 @@ repositories (hundreds of thousands of commits, thousands of refs, huge working 
 Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 [docs/roadmap.md](docs/roadmap.md); requirements: [docs/project-brief.md](docs/project-brief.md).
 
-> Status: M1 and M2.5 (workbench) done; M2 nearly done (graph, working tree rows, watcher and
-> index cache work; measuring on a real large repository is left), then M3. Parts marked _(later)_ below are
+> Status: M1, M2 and M2.5 done (graph, working tree rows, watcher, index cache; measured on the
+> Linux kernel). M3 in progress: Changed files module done, the diff tab is next. Parts marked _(later)_ below are
 > planned and do not exist yet.
 
 ## Architecture
