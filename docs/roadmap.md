@@ -155,6 +155,26 @@ measure on a real large repository (Linux) and revise the targets. Agreed (2026-
 the M2.5 workbench first; see [design/workbench.md](design/workbench.md). Optimisation candidate: peel
 refs with the packed-refs buffer (refs are now the largest cost).
 
+#### Where we left off (2026-10-28, session 4)
+
+Done: slice 7 (working tree rows, with the placement setting the owner asked for) and slice 9
+(file watcher), before slice 8 because the rows needed live data and the cache's incremental
+update will hang off the same change events.
+
+- Status summary from `git status --porcelain=v2 -z` (read-only): about 170 ms for the 40,000
+  files of synthetic-1m. gix status is still to be benchmarked against it (M4).
+- Watcher: refs changes reload the graph (selection kept, or following HEAD); working tree
+  changes re-read the status; ignored files are filtered with gix excludes.
+
+Verified in the running dev app (Windows 11, through the WebView2 DevTools port): the rows and
+their counts, selecting them, the header summary setting, refresh on focus, an external edit, and
+external commits with HEAD or an older commit selected.
+
+Next: slice 8, the on-disk graph cache (ADR 0010): skip index/order/layout when the tips are
+unchanged, and extend the graph incrementally after a commit or fetch instead of rebuilding it
+(about 1.5 s for 1M commits in a debug build today). Then slice 10 (measure on a real large
+repository), then M3.
+
 ### M2.5: Workbench layout (agreed 2026-10-28; see [design/workbench.md](design/workbench.md))
 
 Every later feature lands in this layout, so it comes before M3 and before the rest of M2
