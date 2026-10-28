@@ -22,6 +22,7 @@ Each icon in the activity bar opens a module in the sidebar:
 | Branch | Branches       | Alt+2    | Local branches, the branches of each remote, and tags                  |
 | Commit | Commit details | Alt+3    | Everything about the selected commit                                   |
 | Box    | Stashes        | Alt+4    | Your stashes                                                           |
+| File   | Changed files  | Alt+5    | The files the selected commit changed                                  |
 
 The gear at the bottom of the activity bar opens **Settings** in a tab: the theme, the commit
 highlight, and whether repositories show their **…** button.

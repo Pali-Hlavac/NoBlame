@@ -6,6 +6,7 @@
 //! See `docs/architecture/git-engine.md`.
 
 pub mod cli;
+pub mod diff;
 pub mod graph;
 pub mod repo;
 pub mod stash;

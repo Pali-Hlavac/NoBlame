@@ -2,9 +2,16 @@
  * The module registry: every module the activity bar offers, in order. A new module is a
  * component in its feature folder plus one entry here (ids are saved in layouts; never reuse).
  */
-import { ArchiveIcon, FolderGitIcon, GitBranchIcon, GitCommitHorizontalIcon } from "lucide-react";
+import {
+  ArchiveIcon,
+  FileDiffIcon,
+  FolderGitIcon,
+  GitBranchIcon,
+  GitCommitHorizontalIcon,
+} from "lucide-react";
 
 import { BranchesModule } from "@/features/branches";
+import { ChangedFilesModule } from "@/features/changed-files";
 import { CommitDetailsModule } from "@/features/commit-details";
 import { RepositoriesModule } from "@/features/repositories";
 import { StashesModule } from "@/features/stashes";
@@ -39,10 +46,17 @@ export const MODULES: readonly WorkbenchModule[] = [
     hotkey: "alt+4",
     component: StashesModule,
   },
+  {
+    id: "changed-files",
+    title: "Changed files",
+    icon: FileDiffIcon,
+    hotkey: "alt+5",
+    component: ChangedFilesModule,
+  },
 ];
 
 /** Module dock on first start and after "Reset layout": groups top to bottom, tabs inside. */
 export const DEFAULT_MODULE_LAYOUT: readonly (readonly string[])[] = [
   ["repositories", "branches"],
-  ["commit-details", "stashes"],
+  ["commit-details", "changed-files", "stashes"],
 ];

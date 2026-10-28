@@ -52,6 +52,8 @@ export const commands = {
 	removeRecentRepository: (path: string) => typedError<RecentRepository[], AppError>(__TAURI_INVOKE("remove_recent_repository", { path })),
 	/**  Details of the commit on `row`: message, people, parents, refs and refs containing it. */
 	getCommitDetails: (id: number, row: number) => typedError<CommitDetailsDto, AppError>(__TAURI_INVOKE("get_commit_details", { id, row })),
+	/**  The files the commit on `row` changed against its parent number `parent` (0 = first). */
+	getChangedFiles: (id: number, row: number, parent: number) => typedError<ChangedFilesDto, AppError>(__TAURI_INVOKE("get_changed_files", { id, row, parent })),
 	/**  Every branch, remote branch and tag with the row of its commit. */
 	listRefs: (id: number) => typedError<RefEntry[], AppError>(__TAURI_INVOKE("list_refs", { id })),
 	/**  The stash list, newest first. */
@@ -96,6 +98,48 @@ export type AppInfo = {
 	os: string,
 	/**  CPU architecture, e.g. `x86_64`, `aarch64`. */
 	arch: string,
+};
+
+/**  How a file changed. */
+export type ChangeStatusDto = 
+/**  New file. */
+"added" | 
+/**  Removed file. */
+"deleted" | 
+/**  Content or mode changed. */
+"modified" | 
+/**  Moved (`previousPath` is the old name). */
+"renamed" | 
+/**  Copied from `previousPath`. */
+"copied";
+
+/**
+ *  One changed file. Paths are for display (non-UTF-8 bytes are replaced); the blob ids
+ *  identify the contents without a round trip through the path.
+ */
+export type ChangedFileDto = {
+	/**  Path after the change (before it, for deletions). */
+	path: string,
+	/**  Old path of a rename or copy. */
+	previousPath: string | null,
+	/**  How it changed. */
+	status: ChangeStatusDto,
+	/**  Blob before the change (hex); `null` when added. */
+	oldId: string | null,
+	/**  Blob after the change (hex); `null` when deleted. */
+	newId: string | null,
+	/**  A submodule pointer, not a file. */
+	submodule: boolean,
+};
+
+/**  The changed files of one commit against one parent. */
+export type ChangedFilesDto = {
+	/**  Sorted by path, at most 5,000. */
+	files: ChangedFileDto[],
+	/**  All changed files, including those not listed. */
+	total: number,
+	/**  Parents of the commit (more than one for a merge; 0 for the first commit). */
+	parentCount: number,
 };
 
 /**  Everything the Commit details module shows. */

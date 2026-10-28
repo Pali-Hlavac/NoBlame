@@ -52,6 +52,9 @@ All notable changes to NoBlame are documented here. The format follows
   and committer with their time zones, refs, and the branches, remote branches and tags that
   contain the commit (computed from the graph: 5.5 ms for the oldest of a million commits).
   It follows the commit selected in the active repository: the repository tab focused last.
+- Changed files module (M3, Alt+5): the files the selected commit changed, with status letters,
+  renames and copies (as your git config detects them), and a parent choice for merge commits.
+  **Placeholder:** the diff of a chosen file arrives with the diff tab; uncommitted files in M4.
 - Graph cache (M2, ADR 0010): rebuilding the graph after a change reads only new commits, and
   the commit index is saved in the app's cache folder, so reopening a repository does the same.
   Without a commit-graph file, indexing 100,000 commits drops from 368 ms to 4 ms.

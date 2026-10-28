@@ -254,8 +254,9 @@ Not verified in the running app (they need someone at the keyboard; the logic is
 ### M3: Inspecting history
 
 - [ ] Commit details module, complete: children, signature status (the basics are in M2.5)
-- [ ] Changed files module for the selected commit; selecting a file shows it in the single diff
-      tab, which switches files in place and stays where it is docked (several diff tabs: later)
+- [~] Changed files module for the selected commit (done: list, renames, merge parents); selecting
+  a file shows it in the single diff tab, which switches files in place and stays where it is
+  docked (several diff tabs: later)
 - [ ] Diff viewer: unified and side-by-side, virtualized for huge diffs, syntax highlighting, whitespace options, word diff, image and binary handling — ADR 0013
 - [ ] Changed files list and file tree of any revision; open/save a file at a revision
 - [ ] File history (following renames) and blame with "blame previous revision"
@@ -264,6 +265,21 @@ Not verified in the running app (they need someone at the keyboard; the logic is
       general search in messages)
 - [ ] Find in the graph (hash, message, ref) with jump-to; "go to commit"
 - [ ] Compare any two commits/branches
+
+Slices, in order (planned 2026-10-28):
+
+1. **Changed files** module: the files the selected commit changed (against its first parent;
+   merges and other parents later), with status and renames; gix tree diff.
+2. **Diff tab**: one tab in the main dock showing the selected file's unified diff, virtualized,
+   switching files in place. ADR 0013.
+3. Side-by-side view, whitespace options, word diff, syntax highlighting, images and binaries.
+4. **Filters** in the repository tab (owner request): one branch, one author, changes to a path,
+   search in messages; first-parent and hide merges.
+5. Find in the graph and "go to commit".
+6. File tree of a revision; open or save a file at a revision.
+7. File history (following renames) and blame.
+8. Compare two commits or branches.
+9. Commit details: children and signature status.
 
 ### M4: Working copy and committing
 

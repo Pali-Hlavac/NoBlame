@@ -2,7 +2,9 @@
 
 use tauri::State;
 
-use super::{CommitDetailsDto, RefEntry, StashDto, StatusSummaryDto, SubmoduleDto, service};
+use super::{
+    ChangedFilesDto, CommitDetailsDto, RefEntry, StashDto, StatusSummaryDto, SubmoduleDto, service,
+};
 use crate::error::CommandResult;
 use crate::repository::{RepoId, RepoSessions};
 
@@ -15,6 +17,18 @@ pub async fn get_commit_details(
     row: u32,
 ) -> CommandResult<CommitDetailsDto> {
     Ok(service::details(&sessions, id, row).await?)
+}
+
+/// The files the commit on `row` changed against its parent number `parent` (0 = first).
+#[tauri::command]
+#[specta::specta]
+pub async fn get_changed_files(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    row: u32,
+    parent: u32,
+) -> CommandResult<ChangedFilesDto> {
+    Ok(service::changed_files(&sessions, id, row, parent).await?)
 }
 
 /// Every branch, remote branch and tag with the row of its commit.

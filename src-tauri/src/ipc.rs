@@ -50,6 +50,7 @@ pub fn builder() -> Builder<tauri::Wry> {
             repository::commands::list_recent_repositories,
             repository::commands::remove_recent_repository,
             inspect::commands::get_commit_details,
+            inspect::commands::get_changed_files,
             inspect::commands::list_refs,
             inspect::commands::list_stashes,
             inspect::commands::get_status_summary,

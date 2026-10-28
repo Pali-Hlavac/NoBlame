@@ -75,6 +75,7 @@ Read-only views for the workbench modules (`src-tauri/src/inspect/`), and the sa
 
 | Command                 | Async | Returns                            | Purpose                                                                                                       |
 | ----------------------- | ----- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `get_changed_files`     | yes   | `Result<ChangedFilesDto>`          | Files the commit on `row` changed against parent number `parent` (status, paths, blob ids; max. 5,000)        |
 | `get_commit_details`    | yes   | `Result<CommitDetailsDto>`         | Message, author/committer, parents with rows, refs, refs containing the commit (max. 500)                     |
 | `list_refs`             | yes   | `Result<RefEntry[]>`               | Branches, remote branches and tags from the session's graph, with the row of their commit                     |
 | `list_stashes`          | yes   | `Result<StashDto[]>`               | The stash list from the `refs/stash` reflog, newest first                                                     |

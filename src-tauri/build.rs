@@ -25,6 +25,7 @@ const APP_COMMANDS: &[&str] = &[
     "list_recent_repositories",
     "remove_recent_repository",
     "get_commit_details",
+    "get_changed_files",
     "list_refs",
     "list_stashes",
     "get_status_summary",

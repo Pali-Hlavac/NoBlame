@@ -89,10 +89,12 @@ Settings shown there (stored in `settings.json`, see `src-tauri/src/settings/typ
 | Repositories   | Alt+1    | Open repositories with their submodules nested recursively, then recent repositories; open and create buttons                                           |
 | Branches       | Alt+2    | Local branches, one section per remote, tags; filter; collapsible sections; current branch marked **HEAD**; a click selects the branch's commit         |
 | Commit details | Alt+3    | Message, commit id (copy), parents (click to select), author and committer with their time zones, refs, and the branches and tags containing the commit |
+| Changed files  | Alt+5    | The files the selected commit changed (status, renames); a merge can be compared with any parent ([changed-files.md](changed-files.md))                 |
 | Stashes        | Alt+4    | Stash list (`stash@{n}`, message, branch, date); refreshed when the window regains focus                                                                |
 
-Default arrangement: Repositories and Branches as tabs on top, Commit details and Stashes as tabs
-below.
+Default arrangement: Repositories and Branches as tabs on top, Commit details, Changed files and
+Stashes as tabs below. A layout saved before Changed files existed does not show it; open it
+from the activity bar or with Alt+5.
 
 Details:
 

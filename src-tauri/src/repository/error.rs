@@ -1,5 +1,6 @@
 //! Repository errors and their mapping to [`AppError`].
 
+use git_core::diff::DiffError;
 use git_core::graph::GraphError;
 use git_core::repo::RepoError;
 use git_core::stash::StashError;
@@ -25,6 +26,9 @@ pub enum RepositoryError {
     /// Listing submodules failed.
     #[error(transparent)]
     Submodule(#[from] SubmoduleError),
+    /// Diffing failed.
+    #[error(transparent)]
+    Diff(#[from] DiffError),
     /// Reading the working tree status failed.
     #[error(transparent)]
     Status(#[from] StatusError),
@@ -64,11 +68,15 @@ impl From<RepositoryError> for AppError {
             RepositoryError::Open(RepoError::Gix(message))
             | RepositoryError::Graph(GraphError::Gix(message))
             | RepositoryError::Stash(StashError::Gix(message))
-            | RepositoryError::Submodule(SubmoduleError::Gix(message)) => {
+            | RepositoryError::Submodule(SubmoduleError::Gix(message))
+            | RepositoryError::Diff(DiffError::Gix(message)) => {
                 tracing::error!(%message, "repository read failed");
                 AppError::new(ErrorCode::GitFailed, format!("Reading the repository failed: {message}"))
             }
             RepositoryError::Graph(error @ GraphError::RowOutOfRange { .. }) => {
+                AppError::new(ErrorCode::InvalidInput, error.to_string())
+            }
+            RepositoryError::Diff(error @ DiffError::NoSuchParent(_)) => {
                 AppError::new(ErrorCode::InvalidInput, error.to_string())
             }
             RepositoryError::Status(StatusError::Git(error)) => GitEnvError::from(error).into(),

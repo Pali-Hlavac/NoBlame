@@ -1,7 +1,8 @@
 //! Inspect operations behind the Tauri commands. They reuse the session's graph, so they cost
 //! nothing extra when the repository tab has already loaded its history.
 
-use git_core::graph::{RefKind, commit_details};
+use git_core::diff::commit_changes;
+use git_core::graph::{GraphError, RefKind, commit_details};
 use std::path::PathBuf;
 
 use git_core::cli::Git;
@@ -12,7 +13,9 @@ use git_core::status::status_summary;
 use git_core::submodule::list_submodules;
 use tokio_util::sync::CancellationToken;
 
-use super::{CommitDetailsDto, RefEntry, StashDto, StatusSummaryDto, SubmoduleDto};
+use super::{
+    ChangedFilesDto, CommitDetailsDto, RefEntry, StashDto, StatusSummaryDto, SubmoduleDto,
+};
 use crate::git_env::GitEnvError;
 use crate::repository::{RepoId, RepoSessions, RepositoryError, blocking};
 
@@ -27,6 +30,25 @@ pub async fn details(
     let repo = session.repo.clone();
     let details = blocking(move || commit_details(&repo.local(), &graph, row)).await??;
     Ok(details.into())
+}
+
+/// The files the commit on `row` changed against its parent number `parent` (0 = first).
+pub async fn changed_files(
+    sessions: &RepoSessions,
+    id: RepoId,
+    row: u32,
+    parent: u32,
+) -> Result<ChangedFilesDto, RepositoryError> {
+    let session = sessions.get(id)?;
+    let graph = session.graph(false).await?;
+    let commit = graph.id_at(row).ok_or(GraphError::RowOutOfRange {
+        row,
+        rows: graph.row_count(),
+    })?;
+    let repo = session.repo.clone();
+    let changes =
+        blocking(move || commit_changes(&repo.local(), commit, parent as usize)).await??;
+    Ok(changes.into())
 }
 
 /// Local branches, remote branches and tags (not a detached HEAD), sorted by kind and name.

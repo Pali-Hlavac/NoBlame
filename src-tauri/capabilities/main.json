@@ -32,6 +32,7 @@
     "allow-list-recent-repositories",
     "allow-remove-recent-repository",
     "allow-get-commit-details",
+    "allow-get-changed-files",
     "allow-list-refs",
     "allow-list-stashes",
     "allow-get-status-summary",

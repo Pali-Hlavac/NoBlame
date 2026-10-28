@@ -15,6 +15,7 @@ On macOS, use **⌘** where this page says **Ctrl**, except for switching tabs, 
 | Alt+2          | Show Branches                           |
 | Alt+3          | Show Commit details                     |
 | Alt+4          | Show Stashes                            |
+| Alt+5          | Show Changed files                      |
 | Ctrl+, (⌘,)    | Open Settings                           |
 | Escape         | Close the palette or a dialog           |
 | Enter          | Run the selected command in the palette |
