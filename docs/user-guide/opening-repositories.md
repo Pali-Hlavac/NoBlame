@@ -59,6 +59,12 @@ commit-graph file. If a repository has none, NoBlame offers **Write commit-graph
 `git commit-graph write --reachable --changed-paths`, which can take a minute on very large
 repositories, and you can keep working meanwhile. Click **×** to hide the notice.
 
+The file is a speed-up that Git itself uses too: it is added to the hidden `.git` folder, it is
+never pushed, and your commits, branches and files do not change. Git also writes it during its
+regular clean-up (`git gc`). If loading a repository took more than a couple of seconds, the
+notice is highlighted and tells you how long loading took and how long writing the file would
+take. NoBlame only writes it when you click the button.
+
 ## When a repository does not open
 
 - **"… is not a Git repository"**: the folder is not inside a repository. Choose another folder,

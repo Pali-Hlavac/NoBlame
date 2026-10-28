@@ -99,6 +99,14 @@ much faster with one and offers **Write commit-graph**. It runs
 very large repositories (68 s for 1M synthetic commits). The notice can be dismissed for the
 session. Until the job model of M5 arrives the command cannot be cancelled.
 
+The notice says what the file is: one index file added to the `.git` folder; commits, branches
+and files do not change. When the first load took longer than 2 s (`SLOW_LOAD_MS`), the notice
+is highlighted and names the cost, for example "Reading 1,503,174 commits took 10.9 s … Writing
+one takes about 11 seconds, once". The write time is estimated at 7.3 µs per commit, measured on
+the Linux kernel. NoBlame never writes the file without the click (owner decision 2026-10-28;
+writing it automatically may come later as a setting that is off by default). From the second
+open on, the index cache (ADR 0010) makes loads fast anyway, so the notice is plain again.
+
 ## Untrusted repositories
 
 A repository owned by another user and not listed in git's `safe.directory` is refused, as git

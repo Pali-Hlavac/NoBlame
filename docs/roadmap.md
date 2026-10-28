@@ -184,9 +184,10 @@ M3 started: slice 1 (Changed files module). Not verified in the running app yet 
 instance was running, and a second one only forwards to it); covered by integration and unit
 tests. Next: slice 2, the diff tab (ADR 0013).
 
-Open decision: a fresh clone of a huge repository without a commit-graph file takes 10.9 s to
-show its first rows (Linux). Either offer `git commit-graph write` more prominently (11 s, once),
-or show rows while indexing in the background.
+Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
+takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
+highlighted after a slow first load and names both costs (done). Option 2 later: show rows while
+indexing in the background. Writing the file automatically could be a setting, off by default.
 
 ### M2.5: Workbench layout (agreed 2026-10-28; see [design/workbench.md](design/workbench.md))
 
