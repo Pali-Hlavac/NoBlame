@@ -72,3 +72,11 @@
   outline: 2px solid var(--ring);
   outline-offset: -2px;
 }
+
+/* dockview shows the tab strip's scrollbar while a group resizes, which flashes a bar under the
+   tabs on every frame of a window or splitter drag. Show it only on hover and while scrolling. */
+.dockview-theme-noblame
+  .dv-scrollable.dv-scrollable-resizing:not(:hover, .dv-scrollable-scrolling)
+  .dv-scrollbar {
+  background-color: transparent;
+}
