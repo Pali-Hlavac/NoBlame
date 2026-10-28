@@ -79,9 +79,9 @@ pub fn show_main_window(app: &AppHandle) -> Result<(), WindowError> {
 /// The main window draws its own title bar (with the toolbar in it, see `TitleBar.tsx`). macOS
 /// keeps the traffic lights over a transparent title bar; elsewhere the window has no system
 /// frame and the UI draws minimize, maximize and close.
-fn with_custom_title_bar<'a, R: tauri::Runtime, M: Manager<R>>(
-    builder: WebviewWindowBuilder<'a, R, M>,
-) -> WebviewWindowBuilder<'a, R, M> {
+fn with_custom_title_bar<R: tauri::Runtime, M: Manager<R>>(
+    builder: WebviewWindowBuilder<'_, R, M>,
+) -> WebviewWindowBuilder<'_, R, M> {
     #[cfg(target_os = "macos")]
     {
         builder
