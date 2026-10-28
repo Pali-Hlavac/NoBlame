@@ -2,7 +2,7 @@
 
 use tauri::State;
 
-use super::{CommitDetailsDto, RefEntry, service};
+use super::{CommitDetailsDto, RefEntry, StashDto, service};
 use crate::error::CommandResult;
 use crate::repository::{RepoId, RepoSessions};
 
@@ -25,4 +25,14 @@ pub async fn list_refs(
     id: RepoId,
 ) -> CommandResult<Vec<RefEntry>> {
     Ok(service::refs(&sessions, id).await?)
+}
+
+/// The stash list, newest first.
+#[tauri::command]
+#[specta::specta]
+pub async fn list_stashes(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+) -> CommandResult<Vec<StashDto>> {
+    Ok(service::stashes(&sessions, id).await?)
 }

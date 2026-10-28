@@ -24,6 +24,7 @@
     "allow-remove-recent-repository",
     "allow-get-commit-details",
     "allow-list-refs",
+    "allow-list-stashes",
     "allow-get-workbench-layout",
     "allow-save-workbench-layout"
   ]

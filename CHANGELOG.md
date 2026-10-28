@@ -35,6 +35,9 @@ All notable changes to NoBlame are documented here. The format follows
   sections with a filter; the current branch is marked; a click selects the branch's commit in
   the graph. Read-only for now (checkout, create, delete and the other actions arrive in M5).
   The list renders only visible rows, so 10,000 refs stay fast.
+- Stashes module (Alt+4): the stash list (message, branch, date), refreshed when the window
+  regains focus. **Read-only:** creating, applying, popping and dropping stashes and applying
+  single files arrive in M4.
 - Commit details module (Alt+3): message, commit id (copy), parents (click to select), author
   and committer with their time zones, refs, and the branches, remote branches and tags that
   contain the commit (computed from the graph: 5.5 ms for the oldest of a million commits).

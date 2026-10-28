@@ -45,6 +45,7 @@ pub fn builder() -> Builder<tauri::Wry> {
             repository::commands::remove_recent_repository,
             inspect::commands::get_commit_details,
             inspect::commands::list_refs,
+            inspect::commands::list_stashes,
             workbench::commands::get_workbench_layout,
             workbench::commands::save_workbench_layout,
         ])

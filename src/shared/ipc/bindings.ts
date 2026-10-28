@@ -42,6 +42,8 @@ export const commands = {
 	getCommitDetails: (id: number, row: number) => typedError<CommitDetailsDto, AppError>(__TAURI_INVOKE("get_commit_details", { id, row })),
 	/**  Every branch, remote branch and tag with the row of its commit. */
 	listRefs: (id: number) => typedError<RefEntry[], AppError>(__TAURI_INVOKE("list_refs", { id })),
+	/**  The stash list, newest first. */
+	listStashes: (id: number) => typedError<StashDto[], AppError>(__TAURI_INVOKE("list_stashes", { id })),
 	/**
 	 *  The saved layout, or `None` on first launch. A corrupted file is logged and treated as
 	 *  missing, so a bad layout can never stop the main window from opening.
@@ -296,6 +298,20 @@ export type SignatureDto = {
 	time: number | null,
 	/**  Time-zone offset in minutes east of UTC. */
 	offsetMinutes: number,
+};
+
+/**  One stash, newest first. */
+export type StashDto = {
+	/**  `n` in `stash@{n}`. */
+	index: number,
+	/**  Full id of the stash commit. */
+	id: string,
+	/**  Message as `git stash list` shows it. */
+	message: string,
+	/**  Branch it was made on, if known. */
+	branch: string | null,
+	/**  When it was made, seconds since the epoch. */
+	time: number | null,
 };
 
 /**  A focused task window. Also the list of `noblame` subcommands (ADR 0015). */

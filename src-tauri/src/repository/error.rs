@@ -2,6 +2,7 @@
 
 use git_core::graph::GraphError;
 use git_core::repo::RepoError;
+use git_core::stash::StashError;
 
 use crate::error::{AppError, ErrorCode};
 use crate::git_env::GitEnvError;
@@ -16,6 +17,9 @@ pub enum RepositoryError {
     /// Reading history failed.
     #[error(transparent)]
     Graph(#[from] GraphError),
+    /// Reading the stash list failed.
+    #[error(transparent)]
+    Stash(#[from] StashError),
     /// Running git failed.
     #[error(transparent)]
     Git(#[from] GitEnvError),
@@ -50,7 +54,8 @@ impl From<RepositoryError> for AppError {
                 path.display()
             )),
             RepositoryError::Open(RepoError::Gix(message))
-            | RepositoryError::Graph(GraphError::Gix(message)) => {
+            | RepositoryError::Graph(GraphError::Gix(message))
+            | RepositoryError::Stash(StashError::Gix(message)) => {
                 tracing::error!(%message, "repository read failed");
                 AppError::new(ErrorCode::GitFailed, format!("Reading the repository failed: {message}"))
             }

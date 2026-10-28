@@ -2,8 +2,9 @@
 //! nothing extra when the repository tab has already loaded its history.
 
 use git_core::graph::{RefKind, commit_details};
+use git_core::stash::list_stashes;
 
-use super::{CommitDetailsDto, RefEntry};
+use super::{CommitDetailsDto, RefEntry, StashDto};
 use crate::repository::{RepoId, RepoSessions, RepositoryError, blocking};
 
 /// Details of the commit on `row`, including the references containing it.
@@ -28,4 +29,14 @@ pub async fn refs(sessions: &RepoSessions, id: RepoId) -> Result<Vec<RefEntry>, 
         .filter(|(reference, _)| reference.kind != RefKind::DetachedHead)
         .map(|(reference, row)| RefEntry::new(reference, row))
         .collect())
+}
+
+/// The stash list, newest first. Read from disk every time (stashes change outside the app).
+pub async fn stashes(
+    sessions: &RepoSessions,
+    id: RepoId,
+) -> Result<Vec<StashDto>, RepositoryError> {
+    let repo = sessions.get(id)?.repo.clone();
+    let stashes = blocking(move || list_stashes(&repo.local())).await??;
+    Ok(stashes.into_iter().map(StashDto::from).collect())
 }

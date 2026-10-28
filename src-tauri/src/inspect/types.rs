@@ -1,6 +1,7 @@
 //! Data shared with the frontend by the inspect commands.
 
 use git_core::graph::{CommitDetails, GraphRef, ParentInfo, Signature};
+use git_core::stash::StashEntry;
 use serde::Serialize;
 use specta::Type;
 
@@ -111,6 +112,36 @@ impl RefEntry {
             label: RefLabel::from(reference),
             target: reference.target.to_string(),
             row,
+        }
+    }
+}
+
+/// One stash, newest first.
+#[derive(Debug, Clone, PartialEq, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct StashDto {
+    /// `n` in `stash@{n}`.
+    pub index: u32,
+    /// Full id of the stash commit.
+    pub id: String,
+    /// Message as `git stash list` shows it.
+    pub message: String,
+    /// Branch it was made on, if known.
+    pub branch: Option<String>,
+    /// When it was made, seconds since the epoch.
+    pub time: f64,
+}
+
+impl From<StashEntry> for StashDto {
+    fn from(stash: StashEntry) -> Self {
+        Self {
+            index: stash.index,
+            id: stash.id,
+            message: stash.message,
+            branch: stash.branch,
+            // Exact to the second up to the year 287 million: f64 holds 53-bit integers.
+            #[allow(clippy::cast_precision_loss)]
+            time: stash.time as f64,
         }
     }
 }
