@@ -1,5 +1,5 @@
 /** Submodules of a repository, nested. */
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQueries, useQuery } from "@tanstack/react-query";
 
 import { commands, unwrap } from "@/shared/ipc/client";
 
@@ -8,10 +8,19 @@ export const submoduleKeys = {
 };
 
 /** Submodules change rarely and outside the app, so they refresh when the window regains focus. */
-export function useSubmodules(path: string) {
-  return useQuery({
+function submodulesQuery(path: string) {
+  return queryOptions({
     queryKey: submoduleKeys.byPath(path),
     queryFn: () => unwrap(commands.listSubmodules(path)),
     refetchOnWindowFocus: true,
   });
+}
+
+export function useSubmodules(path: string) {
+  return useQuery(submodulesQuery(path));
+}
+
+/** Submodule trees of several repositories, in the same order as `paths`. */
+export function useSubmoduleTrees(paths: readonly string[]) {
+  return useQueries({ queries: paths.map(submodulesQuery) });
 }

@@ -11,11 +11,12 @@ Stashes and the toolbar arrive in M4 and M5.
 ## Layout
 
 ```
-┌────┬───────────────────┬─────────────────────────────────────────────────────┐
-│ ▣  │ Repositories│Bra… │ Pull ▾  Push  Commit  Stashes        app  main  🔍  │
-│ ⑂  │ ─ module dock ─── ├─────────────────────────────────────────────────────┤
-│ ◇  │                   │ Welcome │ synthetic-10k │ app        (document dock) │
-│ ▤  │ Commit det…│Stash │                                                     │
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 🐦 Pull ▾  Push  Commit  Stashes   (drag area)      app  main  🔍   _  □  ×  │
+├────┬───────────────────┬─────────────────────────────────────────────────────┤
+│ ▣  │ Repositories│Bra… │ Welcome │ synthetic-10k │ app        (document dock) │
+│ ⑂  │ ─ module dock ─── │                                                     │
+│ ◇  │ Commit det…│Stash │                                                     │
 ├────┴───────────────────┴─────────────────────────────────────────────────────┤
 │ status bar                                                                   │
 └──────────────────────────────────────────────────────────────────────────────┘
@@ -29,8 +30,27 @@ Stashes and the toolbar arrive in M4 and M5.
   collapsed by dragging it closed or with the activity bar.
 - **Document dock**: Welcome and repository tabs. Drag a tab to an edge to split the dock left,
   right, above or below. New tabs open in the focused group.
-- **Toolbar**: actions for the active repository. The right end shows the active repository, its
-  current branch and the command palette button. Labels hide when the toolbar is narrow.
+- **Title bar** (custom, `features/window-frame`):
+  - It holds the toolbar's actions for the active repository, a drag area, the active repository
+    with its current branch, the command palette button and the window buttons.
+  - Labels hide when the window is narrower than 48rem.
+  - Because the toolbar lives here, the module tabs and the document tabs start on the same line.
+  - **Windows and Linux**:
+    - The main window has no system frame (`decorations(false)`); the UI draws minimize,
+      maximize/restore and close.
+    - Empty title-bar space drags the window, a double click maximizes, and the edges still
+      resize.
+    - Windows 11 snap layouts on hovering the maximize button are not available with a custom
+      frame. Dragging to a screen edge still snaps.
+  - **macOS**:
+    - The native traffic lights stay, over a transparent title bar (`TitleBarStyle::Overlay`,
+      hidden title, lights centred at 14,12).
+    - The bar leaves room for them on the left and draws no window buttons.
+  - Task windows keep the normal system frame.
+
+Dragging tabs needs HTML drag and drop, so both window kinds are built with
+`disable_drag_drop_handler()`. Tauri's file-drop handler would otherwise swallow the events on
+Windows. Dropping folders onto the window to open them will use HTML drop events later.
 
 Floating groups and popping a group out into its own window are switched off for now (backlog).
 
@@ -61,6 +81,8 @@ Details:
 - **Repositories**:
   - A click on a repository focuses its tab; a click on a submodule opens it as a repository
     tab.
+  - An open submodule stays inside its parent's tree: shown in bold, and highlighted when it is
+    the active repository. It is not listed again as a repository of its own.
   - Submodules that are not initialized are dimmed and cannot be opened; initializing them is M7.
   - Recent repositories that are already open are not repeated; missing folders are dimmed.
 - **Branches**:
@@ -79,7 +101,7 @@ Details:
 Modules that work on the active repository share one frame (`WithActiveRepository`). It explains
 "No repository open", "Opening repository…" or the error, so modules only render their content.
 
-## Toolbar
+## Toolbar (in the title bar)
 
 | Button  | Does                                                       |
 | ------- | ---------------------------------------------------------- |

@@ -17,6 +17,8 @@ interface RepositoryTreeRowProps {
   onToggle?: () => void;
   onOpen: (() => void) | undefined;
   current?: boolean;
+  /** Shown in bold, e.g. a submodule that has a tab open. */
+  emphasized?: boolean;
   dimmed?: boolean;
   /** Shown at the right end, e.g. a remove button. */
   actions?: ReactNode;
@@ -57,7 +59,7 @@ export function RepositoryTreeRow(props: RepositoryTreeRowProps) {
         onClick={onOpen}
       >
         <Icon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-        <span className="truncate">{label}</span>
+        <span className={cn("truncate", props.emphasized && "font-medium")}>{label}</span>
       </button>
       {props.actions}
     </div>

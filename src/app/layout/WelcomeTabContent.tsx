@@ -15,27 +15,29 @@ export function WelcomeTabContent() {
   const openRepository = useOpenRepository();
   const createRepository = useCreateRepository();
   return (
-    <WelcomeView
-      paletteHotkey={PALETTE_HOTKEY}
-      notice={<GitNotice className="w-full" />}
-      actions={
-        <>
-          <Button onClick={() => void openRepository()}>
-            <FolderOpenIcon aria-hidden />
-            Open repository…
-          </Button>
-          <Button
-            variant="outline"
-            disabled={createRepository.pending}
-            onClick={() => void createRepository.create()}
-          >
-            <FolderPlusIcon aria-hidden />
-            Create repository…
-          </Button>
-        </>
-      }
-    >
-      <RecentRepositories />
-    </WelcomeView>
+    <div className="h-full overflow-auto">
+      <WelcomeView
+        paletteHotkey={PALETTE_HOTKEY}
+        notice={<GitNotice className="w-full" />}
+        actions={
+          <>
+            <Button onClick={() => void openRepository()}>
+              <FolderOpenIcon aria-hidden />
+              Open repository…
+            </Button>
+            <Button
+              variant="outline"
+              disabled={createRepository.pending}
+              onClick={() => void createRepository.create()}
+            >
+              <FolderPlusIcon aria-hidden />
+              Create repository…
+            </Button>
+          </>
+        }
+      >
+        <RecentRepositories />
+      </WelcomeView>
+    </div>
   );
 }

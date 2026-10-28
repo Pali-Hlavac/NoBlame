@@ -7,9 +7,9 @@ import { LoadingState } from "@/shared/components/LoadingState";
 
 import { useAppCommands } from "../commands/useAppCommands";
 import { DEFAULT_MODULE_LAYOUT, MODULES } from "../workbench/modules";
+import { MainTitleBar } from "./MainTitleBar";
 import { renderTab } from "./renderTab";
 import { StatusBar } from "./StatusBar";
-import { Toolbar } from "./Toolbar";
 
 /** Main window: waits for the saved layout, then shows the workbench. */
 export function MainWindow() {
@@ -19,7 +19,7 @@ export function MainWindow() {
   return <MainWorkbench saved={layout.data ?? null} />;
 }
 
-/** Workbench, status bar and command palette. */
+/** Title bar (with the toolbar), workbench, status bar and command palette. */
 function MainWorkbench({ saved }: { saved: SavedLayout | null }) {
   const commands = useAppCommands(MODULES);
   useRepositoryRequests(openRepositories);
@@ -28,11 +28,11 @@ function MainWorkbench({ saved }: { saved: SavedLayout | null }) {
 
   return (
     <div className="flex h-screen flex-col bg-background text-foreground">
+      <MainTitleBar />
       <Workbench
         modules={MODULES}
         defaultModuleLayout={DEFAULT_MODULE_LAYOUT}
         renderTab={renderTab}
-        toolbar={<Toolbar />}
         saved={saved}
       />
       <StatusBar />

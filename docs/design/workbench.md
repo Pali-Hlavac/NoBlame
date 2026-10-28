@@ -134,3 +134,9 @@ Ideas from the owner, newest last, with where each one is planned.
 - 2026-10-28: restore open tabs and the layout between sessions → M2.5.
 - 2026-10-28: submodules nested under their repository in the Repositories module → M2.5 (list),
   M7 (submodule actions).
+- 2026-10-28: open submodules are highlighted inside their parent's tree instead of being added
+  as top-level repositories → done (M2.5).
+- 2026-10-28: a custom title bar holding Pull, Push, Commit, Stashes and search, so the module
+  tabs and the document tabs line up → done (M2.5), with macOS and Linux handled.
+- 2026-10-28: tabs in the left dock are useful for now; revisit after using dragging and
+  splitting for a while.

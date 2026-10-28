@@ -1,6 +1,6 @@
 import "./dockview-theme.css";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Group, Panel, Separator, usePanelRef, type PanelSize } from "react-resizable-panels";
 
 import type { WorkspaceTab } from "@/features/workspace";
@@ -26,8 +26,6 @@ interface WorkbenchProps {
   defaultModuleLayout: readonly (readonly string[])[];
   /** Renders a tab's content; the app shell maps tab kinds to feature views. */
   renderTab: (tab: WorkspaceTab) => ReactNode;
-  /** Shown above the document dock. */
-  toolbar?: ReactNode;
   /** The layout saved by the previous session. */
   saved: SavedLayout | null;
 }
@@ -36,18 +34,18 @@ interface WorkbenchProps {
  * The main window's frame: activity bar, module dock (sidebar) and document dock. Knows nothing
  * about what modules and tabs show; the app shell passes them in.
  */
-export function Workbench({
-  modules,
-  defaultModuleLayout,
-  renderTab,
-  toolbar,
-  saved,
-}: WorkbenchProps) {
+export function Workbench({ modules, defaultModuleLayout, renderTab, saved }: WorkbenchProps) {
   // Runs once, during the first render, so restored tabs exist before anything reads them.
   const [restored] = useState(() => restoreWorkbench(saved));
   const epoch = useWorkbenchStore((state) => state.layoutEpoch);
   const collapsed = useWorkbenchStore((state) => state.sidebarCollapsed);
-  const widthPx = useWorkbenchStore((state) => state.sidebarWidthPx);
+  // Read once per layout: react-resizable-panels re-registers a panel whenever `defaultSize`
+  // changes, which would reset the splitter on every drag step if it followed the store.
+  const initialSidebar = useMemo(() => {
+    const { sidebarCollapsed, sidebarWidthPx } = useWorkbenchStore.getState();
+    return sidebarCollapsed ? 0 : `${sidebarWidthPx}px`;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- recomputed only for a new layout
+  }, [epoch]);
   const layout = epoch === 0 ? restored : null;
   const sidebar = usePanelRef();
   useWorkbenchHotkeys(modules);
@@ -79,7 +77,7 @@ export function Workbench({
           panelRef={sidebar}
           collapsible
           collapsedSize={0}
-          defaultSize={collapsed ? 0 : `${widthPx}px`}
+          defaultSize={initialSidebar}
           minSize={SIDEBAR_MIN}
           maxSize={SIDEBAR_MAX}
           onResize={onSidebarResize}
@@ -102,11 +100,8 @@ export function Workbench({
           className="w-px bg-border outline-none hover:bg-primary focus-visible:bg-ring data-[separator=active]:bg-primary"
         />
         <Panel id="documents" className="min-w-0">
-          <main className="flex h-full min-h-0 flex-col">
-            {toolbar}
-            <section aria-label="Tabs" data-workbench-region="documents" className="min-h-0 flex-1">
-              <DocumentDock key={epoch} renderTab={renderTab} saved={layout?.documents ?? null} />
-            </section>
+          <main aria-label="Tabs" data-workbench-region="documents" className="h-full min-h-0">
+            <DocumentDock key={epoch} renderTab={renderTab} saved={layout?.documents ?? null} />
           </main>
         </Panel>
       </Group>

@@ -1,5 +1,4 @@
 import { ChevronDownIcon } from "lucide-react";
-import type { ReactNode } from "react";
 
 import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/button";
@@ -92,18 +91,19 @@ function SplitButton({ action }: { action: ToolbarAction }) {
 interface WorkbenchToolbarProps {
   /** Buttons from left to right; an action with a `menu` becomes a split button. */
   actions: readonly ToolbarAction[];
-  /** Shown at the right end (status of the active repository, palette button). */
-  end?: ReactNode;
 }
 
-/** The bar above the document dock; labels hide when it gets narrow. */
-export function WorkbenchToolbar({ actions, end }: WorkbenchToolbarProps) {
+/**
+ * The repository actions (shown in the title bar). Labels hide when the nearest `@container`
+ * (the title bar) is narrower than 48rem.
+ */
+export function WorkbenchToolbar({ actions }: WorkbenchToolbarProps) {
   return (
     <div
       role="toolbar"
       aria-label="Repository actions"
       data-workbench-region="toolbar"
-      className="@container flex h-9 shrink-0 items-center gap-0.5 border-b border-border bg-muted/40 px-2"
+      className="flex shrink-0 items-center gap-0.5"
     >
       {actions.map((action) =>
         action.menu ? (
@@ -112,7 +112,6 @@ export function WorkbenchToolbar({ actions, end }: WorkbenchToolbarProps) {
           <ActionButton key={action.id} action={action} />
         ),
       )}
-      <div className="flex min-w-0 flex-1 items-center justify-end gap-1">{end}</div>
     </div>
   );
 }

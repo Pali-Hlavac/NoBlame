@@ -23,7 +23,8 @@ function ModulePanel({ params }: IDockviewPanelProps<ModuleParams>) {
   if (!module) return null;
   const Content = module.component;
   return (
-    <div className="h-full overflow-auto bg-muted/30">
+    // Modules scroll themselves; a scrolling wrapper flashes scrollbars while the dock resizes.
+    <div className="h-full overflow-hidden bg-muted/30">
       <Content />
     </div>
   );

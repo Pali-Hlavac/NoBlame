@@ -2,18 +2,20 @@ import { FolderGitIcon, FolderOpenIcon, FolderPlusIcon, XIcon } from "lucide-rea
 import { useState, type ReactNode } from "react";
 
 import { useTabsStore, type RepositoryTab } from "@/features/workspace";
-import type { RecentRepository } from "@/shared/ipc/bindings";
+import type { RecentRepository, SubmoduleDto } from "@/shared/ipc/bindings";
 import { Button } from "@/shared/ui/button";
 import { Tooltip } from "@/shared/ui/tooltip";
 
 import { useRecentRepositories, useRemoveRecentRepository } from "../api/recent";
-import { useSubmodules } from "../api/submodules";
+import { useSubmoduleTrees } from "../api/submodules";
 import {
   openRepositories,
   useCreateRepository,
   useOpenRepository,
 } from "../hooks/useOpenRepository";
 import { repositoryTab } from "../lib/path";
+import { submoduleTabIds } from "../lib/submodules";
+import { OpenTabsContext } from "./openTabsContext";
 import { RepositoryTreeRow } from "./RepositoryTreeRow";
 import { SubmoduleList } from "./SubmoduleTree";
 
@@ -26,11 +28,15 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
+interface OpenRepositoryProps {
+  tab: RepositoryTab;
+  active: boolean;
+  submodules: readonly SubmoduleDto[];
+}
+
 /** An open repository with its submodules nested below it. */
-function OpenRepository({ tab, active }: { tab: RepositoryTab; active: boolean }) {
-  const submodules = useSubmodules(tab.path);
+function OpenRepository({ tab, active, submodules }: OpenRepositoryProps) {
   const [expanded, setExpanded] = useState(true);
-  const children = submodules.data ?? [];
   return (
     <li>
       <RepositoryTreeRow
@@ -38,7 +44,7 @@ function OpenRepository({ tab, active }: { tab: RepositoryTab; active: boolean }
         label={tab.title}
         title={tab.path}
         depth={0}
-        expanded={children.length > 0 ? expanded : undefined}
+        expanded={submodules.length > 0 ? expanded : undefined}
         onToggle={() => {
           setExpanded(!expanded);
         }}
@@ -47,7 +53,7 @@ function OpenRepository({ tab, active }: { tab: RepositoryTab; active: boolean }
         }}
         current={active}
       />
-      {expanded && children.length > 0 && <SubmoduleList submodules={children} depth={1} />}
+      {expanded && submodules.length > 0 && <SubmoduleList submodules={submodules} depth={1} />}
     </li>
   );
 }
@@ -93,6 +99,12 @@ export function RepositoriesModule() {
   const createRepository = useCreateRepository();
   const open = tabs.filter((tab): tab is RepositoryTab => tab.kind === "repository");
   const openIds = new Set(open.map((tab) => tab.id));
+  const trees = useSubmoduleTrees(open.map((tab) => tab.path)).map((query) => query.data ?? []);
+  // Open submodules appear inside their parent's tree, not as repositories of their own.
+  const nested = submoduleTabIds(trees);
+  const roots = open.flatMap((tab, index) =>
+    nested.has(tab.id) ? [] : [{ tab, submodules: trees[index] ?? [] }],
+  );
   const closedRecent = (recent.data ?? []).filter(
     (entry) => !openIds.has(repositoryTab(entry.path).id),
   );
@@ -126,14 +138,21 @@ export function RepositoriesModule() {
       </div>
       <div className="min-h-0 flex-1 space-y-2 overflow-auto p-1">
         <Section title="Open">
-          {open.length === 0 ? (
+          {roots.length === 0 ? (
             <p className="px-2 text-sm text-muted-foreground">No repository open.</p>
           ) : (
-            <ul>
-              {open.map((tab) => (
-                <OpenRepository key={tab.id} tab={tab} active={tab.id === activeRepositoryTabId} />
-              ))}
-            </ul>
+            <OpenTabsContext.Provider value={{ ids: openIds, activeId: activeRepositoryTabId }}>
+              <ul>
+                {roots.map(({ tab, submodules }) => (
+                  <OpenRepository
+                    key={tab.id}
+                    tab={tab}
+                    active={tab.id === activeRepositoryTabId}
+                    submodules={submodules}
+                  />
+                ))}
+              </ul>
+            </OpenTabsContext.Provider>
           )}
         </Section>
         {closedRecent.length > 0 && (

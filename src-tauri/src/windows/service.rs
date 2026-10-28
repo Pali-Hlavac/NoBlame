@@ -15,6 +15,9 @@ const MAIN_WINDOW_MIN_SIZE: (f64, f64) = (900.0, 600.0);
 /// Logical size of a new task window and its minimum.
 const TASK_WINDOW_SIZE: (f64, f64) = (1000.0, 700.0);
 const TASK_WINDOW_MIN_SIZE: (f64, f64) = (640.0, 480.0);
+/// Where the macOS traffic lights sit: vertically centred in the 36 px title bar (`TitleBar.tsx`).
+#[cfg(target_os = "macos")]
+const TRAFFIC_LIGHTS_POSITION: (f64, f64) = (14.0, 12.0);
 
 /// Opens whatever `request` asks for: the main window (queueing its repository) or a task
 /// window.
@@ -61,13 +64,38 @@ pub fn show_main_window(app: &AppHandle) -> Result<(), WindowError> {
         window.set_focus()?;
         return Ok(());
     }
-    WebviewWindowBuilder::new(app, MAIN_WINDOW_LABEL, WebviewUrl::default())
+    let builder = WebviewWindowBuilder::new(app, MAIN_WINDOW_LABEL, WebviewUrl::default())
         .title(&app.package_info().name)
         .inner_size(MAIN_WINDOW_SIZE.0, MAIN_WINDOW_SIZE.1)
         .min_inner_size(MAIN_WINDOW_MIN_SIZE.0, MAIN_WINDOW_MIN_SIZE.1)
         .center()
-        .build()?;
+        // Tauri's file-drop handler swallows HTML drag and drop on Windows, which the docks
+        // need for moving tabs. Dropping folders onto the window can use HTML events later.
+        .disable_drag_drop_handler();
+    with_custom_title_bar(builder).build()?;
     Ok(())
+}
+
+/// The main window draws its own title bar (with the toolbar in it, see `TitleBar.tsx`). macOS
+/// keeps the traffic lights over a transparent title bar; elsewhere the window has no system
+/// frame and the UI draws minimize, maximize and close.
+fn with_custom_title_bar<'a, R: tauri::Runtime, M: Manager<R>>(
+    builder: WebviewWindowBuilder<'a, R, M>,
+) -> WebviewWindowBuilder<'a, R, M> {
+    #[cfg(target_os = "macos")]
+    {
+        builder
+            .title_bar_style(tauri::TitleBarStyle::Overlay)
+            .hidden_title(true)
+            .traffic_light_position(tauri::LogicalPosition::new(
+                TRAFFIC_LIGHTS_POSITION.0,
+                TRAFFIC_LIGHTS_POSITION.1,
+            ))
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        builder.decorations(false)
+    }
 }
 
 /// Opens a new window for `task` on `path` and returns its label. Call it from async
@@ -90,6 +118,7 @@ pub fn open_task_window(
         .inner_size(TASK_WINDOW_SIZE.0, TASK_WINDOW_SIZE.1)
         .min_inner_size(TASK_WINDOW_MIN_SIZE.0, TASK_WINDOW_MIN_SIZE.1)
         .center()
+        .disable_drag_drop_handler()
         .build();
     let window = match built {
         Ok(window) => window,

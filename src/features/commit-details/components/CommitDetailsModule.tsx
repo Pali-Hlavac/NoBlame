@@ -33,7 +33,11 @@ function SelectedCommit({ repoId, repoPath }: { repoId: number; repoPath: string
     );
   }
   if (!details.data) return <LoadingState label="Reading commit…" className="h-full" />;
-  return <CommitDetailsView details={details.data} repoPath={repoPath} />;
+  return (
+    <div className="h-full overflow-auto">
+      <CommitDetailsView details={details.data} repoPath={repoPath} />
+    </div>
+  );
 }
 
 /** Commit details module: follows the commit selected in the active repository. */

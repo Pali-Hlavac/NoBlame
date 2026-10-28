@@ -46,29 +46,30 @@ React feature component
 
 ## Directory map
 
-| Path                      | What lives there                                                                                                                                                                                                |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `crates/git-core/`        | Git engine, no Tauri. `cli/` (safe `GitCommand`), `repo/` (open with gix), `graph/` (index, order, layout, blocks, details, contained-in), `stash.rs`, `submodule.rs`. _(later: `diff/ blame/ status/ cache/`)_ |
-| `crates/git-core/tests/`  | Integration tests (`support/` fixture builder) against the real `git`; `benches/graph.rs`; `examples/graph_spike.rs`                                                                                            |
-| `crates/repo-gen/`        | Synthetic repo generator (lib + `noblame-repo-gen` binary): fast-import stream, presets tiny…1m                                                                                                                 |
-| `src-tauri/src/<module>/` | Tauri-side module: `mod.rs commands.rs service.rs error.rs types.rs` (`app_info git_env inspect repository settings windows workbench`)                                                                         |
-| `src-tauri/src/cli/`      | `clap` command line built from `TaskKind::ALL`; console attach for `--help` on Windows                                                                                                                          |
-| `src-tauri/src/windows/`  | Main/task windows, `WindowRegistry`, second-launch forwarding, `RepositoriesRequested` event                                                                                                                    |
-| `src-tauri/src/ipc.rs`    | Command + event registry, bindings export                                                                                                                                                                       |
-| `src-tauri/src/error.rs`  | `AppError { code, message, hint }`, `ErrorCode`                                                                                                                                                                 |
-| `src-tauri/build.rs`      | `APP_COMMANDS` (ACL permissions); Windows manifest for test binaries                                                                                                                                            |
-| `src-tauri/capabilities/` | ACL per window: `main.json` (`main`), `task.json` (`task-*`)                                                                                                                                                    |
-| `src/app/`                | App shell: `App.tsx`, `layout/` (main window, toolbar, status bar), `workbench/modules.ts` (module registry), `commands/` (palette)                                                                             |
-| `src/features/<feature>/` | `about branches command-palette commit-details git-env graph repositories selection settings stashes windows workbench workspace`; public `index.ts` each                                                       |
-| `src/features/workbench/` | Activity bar, module dock + document dock (dockview), toolbar renderer, layout save/restore, F6 regions (ADR 0020)                                                                                              |
-| `src/features/graph/`     | Canvas renderer, block decoder and LRU cache, scroll scaling, keyboard navigation                                                                                                                               |
-| `src/shared/ipc/`         | Generated `bindings.ts` + typed client (`unwrap`, `call`, `IpcError`)                                                                                                                                           |
-| `src/shared/ui/`          | shadcn/ui primitives                                                                                                                                                                                            |
-| `src/shared/components/`  | `EmptyState`, `ErrorState`, `LoadingState`, `ConfirmDialog`, `InlineError`, `VirtualList`                                                                                                                       |
-| `assets/logo/noblame.svg` | Master logo; `pnpm icons` generates `src-tauri/icons/`; copy to `public/icon.svg` for the UI                                                                                                                    |
-| `scripts/`                | Repo tooling: `check-file-size.mjs`                                                                                                                                                                             |
-| `docs/`                   | All documentation; start at `docs/README.md`                                                                                                                                                                    |
-| `shell/`                  | _(Phase 2)_ Explorer, Finder and Linux file-manager add-ons                                                                                                                                                     |
+| Path                         | What lives there                                                                                                                                                                                                |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `crates/git-core/`           | Git engine, no Tauri. `cli/` (safe `GitCommand`), `repo/` (open with gix), `graph/` (index, order, layout, blocks, details, contained-in), `stash.rs`, `submodule.rs`. _(later: `diff/ blame/ status/ cache/`)_ |
+| `crates/git-core/tests/`     | Integration tests (`support/` fixture builder) against the real `git`; `benches/graph.rs`; `examples/graph_spike.rs`                                                                                            |
+| `crates/repo-gen/`           | Synthetic repo generator (lib + `noblame-repo-gen` binary): fast-import stream, presets tiny…1m                                                                                                                 |
+| `src-tauri/src/<module>/`    | Tauri-side module: `mod.rs commands.rs service.rs error.rs types.rs` (`app_info git_env inspect repository settings windows workbench`)                                                                         |
+| `src-tauri/src/cli/`         | `clap` command line built from `TaskKind::ALL`; console attach for `--help` on Windows                                                                                                                          |
+| `src-tauri/src/windows/`     | Main/task windows, `WindowRegistry`, second-launch forwarding, `RepositoriesRequested` event                                                                                                                    |
+| `src-tauri/src/ipc.rs`       | Command + event registry, bindings export                                                                                                                                                                       |
+| `src-tauri/src/error.rs`     | `AppError { code, message, hint }`, `ErrorCode`                                                                                                                                                                 |
+| `src-tauri/build.rs`         | `APP_COMMANDS` (ACL permissions); Windows manifest for test binaries                                                                                                                                            |
+| `src-tauri/capabilities/`    | ACL per window: `main.json` (`main`), `task.json` (`task-*`)                                                                                                                                                    |
+| `src/app/`                   | App shell: `App.tsx`, `layout/` (main window, toolbar, status bar), `workbench/modules.ts` (module registry), `commands/` (palette)                                                                             |
+| `src/features/<feature>/`    | `about branches command-palette commit-details git-env graph repositories selection settings stashes windows workbench workspace`; public `index.ts` each                                                       |
+| `src/features/window-frame/` | Custom title bar and window buttons of the main window                                                                                                                                                          |
+| `src/features/workbench/`    | Activity bar, module dock + document dock (dockview), toolbar renderer, layout save/restore, F6 regions (ADR 0020)                                                                                              |
+| `src/features/graph/`        | Canvas renderer, block decoder and LRU cache, scroll scaling, keyboard navigation                                                                                                                               |
+| `src/shared/ipc/`            | Generated `bindings.ts` + typed client (`unwrap`, `call`, `IpcError`)                                                                                                                                           |
+| `src/shared/ui/`             | shadcn/ui primitives                                                                                                                                                                                            |
+| `src/shared/components/`     | `EmptyState`, `ErrorState`, `LoadingState`, `ConfirmDialog`, `InlineError`, `VirtualList`                                                                                                                       |
+| `assets/logo/noblame.svg`    | Master logo; `pnpm icons` generates `src-tauri/icons/`; copy to `public/icon.svg` for the UI                                                                                                                    |
+| `scripts/`                   | Repo tooling: `check-file-size.mjs`                                                                                                                                                                             |
+| `docs/`                      | All documentation; start at `docs/README.md`                                                                                                                                                                    |
+| `shell/`                     | _(Phase 2)_ Explorer, Finder and Linux file-manager add-ons                                                                                                                                                     |
 
 ## Conventions
 
@@ -177,6 +178,13 @@ React feature component
   deleting `.cache/repos/*`.
 - **dockview `addPanel` without `position` opens a new group** beside the others. Always pass
   `position: { referenceGroup, direction: "within" }` (see `reconcile.ts`, `docks.ts`).
+- **Windows are built with `disable_drag_drop_handler()`**: Tauri's file-drop handler swallows
+  HTML drag and drop on Windows, and the docks drag tabs with it. Keep it on new windows.
+- **The main window has no system frame** (macOS: overlay title bar). `TitleBar` draws the drag
+  area (`data-tauri-drag-region` on each filler; children do not inherit it) and the window
+  buttons; their `core:window:*` permissions are in `capabilities/main.json`.
+- **react-resizable-panels re-registers a panel when `defaultSize` changes**: never feed live
+  state into it (the splitter would reset on every drag step).
 - **The tabs store is the source of truth for open tabs**; dockview only holds where they are.
   Change tabs through `useTabsStore`, never with `api.addPanel` directly.
 - **Saved layout shape changes**: bump `LAYOUT_VERSION` (`workbench/lib/layout.ts`); old layouts

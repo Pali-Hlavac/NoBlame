@@ -1,12 +1,16 @@
 # The main window
 
-From left to right, the main window has:
+At the top is the **title bar** with the toolbar. Below it, from left to right:
 
 - a strip of icons, the **activity bar**;
 - a **sidebar** with modules;
-- the **toolbar** and your **tabs**.
+- your **tabs**.
 
 The status bar runs along the bottom.
+
+Drag the empty part of the title bar to move the window, and double-click it to maximize. On
+Windows and Linux the minimize, maximize and close buttons are at its right end. On macOS the
+usual coloured buttons are at its left end.
 
 ## Activity bar and modules
 
@@ -32,7 +36,7 @@ commit in that repository, Commit details shows it right away.
 
 Your open repositories are listed first. Below each one are its **submodules**, and below those
 their own submodules. Click a repository to switch to its tab, or click a submodule to open it in
-a tab of its own. A grey submodule has not been downloaded yet ("initialized"); NoBlame cannot
+a tab of its own. An open submodule is shown in bold and stays in its place in the tree. A grey submodule has not been downloaded yet ("initialized"); NoBlame cannot
 initialize submodules in this version.
 
 Under **Recent** are the repositories you opened before. Hover over one and click **×** to remove
@@ -61,7 +65,8 @@ when you come back to NoBlame. You cannot create, apply or drop stashes here yet
 
 ## Toolbar
 
-The toolbar acts on the active repository, whose name and current branch are shown on its right.
+The toolbar sits in the title bar and acts on the active repository. That repository's name and
+current branch are shown on the right of the title bar.
 
 - **Pull** (with ▾ for Fetch, Fetch all remotes and Fetch and prune), **Push** and **Commit** are
   greyed out: they arrive in later versions. Hover over them to see which.

@@ -31,6 +31,9 @@ All notable changes to NoBlame are documented here. The format follows
   layout and the open tabs are restored on the next start; "Reset layout" in the palette; F6 /
   Shift+F6 move focus between regions, Alt+1 opens Repositories. The commit list hides the
   commit, author and date columns one by one when its pane gets narrow.
+- Custom title bar on the main window, holding the toolbar, the active repository and the
+  palette button, so the module tabs and the document tabs line up. Windows and Linux get
+  NoBlame's own minimize, maximize and close buttons; macOS keeps its traffic lights.
 - Toolbar for the active repository: Pull with a menu (Pull, Fetch, Fetch all remotes, Fetch
   and prune), Push, Commit, Stashes, and the active repository with its current branch.
   **Placeholders:** Pull, Fetch and Push arrive in M5 and Commit in M4; their buttons are
@@ -79,5 +82,12 @@ All notable changes to NoBlame are documented here. The format follows
   running yet opened no tab.
 - Found during M2.5 verification: new tabs and modules opened in a new dock group each time
   instead of joining the focused group.
+- Reported by the owner after M2.5:
+  - the sidebar splitter could not be dragged;
+  - resizing the window flashed scrollbars on every frame;
+  - dragging tabs between groups did nothing (Tauri's file-drop handler blocked HTML drag and
+    drop);
+  - opening a submodule listed it as another top-level repository instead of highlighting it
+    inside its parent.
 - The synthetic repository generator now packs refs like a clone does and keeps a million
   commits within about 15 years (it reached 2066 before).
