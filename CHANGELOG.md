@@ -31,6 +31,9 @@ All notable changes to NoBlame are documented here. The format follows
   layout and the open tabs are restored on the next start; "Reset layout" in the palette; F6 /
   Shift+F6 move focus between regions, Alt+1 opens Repositories. The commit list hides the
   commit, author and date columns one by one when its pane gets narrow.
+- Repositories module (Alt+1): open repositories with their submodules nested below them
+  (recursively), then recent repositories; a click opens or focuses the repository's tab.
+  Submodules that are not initialized are dimmed (initializing them arrives in M7).
 - Branches module (Alt+2): local branches, each remote's branches and tags in collapsible
   sections with a filter; the current branch is marked; a click selects the branch's commit in
   the graph. Read-only for now (checkout, create, delete and the other actions arrive in M5).

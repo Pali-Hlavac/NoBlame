@@ -2,7 +2,7 @@
 
 use tauri::State;
 
-use super::{CommitDetailsDto, RefEntry, StashDto, service};
+use super::{CommitDetailsDto, RefEntry, StashDto, SubmoduleDto, service};
 use crate::error::CommandResult;
 use crate::repository::{RepoId, RepoSessions};
 
@@ -35,4 +35,11 @@ pub async fn list_stashes(
     id: RepoId,
 ) -> CommandResult<Vec<StashDto>> {
     Ok(service::stashes(&sessions, id).await?)
+}
+
+/// Submodules of the repository containing `path`, nested recursively.
+#[tauri::command]
+#[specta::specta]
+pub async fn list_submodules(path: String) -> CommandResult<Vec<SubmoduleDto>> {
+    Ok(service::submodules(path).await?)
 }

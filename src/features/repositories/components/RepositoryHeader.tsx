@@ -5,6 +5,8 @@ import type { RepoSummary, TaskKind } from "@/shared/ipc/bindings";
 import { Button } from "@/shared/ui/button";
 import { Tooltip } from "@/shared/ui/tooltip";
 
+import { headLabel } from "../lib/head";
+
 /** Task windows offered from the header (placeholders until M8). */
 const HEADER_TASKS: readonly TaskKind[] = ["log", "commit", "fileHistory"];
 
@@ -13,17 +15,6 @@ const KIND_BADGES: Partial<Record<RepoSummary["kind"], string>> = {
   linkedWorktree: "Worktree",
   submodule: "Submodule",
 };
-
-function headLabel(head: RepoSummary["head"]): string {
-  switch (head.kind) {
-    case "branch":
-      return head.name;
-    case "unborn":
-      return `${head.name} (no commits yet)`;
-    case "detached":
-      return `detached at ${head.id.slice(0, 8)}`;
-  }
-}
 
 /** Name, path, HEAD and properties of the repository, plus task window buttons. */
 export function RepositoryHeader({ summary }: { summary: RepoSummary }) {

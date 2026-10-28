@@ -6,7 +6,7 @@ import { ArchiveIcon, FolderGitIcon, GitBranchIcon, GitCommitHorizontalIcon } fr
 
 import { BranchesModule } from "@/features/branches";
 import { CommitDetailsModule } from "@/features/commit-details";
-import { RepositoryList } from "@/features/repositories";
+import { RepositoriesModule } from "@/features/repositories";
 import { StashesModule } from "@/features/stashes";
 import type { WorkbenchModule } from "@/features/workbench";
 
@@ -16,7 +16,7 @@ export const MODULES: readonly WorkbenchModule[] = [
     title: "Repositories",
     icon: FolderGitIcon,
     hotkey: "alt+1",
-    component: RepositoryList,
+    component: RepositoriesModule,
   },
   {
     id: "branches",

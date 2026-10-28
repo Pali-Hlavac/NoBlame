@@ -46,6 +46,7 @@ pub fn builder() -> Builder<tauri::Wry> {
             inspect::commands::get_commit_details,
             inspect::commands::list_refs,
             inspect::commands::list_stashes,
+            inspect::commands::list_submodules,
             workbench::commands::get_workbench_layout,
             workbench::commands::save_workbench_layout,
         ])

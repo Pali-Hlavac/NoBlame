@@ -2,9 +2,13 @@
 //! nothing extra when the repository tab has already loaded its history.
 
 use git_core::graph::{RefKind, commit_details};
-use git_core::stash::list_stashes;
+use std::path::PathBuf;
 
-use super::{CommitDetailsDto, RefEntry, StashDto};
+use git_core::repo::Repository;
+use git_core::stash::list_stashes;
+use git_core::submodule::list_submodules;
+
+use super::{CommitDetailsDto, RefEntry, StashDto, SubmoduleDto};
 use crate::repository::{RepoId, RepoSessions, RepositoryError, blocking};
 
 /// Details of the commit on `row`, including the references containing it.
@@ -39,4 +43,15 @@ pub async fn stashes(
     let repo = sessions.get(id)?.repo.clone();
     let stashes = blocking(move || list_stashes(&repo.local())).await??;
     Ok(stashes.into_iter().map(StashDto::from).collect())
+}
+
+/// The submodule tree of the repository at `path` (no session needed: the Repositories module
+/// lists submodules of every open repository).
+pub async fn submodules(path: String) -> Result<Vec<SubmoduleDto>, RepositoryError> {
+    let entries = blocking(move || {
+        let repo = Repository::discover(&PathBuf::from(path))?;
+        Ok::<_, RepositoryError>(list_submodules(&repo.local())?)
+    })
+    .await??;
+    Ok(entries.into_iter().map(SubmoduleDto::from).collect())
 }

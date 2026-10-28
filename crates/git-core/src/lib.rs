@@ -9,3 +9,4 @@ pub mod cli;
 pub mod graph;
 pub mod repo;
 pub mod stash;
+pub mod submodule;

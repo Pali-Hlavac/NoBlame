@@ -44,6 +44,8 @@ export const commands = {
 	listRefs: (id: number) => typedError<RefEntry[], AppError>(__TAURI_INVOKE("list_refs", { id })),
 	/**  The stash list, newest first. */
 	listStashes: (id: number) => typedError<StashDto[], AppError>(__TAURI_INVOKE("list_stashes", { id })),
+	/**  Submodules of the repository containing `path`, nested recursively. */
+	listSubmodules: (path: string) => typedError<SubmoduleDto[], AppError>(__TAURI_INVOKE("list_submodules", { path })),
 	/**
 	 *  The saved layout, or `None` on first launch. A corrupted file is logged and treated as
 	 *  missing, so a bad layout can never stop the main window from opening.
@@ -312,6 +314,22 @@ export type StashDto = {
 	branch: string | null,
 	/**  When it was made, seconds since the epoch. */
 	time: number | null,
+};
+
+/**  A submodule and its own submodules. */
+export type SubmoduleDto = {
+	/**  Name from `.gitmodules`. */
+	name: string,
+	/**  Path inside the superproject (`/` separators). */
+	path: string,
+	/**  Absolute path of its work tree. */
+	workDir: string,
+	/**  Configured URL. */
+	url: string | null,
+	/**  Cloned and checked out. */
+	initialized: boolean,
+	/**  Nested submodules. */
+	children: SubmoduleDto[],
 };
 
 /**  A focused task window. Also the list of `noblame` subcommands (ADR 0015). */

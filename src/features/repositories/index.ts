@@ -1,6 +1,7 @@
 /** Public API of the repositories feature: tabs, sessions, recent list, open and create. */
+export { ActiveRepositoryStatus } from "./components/ActiveRepositoryStatus";
 export { RecentRepositories } from "./components/RecentRepositories";
-export { RepositoryList } from "./components/RepositoryList";
+export { RepositoriesModule } from "./components/RepositoriesModule";
 export { RepositoryView } from "./components/RepositoryView";
 export { WithActiveRepository } from "./components/WithActiveRepository";
 export { useActiveRepository, type ActiveRepository } from "./hooks/useActiveRepository";

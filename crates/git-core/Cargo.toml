@@ -8,7 +8,7 @@ authors.workspace = true
 publish.workspace = true
 
 [dependencies]
-gix = { version = "0.90", default-features = false, features = ["max-performance", "revision", "sha1"] }
+gix = { version = "0.90", default-features = false, features = ["attributes", "max-performance", "revision", "sha1"] }
 thiserror.workspace = true
 tokio = { workspace = true, features = ["process", "io-util", "macros", "rt"] }
 tokio-util.workspace = true
@@ -16,7 +16,7 @@ tracing.workspace = true
 
 [dev-dependencies]
 criterion = { version = "0.8", default-features = false, features = ["cargo_bench_support"] }
-gix = { version = "0.90", default-features = false, features = ["max-performance", "revision", "sha1"] }
+gix = { version = "0.90", default-features = false, features = ["attributes", "max-performance", "revision", "sha1"] }
 noblame-repo-gen = { path = "../repo-gen" }
 tempfile.workspace = true
 tokio = { workspace = true, features = ["rt-multi-thread", "time"] }

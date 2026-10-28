@@ -2,6 +2,7 @@
 
 use git_core::graph::{CommitDetails, GraphRef, ParentInfo, Signature};
 use git_core::stash::StashEntry;
+use git_core::submodule::SubmoduleEntry;
 use serde::Serialize;
 use specta::Type;
 
@@ -142,6 +143,37 @@ impl From<StashEntry> for StashDto {
             // Exact to the second up to the year 287 million: f64 holds 53-bit integers.
             #[allow(clippy::cast_precision_loss)]
             time: stash.time as f64,
+        }
+    }
+}
+
+/// A submodule and its own submodules.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct SubmoduleDto {
+    /// Name from `.gitmodules`.
+    pub name: String,
+    /// Path inside the superproject (`/` separators).
+    pub path: String,
+    /// Absolute path of its work tree.
+    pub work_dir: String,
+    /// Configured URL.
+    pub url: Option<String>,
+    /// Cloned and checked out.
+    pub initialized: bool,
+    /// Nested submodules.
+    pub children: Vec<SubmoduleDto>,
+}
+
+impl From<SubmoduleEntry> for SubmoduleDto {
+    fn from(entry: SubmoduleEntry) -> Self {
+        Self {
+            name: entry.name,
+            path: entry.path,
+            work_dir: entry.work_dir,
+            url: entry.url,
+            initialized: entry.initialized,
+            children: entry.children.into_iter().map(Self::from).collect(),
         }
     }
 }

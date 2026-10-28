@@ -15,10 +15,10 @@ export function CommitGraphNotice({ summary, tabPath }: { summary: RepoSummary; 
   return (
     <div
       role="status"
-      className="flex shrink-0 items-center gap-3 border-b border-border bg-muted/40 px-3 py-2 text-sm"
+      className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-2 border-b border-border bg-muted/40 px-3 py-2 text-sm"
     >
       <GaugeIcon className="size-4 shrink-0 text-primary" aria-hidden />
-      <p className="min-w-0 flex-1">
+      <p className="min-w-48 flex-1 basis-64">
         History loads much faster with a commit-graph file. Writing it runs{" "}
         <code className="font-mono text-xs">
           git commit-graph write --reachable --changed-paths
