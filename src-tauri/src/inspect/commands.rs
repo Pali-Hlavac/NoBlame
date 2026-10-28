@@ -2,7 +2,7 @@
 
 use tauri::State;
 
-use super::{CommitDetailsDto, RefEntry, StashDto, SubmoduleDto, service};
+use super::{CommitDetailsDto, RefEntry, StashDto, StatusSummaryDto, SubmoduleDto, service};
 use crate::error::CommandResult;
 use crate::repository::{RepoId, RepoSessions};
 
@@ -25,6 +25,16 @@ pub async fn list_refs(
     id: RepoId,
 ) -> CommandResult<Vec<RefEntry>> {
     Ok(service::refs(&sessions, id).await?)
+}
+
+/// The working tree status summary (`null` for a bare repository).
+#[tauri::command]
+#[specta::specta]
+pub async fn get_status_summary(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+) -> CommandResult<Option<StatusSummaryDto>> {
+    Ok(service::status(&sessions, id).await?)
 }
 
 /// The stash list, newest first.

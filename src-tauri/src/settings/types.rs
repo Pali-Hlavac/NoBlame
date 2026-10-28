@@ -35,12 +35,28 @@ pub struct Settings {
 pub struct GraphSettings {
     /// Selecting a commit highlights its history and the commits by the same author.
     pub highlight_selection: bool,
+    /// Where staged and unstaged changes are shown.
+    pub working_tree: WorkingTreeDisplay,
+}
+
+/// Where the working tree changes (staged, unstaged, untracked, conflicted) are shown.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub enum WorkingTreeDisplay {
+    /// Rows at the top of the commit graph, as Git Extensions does.
+    #[default]
+    Rows,
+    /// A summary in the repository header.
+    Header,
+    /// Not shown.
+    Hidden,
 }
 
 impl Default for GraphSettings {
     fn default() -> Self {
         Self {
             highlight_selection: true,
+            working_tree: WorkingTreeDisplay::default(),
         }
     }
 }
@@ -71,6 +87,7 @@ mod tests {
         let settings: Settings = serde_json::from_str(r#"{ "theme": "dark" }"#).unwrap();
         assert_eq!(settings.theme, ThemePreference::Dark);
         assert!(settings.graph.highlight_selection);
+        assert_eq!(settings.graph.working_tree, WorkingTreeDisplay::Rows);
         assert!(settings.repositories.show_actions_menu);
     }
 

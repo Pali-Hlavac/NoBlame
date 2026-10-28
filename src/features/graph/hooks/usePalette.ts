@@ -14,6 +14,7 @@ function readPalette(): GraphPalette {
     lanes: Array.from({ length: LANE_TOKEN_COUNT }, (_, index) => token(`--lane-${index}`)),
     background: token("--background"),
     head: token("--ref-head"),
+    muted: token("--muted-foreground"),
   };
 }
 

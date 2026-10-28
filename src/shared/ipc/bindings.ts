@@ -49,6 +49,8 @@ export const commands = {
 	listRefs: (id: number) => typedError<RefEntry[], AppError>(__TAURI_INVOKE("list_refs", { id })),
 	/**  The stash list, newest first. */
 	listStashes: (id: number) => typedError<StashDto[], AppError>(__TAURI_INVOKE("list_stashes", { id })),
+	/**  The working tree status summary (`null` for a bare repository). */
+	getStatusSummary: (id: number) => typedError<StatusSummaryDto | null, AppError>(__TAURI_INVOKE("get_status_summary", { id })),
 	/**  Submodules of the repository containing `path`, nested recursively. */
 	listSubmodules: (path: string) => typedError<SubmoduleDto[], AppError>(__TAURI_INVOKE("list_submodules", { path })),
 	/**
@@ -171,6 +173,8 @@ export type GitInfo = {
 export type GraphSettings = {
 	/**  Selecting a commit highlights its history and the commits by the same author. */
 	highlightSelection?: boolean,
+	/**  Where staged and unstaged changes are shown. */
+	workingTree?: WorkingTreeDisplay,
 };
 
 /**  Size and shape of a loaded graph. */
@@ -337,6 +341,18 @@ export type StashDto = {
 	time: number | null,
 };
 
+/**  Number of files in each state; a file staged and changed again counts in both. */
+export type StatusSummaryDto = {
+	/**  Changes in the index. */
+	staged: number,
+	/**  Tracked files changed in the working tree, not staged. */
+	unstaged: number,
+	/**  Untracked files (an untracked folder counts once). */
+	untracked: number,
+	/**  Files with merge conflicts. */
+	conflicted: number,
+};
+
 /**  A submodule and its own submodules. */
 export type SubmoduleDto = {
 	/**  Name from `.gitmodules`. */
@@ -403,6 +419,15 @@ export type WindowContext =
 task: TaskKind; 
 /**  Repository, folder or file the task is about. */
 path: string };
+
+/**  Where the working tree changes (staged, unstaged, untracked, conflicted) are shown. */
+export type WorkingTreeDisplay = 
+/**  Rows at the top of the commit graph, as Git Extensions does. */
+"rows" | 
+/**  A summary in the repository header. */
+"header" | 
+/**  Not shown. */
+"hidden";
 
 /* Tauri Specta runtime */
 async function typedError<T, E>(result: Promise<T>): Promise<{ status: "ok"; data: T } | { status: "error"; error: E }> {

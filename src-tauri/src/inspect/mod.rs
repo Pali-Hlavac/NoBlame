@@ -4,6 +4,8 @@
 
 pub mod commands;
 mod service;
+mod status;
 mod types;
 
+pub use status::StatusSummaryDto;
 pub use types::{CommitDetailsDto, RefEntry, StashDto, SubmoduleDto};

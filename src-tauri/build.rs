@@ -25,6 +25,7 @@ const APP_COMMANDS: &[&str] = &[
     "get_commit_details",
     "list_refs",
     "list_stashes",
+    "get_status_summary",
     "list_submodules",
     "get_workbench_layout",
     "save_workbench_layout",

@@ -1,6 +1,8 @@
 import { ExternalLinkIcon, GitBranchIcon, GitCommitHorizontalIcon } from "lucide-react";
 
+import { useAppSettings } from "@/features/settings";
 import { TASKS, TASK_WINDOWS_MILESTONE, useOpenTaskWindow } from "@/features/windows";
+import { WorkingTreeChip } from "@/features/working-tree";
 import type { RepoSummary, TaskKind } from "@/shared/ipc/bindings";
 import { Button } from "@/shared/ui/button";
 import { Tooltip } from "@/shared/ui/tooltip";
@@ -19,6 +21,7 @@ const KIND_BADGES: Partial<Record<RepoSummary["kind"], string>> = {
 /** Name, path, HEAD and properties of the repository, plus task window buttons. */
 export function RepositoryHeader({ summary }: { summary: RepoSummary }) {
   const openTaskWindow = useOpenTaskWindow();
+  const chip = useAppSettings().graph.workingTree === "header" && summary.kind !== "bare";
   const badges = [
     KIND_BADGES[summary.kind],
     summary.isShallow ? "Shallow clone" : undefined,
@@ -42,6 +45,7 @@ export function RepositoryHeader({ summary }: { summary: RepoSummary }) {
               {badge}
             </span>
           ))}
+          {chip && <WorkingTreeChip repoId={summary.id} />}
         </div>
         <p className="truncate text-xs text-muted-foreground select-text">{summary.path}</p>
       </div>

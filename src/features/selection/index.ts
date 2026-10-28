@@ -1,2 +1,9 @@
-/** Public API of the shared selection (selected commit per repository). */
-export { selectRow, useSelectedRow, useSelectionStore } from "./store/selection";
+/** Public API of the shared selection (selected commit or working tree row per repository). */
+export {
+  select,
+  selectRow,
+  useSelectedRow,
+  useSelection,
+  useSelectionStore,
+  type Selection,
+} from "./store/selection";

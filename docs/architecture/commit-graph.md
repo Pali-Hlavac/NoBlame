@@ -147,5 +147,4 @@ Measured on Windows 11 with the synthetic repositories (details and method in
 
 - On-disk cache and incremental update after fetches and commits (ADR 0010).
 - File watcher refreshing refs.
-- Artificial rows for working tree and index changes.
 - Stash labels (`refs/stash` is not a tip yet).

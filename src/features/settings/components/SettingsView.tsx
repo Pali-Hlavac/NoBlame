@@ -1,79 +1,29 @@
-import { useId, type ReactNode } from "react";
+import type { WorkingTreeDisplay } from "@/shared/ipc/bindings";
 
 import { useAppSettings, useChangeSettings } from "../hooks/useAppSettings";
 import { useThemePreference } from "../hooks/useThemePreference";
-import { THEME_OPTIONS, isThemePreference } from "../lib/theme";
+import { THEME_OPTIONS } from "../lib/theme";
+import { Choice, Section, Toggle } from "./SettingControls";
 
 /** Milestone that makes keyboard shortcuts configurable (shown in the UI as planned). */
 const SHORTCUTS_MILESTONE = "M7";
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <section className="space-y-3">
-      <h2 className="border-b border-border pb-1 text-sm font-semibold">{title}</h2>
-      {children}
-    </section>
-  );
-}
-
-interface ToggleProps {
-  label: string;
-  description: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-}
-
-/** A checkbox with a label and a sentence saying what it changes. */
-function Toggle({ label, description, checked, onChange }: ToggleProps) {
-  const id = useId();
-  return (
-    <div className="flex items-start gap-3">
-      <input
-        id={id}
-        type="checkbox"
-        aria-describedby={`${id}-description`}
-        className="mt-0.5 size-4 shrink-0 accent-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-        checked={checked}
-        onChange={(event) => {
-          onChange(event.target.checked);
-        }}
-      />
-      <div className="space-y-0.5">
-        <label htmlFor={id} className="text-sm font-medium">
-          {label}
-        </label>
-        <p id={`${id}-description`} className="text-xs text-muted-foreground">
-          {description}
-        </p>
-      </div>
-    </div>
-  );
-}
+const WORKING_TREE_OPTIONS: readonly { value: WorkingTreeDisplay; label: string }[] = [
+  { value: "rows", label: "Rows at the top of the commit graph" },
+  { value: "header", label: "A summary in the repository header" },
+  { value: "hidden", label: "Not shown" },
+];
 
 function ThemeChoice() {
   const { preference, setPreference } = useThemePreference();
-  const name = useId();
   return (
-    <fieldset className="space-y-2">
-      <legend className="text-sm font-medium">Theme</legend>
-      <div className="flex gap-4">
-        {THEME_OPTIONS.map((option) => (
-          <label key={option.value} className="flex items-center gap-1.5 text-sm">
-            <input
-              type="radio"
-              name={name}
-              value={option.value}
-              className="size-4 accent-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-              checked={preference === option.value}
-              onChange={(event) => {
-                if (isThemePreference(event.target.value)) setPreference(event.target.value);
-              }}
-            />
-            {option.label}
-          </label>
-        ))}
-      </div>
-    </fieldset>
+    <Choice
+      legend="Theme"
+      options={THEME_OPTIONS}
+      value={preference}
+      onChange={setPreference}
+      inline
+    />
   );
 }
 
@@ -89,6 +39,14 @@ export function SettingsView() {
           <ThemeChoice />
         </Section>
         <Section title="Commit graph">
+          <Choice
+            legend="Show uncommitted changes as"
+            options={WORKING_TREE_OPTIONS}
+            value={settings.graph.workingTree}
+            onChange={(workingTree) => {
+              change((current) => ({ ...current, graph: { ...current.graph, workingTree } }));
+            }}
+          />
           <Toggle
             label="Highlight the selected commit"
             description="Dims everything outside the selected commit's history and marks the commits by the same author. Esc clears it."

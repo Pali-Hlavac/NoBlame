@@ -30,6 +30,13 @@ Very wide histories are cut at 16 lines; the commits are all still there.
 - When you open a repository, the commit you have checked out is selected.
 - NoBlame remembers the selected commit and where you scrolled when you switch tabs.
 
+If you have changes you have not committed yet, one or two extra rows appear above the newest
+commit: **Working tree changes** (files you changed, new files, conflicts) and **Staged
+changes** (files ready to commit). Select one to see the counts in Commit details. Lists of the
+files and staging come in a later version. In **Settings → Commit graph** you can show a short
+summary in the repository header instead, or hide them. NoBlame checks again whenever you come
+back to the window.
+
 When you select a commit, NoBlame highlights it:
 
 - the commit's history stays bright: the commits it was built on and the lines leading into it,

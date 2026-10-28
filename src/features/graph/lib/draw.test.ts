@@ -35,7 +35,7 @@ const block: GraphBlock = {
   edges: Uint16Array.from([0, 0, 0, 0, 1, 1]),
 };
 
-const palette = { lanes: ["red", "blue"], background: "white", head: "gold" };
+const palette = { lanes: ["red", "blue"], background: "white", head: "gold", muted: "grey" };
 
 function draw(getBlock: (index: number) => GraphBlock | undefined, highlight?: Highlight) {
   const { ctx, calls } = recordingContext();

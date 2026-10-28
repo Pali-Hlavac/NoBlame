@@ -3,6 +3,7 @@
 use git_core::graph::GraphError;
 use git_core::repo::RepoError;
 use git_core::stash::StashError;
+use git_core::status::StatusError;
 use git_core::submodule::SubmoduleError;
 
 use crate::error::{AppError, ErrorCode};
@@ -24,6 +25,9 @@ pub enum RepositoryError {
     /// Listing submodules failed.
     #[error(transparent)]
     Submodule(#[from] SubmoduleError),
+    /// Reading the working tree status failed.
+    #[error(transparent)]
+    Status(#[from] StatusError),
     /// Running git failed.
     #[error(transparent)]
     Git(#[from] GitEnvError),
@@ -66,6 +70,11 @@ impl From<RepositoryError> for AppError {
             }
             RepositoryError::Graph(error @ GraphError::RowOutOfRange { .. }) => {
                 AppError::new(ErrorCode::InvalidInput, error.to_string())
+            }
+            RepositoryError::Status(StatusError::Git(error)) => GitEnvError::from(error).into(),
+            RepositoryError::Status(error @ StatusError::Parse(_)) => {
+                tracing::error!(%error, "status output not understood");
+                AppError::new(ErrorCode::GitFailed, format!("Reading the status failed: {error}"))
             }
             RepositoryError::Git(error) => error.into(),
             RepositoryError::Storage(error) => error.into(),

@@ -102,8 +102,10 @@ Next: M2. Start with the spike (history walk with `gix` + commit-graph on
   and fast scrolling not measured yet, keyboard navigation not tried in the running app.
 - [~] Columns: graph, message, author, date, hash; ref labels for branches, remotes, tags and
   HEAD done. Stash label moved to M4 (stash list).
-- [ ] "Artificial" rows for working tree and index changes at the top (as Git Extensions does);
-      a setting chooses where they show (graph rows or elsewhere), owner request 2026-10-28
+- [x] "Artificial" rows for working tree and index changes at the top (as Git Extensions does);
+      a setting chooses where they show (graph rows, a summary in the repository header, or
+      hidden), owner request 2026-10-28. Status comes from `git status --porcelain=v2`; the file
+      lists and staging are M4
 - [x] Offer to write the commit-graph file (`--changed-paths`) when missing (not yet clicked
       through in the running app)
 - [ ] On-disk graph cache per repo; incremental update after fetch/commit — ADR 0010

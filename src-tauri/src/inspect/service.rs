@@ -4,11 +4,16 @@
 use git_core::graph::{RefKind, commit_details};
 use std::path::PathBuf;
 
+use git_core::cli::Git;
+use git_core::repo::RepoKind;
 use git_core::repo::Repository;
 use git_core::stash::list_stashes;
+use git_core::status::status_summary;
 use git_core::submodule::list_submodules;
+use tokio_util::sync::CancellationToken;
 
-use super::{CommitDetailsDto, RefEntry, StashDto, SubmoduleDto};
+use super::{CommitDetailsDto, RefEntry, StashDto, StatusSummaryDto, SubmoduleDto};
+use crate::git_env::GitEnvError;
 use crate::repository::{RepoId, RepoSessions, RepositoryError, blocking};
 
 /// Details of the commit on `row`, including the references containing it.
@@ -43,6 +48,27 @@ pub async fn stashes(
     let repo = sessions.get(id)?.repo.clone();
     let stashes = blocking(move || list_stashes(&repo.local())).await??;
     Ok(stashes.into_iter().map(StashDto::from).collect())
+}
+
+/// How many files are staged, changed, untracked and conflicted; `None` for a bare
+/// repository (no working tree). Runs `git status` every time: the working tree changes
+/// outside the app.
+pub async fn status(
+    sessions: &RepoSessions,
+    id: RepoId,
+) -> Result<Option<StatusSummaryDto>, RepositoryError> {
+    let session = sessions.get(id)?;
+    let info = session.repo.info();
+    let Some(work_dir) = info
+        .work_dir
+        .clone()
+        .filter(|_| info.kind != RepoKind::Bare)
+    else {
+        return Ok(None);
+    };
+    let git = Git::locate().map_err(GitEnvError::from)?;
+    let summary = status_summary(&git, &work_dir, &CancellationToken::new()).await?;
+    Ok(Some(summary.into()))
 }
 
 /// The submodule tree of the repository at `path` (no session needed: the Repositories module

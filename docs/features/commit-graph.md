@@ -50,6 +50,32 @@ truncated when the column is narrow.
 - Screen readers: the list is a listbox named "Commit history, N commits"; each row is labelled
   with its summary and author.
 
+## Uncommitted changes
+
+When the repository has uncommitted changes, up to two rows sit above the newest commit (as in
+Git Extensions):
+
+- **Working tree changes**: changed, untracked and conflicted file counts;
+- **Staged changes**: the number of staged files.
+
+Each row appears only when it has something to show. Their hollow nodes sit in HEAD's lane and
+are joined to the HEAD commit by a dashed line. They can be selected like commits (click,
+arrows); the Commit details module then shows the counts. **Placeholder:** the file lists,
+diffs and staging arrive in M4.
+
+The counts come from `get_status_summary` (`git status --porcelain=v2 -z`, read-only, so the
+user's fsmonitor, untracked cache and `status.showUntrackedFiles` apply). They are read when
+the repository opens and every time the window regains focus; the file watcher will refresh
+them as files change.
+
+**Settings → Commit graph → Show uncommitted changes as**: rows at the top of the commit graph
+(default), a summary in the repository header, or not shown. Bare repositories have none.
+
+Implementation: the list works in "display indexes" (working tree rows first, then commits;
+`lib/displayRows.ts`). The canvas and the commit text keep using graph rows, so the working
+tree rows are graph rows `-1` and `-2` for the renderer (`lib/drawWorkingTree.ts`). The shared
+selection is a commit row or `{ kind: "worktree" | "index" }` (`features/selection`).
+
 ## Highlighting the selected commit
 
 Selecting a commit (click or keyboard) highlights it, as long as **Settings → Commit graph →
@@ -98,5 +124,5 @@ overlay is loading, its rows are drawn dimmed; it usually arrives within a few m
 
 ## Not yet
 
-Artificial rows for working-tree and index changes, stash labels, on-disk cache, automatic
-refresh by a file watcher, commit details and diffs (M3), resizable columns.
+Stash labels, on-disk cache, automatic refresh by a file watcher, the working tree file lists
+(M4), commit details and diffs (M3), resizable columns.

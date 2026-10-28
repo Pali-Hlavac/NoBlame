@@ -1,60 +1,95 @@
+import type { CSSProperties } from "react";
+
 import type { CommitRowDto } from "@/shared/ipc/bindings";
 import { cn } from "@/shared/lib/cn";
 
 import type { ColumnLayout } from "../lib/columns";
 import { ROW_HEIGHT_PX } from "../lib/constants";
+import type { DisplayRows } from "../lib/displayRows";
 import { formatCommitDate, shortId } from "../lib/format";
 import { RefBadge } from "./RefBadge";
 
 interface GraphRowsProps {
-  firstRow: number;
-  lastRow: number;
+  /** Visible rows as display indexes (working tree rows first, then commits). */
+  firstIndex: number;
+  lastIndex: number;
+  /** Top of the window in display coordinates. */
   virtualTop: number;
+  rows: DisplayRows;
   /** Columns shared with the column header. */
   columns: ColumnLayout;
+  /** Text of a commit, by graph row. */
   rowText: (row: number) => CommitRowDto | undefined;
-  selected: number | undefined;
+  /** Display index of the selection. */
+  selectedIndex: number | undefined;
   /** Author email (lower case) whose commits are marked, from the highlighted commit. */
   highlightAuthor?: string;
-  onSelect: (row: number) => void;
+  onSelect: (index: number) => void;
   idPrefix: string;
 }
 
+const ROW_CLASS = "absolute right-0 left-0 grid items-center gap-3 pr-3 text-sm";
+
 /** Text columns of the visible rows, positioned over the canvas. */
 export function GraphRows(props: GraphRowsProps) {
-  const { firstRow, lastRow, virtualTop, columns, rowText, selected, onSelect, idPrefix } = props;
-  const { highlightAuthor } = props;
-  const rows = Array.from(
-    { length: Math.max(0, lastRow - firstRow + 1) },
-    (_, index) => firstRow + index,
+  const { firstIndex, lastIndex, virtualTop, rows, columns, rowText, idPrefix } = props;
+  const indexes = Array.from(
+    { length: Math.max(0, lastIndex - firstIndex + 1) },
+    (_, offset) => firstIndex + offset,
   );
-  return rows.map((row) => {
+  return indexes.map((index) => {
+    const isSelected = index === props.selectedIndex;
+    const style: CSSProperties = {
+      top: index * ROW_HEIGHT_PX - virtualTop,
+      height: ROW_HEIGHT_PX,
+      gridTemplateColumns: columns.template,
+    };
+    const common = {
+      id: `${idPrefix}-${index}`,
+      role: "option",
+      "aria-selected": isSelected,
+      tabIndex: -1,
+      style,
+      onMouseDown: () => {
+        props.onSelect(index);
+      },
+    } as const;
+    const artificial = rows.artificial[index];
+    if (artificial) {
+      return (
+        <div
+          key={`working-tree-${artificial.kind}`}
+          {...common}
+          aria-label={`${artificial.title}: ${artificial.detail}`}
+          className={cn(
+            ROW_CLASS,
+            isSelected ? "bg-accent text-accent-foreground" : "hover:bg-muted/60",
+          )}
+        >
+          <span aria-hidden />
+          <span className="col-[2/-1] truncate italic">
+            {artificial.title}
+            <span className="ml-2 text-muted-foreground not-italic">{artificial.detail}</span>
+          </span>
+        </div>
+      );
+    }
+    const row = index - rows.offset;
     const text = rowText(row);
-    const isSelected = row === selected;
     const byAuthor =
-      highlightAuthor !== undefined && text?.authorEmail.toLowerCase() === highlightAuthor;
+      props.highlightAuthor !== undefined &&
+      text?.authorEmail.toLowerCase() === props.highlightAuthor;
     return (
       <div
         key={row}
-        id={`${idPrefix}-${row}`}
-        role="option"
-        aria-selected={isSelected}
-        tabIndex={-1}
+        {...common}
         aria-label={text ? `${text.summary}, ${text.authorName}` : `Commit ${row + 1}, loading`}
         className={cn(
-          "absolute right-0 left-0 grid items-center gap-3 pr-3 text-sm",
+          ROW_CLASS,
           isSelected
             ? "bg-accent text-accent-foreground"
             : cn("hover:bg-muted/60", byAuthor && "bg-primary/10"),
         )}
-        style={{
-          top: row * ROW_HEIGHT_PX - virtualTop,
-          height: ROW_HEIGHT_PX,
-          gridTemplateColumns: columns.template,
-        }}
-        onMouseDown={() => {
-          onSelect(row);
-        }}
       >
         <span aria-hidden />
         {text ? (

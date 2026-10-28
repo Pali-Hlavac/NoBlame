@@ -117,5 +117,13 @@ worst case: a million ancestors) finds its history in **3.5 ms**; its first over
 **245 ms**, paid once per selection (block states are kept). Before skipping the row output for
 blocks that are only passed through, that jump took 644 ms.
 
+### Working tree status (2026-10-28)
+
+`git --no-optional-locks status --porcelain=v2 -z`, warm, clean trees (Windows 11, git 2.56.0):
+synthetic-10k (2,000 files) 106 ms including the first run, synthetic-100k (10,000 files)
+125 ms, synthetic-1m (40,000 files) about 170 ms warm (716 ms cold). With `core.fsmonitor`
+and the untracked cache on, synthetic-1m stays at about 173 ms (the tree is small enough that
+the scan is not the cost). A 100k+ file tree is still to be measured.
+
 Not measured yet: frame times while scrolling, a real large repository (Linux kernel), a cold
 disk cache, macOS and Linux.

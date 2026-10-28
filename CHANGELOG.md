@@ -52,6 +52,11 @@ All notable changes to NoBlame are documented here. The format follows
   and committer with their time zones, refs, and the branches, remote branches and tags that
   contain the commit (computed from the graph: 5.5 ms for the oldest of a million commits).
   It follows the commit selected in the active repository: the repository tab focused last.
+- Uncommitted changes in the commit graph (M2): "Working tree changes" and "Staged changes" rows
+  above the newest commit, with counts, joined to HEAD by a dashed line, selectable (Commit
+  details shows the counts). Refreshed when the window regains focus. Settings can show a
+  summary in the repository header instead, or hide them. **Placeholder:** the file lists and
+  staging arrive in M4.
 - Settings tab, opened by the gear at the bottom of the activity bar, `Ctrl+,` / `⌘,` or the
   palette: theme, the commit highlight and the repository actions button. **Placeholder:**
   configurable keyboard shortcuts are listed as arriving in M7.

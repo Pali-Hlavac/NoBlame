@@ -18,7 +18,7 @@ export interface AppSettings {
 /** What the backend uses for missing settings (`src-tauri/src/settings/types.rs`). */
 export const DEFAULT_SETTINGS: AppSettings = {
   theme: "system",
-  graph: { highlightSelection: true },
+  graph: { highlightSelection: true, workingTree: "rows" },
   repositories: { showActionsMenu: true },
 };
 

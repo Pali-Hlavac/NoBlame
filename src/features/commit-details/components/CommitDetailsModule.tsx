@@ -1,7 +1,8 @@
 import { MousePointerClickIcon } from "lucide-react";
 
 import { WithActiveRepository } from "@/features/repositories";
-import { useSelectedRow } from "@/features/selection";
+import { useSelection } from "@/features/selection";
+import { WorkingTreeDetails } from "@/features/working-tree";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { LoadingState } from "@/shared/components/LoadingState";
@@ -10,8 +11,12 @@ import { useCommitDetails } from "../api/details";
 import { CommitDetailsView } from "./CommitDetailsView";
 
 function SelectedCommit({ repoId, repoPath }: { repoId: number; repoPath: string }) {
-  const row = useSelectedRow(repoPath);
+  const selection = useSelection(repoPath);
+  const row = selection?.kind === "commit" ? selection.row : undefined;
   const details = useCommitDetails(repoId, row);
+  if (selection && selection.kind !== "commit") {
+    return <WorkingTreeDetails repoId={repoId} kind={selection.kind} />;
+  }
   if (row === undefined) {
     return (
       <EmptyState

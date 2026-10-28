@@ -5,14 +5,14 @@ All Git access lives in `crates/git-core`, which has no Tauri dependency
 
 ## Which tool for which operation
 
-| Operation                                                        | Tool        | Why                                                                                | Status      |
-| ---------------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------- | ----------- |
-| Locate git, report version; `git init`, `git commit-graph write` | git CLI     | The user's git is what will run their hooks and credentials                        | M1, M2 done |
-| History walk, commit-graph, refs                                 | `gix`       | In-process, no fork per call, streams millions of commits                          | M2 done     |
-| Trees, blobs, diffs, blame                                       | `gix`       | Same; paging and caching under our control                                         | M3          |
-| Working tree status                                              | `gix` (tbd) | Must respect fsmonitor and untracked cache; benchmarked against `git status` in M4 | M4          |
-| Commit, merge, rebase, cherry-pick, revert, reset, stash         | git CLI     | Hooks, signing, `rerere`, merge drivers and config behave as users expect          | M4–M6       |
-| Fetch, pull, push, clone                                         | git CLI     | Credential helpers, SSH, proxies, LFS                                              | M5          |
+| Operation                                                        | Tool    | Why                                                                                                                                            | Status               |
+| ---------------------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
+| Locate git, report version; `git init`, `git commit-graph write` | git CLI | The user's git is what will run their hooks and credentials                                                                                    | M1, M2 done          |
+| History walk, commit-graph, refs                                 | `gix`   | In-process, no fork per call, streams millions of commits                                                                                      | M2 done              |
+| Trees, blobs, diffs, blame                                       | `gix`   | Same; paging and caching under our control                                                                                                     | M3                   |
+| Working tree status                                              | git CLI | `git status --porcelain=v2 -z`, read-only: honours fsmonitor, the untracked cache and `status.*` settings. gix is benchmarked against it in M4 | Summary M2; lists M4 |
+| Commit, merge, rebase, cherry-pick, revert, reset, stash         | git CLI | Hooks, signing, `rerere`, merge drivers and config behave as users expect                                                                      | M4–M6                |
+| Fetch, pull, push, clone                                         | git CLI | Credential helpers, SSH, proxies, LFS                                                                                                          | M5                   |
 
 Rule of thumb: **reads with `gix`, writes and network with the `git` CLI.**
 

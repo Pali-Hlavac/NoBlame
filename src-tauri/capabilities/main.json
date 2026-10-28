@@ -32,6 +32,7 @@
     "allow-get-commit-details",
     "allow-list-refs",
     "allow-list-stashes",
+    "allow-get-status-summary",
     "allow-list-submodules",
     "allow-get-workbench-layout",
     "allow-save-workbench-layout"

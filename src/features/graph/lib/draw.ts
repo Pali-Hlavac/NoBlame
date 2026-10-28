@@ -22,6 +22,8 @@ export interface GraphPalette {
   background: string;
   /** Ring around the HEAD commit. */
   head: string;
+  /** Nodes and the dashed line of the working tree rows. */
+  muted: string;
 }
 
 /** The subset of `CanvasRenderingContext2D` the renderer uses. */
