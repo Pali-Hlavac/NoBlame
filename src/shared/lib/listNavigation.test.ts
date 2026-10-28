@@ -1,4 +1,4 @@
-import { nextRow } from "./navigation";
+import { nextRow } from "./listNavigation";
 
 describe("nextRow", () => {
   it.each([

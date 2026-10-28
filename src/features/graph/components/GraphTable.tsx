@@ -17,7 +17,7 @@ import {
 } from "../lib/constants";
 import { layoutColumns } from "../lib/columns";
 import { pagesFor } from "../lib/format";
-import { nextRow } from "../lib/navigation";
+import { nextRow } from "@/shared/lib/listNavigation";
 import { computeViewport, scrollTopToReveal } from "../lib/viewport";
 import { useGraphViewStore } from "../store/graphView";
 import { GraphCanvas } from "./GraphCanvas";

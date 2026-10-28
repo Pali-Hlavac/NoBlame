@@ -1,4 +1,4 @@
-/** Keyboard navigation in the commit list. */
+/** Keyboard navigation in long lists (commit graph, branches, ...). */
 
 /**
  * The row selected after pressing `key`, or `null` if the key does not navigate.
