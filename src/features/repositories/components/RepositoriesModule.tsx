@@ -16,6 +16,7 @@ import {
 import { repositoryTab } from "../lib/path";
 import { submoduleTabIds } from "../lib/submodules";
 import { OpenTabsContext } from "./openTabsContext";
+import { OpenRepositoryActions } from "./RepositoryActionsMenu";
 import { RepositoryTreeRow } from "./RepositoryTreeRow";
 import { SubmoduleList } from "./SubmoduleTree";
 
@@ -52,6 +53,9 @@ function OpenRepository({ tab, active, submodules }: OpenRepositoryProps) {
           useTabsStore.getState().activateTab(tab.id);
         }}
         current={active}
+        actions={
+          <OpenRepositoryActions repository={{ path: tab.path, tabId: tab.id, title: tab.title }} />
+        }
       />
       {expanded && submodules.length > 0 && <SubmoduleList submodules={submodules} depth={1} />}
     </li>

@@ -39,6 +39,7 @@ pub fn builder() -> Builder<tauri::Wry> {
             repository::commands::close_repository,
             repository::commands::load_graph,
             repository::commands::get_graph_block,
+            repository::commands::get_ancestry_block,
             repository::commands::get_commit_rows,
             repository::commands::write_commit_graph,
             repository::commands::list_recent_repositories,

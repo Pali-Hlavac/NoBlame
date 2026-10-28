@@ -3,7 +3,12 @@
 use super::*;
 
 fn edge(from: u16, to: u16, color: u32) -> Edge {
-    Edge { from, to, color }
+    Edge {
+        from,
+        to,
+        color,
+        lit: false,
+    }
 }
 
 /// Lays out every row in one pass by replaying all blocks.

@@ -32,15 +32,20 @@ A command that returns "not allowed" is missing from `APP_COMMANDS` or from a ca
 
 ## Commands
 
-| Command                    | Module     | Async | Returns                 | Purpose                                                    |
-| -------------------------- | ---------- | ----- | ----------------------- | ---------------------------------------------------------- |
-| `get_app_info`             | `app_info` | no    | `AppInfo`               | Name, version, OS and architecture                         |
-| `get_settings`             | `settings` | yes   | `Result<Settings>`      | Saved preferences, or defaults                             |
-| `update_settings`          | `settings` | yes   | `Result<Settings>`      | Replaces and saves preferences (atomic write)              |
-| `get_git_info`             | `git_env`  | yes   | `Result<GitInfo>`       | Locates git again and reports path, version, support       |
-| `get_window_context`       | `windows`  | no    | `Result<WindowContext>` | What the calling window is: `main` or `task` + task + path |
-| `take_repository_requests` | `windows`  | no    | `string[]`              | Drains repositories requested from the command line        |
-| `open_task_window`         | `windows`  | yes   | `Result<null>`          | Opens a task window, like `noblame <task> <path>`          |
+| Command           | Module     | Async | Returns            | Purpose                                       |
+| ----------------- | ---------- | ----- | ------------------ | --------------------------------------------- |
+| `get_app_info`    | `app_info` | no    | `AppInfo`          | Name, version, OS and architecture            |
+| `get_settings`    | `settings` | yes   | `Result<Settings>` | Saved preferences, or defaults                |
+| `update_settings` | `settings` | yes   | `Result<Settings>` | Replaces and saves preferences (atomic write) |
+
+`Settings` holds `theme`, `graph { highlightSelection }` and `repositories { showActionsMenu }`.
+Missing fields get their defaults, so older files keep working. Because of `#[serde(default)]`,
+specta marks every field optional in the bindings; the frontend fills them with `withDefaults`
+(`features/settings/lib/defaults.ts`).
+| `get_git_info` | `git_env` | yes | `Result<GitInfo>` | Locates git again and reports path, version, support |
+| `get_window_context` | `windows` | no | `Result<WindowContext>` | What the calling window is: `main` or `task` + task + path |
+| `take_repository_requests` | `windows` | no | `string[]` | Drains repositories requested from the command line |
+| `open_task_window` | `windows` | yes | `Result<null>` | Opens a task window, like `noblame <task> <path>` |
 
 ### Repository commands (M2)
 
@@ -54,6 +59,7 @@ returned by `open_repository`; a session lives as long as its tab.
 | `close_repository`         | no    | `null`                          | Forgets a session (when its tab closes)                                    |
 | `load_graph`               | yes   | `Result<GraphSummary>`          | Builds the graph on a blocking thread (cached; `reload` forces a rebuild)  |
 | `get_graph_block`          | yes   | `Result<unknown>` (ArrayBuffer) | One block of 256 rows in the binary format below                           |
+| `get_ancestry_block`       | yes   | `Result<unknown>` (ArrayBuffer) | Highlight overlay of one block for the history of `row` (format below)     |
 | `get_commit_rows`          | yes   | `Result<CommitRowDto[]>`        | Text columns (id, summary, author, date, refs) for up to 500 rows          |
 | `write_commit_graph`       | yes   | `Result<RepoSummary>`           | Runs `git commit-graph write --reachable --changed-paths`                  |
 | `list_recent_repositories` | yes   | `Result<RecentRepository[]>`    | Recently opened repositories, newest first, with an `exists` flag          |
@@ -151,6 +157,22 @@ then per edge (6 bytes): from u16, to u16, color u16
   row (lane `to`). To draw rows `a..=b`, draw the edges of rows `a..=b+1`.
 - The decoder rejects other versions and truncated data with a `BlockFormatError`. Bump the
   version byte whenever the layout changes.
+
+### Highlight overlay
+
+`get_ancestry_block(id, row, block)` marks which nodes and lines of a block belong to the history
+of the commit on `row` (version 1; source of truth: `encode_ancestry_block` in
+`crates/git-core/src/graph/encode.rs`, decoder: `src/features/graph/lib/decodeAncestry.ts`):
+
+```text
+header (16 bytes): version u8, reserved u8, reserved u16, first_row u32, row_count u32,
+                   edge_count u32
+row_count bytes:   1 when the row's commit is in the history
+edge_count bytes:  1 when the edge is lit, in the order of the same block's edges
+```
+
+A `row` outside the graph fails with `INVALID_INPUT` ("row N is outside the
+graph").
 
 Commit text is not part of the blocks: `get_commit_rows` returns it in pages of 100 rows, only for
 what is on screen.

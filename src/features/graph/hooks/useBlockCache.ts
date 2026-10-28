@@ -6,6 +6,7 @@ import { toIpcError } from "@/shared/ipc/client";
 import { fetchGraphBlock } from "../api/graph";
 import { BlockCache } from "../lib/blockCache";
 import { BLOCK_CACHE_SIZE } from "../lib/constants";
+import { decodeBlock } from "../lib/decode";
 
 /**
  * The block cache of one repository plus a counter that changes whenever a block arrives, so
@@ -17,6 +18,7 @@ export function useBlockCache(repoId: number): { cache: BlockCache; version: num
     () =>
       new BlockCache(
         (block) => fetchGraphBlock(repoId, block),
+        decodeBlock,
         BLOCK_CACHE_SIZE,
         () => {
           setVersion((current) => current + 1);

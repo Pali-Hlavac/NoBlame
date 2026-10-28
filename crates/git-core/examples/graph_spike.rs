@@ -80,6 +80,18 @@ fn run(path: &std::path::Path) -> Result<(), Box<dyn std::error::Error>> {
         details.elapsed(),
         oldest.contained_in_total
     );
+    // Worst case for the highlighted history: the newest commit, every block below it lit.
+    let highlight = Instant::now();
+    if let Some(mut ancestry) = graph.ancestry(0) {
+        let first = highlight.elapsed();
+        let _ = graph.encode_ancestry_block(&mut ancestry, 0);
+        let first_block = highlight.elapsed();
+        let _ = graph.encode_ancestry_block(&mut ancestry, blocks.saturating_sub(1));
+        println!(
+            "history, top    {first:.1?} find, {first_block:.1?} first block, {:.1?} last block",
+            highlight.elapsed()
+        );
+    }
     if let Some(row) = rows.first() {
         println!(
             "top row         {} {} ({})",

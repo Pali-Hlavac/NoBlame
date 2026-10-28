@@ -14,6 +14,8 @@ interface GraphRowsProps {
   columns: ColumnLayout;
   rowText: (row: number) => CommitRowDto | undefined;
   selected: number | undefined;
+  /** Author email (lower case) whose commits are marked, from the highlighted commit. */
+  highlightAuthor?: string;
   onSelect: (row: number) => void;
   idPrefix: string;
 }
@@ -21,6 +23,7 @@ interface GraphRowsProps {
 /** Text columns of the visible rows, positioned over the canvas. */
 export function GraphRows(props: GraphRowsProps) {
   const { firstRow, lastRow, virtualTop, columns, rowText, selected, onSelect, idPrefix } = props;
+  const { highlightAuthor } = props;
   const rows = Array.from(
     { length: Math.max(0, lastRow - firstRow + 1) },
     (_, index) => firstRow + index,
@@ -28,6 +31,8 @@ export function GraphRows(props: GraphRowsProps) {
   return rows.map((row) => {
     const text = rowText(row);
     const isSelected = row === selected;
+    const byAuthor =
+      highlightAuthor !== undefined && text?.authorEmail.toLowerCase() === highlightAuthor;
     return (
       <div
         key={row}
@@ -38,7 +43,9 @@ export function GraphRows(props: GraphRowsProps) {
         aria-label={text ? `${text.summary}, ${text.authorName}` : `Commit ${row + 1}, loading`}
         className={cn(
           "absolute right-0 left-0 grid items-center gap-3 pr-3 text-sm",
-          isSelected ? "bg-accent text-accent-foreground" : "hover:bg-muted/60",
+          isSelected
+            ? "bg-accent text-accent-foreground"
+            : cn("hover:bg-muted/60", byAuthor && "bg-primary/10"),
         )}
         style={{
           top: row * ROW_HEIGHT_PX - virtualTop,
@@ -59,7 +66,13 @@ export function GraphRows(props: GraphRowsProps) {
               <span className="truncate">{text.summary}</span>
             </span>
             {columns.visible.has("author") && (
-              <span className="truncate text-muted-foreground" title={text.authorEmail}>
+              <span
+                className={cn(
+                  "truncate",
+                  byAuthor ? "font-medium text-foreground" : "text-muted-foreground",
+                )}
+                title={text.authorEmail}
+              >
                 {text.authorName}
               </span>
             )}

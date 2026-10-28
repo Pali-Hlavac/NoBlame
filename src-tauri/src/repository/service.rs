@@ -69,6 +69,19 @@ pub async fn graph_block(
     Ok(GraphBytes(graph.encode_block(block)))
 }
 
+/// The highlight overlay of `block` for the history of the commit on `row`.
+pub async fn ancestry_block(
+    sessions: &RepoSessions,
+    id: RepoId,
+    row: u32,
+    block: u32,
+) -> Result<GraphBytes, RepositoryError> {
+    let session = sessions.get(id)?;
+    let graph = session.graph(false).await?;
+    let bytes = blocking(move || session.ancestry_block(&graph, row, block)).await??;
+    Ok(GraphBytes(bytes))
+}
+
 /// Text columns for rows `start..start + count`.
 pub async fn rows(
     sessions: &RepoSessions,

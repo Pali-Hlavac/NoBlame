@@ -102,7 +102,8 @@ Next: M2. Start with the spike (history walk with `gix` + commit-graph on
   and fast scrolling not measured yet, keyboard navigation not tried in the running app.
 - [~] Columns: graph, message, author, date, hash; ref labels for branches, remotes, tags and
   HEAD done. Stash label moved to M4 (stash list).
-- [ ] "Artificial" rows for working tree and index changes at the top (as Git Extensions does)
+- [ ] "Artificial" rows for working tree and index changes at the top (as Git Extensions does);
+      a setting chooses where they show (graph rows or elsewhere), owner request 2026-10-28
 - [x] Offer to write the commit-graph file (`--changed-paths`) when missing (not yet clicked
       through in the running app)
 - [ ] On-disk graph cache per repo; incremental update after fetch/commit — ADR 0010
@@ -212,6 +213,18 @@ Not verified in the running app (they need someone at the keyboard; the logic is
 - Reset layout;
 - the Pull menu.
 
+#### M2.5 follow-ups (owner review 2, 2026-10-28)
+
+- [x] Settings button at the bottom of the activity bar; a Settings tab (theme, graph highlight,
+      repository actions menu; shortcuts listed as M7)
+- [x] "…" menu on open repositories in the Repositories module (Copy path, Close; Pull, Fetch,
+      Push and Commit shown as M4/M5 stubs), with a setting to hide it
+- [x] Selecting a commit highlights its history (lines leading into it, dimming the rest) and the
+      commits by the same author; Esc clears it; setting to switch it off
+- [x] Scrollbar flicker while resizing the window or a splitter (dock tab strips, commit list)
+- [x] A remount of the workbench (hot reload in development) no longer replaces the open tabs with
+      the ones restored at start
+
 ### M3: Inspecting history
 
 - [ ] Commit details module, complete: children, signature status (the basics are in M2.5)
@@ -221,6 +234,8 @@ Not verified in the running app (they need someone at the keyboard; the logic is
 - [ ] Changed files list and file tree of any revision; open/save a file at a revision
 - [ ] File history (following renames) and blame with "blame previous revision"
 - [ ] Filters: branch(es), author, committer, message, path, date range, first-parent only, hide merges
+      (owner request 2026-10-28: show only a branch, only an author, changes to a file, and a
+      general search in messages)
 - [ ] Find in the graph (hash, message, ref) with jump-to; "go to commit"
 - [ ] Compare any two commits/branches
 
@@ -229,6 +244,8 @@ Not verified in the running app (they need someone at the keyboard; the logic is
 - [ ] Status: staged, unstaged, untracked, conflicted; fast on large trees (`--no-optional-locks`, fsmonitor, untracked cache)
 - [ ] Stage/unstage files, hunks and single lines; discard changes (with confirmation)
 - [ ] Commit dialog: message editor with templates, amend, sign-off, GPG/SSH signing via git, author override, hooks output shown
+- [ ] Commit window as a modal dialog or as a module in the left dock; a setting picks one (owner
+      request 2026-10-28)
 - [ ] Commit message history and recent-message reuse
 - [ ] Stash: create from selected files (checkbox list, message, keep index, include untracked),
       list (Stashes module), show (files and diffs in the dock), apply/pop a whole stash or only
@@ -243,6 +260,9 @@ Not verified in the running app (they need someone at the keyboard; the logic is
 - [ ] Toolbar operations: Fetch, Fetch all, Fetch and prune (`git fetch --prune`), Pull
       (merge/rebase/ff-only), Push (incl. tags, force-with-lease behind confirmation) as background
       jobs with progress
+- [ ] Quick Pull button on repository rows in the Repositories module, behind a setting (owner
+      request 2026-10-28; quick Merge follows with merging in M6); the "…" menu's Pull, Fetch and
+      Push become real
 - [ ] Credentials: git credential helpers; `GIT_ASKPASS`/`SSH_ASKPASS` helper that asks in the app — ADR 0012
 - [ ] Manage remotes; clone dialog (shallow, single branch, partial clone, recursive submodules)
 - [ ] Background job registry: progress, cancel, logs, "equivalent command" shown — ADR 0011
@@ -266,6 +286,8 @@ Not verified in the running app (they need someone at the keyboard; the logic is
 - [ ] Patches: create (format-patch), apply (am/apply); archive a revision
 - [ ] User scripts / custom commands with placeholders (`{sha}`, `{branch}`, `{file}`) like Git Extensions scripts
 - [ ] Settings: repo and global git config editor (explicit), app preferences, keyboard shortcuts
+      (configurable in the Settings tab, owner request 2026-10-28; first move every shortcut into
+      one keybinding registry, since features register their own today)
 
 ### M8: Standalone task windows (prepares phase 2)
 

@@ -28,13 +28,16 @@ interface WorkbenchProps {
   renderTab: (tab: WorkspaceTab) => ReactNode;
   /** The layout saved by the previous session. */
   saved: SavedLayout | null;
+  /** Buttons at the bottom of the activity bar. */
+  activityBarFooter?: ReactNode;
 }
 
 /**
  * The main window's frame: activity bar, module dock (sidebar) and document dock. Knows nothing
  * about what modules and tabs show; the app shell passes them in.
  */
-export function Workbench({ modules, defaultModuleLayout, renderTab, saved }: WorkbenchProps) {
+export function Workbench(props: WorkbenchProps) {
+  const { modules, defaultModuleLayout, renderTab, saved, activityBarFooter } = props;
   // Runs once, during the first render, so restored tabs exist before anything reads them.
   const [restored] = useState(() => restoreWorkbench(saved));
   const epoch = useWorkbenchStore((state) => state.layoutEpoch);
@@ -70,7 +73,7 @@ export function Workbench({ modules, defaultModuleLayout, renderTab, saved }: Wo
 
   return (
     <div className="flex min-h-0 flex-1">
-      <ActivityBar modules={modules} />
+      <ActivityBar modules={modules} footer={activityBarFooter} />
       <Group key={epoch} orientation="horizontal" className="min-w-0 flex-1">
         <Panel
           id="modules"

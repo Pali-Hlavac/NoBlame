@@ -46,6 +46,42 @@ pub fn encode_block(first_row: u32, rows: &[RowGeometry], flags: impl Fn(u32) ->
     out
 }
 
+/// Version of the ancestry overlay; bump it when its layout changes.
+pub const ANCESTRY_FORMAT_VERSION: u8 = 1;
+
+/// Encodes which nodes and lines of a block belong to a highlighted history:
+///
+/// ```text
+/// header (16 bytes): version u8, reserved u8, reserved u16, first_row u32, row_count u32,
+///                    edge_count u32
+/// row_count bytes:   1 when the row's commit is in the history, else 0
+/// edge_count bytes:  1 when the line is lit, else 0 (edges in the block's order)
+/// ```
+pub fn encode_ancestry_block(
+    first_row: u32,
+    rows: &[RowGeometry],
+    in_history: impl Fn(u32) -> bool,
+) -> Vec<u8> {
+    // Rows keep at most u16::MAX edges, as in `encode_block`.
+    let limit = usize::from(u16::MAX);
+    let edges: usize = rows.iter().map(|row| row.edges.len().min(limit)).sum();
+    let mut out = Vec::with_capacity(ANCESTRY_HEADER_BYTES + rows.len() + edges);
+    out.extend_from_slice(&[ANCESTRY_FORMAT_VERSION, 0, 0, 0]);
+    out.extend_from_slice(&first_row.to_le_bytes());
+    out.extend_from_slice(&u32::try_from(rows.len()).unwrap_or(u32::MAX).to_le_bytes());
+    out.extend_from_slice(&u32::try_from(edges).unwrap_or(u32::MAX).to_le_bytes());
+    for offset in 0..rows.len() {
+        let row = first_row.saturating_add(u32::try_from(offset).unwrap_or(u32::MAX));
+        out.push(u8::from(in_history(row)));
+    }
+    for row in rows {
+        out.extend(row.edges.iter().take(limit).map(|edge| u8::from(edge.lit)));
+    }
+    out
+}
+
+const ANCESTRY_HEADER_BYTES: usize = 16;
+
 /// Keeps the low 16 bits; the UI only needs enough distinct ids to cycle its palette.
 fn color16(color: u32) -> u16 {
     u16::try_from(color & u32::from(u16::MAX)).unwrap_or(0)
@@ -71,6 +107,7 @@ mod tests {
                     from: 0,
                     to: 1,
                     color: 7,
+                    lit: false,
                 }],
             },
         ];

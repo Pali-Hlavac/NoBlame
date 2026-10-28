@@ -17,7 +17,12 @@ export interface RepositoryTab extends TabBase {
   path: string;
 }
 
-export type WorkspaceTab = WelcomeTab | RepositoryTab;
+/** App settings (one tab at most). */
+export interface SettingsTab extends TabBase {
+  kind: "settings";
+}
+
+export type WorkspaceTab = WelcomeTab | RepositoryTab | SettingsTab;
 
 /** Checks a tab read back from a saved layout (which may come from another app version). */
 export function isWorkspaceTab(value: unknown): value is WorkspaceTab {
@@ -26,6 +31,7 @@ export function isWorkspaceTab(value: unknown): value is WorkspaceTab {
   if (typeof tab.id !== "string" || typeof tab.title !== "string") return false;
   switch (tab.kind) {
     case "welcome":
+    case "settings":
       return true;
     case "repository":
       return typeof tab.path === "string";

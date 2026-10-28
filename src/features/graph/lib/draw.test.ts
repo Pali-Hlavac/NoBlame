@@ -1,6 +1,6 @@
-import { FLAG_HEAD, FLAG_MERGE, ROW_HEIGHT_PX } from "./constants";
+import { DIMMED_ALPHA, FLAG_HEAD, FLAG_MERGE, ROW_HEIGHT_PX } from "./constants";
 import type { GraphBlock } from "./decode";
-import { drawGraph, laneX, type DrawContext } from "./draw";
+import { drawGraph, laneX, type DrawContext, type Highlight } from "./draw";
 
 /** A context that records the calls the renderer makes. */
 function recordingContext() {
@@ -9,15 +9,18 @@ function recordingContext() {
     strokeStyle: "",
     fillStyle: "",
     lineWidth: 1,
+    globalAlpha: 1,
     clearRect: () => calls.push("clear"),
     beginPath: () => calls.push("begin"),
     moveTo: (x, y) => calls.push(`move ${x} ${y}`),
     lineTo: (x, y) => calls.push(`line ${x} ${y}`),
     bezierCurveTo: () => calls.push("curve"),
-    stroke: () => calls.push(`stroke ${String(ctx.strokeStyle)}`),
-    fill: () => calls.push(`fill ${String(ctx.fillStyle)}`),
+    stroke: () => calls.push(`stroke ${String(ctx.strokeStyle)}${alpha()}`),
+    fill: () => calls.push(`fill ${String(ctx.fillStyle)}${alpha()}`),
     arc: () => calls.push("arc"),
   };
+  // Recorded only when dimmed, so plain drawing reads as before.
+  const alpha = () => (ctx.globalAlpha === 1 ? "" : ` ${ctx.globalAlpha}`);
   return { ctx, calls };
 }
 
@@ -34,7 +37,7 @@ const block: GraphBlock = {
 
 const palette = { lanes: ["red", "blue"], background: "white", head: "gold" };
 
-function draw(getBlock: (index: number) => GraphBlock | undefined) {
+function draw(getBlock: (index: number) => GraphBlock | undefined, highlight?: Highlight) {
   const { ctx, calls } = recordingContext();
   const missing = drawGraph(ctx, {
     width: 100,
@@ -46,6 +49,7 @@ function draw(getBlock: (index: number) => GraphBlock | undefined) {
     blockRows: 256,
     getBlock,
     palette,
+    highlight,
   });
   return { calls, missing };
 }
@@ -65,6 +69,35 @@ describe("drawGraph", () => {
     const { calls } = draw(() => block);
     const fills = calls.filter((call) => call.startsWith("fill"));
     expect(fills).toEqual(["fill gold", "fill red", "fill white", "fill blue"]);
+  });
+
+  it("dims what is outside the highlighted history", () => {
+    // Row 0 and the straight line into row 1 are in the history; row 1 and its curve are not.
+    const overlay = {
+      firstRow: 0,
+      count: 2,
+      rows: Uint8Array.from([1, 0]),
+      edges: Uint8Array.from([1, 0]),
+    };
+    const { calls } = draw(() => block, { getOverlay: () => overlay });
+    expect(calls.filter((call) => call.startsWith("stroke"))).toEqual([
+      "stroke red",
+      `stroke blue ${DIMMED_ALPHA}`,
+    ]);
+    expect(calls.filter((call) => call.startsWith("fill"))).toEqual([
+      "fill gold",
+      "fill red",
+      "fill white",
+      `fill blue ${DIMMED_ALPHA}`,
+    ]);
+  });
+
+  it("dims everything while the overlay is loading", () => {
+    const { calls } = draw(() => block, { getOverlay: () => undefined });
+    expect(calls.filter((call) => call.startsWith("stroke"))).toEqual([
+      `stroke red ${DIMMED_ALPHA}`,
+      `stroke blue ${DIMMED_ALPHA}`,
+    ]);
   });
 
   it("reports blocks that are not loaded yet", () => {

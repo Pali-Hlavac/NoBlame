@@ -35,9 +35,22 @@ export function useCommitPages(repoId: number, pages: readonly number[]) {
   });
 }
 
-/** One encoded block. Tauri delivers raw command results as an `ArrayBuffer`. */
+/** One encoded block. */
 export async function fetchGraphBlock(repoId: number, block: number): Promise<ArrayBuffer> {
-  const data = await unwrap(commands.getGraphBlock(repoId, block));
+  return toArrayBuffer(await unwrap(commands.getGraphBlock(repoId, block)));
+}
+
+/** The highlight overlay of one block for the history of the commit on `row`. */
+export async function fetchAncestryBlock(
+  repoId: number,
+  row: number,
+  block: number,
+): Promise<ArrayBuffer> {
+  return toArrayBuffer(await unwrap(commands.getAncestryBlock(repoId, row, block)));
+}
+
+/** Tauri delivers raw command results as an `ArrayBuffer` (or a view of one). */
+function toArrayBuffer(data: unknown): ArrayBuffer {
   if (data instanceof ArrayBuffer) return data;
   if (ArrayBuffer.isView(data)) {
     return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength) as ArrayBuffer;

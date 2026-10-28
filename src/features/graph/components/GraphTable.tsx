@@ -7,6 +7,7 @@ import { useElementSize } from "@/shared/hooks/useElementSize";
 import { useCommitPages } from "../api/graph";
 import { useBlockCache } from "../hooks/useBlockCache";
 import { usePalette } from "../hooks/usePalette";
+import { useSelectionHighlight } from "../hooks/useSelectionHighlight";
 import {
   GRAPH_PADDING_PX,
   LANE_WIDTH_PX,
@@ -39,6 +40,7 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
   const selected = useSelectedRow(repoPath);
   const { cache, version } = useBlockCache(repoId);
   const palette = usePalette();
+  const highlight = useSelectionHighlight(repoId, repoPath, selected);
   const idPrefix = useId();
 
   const rowCount = summary.rows;
@@ -59,6 +61,11 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
     PREFETCH_MARGIN,
     pageCount,
   );
+  // The highlighted commit's text gives its author, also when it is scrolled out of view.
+  if (highlight.row !== undefined) {
+    const page = Math.floor(highlight.row / PAGE_ROWS);
+    if (!pages.includes(page)) pages.push(page);
+  }
   const pageResults = useCommitPages(repoId, pages);
   const rowText = (row: number): CommitRowDto | undefined => {
     const index = pages.indexOf(Math.floor(row / PAGE_ROWS));
@@ -90,11 +97,20 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
     element.scrollTop = scrollTopToReveal(selected, element.scrollTop, size.height, rowCount);
   }, [selected, size.height, rowCount]);
 
+  const highlightAuthor =
+    highlight.row === undefined ? undefined : rowText(highlight.row)?.authorEmail.toLowerCase();
+
   const select = (row: number) => {
+    highlight.restore();
     selectRow(repoPath, row);
   };
 
   const onKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "Escape" && highlight.row !== undefined) {
+      event.preventDefault();
+      highlight.dismiss();
+      return;
+    }
     const row = nextRow(event.key, selected, rowCount, Math.floor(size.height / ROW_HEIGHT_PX));
     if (row === null) return;
     event.preventDefault();
@@ -124,7 +140,7 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
             : undefined
         }
         tabIndex={0}
-        className="relative min-h-0 flex-1 overflow-auto outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+        className="relative min-h-0 flex-1 overflow-x-hidden overflow-y-auto outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
         onScroll={(event) => {
           const top = event.currentTarget.scrollTop;
           setScrollTop(top);
@@ -133,7 +149,12 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
         onKeyDown={onKeyDown}
       >
         <div style={{ height: viewport.spacerHeight }}>
-          <div className="sticky top-0 overflow-hidden" style={{ height: size.height }}>
+          {/* No taller than the spacer: while the pane shrinks, `size` is a frame late, and a
+              taller layer would flash a scrollbar on short histories. */}
+          <div
+            className="sticky top-0 overflow-hidden"
+            style={{ height: Math.min(size.height, viewport.spacerHeight) }}
+          >
             <GraphRows
               firstRow={viewport.firstRow}
               lastRow={viewport.lastRow}
@@ -141,6 +162,7 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
               columns={columns}
               rowText={rowText}
               selected={selected}
+              highlightAuthor={highlightAuthor}
               onSelect={select}
               idPrefix={idPrefix}
             />
@@ -153,6 +175,7 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
               cache={cache}
               version={version}
               palette={palette}
+              highlight={highlight}
             />
           </div>
         </div>

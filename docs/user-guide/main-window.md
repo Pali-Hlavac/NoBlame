@@ -23,6 +23,9 @@ Each icon in the activity bar opens a module in the sidebar:
 | Commit | Commit details | Alt+3    | Everything about the selected commit                                   |
 | Box    | Stashes        | Alt+4    | Your stashes                                                           |
 
+The gear at the bottom of the activity bar opens **Settings** in a tab: the theme, the commit
+highlight, and whether repositories show their **…** button.
+
 Clicking the icon of a module that is already showing hides the sidebar; click any icon to show
 it again. You can also drag the line between the sidebar and the tabs to change its width.
 
@@ -36,7 +39,9 @@ commit in that repository, Commit details shows it right away.
 
 Your open repositories are listed first. Below each one are its **submodules**, and below those
 their own submodules. Click a repository to switch to its tab, or click a submodule to open it in
-a tab of its own. An open submodule is shown in bold and stays in its place in the tree. A grey submodule has not been downloaded yet ("initialized"); NoBlame cannot
+a tab of its own. An open submodule is shown in bold and stays in its place in the tree.
+Point at an open repository to see its **…** button: **Copy path** and **Close** work today;
+Pull, Fetch, Push and Commit are listed but come in later versions. A grey submodule has not been downloaded yet ("initialized"); NoBlame cannot
 initialize submodules in this version.
 
 Under **Recent** are the repositories you opened before. Hover over one and click **×** to remove

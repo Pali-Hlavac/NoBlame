@@ -106,6 +106,31 @@ produces exactly the same rows as the full pass.
 - **State**: selection and scroll position are kept per repository path in a Zustand store, so
   switching tabs keeps them.
 
+## Highlighted history
+
+Selecting a commit highlights its history ([features/commit-graph.md](../features/commit-graph.md)).
+`git-core::graph::ancestry`:
+
+1. **Members**: rows are in topological order, so every ancestor lies on or below the selected
+   row. One pass down from that row marks the parents of marked rows (`Graph::ancestry`, 3.5 ms
+   for the newest of 1M commits).
+2. **Lit lines**: the lane layout tracks a `lit` flag per lane. A commit's outgoing lines are lit
+   when the commit is in the history; a merge line that joins an existing lane lights that lane
+   below the join only. Since nothing above the selected row is lit, the plain checkpoint of the
+   selected row's block is a valid start. From there, the lane state at each later block start
+   is computed when first needed and kept, so each block is replayed at most once per selection.
+3. **Transport**: `get_ancestry_block(id, row, block)` returns an overlay per block: one byte per
+   row (in the history or not) and one byte per edge, in the same order as `get_graph_block`.
+   The session keeps the `Ancestry` of the last selected row (and the graph it belongs to).
+4. **Drawing**: the frontend caches overlays per selection (`useAncestryCache`) and draws edges
+   and nodes without a lit flag at `DIMMED_ALPHA`. Rows above the selected row's block are never
+   requested: they are all dimmed.
+
+Cost on synthetic-1m (release): finding the history 3.5 ms, the first block 0.1 ms after that,
+and jumping straight to the last block 245 ms (one layout pass over everything below the commit,
+paid once per selection). An integration test checks the members against `git rev-list` and
+that exactly the history's commits receive a lit line.
+
 ## Performance
 
 Measured on Windows 11 with the synthetic repositories (details and method in

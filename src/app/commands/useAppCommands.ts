@@ -9,6 +9,7 @@ import {
   LayoutTemplateIcon,
   MonitorIcon,
   MoonIcon,
+  SettingsIcon,
   SunIcon,
   XIcon,
 } from "lucide-react";
@@ -23,6 +24,8 @@ import { TASKS, TASK_WINDOWS_MILESTONE, useOpenTaskWindow } from "@/features/win
 import { openModule, resetLayout, type WorkbenchModule } from "@/features/workbench";
 import { TAB_HOTKEYS, WELCOME_TAB, useActiveTab, useTabsStore } from "@/features/workspace";
 import type { TaskKind } from "@/shared/ipc/bindings";
+
+import { SETTINGS_HOTKEY, openSettings } from "../layout/settingsTab";
 
 const THEME_ICONS = { system: MonitorIcon, light: SunIcon, dark: MoonIcon } as const;
 
@@ -122,6 +125,15 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
           console.warn("Resetting the layout failed", error);
         });
       },
+    },
+    {
+      id: "app.settings",
+      group: "View",
+      label: "Open settings",
+      icon: SettingsIcon,
+      hotkey: SETTINGS_HOTKEY,
+      keywords: ["preferences", "options"],
+      run: openSettings,
     },
     ...themeCommands,
     {

@@ -10,11 +10,8 @@ import {
 
 import { openModule, type ToolbarAction } from "@/features/workbench";
 
+import { COMMIT_MILESTONE, REMOTE_MILESTONE } from "./milestones";
 import { MODULES } from "./modules";
-
-/** Milestones that deliver the stubbed actions (docs/roadmap.md). */
-const REMOTE_MILESTONE = "M5";
-const COMMIT_MILESTONE = "M4";
 
 const STASHES_MODULE = MODULES.find((module) => module.id === "stashes");
 

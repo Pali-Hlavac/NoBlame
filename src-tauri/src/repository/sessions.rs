@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
-use git_core::graph::Graph;
+use git_core::graph::{Ancestry, Graph, GraphError};
 use git_core::repo::Repository;
 
 use super::{RepoId, RepositoryError};
@@ -13,6 +13,8 @@ pub struct Session {
     /// The repository handle.
     pub repo: Repository,
     graph: tokio::sync::Mutex<Option<Arc<Graph>>>,
+    /// The highlighted history of the last selected row, for the graph it was found in.
+    ancestry: Mutex<Option<(Arc<Graph>, Ancestry)>>,
 }
 
 impl Session {
@@ -37,6 +39,30 @@ impl Session {
         *slot = Some(Arc::clone(&graph));
         Ok(graph)
     }
+
+    /// The highlight overlay of `block` for the history of `row`. Keeps the history of the last
+    /// row asked for, so the blocks of one selection are found and replayed once. Blocking.
+    pub fn ancestry_block(
+        &self,
+        graph: &Arc<Graph>,
+        row: u32,
+        block: u32,
+    ) -> Result<Vec<u8>, RepositoryError> {
+        // Every update replaces the whole value, so a poisoned lock still holds consistent data.
+        let mut slot = self.ancestry.lock().unwrap_or_else(PoisonError::into_inner);
+        let current = matches!(&*slot, Some((built, ancestry))
+            if Arc::ptr_eq(built, graph) && ancestry.row() == row);
+        if !current {
+            *slot = graph
+                .ancestry(row)
+                .map(|ancestry| (Arc::clone(graph), ancestry));
+        }
+        let (_, ancestry) = slot.as_mut().ok_or(GraphError::RowOutOfRange {
+            row,
+            rows: graph.row_count(),
+        })?;
+        Ok(graph.encode_ancestry_block(ancestry, block))
+    }
 }
 
 /// All open sessions, by id.
@@ -60,6 +86,7 @@ impl RepoSessions {
         let session = Arc::new(Session {
             repo,
             graph: tokio::sync::Mutex::new(None),
+            ancestry: Mutex::new(None),
         });
         inner.sessions.insert(id, Arc::clone(&session));
         (id, session)

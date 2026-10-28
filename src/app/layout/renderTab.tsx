@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import { RepositoryView } from "@/features/repositories";
+import { SettingsView } from "@/features/settings";
 import type { WorkspaceTab } from "@/features/workspace";
 
 import { WelcomeTabContent } from "./WelcomeTabContent";
@@ -12,5 +13,7 @@ export function renderTab(tab: WorkspaceTab): ReactNode {
       return <WelcomeTabContent />;
     case "repository":
       return <RepositoryView key={tab.id} tab={tab} />;
+    case "settings":
+      return <SettingsView />;
   }
 }

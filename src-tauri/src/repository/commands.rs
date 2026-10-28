@@ -53,6 +53,19 @@ pub async fn get_graph_block(
     Ok(service::graph_block(&sessions, id, block).await?)
 }
 
+/// Which nodes and lines of one block belong to the history of the commit on `row` (binary
+/// overlay, see `docs/architecture/ipc.md`).
+#[tauri::command]
+#[specta::specta]
+pub async fn get_ancestry_block(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    row: u32,
+    block: u32,
+) -> CommandResult<GraphBytes> {
+    Ok(service::ancestry_block(&sessions, id, row, block).await?)
+}
+
 /// Text columns (id, summary, author, date, refs) for up to 500 rows.
 #[tauri::command]
 #[specta::specta]

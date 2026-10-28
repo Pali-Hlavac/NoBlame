@@ -7,6 +7,7 @@ import type { SubmoduleDto } from "@/shared/ipc/bindings";
 import { openRepositories } from "../hooks/useOpenRepository";
 import { repositoryTab } from "../lib/path";
 import { OpenTabsContext } from "./openTabsContext";
+import { OpenRepositoryActions } from "./RepositoryActionsMenu";
 import { RepositoryTreeRow } from "./RepositoryTreeRow";
 
 /** Milestone that adds initializing and updating submodules. */
@@ -48,6 +49,13 @@ export function SubmoduleNode({ submodule, depth }: { submodule: SubmoduleDto; d
         current={openTabs.activeId === tabId}
         emphasized={isOpen}
         dimmed={!submodule.initialized}
+        actions={
+          isOpen && (
+            <OpenRepositoryActions
+              repository={{ path: submodule.workDir, tabId, title: submodule.path }}
+            />
+          )
+        }
       />
       {hasChildren && expanded && (
         <SubmoduleList submodules={submodule.children} depth={depth + 1} />

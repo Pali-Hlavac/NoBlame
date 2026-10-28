@@ -54,6 +54,23 @@ Windows. Dropping folders onto the window to open them will use HTML drop events
 
 Floating groups and popping a group out into its own window are switched off for now (backlog).
 
+## Settings button
+
+The gear at the bottom of the activity bar opens the **Settings** tab (also **Ctrl+,** / **⌘,**
+and "Open settings" in the palette). The Workbench takes the button as `activityBarFooter`, so it
+knows nothing about settings; the app shell passes `SettingsButton`. The Settings tab is a
+document tab like any other (`kind: "settings"`, at most one), restored with the layout.
+
+Settings shown there (stored in `settings.json`, see `src-tauri/src/settings/types.rs`):
+
+| Section      | Setting                                     | Default |
+| ------------ | ------------------------------------------- | ------- |
+| Appearance   | Theme (System, Light, Dark)                 | System  |
+| Commit graph | Highlight the selected commit               | on      |
+| Repositories | Show the actions button (…) on repositories | on      |
+
+**Keyboard shortcuts** are listed as arriving in M7 (configurable shortcuts).
+
 ## Active repository and selection
 
 - The **active repository** is the repository tab focused most recently. It stays active while
@@ -84,6 +101,12 @@ Details:
   - An open submodule stays inside its parent's tree: shown in bold, and highlighted when it is
     the active repository. It is not listed again as a repository of its own.
   - Submodules that are not initialized are dimmed and cannot be opened; initializing them is M7.
+  - Each open repository (and each open submodule) has a **…** button, shown on hover or focus,
+    with its actions: **Copy path** and **Close** work; **Pull**, **Fetch**, **Push** (M5) and
+    **Commit…** (M4) are listed disabled with their milestone. The app shell supplies the
+    actions (`src/app/workbench/repositoryActions.ts`) through `RepositoryActionsContext`, so
+    the Repositories module does not depend on the features that implement them. Settings can
+    hide the button.
   - Recent repositories that are already open are not repeated; missing folders are dimmed.
 - **Branches**:
   - The list is virtualized, so 10,000 refs (the 1M synthetic repository) scroll smoothly.

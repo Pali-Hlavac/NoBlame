@@ -4,9 +4,10 @@
  */
 import { create } from "zustand";
 
-import type { RepositoryTab, WelcomeTab, WorkspaceTab } from "../types";
+import type { RepositoryTab, SettingsTab, WelcomeTab, WorkspaceTab } from "../types";
 
 export const WELCOME_TAB: WelcomeTab = { id: "welcome", kind: "welcome", title: "Welcome" };
+export const SETTINGS_TAB: SettingsTab = { id: "settings", kind: "settings", title: "Settings" };
 
 interface TabsState {
   tabs: WorkspaceTab[];

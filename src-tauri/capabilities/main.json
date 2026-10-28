@@ -24,6 +24,7 @@
     "allow-close-repository",
     "allow-load-graph",
     "allow-get-graph-block",
+    "allow-get-ancestry-block",
     "allow-get-commit-rows",
     "allow-write-commit-graph",
     "allow-list-recent-repositories",

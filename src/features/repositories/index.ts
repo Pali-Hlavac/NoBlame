@@ -11,4 +11,9 @@ export {
   useCreateRepository,
   useOpenRepository,
 } from "./hooks/useOpenRepository";
+export {
+  RepositoryActionsContext,
+  type RepositoryAction,
+  type RepositoryTarget,
+} from "./lib/actions";
 export { repositoryName, repositoryTab } from "./lib/path";

@@ -23,4 +23,64 @@ pub enum ThemePreference {
 pub struct Settings {
     /// Color scheme of every window.
     pub theme: ThemePreference,
+    /// Commit graph.
+    pub graph: GraphSettings,
+    /// Repositories module.
+    pub repositories: RepositoriesSettings,
+}
+
+/// Commit graph preferences.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase", default)]
+pub struct GraphSettings {
+    /// Selecting a commit highlights its history and the commits by the same author.
+    pub highlight_selection: bool,
+}
+
+impl Default for GraphSettings {
+    fn default() -> Self {
+        Self {
+            highlight_selection: true,
+        }
+    }
+}
+
+/// Repositories module preferences.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase", default)]
+pub struct RepositoriesSettings {
+    /// Each repository row has a "…" button with its actions.
+    pub show_actions_menu: bool,
+}
+
+impl Default for RepositoriesSettings {
+    fn default() -> Self {
+        Self {
+            show_actions_menu: true,
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used)]
+    use super::*;
+
+    #[test]
+    fn older_files_get_the_new_defaults() {
+        let settings: Settings = serde_json::from_str(r#"{ "theme": "dark" }"#).unwrap();
+        assert_eq!(settings.theme, ThemePreference::Dark);
+        assert!(settings.graph.highlight_selection);
+        assert!(settings.repositories.show_actions_menu);
+    }
+
+    #[test]
+    fn a_partial_group_keeps_its_other_defaults() {
+        let settings: Settings = serde_json::from_str(
+            r#"{ "graph": {}, "repositories": { "showActionsMenu": false } }"#,
+        )
+        .unwrap();
+        assert!(settings.graph.highlight_selection);
+        assert!(!settings.repositories.show_actions_menu);
+    }
 }

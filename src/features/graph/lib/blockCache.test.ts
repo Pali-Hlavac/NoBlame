@@ -1,4 +1,5 @@
 import { BlockCache } from "./blockCache";
+import { decodeBlock } from "./decode";
 
 /** An encoded block with one empty row, tagged with `firstRow` so tests can tell blocks apart. */
 function emptyBlock(firstRow: number): ArrayBuffer {
@@ -16,7 +17,7 @@ describe("BlockCache", () => {
   it("loads each block once and reports arrivals", async () => {
     const fetchBlock = vi.fn((block: number) => Promise.resolve(emptyBlock(block * 256)));
     const onLoad = vi.fn();
-    const cache = new BlockCache(fetchBlock, 4, onLoad, vi.fn());
+    const cache = new BlockCache(fetchBlock, decodeBlock, 4, onLoad, vi.fn());
 
     cache.request(2);
     cache.request(2);
@@ -31,6 +32,7 @@ describe("BlockCache", () => {
   it("evicts the least recently used block", async () => {
     const cache = new BlockCache(
       (block) => Promise.resolve(emptyBlock(block)),
+      decodeBlock,
       2,
       vi.fn(),
       vi.fn(),
@@ -49,7 +51,7 @@ describe("BlockCache", () => {
   it("reports failures once and does not retry until cleared", async () => {
     const fetchBlock = vi.fn(() => Promise.reject(new Error("closed")));
     const onError = vi.fn();
-    const cache = new BlockCache(fetchBlock, 2, vi.fn(), onError);
+    const cache = new BlockCache(fetchBlock, decodeBlock, 2, vi.fn(), onError);
     cache.request(0);
     await flush();
     cache.request(0);

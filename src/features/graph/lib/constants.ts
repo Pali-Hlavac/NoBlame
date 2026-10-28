@@ -28,6 +28,12 @@ export const MAX_SCROLL_HEIGHT_PX = 10_000_000;
 
 /** Supported version of the binary block format (`docs/architecture/ipc.md`). */
 export const BLOCK_FORMAT_VERSION = 1;
+/** Supported version of the highlight overlay (`get_ancestry_block`). */
+export const ANCESTRY_FORMAT_VERSION = 1;
+/** Highlight overlays kept per selection. */
+export const ANCESTRY_CACHE_SIZE = 32;
+/** Opacity of nodes and lines outside the highlighted history. */
+export const DIMMED_ALPHA = 0.22;
 /** Row flag: merge commit. */
 export const FLAG_MERGE = 1;
 /** Row flag: HEAD points here. */

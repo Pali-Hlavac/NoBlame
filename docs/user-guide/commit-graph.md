@@ -30,7 +30,16 @@ Very wide histories are cut at 16 lines; the commits are all still there.
 - When you open a repository, the commit you have checked out is selected.
 - NoBlame remembers the selected commit and where you scrolled when you switch tabs.
 
-Commit details and changes come in a later version.
+When you select a commit, NoBlame highlights it:
+
+- the commit's history stays bright: the commits it was built on and the lines leading into it,
+  including branches merged into it. Everything else fades.
+- the commits by the same author are tinted, with the author's name in bold.
+
+Press **Esc** in the list to clear the highlight; the commit stays selected. You can switch the
+highlight off in **Settings → Commit graph**.
+
+Changed files and diffs come in a later version.
 
 ## Large repositories
 

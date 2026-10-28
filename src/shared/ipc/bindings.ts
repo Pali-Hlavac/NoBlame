@@ -30,6 +30,11 @@ export const commands = {
 	loadGraph: (id: number, reload: boolean) => typedError<GraphSummary, AppError>(__TAURI_INVOKE("load_graph", { id, reload })),
 	/**  One block of graph rows in the binary format of `docs/architecture/ipc.md`. */
 	getGraphBlock: (id: number, block: number) => typedError<unknown, AppError>(__TAURI_INVOKE("get_graph_block", { id, block })),
+	/**
+	 *  Which nodes and lines of one block belong to the history of the commit on `row` (binary
+	 *  overlay, see `docs/architecture/ipc.md`).
+	 */
+	getAncestryBlock: (id: number, row: number, block: number) => typedError<unknown, AppError>(__TAURI_INVOKE("get_ancestry_block", { id, row, block })),
 	/**  Text columns (id, summary, author, date, refs) for up to 500 rows. */
 	getCommitRows: (id: number, start: number, count: number) => typedError<CommitRowDto[], AppError>(__TAURI_INVOKE("get_commit_rows", { id, start, count })),
 	/**  Writes the commit-graph file (`git commit-graph write --reachable --changed-paths`). */
@@ -162,6 +167,12 @@ export type GitInfo = {
 	minimumVersion: string,
 };
 
+/**  Commit graph preferences. */
+export type GraphSettings = {
+	/**  Selecting a commit highlights its history and the commits by the same author. */
+	highlightSelection?: boolean,
+};
+
 /**  Size and shape of a loaded graph. */
 export type GraphSummary = {
 	/**  Number of rows (commits). */
@@ -281,6 +292,12 @@ export type RepoSummary = {
  */
 export type RepositoriesRequested = null;
 
+/**  Repositories module preferences. */
+export type RepositoriesSettings = {
+	/**  Each repository row has a "…" button with its actions. */
+	showActionsMenu?: boolean,
+};
+
 /**
  *  All persisted user preferences. Unknown fields are ignored and missing fields
  *  fall back to defaults, so older and newer app versions can share the file.
@@ -288,6 +305,10 @@ export type RepositoriesRequested = null;
 export type Settings = {
 	/**  Color scheme of every window. */
 	theme?: ThemePreference,
+	/**  Commit graph. */
+	graph?: GraphSettings,
+	/**  Repositories module. */
+	repositories?: RepositoriesSettings,
 };
 
 /**  Author or committer. */

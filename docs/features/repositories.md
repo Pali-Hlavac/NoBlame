@@ -42,6 +42,12 @@ git's message.
 Each tab has a backend session: opened when the tab first renders, kept while the tab is hidden,
 and closed when the tab is closed. Reopening the repository later opens a new session.
 
+## Actions menu
+
+In the Repositories module, every open repository has a **…** button (on hover or focus) with
+Copy path and Close, plus Pull, Fetch, Push and Commit… as labelled placeholders until M4/M5.
+**Settings → Repositories** hides it. See [workbench.md](workbench.md#modules).
+
 ## Recent repositories
 
 - Shown on the Welcome tab and under **Recent** in the Repositories module (without the ones

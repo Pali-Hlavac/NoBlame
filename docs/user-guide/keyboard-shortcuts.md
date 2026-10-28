@@ -15,6 +15,7 @@ On macOS, use **⌘** where this page says **Ctrl**, except for switching tabs, 
 | Alt+2          | Show Branches                           |
 | Alt+3          | Show Commit details                     |
 | Alt+4          | Show Stashes                            |
+| Ctrl+, (⌘,)    | Open Settings                           |
 | Escape         | Close the palette or a dialog           |
 | Enter          | Run the selected command in the palette |
 
@@ -25,12 +26,15 @@ On macOS, use **⌘** where this page says **Ctrl**, except for switching tabs, 
 Click the list (the commits, or the branches in the Branches module) or move to it with **Tab**
 first. **Enter** in the Branches list selects the branch's commit or folds a section.
 
-| Shortcut            | Action                |
-| ------------------- | --------------------- |
-| Up / Down           | Previous / next entry |
-| Page Up / Page Down | One screen up / down  |
-| Home / End          | First / last entry    |
+| Shortcut            | Action                                     |
+| ------------------- | ------------------------------------------ |
+| Up / Down           | Previous / next entry                      |
+| Page Up / Page Down | One screen up / down                       |
+| Home / End          | First / last entry                         |
+| Esc (commit list)   | Clear the highlight of the selected commit |
 
 Tab shortcuts do nothing while a dialog is open, so they never act on a tab you cannot see.
 
 Every button and control can be reached with **Tab** and shows a visible focus ring.
+
+Changing shortcuts is planned for a later version (M7).

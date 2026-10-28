@@ -140,3 +140,25 @@ Ideas from the owner, newest last, with where each one is planned.
   tabs and the document tabs line up → done (M2.5), with macOS and Linux handled.
 - 2026-10-28: tabs in the left dock are useful for now; revisit after using dragging and
   splitting for a while.
+- 2026-10-28 (review 2): staged and unstaged changes as rows at the top of the graph, or
+  somewhere else; where they show is a setting → M2 (artificial rows, with the setting), M4
+  (staging).
+- 2026-10-28 (review 2): the commit window as a modal dialog (the app behind it cannot be used)
+  or as a module in the left dock; which one is a setting → M4.
+- 2026-10-28 (review 2): a Settings button at the bottom of the activity bar → done (opens the
+  Settings tab).
+- 2026-10-28 (review 2): a "…" button on each repository with its actions (pull, commit, ...),
+  like VS Code; showing it is a setting → done (menu and setting; the actions themselves arrive
+  in M4 and M5).
+- 2026-10-28 (review 2): quick Pull and Merge buttons on repository rows, as a setting → M5
+  (Pull), M6 (Merge).
+- 2026-10-28 (review 2): scrollbars still flickered while resizing the window or a splitter →
+  fixed (dockview showed the tab strip's scrollbar during every resize; the commit list's sticky
+  layer was a frame too tall).
+- 2026-10-28 (review 2): clicking a commit highlights the commits by the same author and the
+  lines leading into the commit; Esc clears that and keeps the selection → done (setting:
+  "Highlight the selected commit").
+- 2026-10-28 (review 2): configurable keyboard shortcuts in Settings → M7 (needs one keybinding
+  registry first; today each feature registers its own).
+- 2026-10-28 (review 2): filters for the commit graph (one branch, one author, changes to a file,
+  search in messages) → M3.

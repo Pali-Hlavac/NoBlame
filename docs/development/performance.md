@@ -109,5 +109,13 @@ from the commit's row up to row 0 and checks each parent row, using the graph's 
 Measured with `graph_spike` (release build), while the dev app was running, so the same run
 showed refs at 828 ms instead of the usual 260 ms.
 
+### Highlighted history (2026-10-28)
+
+`graph_spike` on synthetic-1m (release build, dev app running): selecting the newest commit (the
+worst case: a million ancestors) finds its history in **3.5 ms**; its first overlay block is ready
+0.1 ms later. Jumping straight to the last block replays the layout once below the commit:
+**245 ms**, paid once per selection (block states are kept). Before skipping the row output for
+blocks that are only passed through, that jump took 644 ms.
+
 Not measured yet: frame times while scrolling, a real large repository (Linux kernel), a cold
 disk cache, macOS and Linux.

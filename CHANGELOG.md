@@ -52,6 +52,15 @@ All notable changes to NoBlame are documented here. The format follows
   and committer with their time zones, refs, and the branches, remote branches and tags that
   contain the commit (computed from the graph: 5.5 ms for the oldest of a million commits).
   It follows the commit selected in the active repository: the repository tab focused last.
+- Settings tab, opened by the gear at the bottom of the activity bar, `Ctrl+,` / `⌘,` or the
+  palette: theme, the commit highlight and the repository actions button. **Placeholder:**
+  configurable keyboard shortcuts are listed as arriving in M7.
+- Selecting a commit highlights its history (the lines leading into it stay bright, the rest
+  fades) and the commits by the same author; Esc clears it. Finding the history of the newest
+  of a million commits takes 3.5 ms.
+- "…" button on open repositories in the Repositories module: Copy path and Close.
+  **Placeholders:** Pull, Fetch and Push (M5) and Commit… (M4) are listed disabled. Settings can
+  hide the button.
 - Welcome tab dashboard: recent repositories (missing folders dimmed, removable) and "Create
   repository…" (`git init`), also offered when a folder is not a repository.
 - A notice offers to write the commit-graph file when a repository has none; it runs
@@ -89,5 +98,10 @@ All notable changes to NoBlame are documented here. The format follows
     drop);
   - opening a submodule listed it as another top-level repository instead of highlighting it
     inside its parent.
+- Reported by the owner in the second review: scrollbars still flickered while resizing. The dock
+  tab strips showed their scrollbar during every resize, and the commit list's sticky layer was
+  a frame too tall on short histories.
+- A remount of the workbench (a hot reload in development) replaced the open tabs with the tabs
+  restored at start; a saved layout is now applied once.
 - The synthetic repository generator now packs refs like a clone does and keeps a million
   commits within about 15 years (it reached 2066 before).

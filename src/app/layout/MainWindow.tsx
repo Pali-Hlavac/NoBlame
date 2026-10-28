@@ -1,5 +1,9 @@
 import { CommandPalette } from "@/features/command-palette";
-import { openRepositories, useSessionCleanup } from "@/features/repositories";
+import {
+  RepositoryActionsContext,
+  openRepositories,
+  useSessionCleanup,
+} from "@/features/repositories";
 import { useRepositoryRequests } from "@/features/windows";
 import { Workbench, useSavedLayout, type SavedLayout } from "@/features/workbench";
 import { useTabHotkeys } from "@/features/workspace";
@@ -7,8 +11,10 @@ import { LoadingState } from "@/shared/components/LoadingState";
 
 import { useAppCommands } from "../commands/useAppCommands";
 import { DEFAULT_MODULE_LAYOUT, MODULES } from "../workbench/modules";
+import { REPOSITORY_ACTIONS } from "../workbench/repositoryActions";
 import { MainTitleBar } from "./MainTitleBar";
 import { renderTab } from "./renderTab";
+import { SettingsButton } from "./SettingsButton";
 import { StatusBar } from "./StatusBar";
 
 /** Main window: waits for the saved layout, then shows the workbench. */
@@ -29,12 +35,15 @@ function MainWorkbench({ saved }: { saved: SavedLayout | null }) {
   return (
     <div className="flex h-screen flex-col bg-background text-foreground">
       <MainTitleBar />
-      <Workbench
-        modules={MODULES}
-        defaultModuleLayout={DEFAULT_MODULE_LAYOUT}
-        renderTab={renderTab}
-        saved={saved}
-      />
+      <RepositoryActionsContext.Provider value={REPOSITORY_ACTIONS}>
+        <Workbench
+          modules={MODULES}
+          defaultModuleLayout={DEFAULT_MODULE_LAYOUT}
+          renderTab={renderTab}
+          saved={saved}
+          activityBarFooter={<SettingsButton />}
+        />
+      </RepositoryActionsContext.Provider>
       <StatusBar />
       <CommandPalette commands={commands} />
     </div>

@@ -50,6 +50,22 @@ truncated when the column is narrow.
 - Screen readers: the list is a listbox named "Commit history, N commits"; each row is labelled
   with its summary and author.
 
+## Highlighting the selected commit
+
+Selecting a commit (click or keyboard) highlights it, as long as **Settings → Commit graph →
+Highlight the selected commit** is on (the default):
+
+- Its history stays bright: the commit, every ancestor, and the lines leading into it, including
+  the lines of merged branches below their merge. Everything else is dimmed.
+- The rows of commits by the same author (compared by email, ignoring case) get a tint, and the
+  author is shown in bold.
+- **Esc** in the commit list clears the highlight; the commit stays selected. Selecting any commit
+  again, including the same one, shows the highlight again.
+
+The history comes from the backend as an overlay per block (`get_ancestry_block`, see
+[architecture/commit-graph.md](../architecture/commit-graph.md#highlighted-history)). While a block's
+overlay is loading, its rows are drawn dimmed; it usually arrives within a few milliseconds.
+
 ## States
 
 - **Loading**: "Reading history…" while the graph is built (about half a second for a million
@@ -75,6 +91,10 @@ truncated when the column is narrow.
   line; graph, labels, HEAD ring, hollow merges, curves and columns rendered; HEAD selected on open.
 - Not verified interactively in the running app yet: scrolling to the very end and keyboard
   navigation (covered by unit tests of the viewport mapping and the navigation logic).
+
+- 2026-10-28, Windows 11, dev build: the highlight on synthetic-10k (main's history bright,
+  merged topic lines lit below their merges, other branches dimmed, the author's rows tinted) and
+  on a one-commit submodule.
 
 ## Not yet
 
