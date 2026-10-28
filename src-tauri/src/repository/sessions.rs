@@ -8,6 +8,7 @@ use git_core::graph::{Ancestry, Graph, GraphError};
 use git_core::repo::Repository;
 use git_core::watch::RepoWatcher;
 
+use super::graph_cache::GraphCache;
 use super::{RepoId, RepositoryError};
 
 /// One open repository. The graph is built on first use and kept until reloaded.
@@ -21,30 +22,58 @@ pub struct Session {
     generation: AtomicU32,
     /// Reports changes made outside the app; stops when the session is dropped.
     watcher: Mutex<Option<RepoWatcher>>,
+    /// The on-disk commit indexes (ADR 0010).
+    cache: Arc<GraphCache>,
 }
 
 impl Session {
     /// The graph, building it on a blocking thread the first time (or when `reload` is set).
     /// Concurrent callers wait for the same build instead of starting another.
+    ///
+    /// Commits already known are not read again: a reload reuses the previous build, the first
+    /// build the on-disk cache (ADR 0010). After each build the index is saved for next time.
     pub async fn graph(&self, reload: bool) -> Result<Arc<Graph>, RepositoryError> {
         let mut slot = self.graph.lock().await;
         if let Some(graph) = slot.as_ref().filter(|_| !reload) {
             return Ok(Arc::clone(graph));
         }
+        let previous = slot.clone();
         let repo = self.repo.clone();
-        let graph = tokio::task::spawn_blocking(move || Graph::build(&repo.local()))
-            .await
-            .map_err(|error| RepositoryError::Task(error.to_string()))??;
+        let cache = Arc::clone(&self.cache);
+        let (graph, reused) = tokio::task::spawn_blocking(move || {
+            let local = repo.local();
+            let cached = previous.is_none().then(|| cache.load(&repo)).flatten();
+            let base = match &previous {
+                Some(graph) => Some(graph.index()).filter(|index| index.reusable(&local)),
+                None => cached.as_ref(),
+            };
+            let reused = base.map_or(0, git_core::graph::CommitIndex::len);
+            Graph::build_with(&local, base).map(|graph| (graph, reused))
+        })
+        .await
+        .map_err(|error| RepositoryError::Task(error.to_string()))??;
         let t = graph.timings;
         tracing::info!(
-            rows = graph.row_count(),
+            rows = graph.row_count(), reused,
             refs = ?t.refs, index = ?t.index, order = ?t.order, layout = ?t.layout,
             "graph built"
         );
         let graph = Arc::new(graph);
         *slot = Some(Arc::clone(&graph));
+        self.save_index(&graph);
         self.generation.fetch_add(1, Ordering::Relaxed);
         Ok(graph)
+    }
+
+    /// Saves the index in the background; this also sorts its ids, which the next reload
+    /// needs for looking commits up.
+    fn save_index(&self, graph: &Arc<Graph>) {
+        let (repo, cache, graph) = (
+            self.repo.clone(),
+            Arc::clone(&self.cache),
+            Arc::clone(graph),
+        );
+        tokio::task::spawn_blocking(move || cache.store(&repo, graph.index()));
     }
 
     /// The graph if it has been built, without building it.
@@ -91,6 +120,7 @@ impl Session {
 #[derive(Default)]
 pub struct RepoSessions {
     inner: Mutex<Inner>,
+    cache: Arc<GraphCache>,
 }
 
 #[derive(Default)]
@@ -100,6 +130,14 @@ struct Inner {
 }
 
 impl RepoSessions {
+    /// No sessions yet; graphs are cached in `cache`.
+    pub fn new(cache: GraphCache) -> Self {
+        Self {
+            inner: Mutex::default(),
+            cache: Arc::new(cache),
+        }
+    }
+
     /// Registers an opened repository and returns its new id.
     pub fn insert(&self, repo: Repository) -> (RepoId, Arc<Session>) {
         let mut inner = self.lock();
@@ -111,6 +149,7 @@ impl RepoSessions {
             ancestry: Mutex::new(None),
             generation: AtomicU32::new(0),
             watcher: Mutex::new(None),
+            cache: Arc::clone(&self.cache),
         });
         inner.sessions.insert(id, Arc::clone(&session));
         (id, session)

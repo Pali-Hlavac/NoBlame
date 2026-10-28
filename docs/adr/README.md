@@ -15,7 +15,7 @@ decision changes, write a new ADR that supersedes the old one and update the old
 | [0007](0007-git-engine.md)                       | Git engine: gix for reads, git CLI for writes; minimum git   | M1        | Accepted |
 | [0008](0008-binary-graph-blocks.md)              | Binary graph blocks fetched on demand                        | M2        | Accepted |
 | [0009](0009-canvas-graph-and-lane-layout.md)     | Canvas graph rendering and lane layout                       | M2        | Accepted |
-| 0010                                             | On-disk graph cache                                          | M2        | Planned  |
+| [0010](0010-on-disk-graph-cache.md)              | Reuse the commit index between builds; cache it on disk      | M2        | Accepted |
 | 0011                                             | Background job model                                         | M5        | Planned  |
 | 0012                                             | Credentials and askpass                                      | M5        | Planned  |
 | 0013                                             | Diff viewer implementation                                   | M3        | Planned  |

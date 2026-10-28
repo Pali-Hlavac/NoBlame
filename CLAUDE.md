@@ -9,8 +9,8 @@ repositories (hundreds of thousands of commits, thousands of refs, huge working 
 Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 [docs/roadmap.md](docs/roadmap.md); requirements: [docs/project-brief.md](docs/project-brief.md).
 
-> Status: M1 and M2.5 (workbench) done; M2 in progress (repositories and the commit graph work;
-> cache, watcher and working-tree rows are next, then M3). Parts marked _(later)_ below are
+> Status: M1 and M2.5 (workbench) done; M2 nearly done (graph, working tree rows, watcher and
+> index cache work; measuring on a real large repository is left), then M3. Parts marked _(later)_ below are
 > planned and do not exist yet.
 
 ## Architecture
@@ -34,7 +34,8 @@ React feature component
   [docs/architecture/git-engine.md](docs/architecture/git-engine.md).
 - **Commit graph**: walked and laid out in `git-core::graph` (checkpoint every 256 rows),
   fetched by the UI as binary blocks on demand (`get_graph_block`), drawn on a virtualized
-  canvas; text columns are paged (`get_commit_rows`). On-disk cache: _(later, ADR 0010)_. See
+  canvas; text columns are paged (`get_commit_rows`). The commit index is reused between builds
+  and cached on disk (`graph-cache/*.nbci`, ADR 0010). See
   [docs/architecture/commit-graph.md](docs/architecture/commit-graph.md).
 - **Types are generated**: Rust types deriving `specta::Type` and commands listed in
   `src-tauri/src/ipc.rs` are exported to `src/shared/ipc/bindings.ts` (`pnpm bindings`).

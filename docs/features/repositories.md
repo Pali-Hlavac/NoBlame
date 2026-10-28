@@ -68,8 +68,17 @@ What is ignored:
 Bursts of changes are reported once, 300 ms after the last one. If watching cannot start (for
 example the Linux inotify limit, `fs.inotify.max_user_watches`), a warning is logged and the
 status is still re-read whenever the window regains focus. A refs change rebuilds the whole
-graph for now (about 1.5 s for a million commits in a debug build); the on-disk cache (ADR 0010)
-will make this incremental.
+graph, but only new commits are read: the rest is copied from the previous build (ADR 0010).
+For a million commits a reload takes about half a second in a release build, mostly refs and
+layout.
+
+## Graph cache
+
+After each build, the commit index is saved in the app's cache folder (`graph-cache`, about 40
+bytes per commit). Reopening a repository then reads only the commits made since, which matters
+most for repositories without a commit-graph file. A damaged or outdated file is ignored and
+deleted; files not used for 30 days are deleted at start-up. Shallow and partial clones are not
+cached. Deleting the folder is always safe.
 
 ## Recent repositories
 

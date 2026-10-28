@@ -25,7 +25,7 @@ pub use encode::{
     encode_block,
 };
 pub use error::GraphError;
-pub use index::CommitIndex;
+pub use index::{CommitIndex, IndexFileError};
 pub use layout::{BLOCK_ROWS, Edge, Layout, RowGeometry};
 pub use order::{date_order, rows_of};
 pub use refs::{GraphRef, RefKind, collect_refs};
@@ -68,6 +68,16 @@ impl Graph {
     /// Reads refs and history and lays out every row. CPU and I/O heavy: call it off the UI
     /// and async threads (`spawn_blocking`).
     pub fn build(repo: &gix::Repository) -> Result<Self, GraphError> {
+        Self::build_with(repo, None)
+    }
+
+    /// Like [`build`](Self::build), reusing the commits of `base` (the previous build or the
+    /// on-disk cache) instead of reading them again. Pass `None` when
+    /// [`CommitIndex::reusable`] says no.
+    pub fn build_with(
+        repo: &gix::Repository,
+        base: Option<&CommitIndex>,
+    ) -> Result<Self, GraphError> {
         let started = Instant::now();
         let refs = collect_refs(repo)?;
         let head_id = repo.head_id().ok().map(gix::Id::detach);
@@ -75,7 +85,7 @@ impl Graph {
         tips.extend(head_id);
         let refs_done = Instant::now();
 
-        let (index, tip_indices) = CommitIndex::build(repo, &tips)?;
+        let (index, tip_indices) = CommitIndex::build_from(repo, &tips, base)?;
         let index_done = Instant::now();
         let order = date_order(&index);
         let rows_of = rows_of(&order);

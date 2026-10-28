@@ -1,9 +1,10 @@
 # Commit graph
 
 How NoBlame turns a repository's history into the graph on screen. Status: **implemented in M2**
-(engine, IPC, canvas view). Not yet: the on-disk cache (ADR 0010), the file watcher, artificial
-working-tree rows and stash labels. Decisions: [ADR 0008](../adr/0008-binary-graph-blocks.md)
-(binary blocks), [ADR 0009](../adr/0009-canvas-graph-and-lane-layout.md) (canvas and lanes).
+(engine, IPC, canvas view, working tree rows, reloads, index cache). Not yet: stash labels.
+Decisions: [ADR 0008](../adr/0008-binary-graph-blocks.md) (binary blocks),
+[ADR 0009](../adr/0009-canvas-graph-and-lane-layout.md) (canvas and lanes),
+[ADR 0010](../adr/0010-on-disk-graph-cache.md) (index reuse and cache).
 Feature behaviour: [features/commit-graph.md](../features/commit-graph.md).
 
 ## Pipeline
@@ -106,6 +107,15 @@ produces exactly the same rows as the full pass.
 - **State**: selection and scroll position are kept per repository path in a Zustand store, so
   switching tabs keeps them.
 
+## Reusing the commit index (ADR 0010)
+
+`Graph::build_with(repo, base)` copies every commit that `base` (an earlier `CommitIndex`) knows
+instead of reading it again, and copies only what the current tips still reach. A reload after
+a change passes the previous build; the first build of a session passes the on-disk cache
+(`<app cache dir>/graph-cache/*.nbci`, written after each build). Order and layout are always
+recomputed. Shallow clones and indexes with missing parents are never reused. See
+[ADR 0010](../adr/0010-on-disk-graph-cache.md).
+
 ## Highlighted history
 
 Selecting a commit highlights its history ([features/commit-graph.md](../features/commit-graph.md)).
@@ -145,6 +155,6 @@ Measured on Windows 11 with the synthetic repositories (details and method in
 
 ## Not yet
 
-- On-disk cache and incremental update after fetches and commits (ADR 0010).
+- Caching order and layout as well (ADR 0010, option 3), if reloads of huge graphs need it.
 - File watcher refreshing refs.
 - Stash labels (`refs/stash` is not a tip yet).

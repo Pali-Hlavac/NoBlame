@@ -4,6 +4,7 @@
 mod bytes;
 pub mod commands;
 mod error;
+mod graph_cache;
 mod graph_types;
 mod recent;
 mod service;
@@ -27,6 +28,8 @@ use recent::{RECENT_FILE_NAME, RecentStore};
 pub fn init(app: &App) -> tauri::Result<()> {
     let path = app.path().app_config_dir()?.join(RECENT_FILE_NAME);
     app.manage(RecentStore::new(path));
-    app.manage(RepoSessions::default());
+    let cache = graph_cache::GraphCache::new(app.path().app_cache_dir().ok());
+    cache.prune(graph_cache::MAX_AGE);
+    app.manage(RepoSessions::new(cache));
     Ok(())
 }

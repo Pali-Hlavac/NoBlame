@@ -46,6 +46,12 @@ fetch, or save a file in your editor. The history, branches, stashes and the unc
 changes update by themselves within a moment. Files your `.gitignore` excludes, such as build
 output, are not watched.
 
+## Opening again is faster
+
+NoBlame remembers the history of repositories you have opened (in its cache folder), so opening
+one again only reads what is new. You can delete that folder at any time; NoBlame then reads the
+whole history once more.
+
 ## "History loads much faster with a commit-graph file"
 
 Large repositories load faster when Git has written a summary of the history called a

@@ -117,6 +117,18 @@ worst case: a million ancestors) finds its history in **3.5 ms**; its first over
 **245 ms**, paid once per selection (block states are kept). Before skipping the row output for
 blocks that are only passed through, that jump took 644 ms.
 
+### Reusing the commit index (ADR 0010, 2026-10-28)
+
+`graph_spike`, release build, while the owner's dev app was running:
+
+| Repository                  | Index, full build | Index, reusing | Sort ids (once per build) | Cache file | Decode + validate |
+| --------------------------- | ----------------- | -------------- | ------------------------- | ---------- | ----------------- |
+| synthetic-100k              | 7.9 ms            | 4.4 ms         | 9.5 ms                    | 3.8 MB     | 3.1 ms            |
+| synthetic-100k, no c-g file | 368 ms            | 3.8 ms         | 9.8 ms                    | 3.8 MB     | 3.2 ms            |
+| synthetic-1m                | 263 ms            | 29.9 ms        | 127.6 ms                  | 38.5 MB    | 28.6 ms           |
+
+A whole rebuild of synthetic-1m reusing the index took 458 ms (refs and layout dominate).
+
 ### Working tree status (2026-10-28)
 
 `git --no-optional-locks status --porcelain=v2 -z`, warm, clean trees (Windows 11, git 2.56.0):

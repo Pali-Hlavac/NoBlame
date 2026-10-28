@@ -108,7 +108,9 @@ Next: M2. Start with the spike (history walk with `gix` + commit-graph on
       lists and staging are M4
 - [x] Offer to write the commit-graph file (`--changed-paths`) when missing (not yet clicked
       through in the running app)
-- [ ] On-disk graph cache per repo; incremental update after fetch/commit — ADR 0010
+- [x] On-disk graph cache per repo; incremental update after fetch/commit — ADR 0010: the commit
+      index is reused (previous build on reload, cache file on reopen); order and layout are
+      recomputed
 - [x] File watcher (debounced) refreshing refs and status: `notify` 8.2.0 (CC0-1.0) with
       `notify-debouncer-mini` 0.7.0 (MIT/Apache); ignored files filtered with gix's excludes; a
       refs change rebuilds the whole graph until the cache (ADR 0010) makes it incremental
@@ -389,7 +391,7 @@ The owner's idea inbox (with where each idea is planned) is in
 | 0007 | Git engine: gix for reads, git CLI for writes; minimum git version  | M1        | Accepted |
 | 0008 | Binary graph blocks on demand (was: stream over channels)           | M2        | Accepted |
 | 0009 | Canvas graph rendering and lane layout                              | M2        | Accepted |
-| 0010 | On-disk graph cache                                                 | M2        | Planned  |
+| 0010 | On-disk graph cache (commit index reused and cached)                | M2        | Accepted |
 | 0011 | Background job model                                                | M5        | Planned  |
 | 0012 | Credentials and askpass                                             | M5        | Planned  |
 | 0013 | Diff viewer implementation                                          | M3        | Planned  |

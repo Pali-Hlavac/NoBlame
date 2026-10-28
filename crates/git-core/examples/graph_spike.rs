@@ -92,6 +92,33 @@ fn run(path: &std::path::Path) -> Result<(), Box<dyn std::error::Error>> {
             highlight.elapsed()
         );
     }
+    // Reusing the index (what a reload after a commit and the on-disk cache do).
+    let lookup = Instant::now();
+    if let Some(first) = graph.index().len().checked_sub(1) {
+        let _ = graph
+            .index()
+            .lookup(graph.index().id(u32::try_from(first).unwrap_or(0)));
+    }
+    let sorted = lookup.elapsed();
+    let reuse = Instant::now();
+    let rebuilt = Graph::build_with(&local, Some(graph.index()))?;
+    println!(
+        "reuse index     {sorted:.1?} sort ids, rebuild {:.1?} (index {:.1?})",
+        reuse.elapsed(),
+        rebuilt.timings.index
+    );
+    let write = Instant::now();
+    let mut bytes = Vec::new();
+    graph.index().write_to(&mut bytes)?;
+    let written = write.elapsed();
+    let read = Instant::now();
+    let cached = git_core::graph::CommitIndex::read_from(&bytes)?;
+    println!(
+        "cache file      {} KiB, encode {written:.1?}, decode+validate {:.1?}, {} commits",
+        bytes.len() / 1024,
+        read.elapsed(),
+        cached.len()
+    );
     if let Some(row) = rows.first() {
         println!(
             "top row         {} {} ({})",

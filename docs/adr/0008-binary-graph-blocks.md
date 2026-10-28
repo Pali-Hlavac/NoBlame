@@ -79,6 +79,6 @@ Bad:
 
 ## Links
 
-- [ADR 0009](0009-canvas-graph-and-lane-layout.md) (canvas and lanes), ADR 0010 (cache, planned)
+- [ADR 0009](0009-canvas-graph-and-lane-layout.md) (canvas and lanes), [ADR 0010](0010-on-disk-graph-cache.md) (index cache)
 - [commit-graph.md](../architecture/commit-graph.md), [ipc.md](../architecture/ipc.md)
 - [performance.md](../development/performance.md)
