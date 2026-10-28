@@ -187,6 +187,10 @@ React feature component
   buttons; their `core:window:*` permissions are in `capabilities/main.json`.
 - **react-resizable-panels re-registers a panel when `defaultSize` changes**: never feed live
   state into it (the splitter would reset on every drag step).
+- **Containers sized by the layout must not scroll**: at fractional display scaling (150 %) a
+  panel is e.g. 301.51 px wide while the dock inside lays out to whole pixels, so
+  `overflow: auto` (react-resizable-panels' default) toggles scrollbars every frame. Panels get
+  `overflow: hidden`; only the content inside scrolls.
 - **The tabs store is the source of truth for open tabs**; dockview only holds where they are.
   Change tabs through `useTabsStore`, never with `api.addPanel` directly.
 - **Saved layout shape changes**: bump `LAYOUT_VERSION` (`workbench/lib/layout.ts`); old layouts

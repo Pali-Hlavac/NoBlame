@@ -18,6 +18,12 @@ import { ModuleDock } from "./ModuleDock";
 /** Sidebar (module dock) limits. */
 const SIDEBAR_MIN = "180px";
 const SIDEBAR_MAX = "60%";
+/**
+ * Panels must not scroll: their width is often fractional (150 % display scaling), the dock
+ * inside lays out to whole pixels, and the library's default `overflow: auto` then shows
+ * scrollbars that shrink the dock, which removes them, which grows the dock again, every frame.
+ */
+const PANEL_STYLE = { overflow: "hidden" } as const;
 
 interface WorkbenchProps {
   /** Every module, in activity bar order. */
@@ -77,6 +83,7 @@ export function Workbench(props: WorkbenchProps) {
       <Group key={epoch} orientation="horizontal" className="min-w-0 flex-1">
         <Panel
           id="modules"
+          style={PANEL_STYLE}
           panelRef={sidebar}
           collapsible
           collapsedSize={0}
@@ -102,7 +109,7 @@ export function Workbench(props: WorkbenchProps) {
           aria-label="Resize sidebar"
           className="w-px bg-border outline-none hover:bg-primary focus-visible:bg-ring data-[separator=active]:bg-primary"
         />
-        <Panel id="documents" className="min-w-0">
+        <Panel id="documents" className="min-w-0" style={PANEL_STYLE}>
           <main aria-label="Tabs" data-workbench-region="documents" className="h-full min-h-0">
             <DocumentDock key={epoch} renderTab={renderTab} saved={layout?.documents ?? null} />
           </main>

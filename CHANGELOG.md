@@ -101,6 +101,9 @@ All notable changes to NoBlame are documented here. The format follows
 - Reported by the owner in the second review: scrollbars still flickered while resizing. The dock
   tab strips showed their scrollbar during every resize, and the commit list's sticky layer was
   a frame too tall on short histories.
+- Scrollbars blinking on every frame in the sidebar and the tab area after resizing, at 150 %
+  display scaling: the splitter's panels scrolled by default, and their fractional width made
+  the docks overflow by half a pixel, then fit, then overflow again.
 - A remount of the workbench (a hot reload in development) replaced the open tabs with the tabs
   restored at start; a saved layout is now applied once.
 - The synthetic repository generator now packs refs like a clone does and keeps a million
