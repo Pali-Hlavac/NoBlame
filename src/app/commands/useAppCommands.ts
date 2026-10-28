@@ -6,6 +6,7 @@ import {
   GitBranchIcon,
   InfoIcon,
   LayoutGridIcon,
+  LayoutTemplateIcon,
   MonitorIcon,
   MoonIcon,
   SunIcon,
@@ -19,13 +20,14 @@ import { useGitInfo } from "@/features/git-env";
 import { useCreateRepository, useOpenRepository } from "@/features/repositories";
 import { THEME_OPTIONS, useThemePreference } from "@/features/settings";
 import { TASKS, TASK_WINDOWS_MILESTONE, useOpenTaskWindow } from "@/features/windows";
+import { openModule, resetLayout, type WorkbenchModule } from "@/features/workbench";
 import { TAB_HOTKEYS, WELCOME_TAB, useActiveTab, useTabsStore } from "@/features/workspace";
 import type { TaskKind } from "@/shared/ipc/bindings";
 
 const THEME_ICONS = { system: MonitorIcon, light: SunIcon, dark: MoonIcon } as const;
 
 /** Every command available in the palette, in display order. */
-export function useAppCommands(): PaletteCommand[] {
+export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteCommand[] {
   const { setPreference } = useThemePreference();
   const openRepository = useOpenRepository();
   const createRepository = useCreateRepository();
@@ -46,6 +48,18 @@ export function useAppCommands(): PaletteCommand[] {
         },
       }))
     : [];
+
+  const moduleCommands = modules.map((module): PaletteCommand => ({
+    id: `module.${module.id}`,
+    group: "View",
+    label: `Show ${module.title}`,
+    icon: module.icon,
+    hotkey: module.hotkey,
+    keywords: ["module", "panel", "sidebar"],
+    run: () => {
+      openModule(module);
+    },
+  }));
 
   const themeCommands = THEME_OPTIONS.map((option): PaletteCommand => ({
     id: `theme.${option.value}`,
@@ -94,6 +108,19 @@ export function useAppCommands(): PaletteCommand[] {
       run: () => {
         const { activeTabId, closeTab } = useTabsStore.getState();
         if (activeTabId) closeTab(activeTabId);
+      },
+    },
+    ...moduleCommands,
+    {
+      id: "layout.reset",
+      group: "View",
+      label: "Reset layout",
+      icon: LayoutTemplateIcon,
+      keywords: ["dock", "panels", "default", "workbench"],
+      run: () => {
+        resetLayout().catch((error: unknown) => {
+          console.warn("Resetting the layout failed", error);
+        });
       },
     },
     ...themeCommands,

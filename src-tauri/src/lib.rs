@@ -11,6 +11,7 @@ mod repository;
 mod settings;
 pub mod storage;
 mod windows;
+mod workbench;
 
 use cli::LaunchRequest;
 
@@ -36,6 +37,7 @@ pub fn run(request: LaunchRequest) {
             builder.mount_events(app);
             settings::init(app)?;
             repository::init(app)?;
+            workbench::init(app)?;
             windows::init(app);
             windows::launch(app.handle(), request)?;
             Ok(())

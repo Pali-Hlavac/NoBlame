@@ -25,6 +25,7 @@ decision changes, write a new ADR that supersedes the old one and update the old
 | 0017                                             | Auto-update via the Tauri updater                            | M9        | Planned  |
 | 0018                                             | Shell integration architecture                               | T1        | Planned  |
 | 0019                                             | Status cache service and overlays                            | T4        | Planned  |
+| [0020](0020-workbench-docking.md)                | Workbench docking with dockview                              | M2.5      | Accepted |
 
 The kickoff prompt asked for ADRs 0001-0008 in M1. The ADR plan in
 [../roadmap.md](../roadmap.md) is newer and wins: ADR 0008 (binary commit stream) is written in

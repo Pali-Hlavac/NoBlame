@@ -3,10 +3,20 @@ import type { WorkspaceTab } from "../types";
 import { WELCOME_TAB, useTabsStore } from "./tabs";
 
 const tab = (id: string): WorkspaceTab => ({ id, kind: "welcome", title: id });
+const repo = (id: string): WorkspaceTab => ({
+  id,
+  kind: "repository",
+  title: id,
+  path: `/r/${id}`,
+});
 const state = () => useTabsStore.getState();
 
 beforeEach(() => {
-  useTabsStore.setState({ tabs: [WELCOME_TAB], activeTabId: WELCOME_TAB.id });
+  useTabsStore.setState({
+    tabs: [WELCOME_TAB],
+    activeTabId: WELCOME_TAB.id,
+    activeRepositoryTabId: null,
+  });
 });
 
 describe("tabs store", () => {
@@ -55,5 +65,42 @@ describe("tabs store", () => {
     expect(state().activeTabId).toBe("welcome");
     state().cycleTab(-1);
     expect(state().activeTabId).toBe("a");
+  });
+
+  it("activates what the dock focused when it closes the active tab", () => {
+    state().openTab(tab("a"));
+    state().openTab(tab("b"));
+    state().activateTab("a");
+    state().closeTab("a", "welcome");
+    expect(state().activeTabId).toBe("welcome");
+  });
+
+  it("replaces all tabs, falling back to the first when the active one is unknown", () => {
+    state().replaceTabs([tab("x"), repo("y")], "missing");
+    expect(state().tabs.map((t) => t.id)).toEqual(["x", "y"]);
+    expect(state().activeTabId).toBe("x");
+    expect(state().activeRepositoryTabId).toBe("y");
+  });
+});
+
+describe("active repository", () => {
+  it("follows the focused repository tab and stays while another kind is focused", () => {
+    state().openTab(repo("r1"));
+    state().openTab(repo("r2"));
+    expect(state().activeRepositoryTabId).toBe("r2");
+    state().activateTab("welcome");
+    expect(state().activeRepositoryTabId).toBe("r2");
+    state().activateTab("r1");
+    expect(state().activeRepositoryTabId).toBe("r1");
+  });
+
+  it("moves to another repository tab when its tab closes", () => {
+    state().openTab(repo("r1"));
+    state().openTab(repo("r2"));
+    state().activateTab("welcome");
+    state().closeTab("r2");
+    expect(state().activeRepositoryTabId).toBe("r1");
+    state().closeTab("r1");
+    expect(state().activeRepositoryTabId).toBeNull();
   });
 });

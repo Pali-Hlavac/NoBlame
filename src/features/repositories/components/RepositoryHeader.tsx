@@ -34,11 +34,11 @@ export function RepositoryHeader({ summary }: { summary: RepoSummary }) {
   ].filter(Boolean);
   const HeadIcon = summary.head.kind === "detached" ? GitCommitHorizontalIcon : GitBranchIcon;
   return (
-    <header className="flex shrink-0 items-center gap-4 border-b border-border px-3 py-2">
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
+    <header className="@container flex shrink-0 items-center gap-4 border-b border-border px-3 py-2">
+      <div className="min-w-0 flex-1 overflow-hidden">
+        <div className="flex min-w-0 items-center gap-2">
           <h1 className="truncate font-semibold">{summary.name}</h1>
-          <span className="flex items-center gap-1 text-sm text-muted-foreground">
+          <span className="flex min-w-0 items-center gap-1 truncate text-sm text-muted-foreground">
             <HeadIcon className="size-3.5" aria-hidden />
             <span className="sr-only">HEAD:</span>
             {headLabel(summary.head)}
@@ -63,12 +63,13 @@ export function RepositoryHeader({ summary }: { summary: RepoSummary }) {
             <Button
               variant="ghost"
               size="sm"
+              aria-label={`Open a ${TASKS[task].title} window`}
               onClick={() => {
                 openTaskWindow.mutate({ task, path: summary.path });
               }}
             >
               <ExternalLinkIcon aria-hidden />
-              {TASKS[task].title}
+              <span className="hidden @2xl:inline">{TASKS[task].title}</span>
             </Button>
           </Tooltip>
         ))}

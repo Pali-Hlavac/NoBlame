@@ -38,6 +38,13 @@ export const commands = {
 	listRecentRepositories: () => typedError<RecentRepository[], AppError>(__TAURI_INVOKE("list_recent_repositories")),
 	/**  Removes a repository from the recent list and returns the rest. */
 	removeRecentRepository: (path: string) => typedError<RecentRepository[], AppError>(__TAURI_INVOKE("remove_recent_repository", { path })),
+	/**
+	 *  The saved layout, or `None` on first launch. A corrupted file is logged and treated as
+	 *  missing, so a bad layout can never stop the main window from opening.
+	 */
+	getWorkbenchLayout: () => typedError<unknown | null, AppError>(__TAURI_INVOKE("get_workbench_layout")),
+	/**  Saves the layout; `None` forgets it, so the next start uses the default layout. */
+	saveWorkbenchLayout: (layout: unknown | null) => typedError<null, AppError>(__TAURI_INVOKE("save_workbench_layout", { layout })),
 };
 
 /** Events */

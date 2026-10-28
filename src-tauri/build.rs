@@ -21,6 +21,8 @@ const APP_COMMANDS: &[&str] = &[
     "write_commit_graph",
     "list_recent_repositories",
     "remove_recent_repository",
+    "get_workbench_layout",
+    "save_workbench_layout",
 ];
 
 /// Common-Controls v6 manifest, embedded into every linked artifact on Windows.

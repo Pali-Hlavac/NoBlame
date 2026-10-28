@@ -155,11 +155,11 @@ refs with the packed-refs buffer (refs are now the largest cost).
 Every later feature lands in this layout, so it comes before M3 and before the rest of M2
 (working-tree rows, cache, watcher), as agreed with the owner.
 
-- [ ] Spike and ADR 0020: docking library (dockview vs. flexlayout-react) for a left dock and a
+- [x] Spike and ADR 0020: docking library (dockview vs. flexlayout-react) for a left dock and a
       main dock, with the canvas graph, our theme tokens, keyboard focus, saving/restoring layouts
-- [ ] Activity bar; left dock where modules open, stack as tabs or split, resize and collapse;
+- [x] Activity bar; left dock where modules open, stack as tabs or split, resize and collapse;
       module registry (one feature folder per module)
-- [ ] Main dock with document tabs: repository (graph) tabs that can be split side by side or
+- [x] Main dock with document tabs: repository (graph) tabs that can be split side by side or
       above each other; room for the single diff tab (content in M3)
 - [ ] Active repository (last focused repository tab) and selected commit shared by all modules;
       selecting a commit updates every related module
@@ -169,8 +169,8 @@ Every later feature lands in this layout, so it comes before M3 and before the r
 - [ ] Toolbar for the active repository: Pull ▾ (pull, fetch, fetch all, fetch and prune), Push,
       Commit, Stashes, current branch. Operations arriving later are disabled and say which
       milestone delivers them
-- [ ] One saved layout for all repositories; open tabs restored between sessions; "Reset layout"
-- [ ] Keyboard: move focus between regions (F6), shortcuts to open modules
+- [x] One saved layout for all repositories; open tabs restored between sessions; "Reset layout"
+- [x] Keyboard: move focus between regions (F6), shortcuts to open modules
 - [ ] Docs, user guide, ADR 0020
 
 ### M3: Inspecting history
@@ -314,7 +314,7 @@ The owner's idea inbox (with where each idea is planned) is in
 | 0017 | Auto-update via the Tauri updater                                   | M9        | Planned  |
 | 0018 | Shell integration architecture                                      | T1        | Planned  |
 | 0019 | Status cache service and overlays                                   | T4        | Planned  |
-| 0020 | Workbench layout: activity bar, side panel modules, docking library | M2.5      | Planned  |
+| 0020 | Workbench layout: activity bar, side panel modules, docking library | M2.5      | Accepted |
 
 ## Working agreement
 

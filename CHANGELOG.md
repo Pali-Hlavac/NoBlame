@@ -26,6 +26,11 @@ All notable changes to NoBlame are documented here. The format follows
   selected on open, keyboard navigation (arrows, Page Up/Down, Home/End). The first screen of
   a million-commit repository is ready in about 0.6 s (release build, commit-graph file present,
   packed refs; measured outside the UI).
+- Workbench (M2.5): an activity bar opens modules (Repositories for now) in a left dock where
+  they stack as tabs or split; repository tabs can be split and docked in every direction; the
+  layout and the open tabs are restored on the next start; "Reset layout" in the palette; F6 /
+  Shift+F6 move focus between regions, Alt+1 opens Repositories. The commit list hides the
+  commit, author and date columns one by one when its pane gets narrow.
 - Welcome tab dashboard: recent repositories (missing folders dimmed, removable) and "Create
   repository…" (`git init`), also offered when a folder is not a repository.
 - A notice offers to write the commit-graph file when a repository has none; it runs

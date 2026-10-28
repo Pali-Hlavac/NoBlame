@@ -1,6 +1,7 @@
 import type { CommitRowDto } from "@/shared/ipc/bindings";
 import { cn } from "@/shared/lib/cn";
 
+import type { ColumnLayout } from "../lib/columns";
 import { ROW_HEIGHT_PX } from "../lib/constants";
 import { formatCommitDate, shortId } from "../lib/format";
 import { RefBadge } from "./RefBadge";
@@ -9,8 +10,8 @@ interface GraphRowsProps {
   firstRow: number;
   lastRow: number;
   virtualTop: number;
-  /** Grid template shared with the column header. */
-  columns: string;
+  /** Columns shared with the column header. */
+  columns: ColumnLayout;
   rowText: (row: number) => CommitRowDto | undefined;
   selected: number | undefined;
   onSelect: (row: number) => void;
@@ -42,7 +43,7 @@ export function GraphRows(props: GraphRowsProps) {
         style={{
           top: row * ROW_HEIGHT_PX - virtualTop,
           height: ROW_HEIGHT_PX,
-          gridTemplateColumns: columns,
+          gridTemplateColumns: columns.template,
         }}
         onMouseDown={() => {
           onSelect(row);
@@ -57,16 +58,22 @@ export function GraphRows(props: GraphRowsProps) {
               ))}
               <span className="truncate">{text.summary}</span>
             </span>
-            <span className="truncate text-muted-foreground" title={text.authorEmail}>
-              {text.authorName}
-            </span>
-            <span className="truncate text-muted-foreground tabular-nums">
-              {formatCommitDate(text.authorTime)}
-            </span>
-            <span className="font-mono text-xs text-muted-foreground">{shortId(text.id)}</span>
+            {columns.visible.has("author") && (
+              <span className="truncate text-muted-foreground" title={text.authorEmail}>
+                {text.authorName}
+              </span>
+            )}
+            {columns.visible.has("date") && (
+              <span className="truncate text-muted-foreground tabular-nums">
+                {formatCommitDate(text.authorTime)}
+              </span>
+            )}
+            {columns.visible.has("commit") && (
+              <span className="font-mono text-xs text-muted-foreground">{shortId(text.id)}</span>
+            )}
           </>
         ) : (
-          <span className="col-span-4 h-2 w-48 rounded bg-muted" />
+          <span className="col-[2/-1] h-2 w-48 max-w-full rounded bg-muted" />
         )}
       </div>
     );

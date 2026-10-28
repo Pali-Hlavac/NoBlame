@@ -14,15 +14,13 @@ import {
   PREFETCH_MARGIN,
   ROW_HEIGHT_PX,
 } from "../lib/constants";
+import { layoutColumns } from "../lib/columns";
 import { pagesFor } from "../lib/format";
 import { nextRow } from "../lib/navigation";
 import { computeViewport, scrollTopToReveal } from "../lib/viewport";
 import { useGraphViewStore } from "../store/graphView";
 import { GraphCanvas } from "./GraphCanvas";
 import { GraphRows } from "./GraphRows";
-
-/** Widths of the author, date and hash columns. */
-const TEXT_COLUMNS = "minmax(0,1fr) 10rem 10rem 5.5rem";
 
 interface GraphTableProps {
   repoId: number;
@@ -49,7 +47,7 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
   const graphWidth =
     GRAPH_PADDING_PX * 2 +
     Math.min(Math.max(summary.maxLanes, 1), MAX_VISIBLE_LANES) * LANE_WIDTH_PX;
-  const columns = `${graphWidth}px ${TEXT_COLUMNS}`;
+  const columns = layoutColumns(size.width, graphWidth);
 
   const pageCount = Math.ceil(rowCount / PAGE_ROWS);
   const pages = pagesFor(
@@ -98,14 +96,14 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
     <div className="flex h-full min-h-0 flex-col">
       <div
         className="grid h-7 shrink-0 items-center gap-3 border-b border-border pr-3 text-xs font-medium text-muted-foreground"
-        style={{ gridTemplateColumns: columns }}
+        style={{ gridTemplateColumns: columns.template }}
         aria-hidden
       >
         <span className="pl-2">Graph</span>
         <span>Message</span>
-        <span>Author</span>
-        <span>Date</span>
-        <span>Commit</span>
+        {columns.visible.has("author") && <span>Author</span>}
+        {columns.visible.has("date") && <span>Date</span>}
+        {columns.visible.has("commit") && <span>Commit</span>}
       </div>
       <div
         ref={scrollRef}
