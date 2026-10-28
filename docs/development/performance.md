@@ -101,5 +101,13 @@ After regenerating the repositories (packed refs, new dates), `graph_spike` give
 first screen 43 ms (10k, refs 9.5 ms), 146 ms (100k) and 657 ms (1M; refs 260 ms, index 113 ms,
 order 42 ms, layout 196 ms).
 
+### Commit details and "contained in" (M2.5, 2026-10-28)
+
+`commit_details` for the oldest commit of synthetic-1m (the worst case: every row lies above it)
+takes **5.5 ms**, and that commit is contained in 10,570 refs. The containment pass walks the rows
+from the commit's row up to row 0 and checks each parent row, using the graph's topological order.
+Measured with `graph_spike` (release build), while the dev app was running, so the same run
+showed refs at 828 ms instead of the usual 260 ms.
+
 Not measured yet: frame times while scrolling, a real large repository (Linux kernel), a cold
 disk cache, macOS and Linux.

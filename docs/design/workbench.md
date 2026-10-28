@@ -1,7 +1,9 @@
 # Workbench layout
 
-Status: **agreed direction (owner's answers 2026-10-28), not implemented yet.** Built in roadmap
-milestone M2.5; the library choice and final details go into ADR 0020.
+Status: **built in M2.5 (2026-10-28)** as agreed with the owner. What exists and how it works:
+[features/workbench.md](../features/workbench.md); the library choice: ADR 0020 (dockview).
+Changed files and the diff tab (M3), and the stash and toolbar actions (M4, M5) follow this
+design.
 
 ## Why the current shell is not enough
 
@@ -109,9 +111,10 @@ into one sidebar and one content area without clutter, and new modules would hav
 
 ## Still open (small, decide while building)
 
-- Exact toolbar contents and order (decision 5 is a starting point).
-- Default arrangement of the modules in the left dock (proposal: Repositories on top, Commit
-  details and Changed files below as tabs or a split).
+- Exact toolbar contents and order. Built as decision 5: Pull ▾, Push, Commit, Stashes, then the
+  active repository and branch.
+- Default arrangement of the modules in the left dock. Built as Repositories and Branches on top,
+  Commit details and Stashes below; Changed files will join the lower group in M3.
 
 ## Ideas inbox
 

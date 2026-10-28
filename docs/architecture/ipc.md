@@ -59,6 +59,24 @@ returned by `open_repository`; a session lives as long as its tab.
 | `list_recent_repositories` | yes   | `Result<RecentRepository[]>`    | Recently opened repositories, newest first, with an `exists` flag          |
 | `remove_recent_repository` | yes   | `Result<RecentRepository[]>`    | Removes one entry and returns the rest                                     |
 
+### Inspect and workbench commands (M2.5)
+
+Read-only views for the workbench modules (`src-tauri/src/inspect/`), and the saved layout
+(`src-tauri/src/workbench/`). Main window only.
+
+| Command                 | Async | Returns                    | Purpose                                                                                    |
+| ----------------------- | ----- | -------------------------- | ------------------------------------------------------------------------------------------ |
+| `get_commit_details`    | yes   | `Result<CommitDetailsDto>` | Message, author/committer, parents with rows, refs, refs containing the commit (max. 500)  |
+| `list_refs`             | yes   | `Result<RefEntry[]>`       | Branches, remote branches and tags from the session's graph, with the row of their commit  |
+| `list_stashes`          | yes   | `Result<StashDto[]>`       | The stash list from the `refs/stash` reflog, newest first                                  |
+| `list_submodules`       | yes   | `Result<SubmoduleDto[]>`   | Submodules of the repository containing `path`, nested (no session needed)                 |
+| `get_workbench_layout`  | yes   | `Result<unknown \| null>`  | The saved layout (opaque JSON owned by the frontend); a damaged file is treated as missing |
+| `save_workbench_layout` | yes   | `Result<null>`             | Saves the layout; `null` forgets it ("Reset layout")                                       |
+
+The layout travels as `Layout`, a transparent `serde_json::Value` with a manual `specta::Type`
+impl (`unknown`), because specta refuses `serde_json::Value`'s 64-bit numbers. The frontend
+validates it (`features/workbench/lib/layout.ts`, version 1).
+
 Repository errors: `NOT_A_REPOSITORY` (neither the folder nor a parent is a repository; hint:
 choose another folder or create one), `UNTRUSTED_REPOSITORY` (owned by another user and not in
 `safe.directory`; the hint shows the `git config --global --add safe.directory` command, which

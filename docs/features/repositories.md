@@ -12,8 +12,9 @@ done; the file watcher and the on-disk cache are still to come.
 
 A repository opens in a tab from:
 
-- **Open repository…** (Welcome tab, sidebar folder button, command palette): a folder picker.
-- The **recent repositories** list on the Welcome tab.
+- **Open repository…** (Welcome tab, Repositories module, command palette): a folder picker.
+- The **recent repositories** list on the Welcome tab and in the Repositories module.
+- A **submodule** in the Repositories module ([workbench.md](workbench.md#modules)).
 - The **command line**: `noblame <path>` ([cli.md](cli.md)).
 
 Any folder inside a repository works: NoBlame searches upwards like git and opens the repository
@@ -43,7 +44,8 @@ and closed when the tab is closed. Reopening the repository later opens a new se
 
 ## Recent repositories
 
-- Shown on the Welcome tab, newest first, at most 20.
+- Shown on the Welcome tab and under **Recent** in the Repositories module (without the ones
+  already open), newest first, at most 20.
 - Updated every time a repository opens (by any route). The same path is never listed twice
   (compared case-insensitively on Windows).
 - Entries whose folder no longer exists are dimmed and still clickable (the tab then explains the

@@ -3,25 +3,33 @@
 On macOS, use **⌘** where this page says **Ctrl**, except for switching tabs, which uses
 **Ctrl** on every platform.
 
-| Shortcut       | Action                                        |
-| -------------- | --------------------------------------------- |
-| Ctrl+K (⌘K)    | Open or close the command palette             |
-| Ctrl+W (⌘W)    | Close the current tab                         |
-| Ctrl+Tab       | Next tab                                      |
-| Ctrl+Shift+Tab | Previous tab                                  |
-| Left / Right   | Move between tabs while the tab bar has focus |
-| Escape         | Close the palette or a dialog                 |
-| Enter          | Run the selected command in the palette       |
+| Shortcut       | Action                                  |
+| -------------- | --------------------------------------- |
+| Ctrl+K (⌘K)    | Open or close the command palette       |
+| Ctrl+W (⌘W)    | Close the current tab                   |
+| Ctrl+Tab       | Next tab                                |
+| Ctrl+Shift+Tab | Previous tab                            |
+| F6             | Move to the next part of the window     |
+| Shift+F6       | Move to the previous part of the window |
+| Alt+1          | Show Repositories                       |
+| Alt+2          | Show Branches                           |
+| Alt+3          | Show Commit details                     |
+| Alt+4          | Show Stashes                            |
+| Escape         | Close the palette or a dialog           |
+| Enter          | Run the selected command in the palette |
 
-## In the commit graph
+**F6** moves between the activity bar, the sidebar, the toolbar, the tabs and the status bar.
 
-Click the list of commits (or move to it with **Tab**) first.
+## In the commit graph and other lists
 
-| Shortcut            | Action                 |
-| ------------------- | ---------------------- |
-| Up / Down           | Previous / next commit |
-| Page Up / Page Down | One screen up / down   |
-| Home / End          | Newest / oldest commit |
+Click the list (the commits, or the branches in the Branches module) or move to it with **Tab**
+first. **Enter** in the Branches list selects the branch's commit or folds a section.
+
+| Shortcut            | Action                |
+| ------------------- | --------------------- |
+| Up / Down           | Previous / next entry |
+| Page Up / Page Down | One screen up / down  |
+| Home / End          | First / last entry    |
 
 Tab shortcuts do nothing while a dialog is open, so they never act on a tab you cannot see.
 

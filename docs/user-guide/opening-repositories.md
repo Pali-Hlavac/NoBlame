@@ -4,9 +4,11 @@
 
 Any of these opens a repository in its own tab:
 
-- Click **Open repository…** on the Welcome tab, or the folder button at the top of the sidebar,
-  and choose the repository folder.
-- Click a repository in **Recent repositories** on the Welcome tab.
+- Click **Open repository…** on the Welcome tab, or the folder button at the top of the
+  Repositories module, and choose the repository folder.
+- Click a repository in **Recent repositories** on the Welcome tab or under **Recent** in the
+  Repositories module.
+- Click a submodule in the Repositories module.
 - Open the [command palette](command-palette.md) and run **Open repository…**.
 - From a terminal: `noblame path/to/repo` (see [Command line](command-line.md)).
 

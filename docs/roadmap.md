@@ -161,17 +161,56 @@ Every later feature lands in this layout, so it comes before M3 and before the r
       module registry (one feature folder per module)
 - [x] Main dock with document tabs: repository (graph) tabs that can be split side by side or
       above each other; room for the single diff tab (content in M3)
-- [ ] Active repository (last focused repository tab) and selected commit shared by all modules;
+- [x] Active repository (last focused repository tab) and selected commit shared by all modules;
       selecting a commit updates every related module
-- [ ] Modules: Repositories (open and recent, submodules nested as a tree, opening a repository
+- [x] Modules: Repositories (open and recent, submodules nested as a tree, opening a repository
       tab), Branches (local, remote, tags; read-only with filter), Commit details (message,
       author/committer, dates, hash, parents, refs and tags containing it), Stashes (read-only)
-- [ ] Toolbar for the active repository: Pull ▾ (pull, fetch, fetch all, fetch and prune), Push,
+- [x] Toolbar for the active repository: Pull ▾ (pull, fetch, fetch all, fetch and prune), Push,
       Commit, Stashes, current branch. Operations arriving later are disabled and say which
       milestone delivers them
 - [x] One saved layout for all repositories; open tabs restored between sessions; "Reset layout"
 - [x] Keyboard: move focus between regions (F6), shortcuts to open modules
-- [ ] Docs, user guide, ADR 0020
+- [x] Docs, user guide, ADR 0020
+
+#### Where we left off (2026-10-28, session 3)
+
+M2.5 is done; see [features/workbench.md](features/workbench.md) and ADR 0020 (dockview-react
+8.4.1, MIT). Slices:
+
+1. workbench frame and layout persistence;
+2. shared selection and Commit details;
+3. Branches;
+4. Stashes;
+5. Repositories with nested submodules (enables gix `attributes`);
+6. toolbar.
+
+"Contained in" is computed from the graph: 5.5 ms for the oldest of 1M commits, which is
+contained in 10,570 refs.
+
+Verified in the running dev app (Windows 11, git 2.56.0):
+
+- default and restored layouts;
+- splitting the document dock;
+- Commit details following the selection;
+- Branches with 209 local branches;
+- Stashes and the nested and uninitialized submodules of a scripted demo repository;
+- the toolbar stubs;
+- narrow panes (the commit list drops columns).
+
+Fixed during verification:
+
+- every new tab and module opened in a new dock group (dockview's `addPanel` without a position);
+- the commit list squeezed its message column in narrow panes;
+- the commit-graph notice wrapped badly.
+
+Not verified in the running app (they need someone at the keyboard; the logic is unit-tested):
+
+- F6 and the Alt+n hotkeys;
+- clicking through the activity bar toggle;
+- dragging tabs between groups;
+- Reset layout;
+- the Pull menu.
 
 ### M3: Inspecting history
 

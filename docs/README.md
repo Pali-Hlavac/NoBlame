@@ -29,6 +29,8 @@ and AI agents; these pages are the detail.
 
 One page per user-facing feature: behaviour, edge cases and status.
 
+- [workbench.md](features/workbench.md): activity bar, modules (Repositories, Branches, Commit
+  details, Stashes), docks, toolbar, saved layout
 - [app-shell.md](features/app-shell.md): main window, tabs, sidebar, status bar, palette, theme,
   About
 - [git-detection.md](features/git-detection.md): finding and checking the installed `git`

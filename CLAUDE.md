@@ -9,8 +9,9 @@ repositories (hundreds of thousands of commits, thousands of refs, huge working 
 Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 [docs/roadmap.md](docs/roadmap.md); requirements: [docs/project-brief.md](docs/project-brief.md).
 
-> Status: M1 done; M2 in progress (repositories and the commit graph work; cache, watcher and
-> working-tree rows are next). Parts marked _(later)_ below are planned and do not exist yet.
+> Status: M1 and M2.5 (workbench) done; M2 in progress (repositories and the commit graph work;
+> cache, watcher and working-tree rows are next, then M3). Parts marked _(later)_ below are
+> planned and do not exist yet.
 
 ## Architecture
 
@@ -45,28 +46,29 @@ React feature component
 
 ## Directory map
 
-| Path                      | What lives there                                                                                                                                             |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `crates/git-core/`        | Git engine, no Tauri. `cli/` (safe `GitCommand`), `repo/` (open with gix), `graph/` (index, order, layout, blocks). _(later: `diff/ blame/ status/ cache/`)_ |
-| `crates/git-core/tests/`  | Integration tests (`support/` fixture builder) against the real `git`; `benches/graph.rs`; `examples/graph_spike.rs`                                         |
-| `crates/repo-gen/`        | Synthetic repo generator (lib + `noblame-repo-gen` binary): fast-import stream, presets tiny…1m                                                              |
-| `src-tauri/src/<module>/` | Tauri-side module: `mod.rs commands.rs service.rs error.rs types.rs` (`app_info git_env repository settings windows`)                                        |
-| `src-tauri/src/cli/`      | `clap` command line built from `TaskKind::ALL`; console attach for `--help` on Windows                                                                       |
-| `src-tauri/src/windows/`  | Main/task windows, `WindowRegistry`, second-launch forwarding, `RepositoriesRequested` event                                                                 |
-| `src-tauri/src/ipc.rs`    | Command + event registry, bindings export                                                                                                                    |
-| `src-tauri/src/error.rs`  | `AppError { code, message, hint }`, `ErrorCode`                                                                                                              |
-| `src-tauri/build.rs`      | `APP_COMMANDS` (ACL permissions); Windows manifest for test binaries                                                                                         |
-| `src-tauri/capabilities/` | ACL per window: `main.json` (`main`), `task.json` (`task-*`)                                                                                                 |
-| `src/app/`                | App shell: `App.tsx` (window context switch), `layout/` (main window, status bar), `commands/` (palette)                                                     |
-| `src/features/<feature>/` | `about command-palette git-env graph repositories settings windows workspace`; public `index.ts` each                                                        |
-| `src/features/graph/`     | Canvas renderer, block decoder and LRU cache, scroll scaling, keyboard navigation                                                                            |
-| `src/shared/ipc/`         | Generated `bindings.ts` + typed client (`unwrap`, `call`, `IpcError`)                                                                                        |
-| `src/shared/ui/`          | shadcn/ui primitives                                                                                                                                         |
-| `src/shared/components/`  | `EmptyState`, `ErrorState`, `LoadingState`, `ConfirmDialog`, `InlineError`                                                                                   |
-| `assets/logo/noblame.svg` | Master logo; `pnpm icons` generates `src-tauri/icons/`; copy to `public/icon.svg` for the UI                                                                 |
-| `scripts/`                | Repo tooling: `check-file-size.mjs`                                                                                                                          |
-| `docs/`                   | All documentation; start at `docs/README.md`                                                                                                                 |
-| `shell/`                  | _(Phase 2)_ Explorer, Finder and Linux file-manager add-ons                                                                                                  |
+| Path                      | What lives there                                                                                                                                                                                                |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `crates/git-core/`        | Git engine, no Tauri. `cli/` (safe `GitCommand`), `repo/` (open with gix), `graph/` (index, order, layout, blocks, details, contained-in), `stash.rs`, `submodule.rs`. _(later: `diff/ blame/ status/ cache/`)_ |
+| `crates/git-core/tests/`  | Integration tests (`support/` fixture builder) against the real `git`; `benches/graph.rs`; `examples/graph_spike.rs`                                                                                            |
+| `crates/repo-gen/`        | Synthetic repo generator (lib + `noblame-repo-gen` binary): fast-import stream, presets tiny…1m                                                                                                                 |
+| `src-tauri/src/<module>/` | Tauri-side module: `mod.rs commands.rs service.rs error.rs types.rs` (`app_info git_env inspect repository settings windows workbench`)                                                                         |
+| `src-tauri/src/cli/`      | `clap` command line built from `TaskKind::ALL`; console attach for `--help` on Windows                                                                                                                          |
+| `src-tauri/src/windows/`  | Main/task windows, `WindowRegistry`, second-launch forwarding, `RepositoriesRequested` event                                                                                                                    |
+| `src-tauri/src/ipc.rs`    | Command + event registry, bindings export                                                                                                                                                                       |
+| `src-tauri/src/error.rs`  | `AppError { code, message, hint }`, `ErrorCode`                                                                                                                                                                 |
+| `src-tauri/build.rs`      | `APP_COMMANDS` (ACL permissions); Windows manifest for test binaries                                                                                                                                            |
+| `src-tauri/capabilities/` | ACL per window: `main.json` (`main`), `task.json` (`task-*`)                                                                                                                                                    |
+| `src/app/`                | App shell: `App.tsx`, `layout/` (main window, toolbar, status bar), `workbench/modules.ts` (module registry), `commands/` (palette)                                                                             |
+| `src/features/<feature>/` | `about branches command-palette commit-details git-env graph repositories selection settings stashes windows workbench workspace`; public `index.ts` each                                                       |
+| `src/features/workbench/` | Activity bar, module dock + document dock (dockview), toolbar renderer, layout save/restore, F6 regions (ADR 0020)                                                                                              |
+| `src/features/graph/`     | Canvas renderer, block decoder and LRU cache, scroll scaling, keyboard navigation                                                                                                                               |
+| `src/shared/ipc/`         | Generated `bindings.ts` + typed client (`unwrap`, `call`, `IpcError`)                                                                                                                                           |
+| `src/shared/ui/`          | shadcn/ui primitives                                                                                                                                                                                            |
+| `src/shared/components/`  | `EmptyState`, `ErrorState`, `LoadingState`, `ConfirmDialog`, `InlineError`, `VirtualList`                                                                                                                       |
+| `assets/logo/noblame.svg` | Master logo; `pnpm icons` generates `src-tauri/icons/`; copy to `public/icon.svg` for the UI                                                                                                                    |
+| `scripts/`                | Repo tooling: `check-file-size.mjs`                                                                                                                                                                             |
+| `docs/`                   | All documentation; start at `docs/README.md`                                                                                                                                                                    |
+| `shell/`                  | _(Phase 2)_ Explorer, Finder and Linux file-manager add-ons                                                                                                                                                     |
 
 ## Conventions
 
@@ -80,6 +82,10 @@ React feature component
 - **Feature boundaries**: import other features only through their `index.ts`.
 - **State**: backend data → TanStack Query in `api/`; UI-only state → Zustand in `store/`;
   never copy query data into Zustand. Graph rows live outside React state (typed arrays).
+- **Workbench**: modules are registered in `src/app/workbench/modules.ts` and never know where
+  they are docked. They read the active repository (`useActiveRepository` /
+  `WithActiveRepository`) and the selection (`features/selection`). Toolbar buttons are data
+  (`ToolbarAction`), and stubs name their milestone. See `docs/features/workbench.md`.
 - **Styling**: Tailwind utilities + tokens from `src/app/styles.css`; `cn()`; no inline colors.
   Every interactive element has a visible focus state and an accessible name.
 - **Dangerous actions** (reset --hard, force push, delete unmerged branch, discard, clean,
@@ -156,7 +162,8 @@ React feature component
 - **Windows build "Access is denied"** running build scripts: Defender/Smart App Control;
   exclude the repo folder. Test binaries need the manifest embedded by `build.rs`.
 - **Pinned versions**: `specta`/`tauri-specta` `=2.0.0-rc.26` + `specta-typescript =0.0.13`
-  (upgrade together); TypeScript `~6.0` until typescript-eslint supports 7; jsdom 27 (jsdom 30
+  (upgrade together); `dockview-react`, `dockview`, `dockview-core` exactly `8.4.1` (overrides in
+  `package.json`; upgrade together); TypeScript `~6.0` until typescript-eslint supports 7; jsdom 27 (jsdom 30
   needs Node ≥ 22.22).
 - **cmdk ranks by `value`**: palette items use the visible label as `value`, never an id.
 - **StrictMode runs effects twice in dev**: never drop the result of a destructive call (like
@@ -168,6 +175,12 @@ React feature component
   and `useSessionCleanup` closes it; refetching would open a second backend session.
 - **Windows keeps pack files of open repositories mapped**: stop the app before regenerating or
   deleting `.cache/repos/*`.
+- **dockview `addPanel` without `position` opens a new group** beside the others. Always pass
+  `position: { referenceGroup, direction: "within" }` (see `reconcile.ts`, `docks.ts`).
+- **The tabs store is the source of truth for open tabs**; dockview only holds where they are.
+  Change tabs through `useTabsStore`, never with `api.addPanel` directly.
+- **Saved layout shape changes**: bump `LAYOUT_VERSION` (`workbench/lib/layout.ts`); old layouts
+  are then ignored. Module ids are stored in layouts: never rename or reuse one.
 - **Linux** dev needs `libwebkit2gtk-4.1-dev` and friends (see `docs/getting-started.md`).
 
 ## Where to find more

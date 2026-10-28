@@ -1,0 +1,131 @@
+# Workbench
+
+The main window's layout: activity bar, module dock, document dock and toolbar. Design and the
+owner's decisions: [design/workbench.md](../design/workbench.md). Docking library:
+[ADR 0020](../adr/0020-workbench-docking.md). User guide:
+[main-window.md](../user-guide/main-window.md).
+
+Status: **M2.5 done.** Changed files and the diff tab arrive in M3. Actions in Branches,
+Stashes and the toolbar arrive in M4 and M5.
+
+## Layout
+
+```
+┌────┬───────────────────┬─────────────────────────────────────────────────────┐
+│ ▣  │ Repositories│Bra… │ Pull ▾  Push  Commit  Stashes        app  main  🔍  │
+│ ⑂  │ ─ module dock ─── ├─────────────────────────────────────────────────────┤
+│ ◇  │                   │ Welcome │ synthetic-10k │ app        (document dock) │
+│ ▤  │ Commit det…│Stash │                                                     │
+├────┴───────────────────┴─────────────────────────────────────────────────────┤
+│ status bar                                                                   │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
+
+- **Activity bar**: one icon per module. A click opens the module in the module dock, or brings
+  it to the front of its group. A click on a module that is already showing hides the sidebar,
+  as in VS Code.
+- **Module dock** (sidebar): modules as tabs in groups. Groups can be split, resized and
+  rearranged by dragging tabs. The sidebar can be resized (180 px up to 60 % of the window) and
+  collapsed by dragging it closed or with the activity bar.
+- **Document dock**: Welcome and repository tabs. Drag a tab to an edge to split the dock left,
+  right, above or below. New tabs open in the focused group.
+- **Toolbar**: actions for the active repository. The right end shows the active repository, its
+  current branch and the command palette button. Labels hide when the toolbar is narrow.
+
+Floating groups and popping a group out into its own window are switched off for now (backlog).
+
+## Active repository and selection
+
+- The **active repository** is the repository tab focused most recently. It stays active while
+  another kind of tab (Welcome, later the diff) has focus. It moves to another repository tab when
+  its own tab closes. The toolbar and every repository module follow it.
+- The **selected commit** is kept per repository (`features/selection`). The graph writes it:
+  HEAD on first open, then clicks and arrow keys. Modules read it.
+- Modules can select commits too: a parent link in Commit details, or a branch in Branches. The
+  graph then scrolls the commit into view.
+
+## Modules
+
+| Module         | Shortcut | Shows                                                                                                                                                   |
+| -------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Repositories   | Alt+1    | Open repositories with their submodules nested recursively, then recent repositories; open and create buttons                                           |
+| Branches       | Alt+2    | Local branches, one section per remote, tags; filter; collapsible sections; current branch marked **HEAD**; a click selects the branch's commit         |
+| Commit details | Alt+3    | Message, commit id (copy), parents (click to select), author and committer with their time zones, refs, and the branches and tags containing the commit |
+| Stashes        | Alt+4    | Stash list (`stash@{n}`, message, branch, date); refreshed when the window regains focus                                                                |
+
+Default arrangement: Repositories and Branches as tabs on top, Commit details and Stashes as tabs
+below.
+
+Details:
+
+- **Repositories**:
+  - A click on a repository focuses its tab; a click on a submodule opens it as a repository
+    tab.
+  - Submodules that are not initialized are dimmed and cannot be opened; initializing them is M7.
+  - Recent repositories that are already open are not repeated; missing folders are dimmed.
+- **Branches**:
+  - The list is virtualized, so 10,000 refs (the 1M synthetic repository) scroll smoothly.
+  - Refs whose target is not a commit in the graph (a tag of a tree) are dimmed.
+  - Read-only: checkout, create, rename, delete and the rest are M5.
+- **Commit details**:
+  - "Contained in" comes from the graph, not from `git branch --contains`. It is exact for every
+    ref the graph knows (branches, remote branches, tags) and takes 5.5 ms for the oldest of a
+    million commits.
+  - At most 500 refs are listed, followed by "and N more".
+  - Children and signature status are M3.
+- **Stashes**: read-only. Creating with file selection, apply, pop, drop and applying single
+  files are M4.
+
+Modules that work on the active repository share one frame (`WithActiveRepository`). It explains
+"No repository open", "Opening repository…" or the error, so modules only render their content.
+
+## Toolbar
+
+| Button  | Does                                                       |
+| ------- | ---------------------------------------------------------- |
+| Pull ▾  | Menu: Pull, Fetch, Fetch all remotes, Fetch and prune (M5) |
+| Push    | M5                                                         |
+| Commit  | M4                                                         |
+| Stashes | Opens the Stashes module                                   |
+
+The placeholder buttons look dimmed but stay focusable, so their tooltip ("Push: arrives in M5")
+can also be read with the keyboard.
+
+## Layout persistence
+
+- One layout for all repositories: both docks, the open tabs and the sidebar width and state.
+  It is saved 0.5 s after the last change into `workbench-layout.json` in the app config folder,
+  and restored on the next start.
+- Restored tabs in the background do not open their repositories until they are first shown.
+- **Reset layout** (command palette) forgets the saved layout and rebuilds both docks with the
+  default arrangement. Open tabs stay open.
+- A saved layout from another version, or one that cannot be read, is ignored and the default
+  is used. Modules that no longer exist are dropped from a restored layout.
+
+## Keyboard
+
+- `F6` / `Shift+F6` move focus to the next or previous region: activity bar, modules, toolbar,
+  tabs, status bar. A collapsed sidebar is skipped.
+- `Alt+1` … `Alt+4` open a module.
+- Each module is also in the command palette under **View** ("Show Branches", ...), next to
+  **Reset layout**.
+- The commit list, the Branches list and other long lists are listboxes. Arrows, Page Up/Down
+  and Home/End move; Enter activates.
+
+## Adding a module
+
+1. Create `src/features/<module>/` with the component, and export it from its `index.ts`.
+2. Add one entry to `MODULES` in `src/app/workbench/modules.ts`: `id` (never reuse one, layouts
+   store it), title, icon, hotkey and component. Optionally add it to `DEFAULT_MODULE_LAYOUT`.
+3. Read the active repository with `WithActiveRepository` / `useActiveRepository`
+   (`features/repositories`), and the selection with `useSelectedRow` (`features/selection`).
+
+Nothing in the docks or the activity bar changes.
+
+## Not yet
+
+- Changed files module and the single diff tab (M3).
+- Actions in Branches and Stashes and in the toolbar (M4, M5).
+- Ahead/behind counts next to the branch.
+- Dragging modules into the document dock.
+- Popping panels out into windows.

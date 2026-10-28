@@ -1,17 +1,18 @@
 # App shell
 
-The main window's frame: sidebar, repository tabs, status bar, command palette, theme and About.
-User guide: [main-window.md](../user-guide/main-window.md).
+The main window's frame: tabs, status bar, command palette, theme and About. The layout around
+them (activity bar, module dock, document dock, toolbar) is the [workbench](workbench.md). User
+guide: [main-window.md](../user-guide/main-window.md).
 
-Status: **M1 done; M2 in progress.** The Welcome tab is a dashboard and repository tabs show the
-real commit graph ([repositories.md](repositories.md), [commit-graph.md](commit-graph.md)).
+Status: **M1 done; M2 in progress; M2.5 done.** The Welcome tab is a dashboard and repository
+tabs show the real commit graph ([repositories.md](repositories.md),
+[commit-graph.md](commit-graph.md)).
 
 ## Layout
 
-- **Sidebar** (resizable, 12–40 % of the width): the list of open repositories and an "Open
-  repository" button (folder picker). Clicking an entry activates its tab.
-- **Tab bar**: Welcome and repository tabs. Opening a path that is already open focuses its tab
-  (identity ignores trailing separators). The search button opens the command palette.
+- **Workbench**: activity bar, module dock, toolbar and the document dock holding the tabs
+  ([workbench.md](workbench.md)). Opening a path that is already open focuses its tab (identity
+  ignores trailing separators).
 - **Status bar**: app name and version; git status button; "Commands" button with the palette
   shortcut; theme menu.
 
@@ -23,10 +24,10 @@ real commit graph ([repositories.md](repositories.md), [commit-graph.md](commit-
 | Repository | Header (name, HEAD, kind and shallow badges, path, Log/Commit/File history task window buttons, which are placeholders until M8), the commit-graph offer when the file is missing, and the commit graph |
 
 Closing the last tab shows "No open tabs" with a button to reopen Welcome. Shortcuts:
-`Ctrl/⌘+W` close, `Ctrl+Tab` / `Ctrl+Shift+Tab` cycle (ignored while a dialog is open), arrow
-keys move between tabs in the tab bar.
+`Ctrl/⌘+W` close, `Ctrl+Tab` / `Ctrl+Shift+Tab` cycle (ignored while a dialog is open).
 
-Tabs are not restored after a restart yet (M9).
+Open tabs and how they are split are restored after a restart (M2.5,
+[workbench.md](workbench.md#layout-persistence)).
 
 ## Command palette
 
@@ -37,6 +38,7 @@ by keywords. Commands:
 - Task windows (placeholders until M8): Open _Task_ window, for each of the 14 tasks, only when
   a repository tab is active
 - Tabs: Open Welcome tab, Close current tab
+- View: Show _Module_ (one per module, with its `Alt+n` shortcut), Reset layout
 - Appearance: Theme: System / Light / Dark
 - Help: Check git installation again, About NoBlame
 
@@ -65,4 +67,4 @@ Small-size variants and monochrome versions are M9.
 
 ## Not yet
 
-Persisted window size and open tabs (M9), menus, settings page.
+Persisted window size (M9), menus, settings page.
