@@ -38,6 +38,10 @@ export const commands = {
 	listRecentRepositories: () => typedError<RecentRepository[], AppError>(__TAURI_INVOKE("list_recent_repositories")),
 	/**  Removes a repository from the recent list and returns the rest. */
 	removeRecentRepository: (path: string) => typedError<RecentRepository[], AppError>(__TAURI_INVOKE("remove_recent_repository", { path })),
+	/**  Details of the commit on `row`: message, people, parents, refs and refs containing it. */
+	getCommitDetails: (id: number, row: number) => typedError<CommitDetailsDto, AppError>(__TAURI_INVOKE("get_commit_details", { id, row })),
+	/**  Every branch, remote branch and tag with the row of its commit. */
+	listRefs: (id: number) => typedError<RefEntry[], AppError>(__TAURI_INVOKE("list_refs", { id })),
 	/**
 	 *  The saved layout, or `None` on first launch. A corrupted file is logged and treated as
 	 *  missing, so a bad layout can never stop the main window from opening.
@@ -73,6 +77,28 @@ export type AppInfo = {
 	os: string,
 	/**  CPU architecture, e.g. `x86_64`, `aarch64`. */
 	arch: string,
+};
+
+/**  Everything the Commit details module shows. */
+export type CommitDetailsDto = {
+	/**  Row in the graph. */
+	row: number,
+	/**  Full commit id. */
+	id: string,
+	/**  Parents, first parent first. */
+	parents: ParentDto[],
+	/**  Who wrote the change. */
+	author: SignatureDto,
+	/**  Who created the commit. */
+	committer: SignatureDto,
+	/**  Whole message. */
+	message: string,
+	/**  References pointing at the commit. */
+	refs: RefLabel[],
+	/**  References containing the commit (at most 500). */
+	containedIn: RefLabel[],
+	/**  How many references contain the commit in total. */
+	containedInTotal: number,
 };
 
 /**  Text columns of one graph row. */
@@ -163,6 +189,14 @@ name: string } |
 /**  Full commit id. */
 id: string };
 
+/**  A parent commit and its row, so the UI can jump to it. */
+export type ParentDto = {
+	/**  Full commit id. */
+	id: string,
+	/**  Row in the graph. */
+	row: number,
+};
+
 /**  One entry of the list as the UI sees it. */
 export type RecentRepository = {
 	/**  Work tree (or bare repository) path. */
@@ -173,6 +207,16 @@ export type RecentRepository = {
 	lastOpened: number | null,
 	/**  Whether the folder still exists (checked when the list is read). */
 	exists: boolean,
+};
+
+/**  One branch, remote branch or tag, with the row of its commit. */
+export type RefEntry = {
+	/**  Name, category and HEAD marker. */
+	label: RefLabel,
+	/**  Full id of the commit it points to (annotated tags peeled). */
+	target: string,
+	/**  Row of that commit, if it is in the graph. */
+	row: number | null,
 };
 
 /**  Category of a reference label. */
@@ -240,6 +284,18 @@ export type RepositoriesRequested = null;
 export type Settings = {
 	/**  Color scheme of every window. */
 	theme?: ThemePreference,
+};
+
+/**  Author or committer. */
+export type SignatureDto = {
+	/**  Name. */
+	name: string,
+	/**  E-mail. */
+	email: string,
+	/**  Seconds since the epoch. */
+	time: number | null,
+	/**  Time-zone offset in minutes east of UTC. */
+	offsetMinutes: number,
 };
 
 /**  A focused task window. Also the list of `noblame` subcommands (ADR 0015). */

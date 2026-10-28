@@ -5,6 +5,7 @@ mod app_info;
 pub mod cli;
 pub mod error;
 mod git_env;
+mod inspect;
 mod ipc;
 mod logging;
 mod repository;

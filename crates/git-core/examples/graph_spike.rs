@@ -11,7 +11,7 @@ use std::path::PathBuf;
 use std::process::ExitCode;
 use std::time::Instant;
 
-use git_core::graph::{Graph, commit_rows};
+use git_core::graph::{Graph, commit_details, commit_rows};
 use git_core::repo::Repository;
 
 /// Rows read for the "first screen" measurement.
@@ -70,6 +70,15 @@ fn run(path: &std::path::Path) -> Result<(), Box<dyn std::error::Error>> {
         "block replay    {:.2?} per block (avg {} bytes)",
         replay.elapsed() / sampled.max(1),
         bytes / sampled.max(1) as usize
+    );
+    // Worst case for "contained in": the oldest commit, below every other row.
+    let last = graph.row_count().saturating_sub(1);
+    let details = Instant::now();
+    let oldest = commit_details(&local, &graph, last)?;
+    println!(
+        "details, oldest {:.1?} (contained in {} refs)",
+        details.elapsed(),
+        oldest.contained_in_total
     );
     if let Some(row) = rows.first() {
         println!(

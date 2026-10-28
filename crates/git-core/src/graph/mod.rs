@@ -1,6 +1,8 @@
 //! The commit graph: refs, commit index, row order, lane layout and binary blocks for the UI.
 //! See `docs/architecture/commit-graph.md`.
 
+mod commit_details;
+mod contains;
 mod details;
 mod encode;
 mod error;
@@ -12,6 +14,9 @@ mod refs;
 use std::collections::HashMap;
 use std::time::{Duration, Instant};
 
+pub use commit_details::{
+    CommitDetails, MAX_CONTAINING_REFS, ParentInfo, Signature, commit_details,
+};
 pub use details::{CommitRow, MAX_ROWS_PER_PAGE, commit_rows};
 pub use encode::{BLOCK_FORMAT_VERSION, FLAG_HEAD, FLAG_MERGE, encode_block};
 pub use error::GraphError;

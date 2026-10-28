@@ -12,7 +12,8 @@ mod types;
 
 pub use bytes::GraphBytes;
 pub use error::RepositoryError;
-pub use graph_types::{CommitRowDto, GraphSummary};
+pub use graph_types::{CommitRowDto, GraphSummary, RefLabel};
+pub(crate) use service::blocking;
 pub use sessions::RepoSessions;
 pub use types::{RepoId, RepoSummary};
 

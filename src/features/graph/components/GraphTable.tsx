@@ -1,5 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 
+import { selectRow, useSelectedRow } from "@/features/selection";
 import type { CommitRowDto, GraphSummary } from "@/shared/ipc/bindings";
 import { useElementSize } from "@/shared/hooks/useElementSize";
 
@@ -32,9 +33,10 @@ interface GraphTableProps {
 export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const size = useElementSize(scrollRef);
-  const store = useGraphViewStore.getState();
-  const [scrollTop, setScrollTop] = useState(() => store.scrollTop[repoPath] ?? 0);
-  const selected = useGraphViewStore((state) => state.selected[repoPath]);
+  const [scrollTop, setScrollTop] = useState(
+    () => useGraphViewStore.getState().scrollTop[repoPath] ?? 0,
+  );
+  const selected = useSelectedRow(repoPath);
   const { cache, version } = useBlockCache(repoId);
   const palette = usePalette();
   const idPrefix = useId();
@@ -71,18 +73,25 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
     if (remembered !== undefined) {
       element.scrollTop = remembered;
     } else if (summary.headRow !== null) {
-      useGraphViewStore.getState().select(repoPath, summary.headRow);
+      selectRow(repoPath, summary.headRow);
       element.scrollTop = scrollTopToReveal(summary.headRow, 0, size.height, rowCount);
     }
     // Only when the view (re)appears with a measured size.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [size.height > 0, repoPath]);
 
-  const select = (row: number) => {
-    useGraphViewStore.getState().select(repoPath, row);
+  // Keep the selection visible, also when another module selects a commit (a parent, a
+  // branch). Skipped on mount so a remembered scroll position wins.
+  const shownSelection = useRef(selected);
+  useEffect(() => {
     const element = scrollRef.current;
-    if (element)
-      element.scrollTop = scrollTopToReveal(row, element.scrollTop, size.height, rowCount);
+    if (selected === shownSelection.current || selected === undefined || !element) return;
+    shownSelection.current = selected;
+    element.scrollTop = scrollTopToReveal(selected, element.scrollTop, size.height, rowCount);
+  }, [selected, size.height, rowCount]);
+
+  const select = (row: number) => {
+    selectRow(repoPath, row);
   };
 
   const onKeyDown = (event: KeyboardEvent) => {

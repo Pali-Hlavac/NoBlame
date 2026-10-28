@@ -21,6 +21,8 @@ const APP_COMMANDS: &[&str] = &[
     "write_commit_graph",
     "list_recent_repositories",
     "remove_recent_repository",
+    "get_commit_details",
+    "list_refs",
     "get_workbench_layout",
     "save_workbench_layout",
 ];

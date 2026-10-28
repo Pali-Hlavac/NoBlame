@@ -31,6 +31,10 @@ All notable changes to NoBlame are documented here. The format follows
   layout and the open tabs are restored on the next start; "Reset layout" in the palette; F6 /
   Shift+F6 move focus between regions, Alt+1 opens Repositories. The commit list hides the
   commit, author and date columns one by one when its pane gets narrow.
+- Commit details module (Alt+2): message, commit id (copy), parents (click to select), author
+  and committer with their time zones, refs, and the branches, remote branches and tags that
+  contain the commit (computed from the graph: 5.5 ms for the oldest of a million commits).
+  It follows the commit selected in the active repository: the repository tab focused last.
 - Welcome tab dashboard: recent repositories (missing folders dimmed, removable) and "Create
   repository…" (`git init`), also offered when a folder is not a repository.
 - A notice offers to write the commit-graph file when a repository has none; it runs

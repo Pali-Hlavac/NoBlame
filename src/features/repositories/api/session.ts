@@ -5,6 +5,7 @@
 import { useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 
 import { graphKeys } from "@/features/graph";
+import { useSelectionStore } from "@/features/selection";
 import type { RepoSummary } from "@/shared/ipc/bindings";
 import { call, commands, unwrap } from "@/shared/ipc/client";
 
@@ -15,12 +16,14 @@ export const sessionKeys = {
   byPath: (path: string) => ["repository-session", path] as const,
 };
 
-/** Opens (once) the repository behind a tab. */
-export function useRepositorySession(path: string) {
+/** Opens (once) the repository behind a tab; `undefined` waits until there is one. */
+export function useRepositorySession(path: string | undefined) {
   const queryClient = useQueryClient();
   return useQuery({
-    queryKey: sessionKeys.byPath(path),
+    queryKey: sessionKeys.byPath(path ?? ""),
+    enabled: path !== undefined,
     queryFn: async () => {
+      if (path === undefined) throw new Error("no repository path");
       const summary = await unwrap(commands.openRepository(path));
       void queryClient.invalidateQueries({ queryKey: recentKeys.all });
       return summary;
@@ -38,6 +41,7 @@ export async function closeRepositorySession(
 ): Promise<void> {
   const summary = queryClient.getQueryData<RepoSummary>(sessionKeys.byPath(path));
   queryClient.removeQueries({ queryKey: sessionKeys.byPath(path) });
+  useSelectionStore.getState().clear(path);
   if (!summary) return;
   queryClient.removeQueries({ queryKey: graphKeys.all(summary.id) });
   await call(commands.closeRepository(summary.id));

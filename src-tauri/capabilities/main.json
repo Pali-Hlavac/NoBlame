@@ -22,6 +22,8 @@
     "allow-write-commit-graph",
     "allow-list-recent-repositories",
     "allow-remove-recent-repository",
+    "allow-get-commit-details",
+    "allow-list-refs",
     "allow-get-workbench-layout",
     "allow-save-workbench-layout"
   ]

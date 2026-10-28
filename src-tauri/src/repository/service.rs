@@ -105,7 +105,8 @@ pub async fn write_commit_graph(
     .await?
 }
 
-async fn blocking<T: Send + 'static>(
+/// Runs `work` on Tokio's blocking pool (gix reads are synchronous and can be slow).
+pub(crate) async fn blocking<T: Send + 'static>(
     work: impl FnOnce() -> T + Send + 'static,
 ) -> Result<T, RepositoryError> {
     tokio::task::spawn_blocking(work)

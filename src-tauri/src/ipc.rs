@@ -10,7 +10,7 @@ use std::path::{Path, PathBuf};
 use specta_typescript::Typescript;
 use tauri_specta::{Builder, collect_commands, collect_events};
 
-use crate::{app_info, git_env, repository, settings, windows, workbench};
+use crate::{app_info, git_env, inspect, repository, settings, windows, workbench};
 
 /// Location of the generated bindings, relative to the crate root.
 #[cfg_attr(not(debug_assertions), allow(dead_code))]
@@ -43,6 +43,8 @@ pub fn builder() -> Builder<tauri::Wry> {
             repository::commands::write_commit_graph,
             repository::commands::list_recent_repositories,
             repository::commands::remove_recent_repository,
+            inspect::commands::get_commit_details,
+            inspect::commands::list_refs,
             workbench::commands::get_workbench_layout,
             workbench::commands::save_workbench_layout,
         ])
