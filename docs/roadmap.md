@@ -184,6 +184,21 @@ M3 started: slice 1 (Changed files module). Not verified in the running app yet 
 instance was running, and a second one only forwards to it); covered by integration and unit
 tests. Next: slice 2, the diff tab (ADR 0013).
 
+Then, same day: slice 2, the diff tab (ADR 0013, [features/diff.md](features/diff.md)). Diffs
+are computed in Rust with gix (imara-diff, git's slider heuristics, `diff.algorithm`), checked
+against `git diff` output in an integration test, cached per session and paged into a
+virtualized list. A 13 MB file with 2,000 edits takes 46 ms.
+
+Verified in the running dev app (NoBlame's own repository, through the DevTools port):
+
+- Changed files and the diff tab together (this also covers slice 1);
+- the tab opens in its own group right of the repository tab and is named after the file;
+- arrow keys in Changed files switch the diff while the list keeps focus;
+- selecting other commits keeps the file, or says it did not change there.
+
+Known cosmetic issue: when scrolling sideways, a coloured row background ends at the pane width.
+Next: slice 3 (side by side, highlighting, whitespace, word diff, images).
+
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
 highlighted after a slow first load and names both costs (done). Option 2 later: show rows while
@@ -266,10 +281,12 @@ Not verified in the running app (they need someone at the keyboard; the logic is
 ### M3: Inspecting history
 
 - [ ] Commit details module, complete: children, signature status (the basics are in M2.5)
-- [~] Changed files module for the selected commit (done: list, renames, merge parents); selecting
-  a file shows it in the single diff tab, which switches files in place and stays where it is
-  docked (several diff tabs: later)
-- [ ] Diff viewer: unified and side-by-side, virtualized for huge diffs, syntax highlighting, whitespace options, word diff, image and binary handling — ADR 0013
+- [x] Changed files module for the selected commit (list, renames, merge parents); selecting
+      a file shows it in the single diff tab, which switches files in place and stays where it is
+      docked (several diff tabs: later)
+- [~] Diff viewer (ADR 0013). Done: unified, virtualized and paged for huge diffs, binary
+  detection. Still to do: side-by-side, syntax highlighting, whitespace options, word diff,
+  images.
 - [ ] Changed files list and file tree of any revision; open/save a file at a revision
 - [ ] File history (following renames) and blame with "blame previous revision"
 - [ ] Filters: branch(es), author, committer, message, path, date range, first-parent only, hide merges
@@ -422,7 +439,7 @@ The owner's idea inbox (with where each idea is planned) is in
 | 0010 | On-disk graph cache (commit index reused and cached)                | M2        | Accepted |
 | 0011 | Background job model                                                | M5        | Planned  |
 | 0012 | Credentials and askpass                                             | M5        | Planned  |
-| 0013 | Diff viewer implementation                                          | M3        | Planned  |
+| 0013 | Diff viewer: diffs computed in Rust, rows paged                     | M3        | Accepted |
 | 0014 | Conflict resolution UI                                              | M6        | Planned  |
 | 0015 | CLI, single instance and task windows                               | M1        | Accepted |
 | 0016 | Testing strategy                                                    | M9        | Planned  |

@@ -4,10 +4,11 @@
  */
 import { create } from "zustand";
 
-import type { RepositoryTab, SettingsTab, WelcomeTab, WorkspaceTab } from "../types";
+import type { DiffTab, RepositoryTab, SettingsTab, WelcomeTab, WorkspaceTab } from "../types";
 
 export const WELCOME_TAB: WelcomeTab = { id: "welcome", kind: "welcome", title: "Welcome" };
 export const SETTINGS_TAB: SettingsTab = { id: "settings", kind: "settings", title: "Settings" };
+export const DIFF_TAB: DiffTab = { id: "diff", kind: "diff", title: "Diff" };
 
 interface TabsState {
   tabs: WorkspaceTab[];
@@ -25,6 +26,8 @@ interface TabsState {
    */
   closeTab: (id: string, nextActiveId?: string | null) => void;
   activateTab: (id: string) => void;
+  /** Renames an open tab (the diff tab names its file). */
+  setTitle: (id: string, title: string) => void;
   /** Moves the active tab by `offset`, wrapping around at both ends. */
   cycleTab: (offset: number) => void;
   /** Replaces every tab, for example with the tabs of a restored layout. */
@@ -86,6 +89,14 @@ export const useTabsStore = create<TabsState>()((set) => ({
     }));
   },
 
+  setTitle: (id, title) => {
+    set((state) => {
+      const tab = state.tabs.find((open) => open.id === id);
+      if (!tab || tab.title === title) return state;
+      return { tabs: state.tabs.map((open) => (open === tab ? { ...open, title } : open)) };
+    });
+  },
+
   cycleTab: (offset) => {
     set((state) => {
       const count = state.tabs.length;
@@ -108,6 +119,11 @@ export const useTabsStore = create<TabsState>()((set) => ({
     });
   },
 }));
+
+/** Shows the diff tab: opens it the first time, otherwise focuses it where it is docked. */
+export function showDiffTab(): void {
+  useTabsStore.getState().openTab(DIFF_TAB);
+}
 
 /** The currently active tab, if any. */
 export function useActiveTab(): WorkspaceTab | undefined {

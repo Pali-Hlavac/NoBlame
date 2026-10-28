@@ -54,7 +54,14 @@ All notable changes to NoBlame are documented here. The format follows
   It follows the commit selected in the active repository: the repository tab focused last.
 - Changed files module (M3, Alt+5): the files the selected commit changed, with status letters,
   renames and copies (as your git config detects them), and a parent choice for merge commits.
-  **Placeholder:** the diff of a chosen file arrives with the diff tab; uncommitted files in M4.
+  The chosen file stays chosen when another commit is selected. Uncommitted files arrive in M4.
+- Diff tab (M3, ADR 0013): choosing a file in Changed files shows its unified diff in one tab
+  that opens beside the graph and then stays where it is docked. Shows hunks, old and new line
+  numbers, "No newline at end of file", and the added and removed line counts. Binary files,
+  files over 64 MB, renames without changes, submodule pointers and file versions missing from
+  a partial clone each get their own message. Diffs are computed in Rust with gix (honouring
+  `diff.algorithm`) and paged: a 200,000-line file with 2,000 edits diffs in 46 ms.
+  **Not yet:** side by side, syntax highlighting, whitespace options, word diff, images (slice 3).
 - The commit-graph offer explains what the file is (one index file in `.git`; commits, branches
   and files do not change) and, after a load slower than 2 s, is highlighted with how long
   loading took and how long writing the file would take. It is still only written on request.

@@ -78,8 +78,8 @@ function connect(api: DockviewApi): () => void {
     if (reconciling) return;
     reconciling = true;
     try {
-      const { tabs, activeTabId } = useTabsStore.getState();
-      reconcileDocuments(api, tabs, activeTabId);
+      const { tabs, activeTabId, activeRepositoryTabId } = useTabsStore.getState();
+      reconcileDocuments(api, tabs, activeTabId, activeRepositoryTabId);
     } finally {
       reconciling = false;
     }
@@ -112,7 +112,7 @@ interface DocumentDockProps {
   saved: SerializedDockview | null;
 }
 
-/** The main dock: repository tabs (and later the diff tab), splittable in every direction. */
+/** The main dock: repository tabs and the diff tab, splittable in every direction. */
 export function DocumentDock({ renderTab, saved }: DocumentDockProps) {
   const disconnect = useRef<(() => void) | null>(null);
 

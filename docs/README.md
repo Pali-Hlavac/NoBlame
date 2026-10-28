@@ -38,6 +38,8 @@ One page per user-facing feature: behaviour, edge cases and status.
 - [repositories.md](features/repositories.md): opening, creating and recent repositories, the
   commit-graph offer
 - [commit-graph.md](features/commit-graph.md): the commit graph and its columns
+- [changed-files.md](features/changed-files.md): the files the selected commit changed
+- [diff.md](features/diff.md): the diff tab (unified diff of the chosen file)
 
 ## User guide
 

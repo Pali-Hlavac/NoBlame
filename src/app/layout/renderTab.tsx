@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { DiffView } from "@/features/diff";
 import { RepositoryView } from "@/features/repositories";
 import { SettingsView } from "@/features/settings";
 import type { WorkspaceTab } from "@/features/workspace";
@@ -15,5 +16,7 @@ export function renderTab(tab: WorkspaceTab): ReactNode {
       return <RepositoryView key={tab.id} tab={tab} />;
     case "settings":
       return <SettingsView />;
+    case "diff":
+      return <DiffView />;
   }
 }

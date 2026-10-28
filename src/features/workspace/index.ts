@@ -2,11 +2,13 @@
 export { WelcomeView } from "./components/WelcomeView";
 export { TAB_HOTKEYS, useTabHotkeys } from "./hooks/useTabHotkeys";
 export {
+  DIFF_TAB,
   SETTINGS_TAB,
   WELCOME_TAB,
+  showDiffTab,
   useActiveRepositoryTab,
   useActiveTab,
   useTabsStore,
 } from "./store/tabs";
 export { isWorkspaceTab } from "./types";
-export type { RepositoryTab, WorkspaceTab } from "./types";
+export type { DiffTab, RepositoryTab, WorkspaceTab } from "./types";

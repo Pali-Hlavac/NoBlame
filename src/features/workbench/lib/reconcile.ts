@@ -14,6 +14,8 @@ export const DOCUMENT_COMPONENT = "document";
 export interface DockPanelLike {
   id: string;
   title: string | undefined;
+  /** The group the panel is docked in. */
+  group?: { id: string };
   api: { setActive: () => void; setTitle: (title: string) => void; close: () => void };
 }
 
@@ -32,8 +34,35 @@ export interface DockApiLike {
     title: string;
     params: DocumentParams;
     inactive: boolean;
-    position?: { referenceGroup: string; direction: "within" };
+    position?: Position;
   }) => unknown;
+}
+
+type Position =
+  { referenceGroup: string; direction: "within" } | { referencePanel: string; direction: "right" };
+
+/**
+ * Where a new tab opens. The diff tab opens to the right of the active repository's tab, so the
+ * graph stays visible beside it. Other tabs open in the group the user is working in, but not in
+ * the diff tab's group: they would hide the diff. (Without a position dockview opens a new group.)
+ */
+function positionFor(
+  api: DockApiLike,
+  tab: WorkspaceTab,
+  tabs: readonly WorkspaceTab[],
+  activeRepositoryTabId: string | null,
+): Position | undefined {
+  const repository = activeRepositoryTabId ? api.getPanel(activeRepositoryTabId) : undefined;
+  if (tab.kind === "diff" && repository) {
+    return { referencePanel: repository.id, direction: "right" };
+  }
+  const diff = tabs.find((open) => open.kind === "diff");
+  const diffGroup = diff ? api.getPanel(diff.id)?.group?.id : undefined;
+  let group = api.activeGroup ?? api.groups[0];
+  if (group && group.id === diffGroup) {
+    group = repository?.group ?? api.groups.find((other) => other.id !== diffGroup) ?? group;
+  }
+  return group && { referenceGroup: group.id, direction: "within" };
 }
 
 /** Adds missing tabs, closes panels whose tab is gone, syncs titles and the active tab. */
@@ -41,6 +70,7 @@ export function reconcileDocuments(
   api: DockApiLike,
   tabs: readonly WorkspaceTab[],
   activeTabId: string | null,
+  activeRepositoryTabId: string | null = null,
 ): void {
   const open = new Set(tabs.map((tab) => tab.id));
   for (const panel of [...api.panels]) {
@@ -49,16 +79,14 @@ export function reconcileDocuments(
   for (const tab of tabs) {
     const panel = api.getPanel(tab.id);
     if (!panel) {
-      // Without a position dockview opens a new group beside the others; tabs belong in the
-      // group the user is working in.
-      const group = api.activeGroup ?? api.groups[0];
+      const position = positionFor(api, tab, tabs, activeRepositoryTabId);
       api.addPanel({
         id: tab.id,
         component: DOCUMENT_COMPONENT,
         title: tab.title,
         params: { tab },
         inactive: tab.id !== activeTabId,
-        ...(group && { position: { referenceGroup: group.id, direction: "within" } }),
+        ...(position && { position }),
       });
     } else if (panel.title !== tab.title) {
       panel.api.setTitle(tab.title);

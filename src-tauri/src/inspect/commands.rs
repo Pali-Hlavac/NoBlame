@@ -3,7 +3,8 @@
 use tauri::State;
 
 use super::{
-    ChangedFilesDto, CommitDetailsDto, RefEntry, StashDto, StatusSummaryDto, SubmoduleDto, service,
+    ChangedFilesDto, CommitDetailsDto, DiffLineDto, FileDiffDto, RefEntry, StashDto,
+    StatusSummaryDto, SubmoduleDto, service,
 };
 use crate::error::CommandResult;
 use crate::repository::{RepoId, RepoSessions};
@@ -29,6 +30,33 @@ pub async fn get_changed_files(
     parent: u32,
 ) -> CommandResult<ChangedFilesDto> {
     Ok(service::changed_files(&sessions, id, row, parent).await?)
+}
+
+/// The line diff between two blobs (hex ids; `null` where the file is absent): its kind,
+/// size and row count. Rows come from `get_diff_lines`.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_file_diff(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    old_id: Option<String>,
+    new_id: Option<String>,
+) -> CommandResult<FileDiffDto> {
+    Ok(service::file_diff(&sessions, id, old_id, new_id).await?)
+}
+
+/// Up to `count` rows (at most 2,000) of that diff, from row `start`.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_diff_lines(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    old_id: Option<String>,
+    new_id: Option<String>,
+    start: u32,
+    count: u32,
+) -> CommandResult<Vec<DiffLineDto>> {
+    Ok(service::diff_lines(&sessions, id, old_id, new_id, start, count).await?)
 }
 
 /// Every branch, remote branch and tag with the row of its commit.

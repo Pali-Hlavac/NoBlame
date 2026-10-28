@@ -26,6 +26,13 @@ describe("tabs store", () => {
     expect(state().activeTabId).toBe("a");
   });
 
+  it("renames an open tab and ignores unknown ones", () => {
+    state().openTab(tab("a"));
+    state().setTitle("a", "Diff: main.rs");
+    state().setTitle("missing", "x");
+    expect(state().tabs.map((t) => t.title)).toEqual(["Welcome", "Diff: main.rs"]);
+  });
+
   it("focuses instead of duplicating an already open tab", () => {
     state().openTab(tab("a"));
     state().openTab(WELCOME_TAB);

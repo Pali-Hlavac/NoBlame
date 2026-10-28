@@ -46,7 +46,7 @@ When you select a commit, NoBlame highlights it:
 Press **Esc** in the list to clear the highlight; the commit stays selected. You can switch the
 highlight off in **Settings → Commit graph**.
 
-Changed files and diffs come in a later version.
+To see the files a commit changed and their diffs, see [Viewing changes](viewing-changes.md).
 
 ## Large repositories
 

@@ -76,6 +76,8 @@ Read-only views for the workbench modules (`src-tauri/src/inspect/`), and the sa
 | Command                 | Async | Returns                            | Purpose                                                                                                       |
 | ----------------------- | ----- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | `get_changed_files`     | yes   | `Result<ChangedFilesDto>`          | Files the commit on `row` changed against parent number `parent` (status, paths, blob ids; max. 5,000)        |
+| `get_file_diff`         | yes   | `Result<FileDiffDto>`              | Line diff of two blobs (hex ids, `null` = absent): text/binary/too large, counts, sizes, row count (ADR 0013) |
+| `get_diff_lines`        | yes   | `Result<DiffLineDto[]>`            | Up to 2,000 rows of that diff from `start`: kind, old/new line numbers, text (cut at 4,096 bytes)             |
 | `get_commit_details`    | yes   | `Result<CommitDetailsDto>`         | Message, author/committer, parents with rows, refs, refs containing the commit (max. 500)                     |
 | `list_refs`             | yes   | `Result<RefEntry[]>`               | Branches, remote branches and tags from the session's graph, with the row of their commit                     |
 | `list_stashes`          | yes   | `Result<StashDto[]>`               | The stash list from the `refs/stash` reflog, newest first                                                     |

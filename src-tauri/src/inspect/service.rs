@@ -1,7 +1,7 @@
 //! Inspect operations behind the Tauri commands. They reuse the session's graph, so they cost
 //! nothing extra when the repository tab has already loaded its history.
 
-use git_core::diff::commit_changes;
+use git_core::diff::{DiffError, ObjectId, commit_changes, parse_object_id};
 use git_core::graph::{GraphError, RefKind, commit_details};
 use std::path::PathBuf;
 
@@ -14,7 +14,8 @@ use git_core::submodule::list_submodules;
 use tokio_util::sync::CancellationToken;
 
 use super::{
-    ChangedFilesDto, CommitDetailsDto, RefEntry, StashDto, StatusSummaryDto, SubmoduleDto,
+    ChangedFilesDto, CommitDetailsDto, DiffLineDto, FileDiffDto, RefEntry, StashDto,
+    StatusSummaryDto, SubmoduleDto,
 };
 use crate::git_env::GitEnvError;
 use crate::repository::{RepoId, RepoSessions, RepositoryError, blocking};
@@ -49,6 +50,40 @@ pub async fn changed_files(
     let changes =
         blocking(move || commit_changes(&repo.local(), commit, parent as usize)).await??;
     Ok(changes.into())
+}
+
+/// Most diff rows one request may ask for.
+const MAX_DIFF_PAGE_ROWS: u32 = 2_000;
+
+/// The diff between blobs `old` and `new` (hex ids; `None` when the file is absent there).
+pub async fn file_diff(
+    sessions: &RepoSessions,
+    id: RepoId,
+    old: Option<String>,
+    new: Option<String>,
+) -> Result<FileDiffDto, RepositoryError> {
+    let session = sessions.get(id)?;
+    let diff = session.file_diff(parse(old)?, parse(new)?).await?;
+    Ok(FileDiffDto::from(&*diff))
+}
+
+/// Up to `count` rows of that diff from row `start`.
+pub async fn diff_lines(
+    sessions: &RepoSessions,
+    id: RepoId,
+    old: Option<String>,
+    new: Option<String>,
+    start: u32,
+    count: u32,
+) -> Result<Vec<DiffLineDto>, RepositoryError> {
+    let session = sessions.get(id)?;
+    let diff = session.file_diff(parse(old)?, parse(new)?).await?;
+    let lines = diff.lines(start, count.min(MAX_DIFF_PAGE_ROWS));
+    Ok(lines.into_iter().map(DiffLineDto::from).collect())
+}
+
+fn parse(id: Option<String>) -> Result<Option<ObjectId>, DiffError> {
+    id.as_deref().map(parse_object_id).transpose()
 }
 
 /// Local branches, remote branches and tags (not a detached HEAD), sorted by kind and name.

@@ -4,6 +4,7 @@ import { select as selectAny, useSelection, type Selection } from "@/features/se
 import type { CommitRowDto, GraphSummary } from "@/shared/ipc/bindings";
 import { useElementSize } from "@/shared/hooks/useElementSize";
 import { nextRow } from "@/shared/lib/listNavigation";
+import { pagesFor } from "@/shared/lib/paging";
 
 import { useCommitPages } from "../api/graph";
 import { useBlockCache } from "../hooks/useBlockCache";
@@ -20,7 +21,6 @@ import {
 } from "../lib/constants";
 import { layoutColumns } from "../lib/columns";
 import { displayRows, indexOfSelection, selectionAt } from "../lib/displayRows";
-import { pagesFor } from "../lib/format";
 import { computeViewport, scrollTopToReveal } from "../lib/viewport";
 import { useGraphViewStore } from "../store/graphView";
 import { GraphCanvas } from "./GraphCanvas";

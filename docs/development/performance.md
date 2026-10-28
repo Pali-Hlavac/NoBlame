@@ -163,5 +163,19 @@ synthetic-10k (2,000 files) 106 ms including the first run, synthetic-100k (10,0
 and the untracked cache on, synthetic-1m stays at about 173 ms (the tree is small enough that
 the scan is not the cost). A 100k+ file tree is still to be measured.
 
+### File diffs (M3, ADR 0013, 2026-10-28)
+
+`cargo run --release -p git-core --example diff_spike -- <repo> <old-blob> <new-blob>`, Windows 11,
+warm. Synthetic files written with `git hash-object -w`:
+
+| Case                                                      | Rows    | Diff  | Page of 500 rows | Memory |
+| --------------------------------------------------------- | ------- | ----- | ---------------- | ------ |
+| 13 MB, 200,000 lines, 2,000 scattered edits (1,857 hunks) | 16,268  | 46 ms | 0.06 ms          | 31 MB  |
+| two unrelated 300,000-line files (9 MB each, one hunk)    | 600,001 | 56 ms | 0.03 ms          | 48 MB  |
+
+"Diff" covers reading both blobs, comparing and building the rows. `git diff --stat` on the
+first pair takes about 117 ms. The Linux benchmark clone is blobless, so its old file contents
+are not local; the diff tab says so instead of downloading them.
+
 Not measured yet: frame times while scrolling, a real large repository (Linux kernel), a cold
 disk cache, macOS and Linux.

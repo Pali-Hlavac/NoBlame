@@ -33,6 +33,8 @@
     "allow-remove-recent-repository",
     "allow-get-commit-details",
     "allow-get-changed-files",
+    "allow-get-file-diff",
+    "allow-get-diff-lines",
     "allow-list-refs",
     "allow-list-stashes",
     "allow-get-status-summary",

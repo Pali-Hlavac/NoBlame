@@ -76,9 +76,20 @@ impl From<RepositoryError> for AppError {
             RepositoryError::Graph(error @ GraphError::RowOutOfRange { .. }) => {
                 AppError::new(ErrorCode::InvalidInput, error.to_string())
             }
-            RepositoryError::Diff(error @ DiffError::NoSuchParent(_)) => {
+            RepositoryError::Diff(
+                error @ (DiffError::NoSuchParent(_)
+                | DiffError::InvalidId(_)
+                | DiffError::NotAFile(_)),
+            ) => {
                 AppError::new(ErrorCode::InvalidInput, error.to_string())
             }
+            RepositoryError::Diff(DiffError::Missing(_)) => AppError::new(
+                ErrorCode::NotFound,
+                "This version of the file is not in the local repository.",
+            )
+            .with_hint(
+                "Partial clones (`git clone --filter=blob:none`) download old file contents only when Git needs them. NoBlame does not download them yet.",
+            ),
             RepositoryError::Status(StatusError::Git(error)) => GitEnvError::from(error).into(),
             RepositoryError::Status(error @ StatusError::Parse(_)) => {
                 tracing::error!(%error, "status output not understood");

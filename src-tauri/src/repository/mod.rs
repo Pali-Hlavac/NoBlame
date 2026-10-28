@@ -3,6 +3,7 @@
 
 mod bytes;
 pub mod commands;
+mod diff_cache;
 mod error;
 mod graph_cache;
 mod graph_types;

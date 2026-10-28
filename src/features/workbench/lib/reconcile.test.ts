@@ -95,6 +95,37 @@ describe("reconcileDocuments", () => {
     expect(added).toEqual([{ referenceGroup: "group-2", direction: "within" }]);
   });
 
+  it("opens the diff tab to the right of the active repository's tab", () => {
+    const dock = fakeDock(["repo"], "repo");
+    const added: unknown[] = [];
+    const api: DockApiLike = {
+      ...dock,
+      activeGroup: { id: "g1" },
+      addPanel: (options) => {
+        added.push(options.position);
+      },
+    };
+    const diff: WorkspaceTab = { id: "diff", kind: "diff", title: "Diff" };
+    reconcileDocuments(api, [tab("repo"), diff], "diff", "repo");
+    expect(added).toEqual([{ referencePanel: "repo", direction: "right" }]);
+  });
+
+  it("does not open other tabs in the diff tab's group", () => {
+    const dock = fakeDock(["repo", "diff"], "diff");
+    for (const panel of dock.panels) panel.group = { id: panel.id === "diff" ? "g2" : "g1" };
+    const added: unknown[] = [];
+    const api: DockApiLike = {
+      ...dock,
+      activeGroup: { id: "g2" },
+      addPanel: (options) => {
+        added.push(options.position);
+      },
+    };
+    const diff: WorkspaceTab = { id: "diff", kind: "diff", title: "Diff" };
+    reconcileDocuments(api, [tab("repo"), diff, tab("new")], "diff", "repo");
+    expect(added).toEqual([{ referenceGroup: "g1", direction: "within" }]);
+  });
+
   it("uses the first group when none has focus yet", () => {
     const dock = fakeDock();
     const added: unknown[] = [];

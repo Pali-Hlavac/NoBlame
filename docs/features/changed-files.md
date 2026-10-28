@@ -1,7 +1,7 @@
 # Changed files
 
 The **Changed files** module (Alt+5) lists the files the selected commit changed. Status: M3
-slice 1. The diff of a chosen file arrives with the diff tab (slice 2).
+slice 1. Choosing a file shows its diff in the diff tab ([diff.md](diff.md), slice 2).
 
 ## What it shows
 
@@ -16,8 +16,11 @@ slice 1. The diff of a chosen file arrives with the diff tab (slice 2).
   parent. A root commit is compared with the empty tree (every file is added).
 - With a working tree row selected, it says that uncommitted files arrive in M4.
 
-Choosing a file (click, arrows, Enter) stores it as the repository's selected file in
-`features/selection` (`selectFile`). The selection is cleared when another commit is selected.
+Choosing a file (click, arrows, Enter) stores its path as the repository's chosen file in
+`features/selection` (`selectFile`) and shows the diff tab (`showDiffTab`). The path stays when
+another commit is selected: the row with the same path is highlighted again, and the diff tab
+shows that file if the new commit changed it. The compared parent is kept in the same store
+(`compareWithParent`) and goes back to the first parent when the selection changes.
 
 ## How it works
 
@@ -31,6 +34,5 @@ Choosing a file (click, arrows, Enter) stores it as the repository's selected fi
 
 ## Not yet
 
-- The diff of the chosen file (slice 2, the single diff tab).
 - Added and removed line counts per file; a folder tree view; filtering the list.
 - Changed files of uncommitted changes (M4).

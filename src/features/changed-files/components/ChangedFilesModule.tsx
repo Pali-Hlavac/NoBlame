@@ -1,8 +1,14 @@
 import { FileDiffIcon, MousePointerClickIcon } from "lucide-react";
-import { useState } from "react";
 
 import { WithActiveRepository } from "@/features/repositories";
-import { selectFile, useSelectedFile, useSelection } from "@/features/selection";
+import {
+  compareWithParent,
+  selectFile,
+  useComparedParent,
+  useSelectedFile,
+  useSelection,
+} from "@/features/selection";
+import { showDiffTab } from "@/features/workspace";
 import { WORKING_TREE_MILESTONE } from "@/features/working-tree";
 import type { ChangedFileDto } from "@/shared/ipc/bindings";
 import { EmptyState } from "@/shared/components/EmptyState";
@@ -24,7 +30,7 @@ interface CommitFilesProps {
 }
 
 function CommitFiles({ repoId, repoPath, row }: CommitFilesProps) {
-  const [parent, setParent] = useState(0);
+  const parent = useComparedParent(repoPath);
   const changes = useChangedFiles(repoId, row, parent);
   const chosen = useSelectedFile(repoPath);
   if (changes.error) {
@@ -39,17 +45,11 @@ function CommitFiles({ repoId, repoPath, row }: CommitFilesProps) {
   }
   if (!changes.data) return <LoadingState label="Comparing…" className="h-full" />;
   const { files, total, parentCount } = changes.data;
-  const activeIndex = files.findIndex(
-    (file) => file.path === chosen?.path && file.newId === chosen.newId,
-  );
+  const activeIndex = chosen === undefined ? -1 : files.findIndex((file) => file.path === chosen);
   const choose = (file: ChangedFileDto | undefined): void => {
     if (!file) return;
-    selectFile(repoPath, {
-      path: file.path,
-      previousPath: file.previousPath,
-      oldId: file.oldId,
-      newId: file.newId,
-    });
+    selectFile(repoPath, file.path);
+    showDiffTab();
   };
 
   return (
@@ -66,8 +66,7 @@ function CommitFiles({ repoId, repoPath, row }: CommitFilesProps) {
               className="rounded border border-border bg-background px-1 py-0.5 text-xs focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
               value={parent}
               onChange={(event) => {
-                setParent(Number(event.target.value));
-                selectFile(repoPath, undefined);
+                compareWithParent(repoPath, Number(event.target.value));
               }}
             >
               {Array.from({ length: parentCount }, (_, index) => (
@@ -111,10 +110,7 @@ function CommitFiles({ repoId, repoPath, row }: CommitFilesProps) {
 function SelectedChanges({ repoId, repoPath }: { repoId: number; repoPath: string }) {
   const selection = useSelection(repoPath);
   if (selection?.kind === "commit") {
-    // Keyed by row: a new commit starts on its first parent.
-    return (
-      <CommitFiles key={selection.row} repoId={repoId} repoPath={repoPath} row={selection.row} />
-    );
+    return <CommitFiles repoId={repoId} repoPath={repoPath} row={selection.row} />;
   }
   if (selection) {
     return (

@@ -54,6 +54,13 @@ export const commands = {
 	getCommitDetails: (id: number, row: number) => typedError<CommitDetailsDto, AppError>(__TAURI_INVOKE("get_commit_details", { id, row })),
 	/**  The files the commit on `row` changed against its parent number `parent` (0 = first). */
 	getChangedFiles: (id: number, row: number, parent: number) => typedError<ChangedFilesDto, AppError>(__TAURI_INVOKE("get_changed_files", { id, row, parent })),
+	/**
+	 *  The line diff between two blobs (hex ids; `null` where the file is absent): its kind,
+	 *  size and row count. Rows come from `get_diff_lines`.
+	 */
+	getFileDiff: (id: number, oldId: string | null, newId: string | null) => typedError<FileDiffDto, AppError>(__TAURI_INVOKE("get_file_diff", { id, oldId, newId })),
+	/**  Up to `count` rows (at most 2,000) of that diff, from row `start`. */
+	getDiffLines: (id: number, oldId: string | null, newId: string | null, start: number, count: number) => typedError<DiffLineDto[], AppError>(__TAURI_INVOKE("get_diff_lines", { id, oldId, newId, start, count })),
 	/**  Every branch, remote branch and tag with the row of its commit. */
 	listRefs: (id: number) => typedError<RefEntry[], AppError>(__TAURI_INVOKE("list_refs", { id })),
 	/**  The stash list, newest first. */
@@ -184,6 +191,42 @@ export type CommitRowDto = {
 	refs: RefLabel[],
 };
 
+/**  How a file was compared. */
+export type DiffContentDto = 
+/**  Line by line. */
+"text" | 
+/**  Binary contents: only the sizes. */
+"binary" | 
+/**  Larger than 64 MiB: only the sizes. */
+"tooLarge";
+
+/**  One row of the unified diff. */
+export type DiffLineDto = {
+	/**  What the row shows. */
+	kind: DiffLineKindDto,
+	/**  1-based line number in the old version. */
+	oldLine: number | null,
+	/**  1-based line number in the new version. */
+	newLine: number | null,
+	/**  The line without its line ending (non-UTF-8 bytes replaced). */
+	text: string,
+	/**  The line was cut at 4,096 bytes. */
+	truncated: boolean,
+};
+
+/**  What a row shows. */
+export type DiffLineKindDto = 
+/**  `@@ -1,3 +1,4 @@` (in `text`). */
+"hunk" | 
+/**  Unchanged line. */
+"context" | 
+/**  Added line. */
+"added" | 
+/**  Removed line. */
+"removed" | 
+/**  "No newline at end of file" for the row above (empty `text`). */
+"noNewline";
+
 /**  Stable, machine-readable error category the frontend can branch on. */
 export type ErrorCode = 
 /**  An unexpected failure inside the app; usually a bug. */
@@ -208,6 +251,28 @@ export type ErrorCode =
 "NOT_A_REPOSITORY" | 
 /**  Git refuses the repository (owned by another user, not in `safe.directory`). */
 "UNTRUSTED_REPOSITORY";
+
+/**  What the diff tab needs before it asks for rows. */
+export type FileDiffDto = {
+	/**  How the file was compared. */
+	content: DiffContentDto,
+	/**  Rows of the unified diff, hunk headers included (fetch them with `get_diff_lines`). */
+	rows: number,
+	/**  Added lines. */
+	additions: number,
+	/**  Removed lines. */
+	deletions: number,
+	/**  Number of hunks. */
+	hunks: number,
+	/**  Lines of the old version (0 unless compared as text). */
+	oldLines: number,
+	/**  Lines of the new version (0 unless compared as text). */
+	newLines: number,
+	/**  Size of the old version in bytes, as a decimal string (0 when absent). */
+	oldSize: string,
+	/**  Size of the new version in bytes, as a decimal string (0 when absent). */
+	newSize: string,
+};
 
 /**  The git executable NoBlame will run, shown in the status bar and About dialog. */
 export type GitInfo = {

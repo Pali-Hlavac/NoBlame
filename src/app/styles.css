@@ -44,6 +44,10 @@
   --status-modified: oklch(0.55 0.13 70);
   --status-deleted: oklch(0.53 0.19 25);
   --status-renamed: oklch(0.5 0.14 250);
+  /* Diff rows: added and removed lines, hunk headers. */
+  --diff-added: oklch(0.95 0.05 150);
+  --diff-removed: oklch(0.95 0.045 25);
+  --diff-hunk: oklch(0.95 0.02 250);
 }
 
 .dark {
@@ -83,6 +87,9 @@
   --status-modified: oklch(0.8 0.13 80);
   --status-deleted: oklch(0.72 0.16 25);
   --status-renamed: oklch(0.74 0.12 250);
+  --diff-added: oklch(0.3 0.06 150);
+  --diff-removed: oklch(0.3 0.07 25);
+  --diff-hunk: oklch(0.27 0.03 250);
 }
 
 @theme inline {
@@ -107,6 +114,9 @@
   --color-status-modified: var(--status-modified);
   --color-status-deleted: var(--status-deleted);
   --color-status-renamed: var(--status-renamed);
+  --color-diff-added: var(--diff-added);
+  --color-diff-removed: var(--diff-removed);
+  --color-diff-hunk: var(--diff-hunk);
   --color-ref-branch: var(--ref-branch);
   --color-ref-branch-foreground: var(--ref-branch-foreground);
   --color-ref-remote: var(--ref-remote);

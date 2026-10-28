@@ -22,7 +22,12 @@ export interface SettingsTab extends TabBase {
   kind: "settings";
 }
 
-export type WorkspaceTab = WelcomeTab | RepositoryTab | SettingsTab;
+/** The diff of the file chosen in Changed files (one tab at most; it switches files in place). */
+export interface DiffTab extends TabBase {
+  kind: "diff";
+}
+
+export type WorkspaceTab = WelcomeTab | RepositoryTab | SettingsTab | DiffTab;
 
 /** Checks a tab read back from a saved layout (which may come from another app version). */
 export function isWorkspaceTab(value: unknown): value is WorkspaceTab {
@@ -32,6 +37,7 @@ export function isWorkspaceTab(value: unknown): value is WorkspaceTab {
   switch (tab.kind) {
     case "welcome":
     case "settings":
+    case "diff":
       return true;
     case "repository":
       return typeof tab.path === "string";

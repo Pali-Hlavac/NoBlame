@@ -5,7 +5,7 @@ owner's decisions: [design/workbench.md](../design/workbench.md). Docking librar
 [ADR 0020](../adr/0020-workbench-docking.md). User guide:
 [main-window.md](../user-guide/main-window.md).
 
-Status: **M2.5 done.** Changed files and the diff tab arrive in M3. Actions in Branches,
+Status: **M2.5 done.** Changed files and the diff tab are M3 ([changed-files.md](changed-files.md), [diff.md](diff.md)). Actions in Branches,
 Stashes and the toolbar arrive in M4 and M5.
 
 ## Layout
@@ -172,7 +172,7 @@ Nothing in the docks or the activity bar changes.
 
 ## Not yet
 
-- Changed files module and the single diff tab (M3).
+- Several diff tabs, or a diff in its own window.
 - Actions in Branches and Stashes and in the toolbar (M4, M5).
 - Ahead/behind counts next to the branch.
 - Dragging modules into the document dock.

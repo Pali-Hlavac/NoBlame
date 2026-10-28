@@ -4,11 +4,14 @@ use std::collections::HashMap;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
+use git_core::diff::{FileDiff, ObjectId, file_diff};
 use git_core::graph::{Ancestry, Graph, GraphError};
 use git_core::repo::Repository;
 use git_core::watch::RepoWatcher;
 
+use super::diff_cache::DiffCache;
 use super::graph_cache::GraphCache;
+use super::service::blocking;
 use super::{RepoId, RepositoryError};
 
 /// One open repository. The graph is built on first use and kept until reloaded.
@@ -24,6 +27,8 @@ pub struct Session {
     watcher: Mutex<Option<RepoWatcher>>,
     /// The on-disk commit indexes (ADR 0010).
     cache: Arc<GraphCache>,
+    /// File diffs shown recently (ADR 0013).
+    diffs: DiffCache,
 }
 
 impl Session {
@@ -91,6 +96,23 @@ impl Session {
         *self.watcher.lock().unwrap_or_else(PoisonError::into_inner) = watcher;
     }
 
+    /// The diff between blobs `old` and `new` (`None`: absent), computed on a blocking thread
+    /// unless it was shown recently.
+    pub async fn file_diff(
+        &self,
+        old: Option<ObjectId>,
+        new: Option<ObjectId>,
+    ) -> Result<Arc<FileDiff>, RepositoryError> {
+        let key = (old, new);
+        if let Some(diff) = self.diffs.get(&key) {
+            return Ok(diff);
+        }
+        let repo = self.repo.clone();
+        let diff = Arc::new(blocking(move || file_diff(&repo.local(), old, new)).await??);
+        self.diffs.insert(key, Arc::clone(&diff));
+        Ok(diff)
+    }
+
     /// The highlight overlay of `block` for the history of `row`. Keeps the history of the last
     /// row asked for, so the blocks of one selection are found and replayed once. Blocking.
     pub fn ancestry_block(
@@ -150,6 +172,7 @@ impl RepoSessions {
             generation: AtomicU32::new(0),
             watcher: Mutex::new(None),
             cache: Arc::clone(&self.cache),
+            diffs: DiffCache::default(),
         });
         inner.sessions.insert(id, Arc::clone(&session));
         (id, session)
