@@ -1,6 +1,6 @@
 # NoBlame
 
-<img src="assets/logo/noblame.svg" alt="" width="96" align="right" />
+<img src="assets/logo/noblame.png" alt="" width="96" align="right" />
 
 A fast, cross-platform Git client for giant repositories (Windows, Linux, macOS), built with
 Tauri 2, Rust and React.

@@ -26,11 +26,16 @@ export function TitleBar({ start, end }: TitleBarProps) {
       data-tauri-drag-region
       className="@container flex h-9 shrink-0 items-center border-b border-border bg-muted/60 select-none"
     >
-      {mac ? (
+      {mac && (
         <div data-tauri-drag-region className={`${MAC_TRAFFIC_LIGHTS_WIDTH} h-full shrink-0`} />
-      ) : (
-        <img src="/icon.svg" alt="" data-tauri-drag-region className="mx-3 size-4 shrink-0" />
       )}
+      <img
+        src="/songbird.png"
+        alt=""
+        data-tauri-drag-region
+        className="mx-2 h-7 w-auto shrink-0"
+        draggable={false}
+      />
       {start}
       <div data-tauri-drag-region className="h-full min-w-4 flex-1" />
       <div data-tauri-drag-region className="flex min-w-0 items-center gap-1 pr-1">

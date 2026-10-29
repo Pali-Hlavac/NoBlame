@@ -12,8 +12,10 @@ All notable changes to NoBlame are documented here. The format follows
   `src-tauri`) and a Tauri 2 + React 19 + TypeScript + Tailwind 4 + shadcn/ui frontend.
 - Typed IPC with tauri-specta, one error model (`AppError { code, message, hint }`) and strict
   per-window capabilities (`main`, `task-*`).
-- First version of the finch-on-a-branch logo, with app icons for every platform, shown in the
-  title bar, the Welcome tab and About.
+- The finch-on-a-branch logo, with app icons for every platform, shown in the title bar, the
+  Welcome tab and About. The drawn first version was replaced by the owner's painted finch
+  (2026-10-29), with a hand-made Windows `.ico`; the title bar shows the songbird larger, on a
+  transparent background.
 - Main window: repository sidebar, tabs, status bar, command palette (`Ctrl+K` / `⌘K`),
   system/light/dark theme (saved), About dialog.
 - Repository tabs from the folder picker, the recent list or the command line.

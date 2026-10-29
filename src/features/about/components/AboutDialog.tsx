@@ -23,7 +23,7 @@ export function AboutDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-md">
         <DialogHeader className="items-center text-center">
-          <img src="/icon.svg" alt="" className="size-16" />
+          <img src="/songbird.png" alt="" className="h-20 w-auto" />
           <DialogTitle>{info?.name ?? "About"}</DialogTitle>
           <DialogDescription>{APP_TAGLINE}</DialogDescription>
         </DialogHeader>

@@ -38,8 +38,13 @@ const APP_COMMANDS: &[&str] = &[
 
 /// Common-Controls v6 manifest, embedded into every linked artifact on Windows.
 const WINDOWS_MANIFEST: &str = "windows-app-manifest.xml";
+/// Icon embedded into the Windows executable (`pnpm icons` replaces it).
+const WINDOWS_ICON: &str = "icons/icon.ico";
 
 fn main() {
+    // tauri-build embeds the icon but does not ask cargo to watch it, so a new icon would only
+    // appear after an unrelated change.
+    println!("cargo:rerun-if-changed={WINDOWS_ICON}");
     let mut windows = tauri_build::WindowsAttributes::new();
     if is_windows_msvc_target() {
         // Tauri only embeds the manifest into the app binary, so `cargo test` executables

@@ -60,9 +60,15 @@ handy for bug reports.
 
 ## Logo
 
-First version of the finch-on-a-branch logo: `assets/logo/noblame.svg`, copied to
-`public/icon.svg` for the UI. Platform icons in `src-tauri/icons/` are generated with
-`pnpm icons`. The branch doubles as a Git branch (a main line, a forked line and commit nodes).
+The finch on a branch, by the owner (2026-10-29): `assets/logo/noblame.png` (1024 px master)
+and `assets/logo/noblame.ico` (hand-made, 16 to 256 px). `pnpm icons` generates the platform
+icons in `src-tauri/icons/` from the PNG (including `icon.icns` for macOS), then
+`scripts/icons.mjs` puts the hand-made `.ico` in place of the generated one and copies the 256 px
+icon to `public/icon.png` (the page icon). The songbird alone on a transparent background
+(`assets/logo/songbird.png`, 945 × 822) is shown in the title bar (28 px high, so it is easy to
+spot), on the Welcome tab, in About and in task windows, from a 320 px copy in
+`public/songbird.png` (made once by hand; `pnpm icons` does not resize it). The branch doubles as a
+Git branch: three commit nodes on a forked line. The first, drawn SVG logo is in the git history.
 Small-size variants and monochrome versions are M9.
 
 ## Not yet

@@ -20,7 +20,7 @@ export function TaskWindowView({ task, path }: TaskWindowViewProps) {
   return (
     <main className="mx-auto flex h-full max-w-xl flex-col justify-center gap-6 p-8">
       <header className="flex items-center gap-3">
-        <img src="/icon.svg" alt="" className="size-10" />
+        <img src="/songbird.png" alt="" className="h-12 w-auto" />
         <div>
           <h1 className="text-xl font-semibold">{info.title}</h1>
           <p className="text-sm break-all text-muted-foreground select-text">{path}</p>

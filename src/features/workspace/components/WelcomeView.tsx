@@ -27,7 +27,7 @@ export function WelcomeView({ paletteHotkey, actions, notice, children }: Welcom
   const shortcuts = [{ label: "Command palette", combo: paletteHotkey }, ...WELCOME_SHORTCUTS];
   return (
     <div className="mx-auto flex max-w-xl flex-col items-center gap-6 px-6 py-16 text-center">
-      <img src="/icon.svg" alt="" className="size-20" />
+      <img src="/songbird.png" alt="" className="h-28 w-auto" />
       <div className="space-y-2">
         <h1 className="text-2xl font-semibold">Welcome to {APP_NAME}</h1>
         <p className="text-muted-foreground">{APP_TAGLINE}</p>
