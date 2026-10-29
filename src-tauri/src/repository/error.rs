@@ -76,6 +76,10 @@ impl From<RepositoryError> for AppError {
             RepositoryError::Graph(error @ GraphError::RowOutOfRange { .. }) => {
                 AppError::new(ErrorCode::InvalidInput, error.to_string())
             }
+            RepositoryError::Graph(GraphError::Cancelled) => AppError::new(
+                ErrorCode::Cancelled,
+                "A newer filter replaced this one before it was ready.",
+            ),
             RepositoryError::Diff(
                 error @ (DiffError::NoSuchParent(_)
                 | DiffError::InvalidId(_)

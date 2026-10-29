@@ -7,6 +7,7 @@ import { useSelectionStore } from "@/features/selection";
 import type { GraphFilterDto, GraphSummary, RefEntry } from "@/shared/ipc/bindings";
 
 import { NO_FILTER } from "../api/filter";
+import { graphKeys, useGraphSummary } from "../api/graph";
 import { GraphFilterBar } from "./GraphFilterBar";
 
 const ipc = vi.hoisted(() => ({ setGraphFilter: vi.fn() }));
@@ -40,14 +41,19 @@ function summary(filter: GraphFilterDto, rows = 10): GraphSummary {
   };
 }
 
+/** The bar as the tab shows it: fed from the cached summary, which a filter change replaces. */
+function Harness() {
+  const graph = useGraphSummary(1);
+  return graph.data ? <GraphFilterBar repoId={1} repoPath="/repo" summary={graph.data} /> : null;
+}
+
 function renderBar(filter: GraphFilterDto, rows?: number) {
   const client = new QueryClient();
+  client.setQueryData(graphKeys.summary(1), summary(filter, rows));
   const wrapper = ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={client}>{children}</QueryClientProvider>
   );
-  return render(<GraphFilterBar repoId={1} repoPath="/repo" summary={summary(filter, rows)} />, {
-    wrapper,
-  });
+  return render(<Harness />, { wrapper });
 }
 
 beforeEach(() => {
@@ -79,6 +85,23 @@ describe("GraphFilterBar", () => {
         1,
         { ...NO_FILTER, tips: { type: "refs", refs: [{ kind: "branch", name: "topic" }] } },
         null,
+      );
+    });
+  });
+
+  it("searches messages after a pause in typing, and authors on Enter", async () => {
+    renderBar(NO_FILTER);
+    await userEvent.type(screen.getByRole("searchbox", { name: "Message" }), " fix ");
+    await waitFor(() => {
+      expect(ipc.setGraphFilter).toHaveBeenCalledWith(1, { ...NO_FILTER, message: "fix" }, null);
+    });
+    await userEvent.type(screen.getByRole("searchbox", { name: "Author" }), "ada{Enter}");
+    await waitFor(() => {
+      expect(ipc.setGraphFilter).toHaveBeenLastCalledWith(
+        1,
+        { ...NO_FILTER, message: "fix", author: "ada" },
+        // HEAD was selected when the first filter was shown.
+        0,
       );
     });
   });

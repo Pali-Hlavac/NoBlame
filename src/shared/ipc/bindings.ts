@@ -350,6 +350,10 @@ export type GraphFilterDto = {
 	firstParent: boolean,
 	/**  Leave merges out. */
 	noMerges: boolean,
+	/**  Part of the author's name or e-mail, ignoring case; `null` or blank for any author. */
+	author: string | null,
+	/**  Part of the message, ignoring case; `null` or blank for any message. */
+	message: string | null,
 };
 
 /**  Commit graph preferences. */

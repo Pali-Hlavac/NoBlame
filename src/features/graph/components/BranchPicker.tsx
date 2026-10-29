@@ -61,7 +61,7 @@ export function BranchPicker({ repoId, tips, onChange }: BranchPickerProps) {
           type="button"
           aria-label={`Show the history of: ${label}`}
           title={label}
-          className={cn(FILTER_CONTROL_CLASSES, "max-w-56 min-w-0")}
+          className={cn(FILTER_CONTROL_CLASSES, "max-w-56 min-w-0 shrink-0")}
         >
           <GitBranchIcon className="size-3.5 shrink-0" aria-hidden />
           <span className="truncate">{label}</span>

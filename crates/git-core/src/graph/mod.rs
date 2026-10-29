@@ -12,6 +12,7 @@ mod index;
 mod layout;
 mod order;
 mod refs;
+mod text;
 mod view;
 
 use std::collections::HashMap;
@@ -32,6 +33,7 @@ pub use index::{CommitIndex, IndexFileError};
 pub use layout::{BLOCK_ROWS, Edge, Layout, RowGeometry};
 pub use order::{date_order, rows_of};
 pub use refs::{GraphRef, RefKind, collect_refs};
+pub use text::{TextFilter, keep_matching};
 
 /// How long each build phase took, for logs and `docs/development/performance.md`.
 #[derive(Debug, Clone, Copy, Default)]

@@ -8,6 +8,7 @@ use git_core::diff::{DiffAttribute, DiffOptions, FileDiff, diff_attribute, file_
 use git_core::graph::{Ancestry, Graph, GraphError, GraphFilter};
 use git_core::repo::Repository;
 use git_core::watch::RepoWatcher;
+use tokio_util::sync::CancellationToken;
 
 use super::diff_cache::{DiffCache, DiffKey};
 use super::graph_cache::GraphCache;
@@ -28,6 +29,8 @@ pub struct Session {
     /// The repository handle.
     pub repo: Repository,
     graph: tokio::sync::Mutex<GraphSlot>,
+    /// Stops the filter being computed when a newer one is asked for.
+    filter_cancel: Mutex<CancellationToken>,
     /// The highlighted history of the last selected row, for the graph it was found in.
     ancestry: Mutex<Option<(Arc<Graph>, Ancestry)>>,
     /// Graphs shown so far (builds and filter changes).
@@ -50,18 +53,33 @@ impl Session {
             return Ok(Arc::clone(graph));
         }
         let full = self.build(slot.full.clone()).await?;
-        self.show(&mut slot, full).await
+        let filter = slot.filter.clone();
+        self.show(&mut slot, full, filter, CancellationToken::new())
+            .await
     }
 
-    /// Shows `filter`, keeping the history already read, and returns the new view.
+    /// Shows `filter`, keeping the history already read, and returns the new view. A newer
+    /// call cancels this one ([`GraphError::Cancelled`]): searching authors and messages takes
+    /// a second or two on huge histories.
     pub async fn set_filter(&self, filter: GraphFilter) -> Result<Arc<Graph>, RepositoryError> {
+        let cancel = {
+            let mut current = self
+                .filter_cancel
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner);
+            current.cancel();
+            *current = CancellationToken::new();
+            current.clone()
+        };
         let mut slot = self.graph.lock().await;
+        if cancel.is_cancelled() {
+            return Err(GraphError::Cancelled.into());
+        }
         let full = match slot.full.clone() {
             Some(full) => full,
             None => self.build(None).await?,
         };
-        slot.filter = filter;
-        self.show(&mut slot, full).await
+        self.show(&mut slot, full, filter, cancel).await
     }
 
     /// The filter of the tab.
@@ -69,20 +87,24 @@ impl Session {
         self.graph.lock().await.filter.clone()
     }
 
-    /// Makes the view of `full` the slot's filter asks for, and makes it the shown graph.
+    /// Makes the view of `full` that `filter` asks for, and makes it the shown graph.
     async fn show(
         &self,
         slot: &mut GraphSlot,
         full: Arc<Graph>,
+        filter: GraphFilter,
+        cancel: CancellationToken,
     ) -> Result<Arc<Graph>, RepositoryError> {
-        let shown = if slot.filter.is_empty() {
+        let shown = if filter.is_empty() {
             Arc::clone(&full)
         } else {
-            let (source, filter) = (Arc::clone(&full), slot.filter.clone());
-            let view = blocking(move || source.filtered(&filter)).await?;
+            let (source, wanted, repo) =
+                (Arc::clone(&full), filter.clone(), self.repo.thread_safe());
+            let view = blocking(move || source.filtered_in(&repo, &wanted, &cancel)).await??;
             tracing::info!(rows = view.row_count(), time = ?view.timings.filter, "graph filtered");
             Arc::new(view)
         };
+        slot.filter = filter;
         slot.full = Some(full);
         slot.shown = Some(Arc::clone(&shown));
         // The highlight belongs to the old graph; dropping it frees that graph now.
@@ -238,6 +260,7 @@ impl RepoSessions {
         let session = Arc::new(Session {
             repo,
             graph: tokio::sync::Mutex::default(),
+            filter_cancel: Mutex::default(),
             ancestry: Mutex::new(None),
             generation: AtomicU32::new(0),
             watcher: Mutex::new(None),

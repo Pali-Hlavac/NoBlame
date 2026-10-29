@@ -84,7 +84,14 @@ All notable changes to NoBlame are documented here. The format follows
   - Commit details still shows real parents, and greys out the ones the filter hides;
   - on the Linux kernel (1.5M commits) a change takes under a quarter of a second.
 
-  **Not yet:** author, message and path filters (next slices).
+- Message and author search in the filter bar (M3):
+  - finds commits whose message, or whose author's name or e-mail, contains the text, ignoring
+    case;
+  - applies when typing pauses, or on Enter;
+  - commits are read on several threads: 1–2 s on the Linux kernel, against 13 s for
+    `git log --author`.
+
+  **Not yet:** the path filter (next slice).
 
 - The commit-graph offer explains what the file is (one index file in `.git`; commits, branches
   and files do not change) and, after a load slower than 2 s, is highlighted with how long

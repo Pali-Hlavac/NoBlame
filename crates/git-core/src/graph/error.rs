@@ -14,6 +14,9 @@ pub enum GraphError {
         /// Rows in the graph.
         rows: u32,
     },
+    /// A newer request made the work pointless (a filter changed again while searching).
+    #[error("cancelled")]
+    Cancelled,
 }
 
 impl GraphError {

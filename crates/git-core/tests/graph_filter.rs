@@ -5,10 +5,12 @@ use std::collections::BTreeSet;
 use std::sync::Arc;
 
 use git_core::graph::{
-    Graph, GraphFilter, MAX_ROWS_PER_PAGE, RefKind, RefSelector, Tips, commit_details, commit_rows,
+    Graph, GraphError, GraphFilter, MAX_ROWS_PER_PAGE, RefKind, RefSelector, TextFilter, Tips,
+    commit_details, commit_rows,
 };
 use git_core::repo::Repository;
 use noblame_repo_gen::{Preset, generate};
+use tokio_util::sync::CancellationToken;
 
 fn git_log(dir: &std::path::Path, args: &[&str]) -> Vec<String> {
     let output = std::process::Command::new("git")
@@ -82,6 +84,7 @@ fn filters_show_the_commits_git_log_shows() {
                 tips: Tips::Head,
                 first_parent: true,
                 no_merges: true,
+                ..GraphFilter::default()
             },
             vec!["HEAD", "--first-parent", "--no-merges"],
         ),
@@ -123,4 +126,56 @@ fn filters_show_the_commits_git_log_shows() {
             assert!(row.is_none() || row.as_deref() == Some(parent.id.as_str()));
         }
     }
+}
+
+#[test]
+fn author_and_message_filters_match_git_log() {
+    let dir = tempfile::tempdir().unwrap();
+    generate(&Preset::Tiny.spec(), dir.path()).unwrap();
+    let opened = Repository::discover(dir.path()).unwrap();
+    let repo = opened.local();
+    let full = Arc::new(Graph::build(&repo).unwrap());
+    let top = &commit_rows(&repo, &full, 0, 1).unwrap()[0];
+    // A word of an author, upper-cased to check that case is ignored.
+    let author = top
+        .author_name
+        .split_whitespace()
+        .last()
+        .unwrap()
+        .to_uppercase();
+    let message = "M00";
+    let text = |author: Option<&str>, message: Option<&str>| GraphFilter {
+        text: TextFilter {
+            author: author.map(str::to_owned),
+            message: message.map(str::to_owned),
+        },
+        first_parent: true,
+        ..GraphFilter::default()
+    };
+    let author_arg = format!("--author={author}");
+    let grep_arg = format!("--grep={message}");
+    let cases = [
+        (text(Some(&author), None), vec![author_arg.as_str()]),
+        (text(None, Some(message)), vec![grep_arg.as_str()]),
+        (
+            text(Some(&author), Some(message)),
+            vec![author_arg.as_str(), grep_arg.as_str()],
+        ),
+    ];
+    for (filter, args) in cases {
+        let cancel = CancellationToken::new();
+        let view = full
+            .filtered_in(&opened.thread_safe(), &filter, &cancel)
+            .unwrap();
+        let mut git_args = vec!["--all", "--first-parent", "-i", "-F"];
+        git_args.extend(&args);
+        let expected = git_log(dir.path(), &git_args);
+        assert!(!expected.is_empty(), "{args:?}");
+        assert_eq!(set(&ids(&repo, &view)), set(&expected), "{args:?}");
+    }
+
+    let cancel = CancellationToken::new();
+    cancel.cancel();
+    let cancelled = full.filtered_in(&opened.thread_safe(), &text(Some("a"), None), &cancel);
+    assert!(matches!(cancelled, Err(GraphError::Cancelled)));
 }

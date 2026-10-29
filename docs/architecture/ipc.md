@@ -127,8 +127,10 @@ The full, documented list is in `bindings.ts`. Important shapes:
   or `{ kind: "detached", id }`
 - `GraphSummary { rows; totalRows; filter; maxLanes; blockRows; headRow; missingParents; buildMs;
 generation }`: `rows` are the shown commits, `totalRows` the commits without the filter
-- `GraphFilterDto { tips; firstParent; noMerges }` with `tips` one of `{ type: "all" }`,
-  `{ type: "head" }` or `{ type: "refs", refs: { kind, name }[] }`
+- `GraphFilterDto { tips; firstParent; noMerges; author; message }` with `tips` one of
+  `{ type: "all" }`, `{ type: "head" }` or `{ type: "refs", refs: { kind, name }[] }`;
+  `author` and `message` are `null` or plain text matched ignoring case. A newer call cancels a
+  search under way, which then fails with `CANCELLED`
 - `ParentDto { id; row }` in commit details: `row` is `null` when the filter hides the parent
 - `CommitRowDto { row; id; summary; authorName; authorEmail; authorTime; parentCount; refs }`
   with `refs: RefLabel[]`, `RefLabel { name; kind: "head" | "branch" | "remote" | "tag"; isHead }`

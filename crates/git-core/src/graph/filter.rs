@@ -1,10 +1,14 @@
 //! Which commits a repository tab shows: the history of some references, first parents only,
-//! without merges. Answered from the graph in one pass over the rows.
+//! without merges (answered from the graph in one pass over the rows), and by author or message
+//! (read from the commit objects, see `text.rs`).
 
 use std::sync::Arc;
 
+use tokio_util::sync::CancellationToken;
+
+use super::text::keep_matching;
 use super::view::followed;
-use super::{Graph, GraphRef, RefKind};
+use super::{Graph, GraphError, GraphRef, RefKind, TextFilter};
 
 /// Whose history a filter shows.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
@@ -42,12 +46,14 @@ pub struct GraphFilter {
     pub first_parent: bool,
     /// Leave merges out (`git log --no-merges`).
     pub no_merges: bool,
+    /// Author and message.
+    pub text: TextFilter,
 }
 
 impl GraphFilter {
     /// Whether the filter shows every commit.
     pub fn is_empty(&self) -> bool {
-        self == &Self::default()
+        self.tips == Tips::All && !self.first_parent && !self.no_merges && self.text.is_empty()
     }
 }
 
@@ -89,9 +95,26 @@ impl Graph {
         shown
     }
 
-    /// A view of this full graph showing what `filter` keeps.
+    /// A view of this full graph showing what `filter` keeps, without reading objects: the text
+    /// filter is ignored.
     pub fn filtered(self: &Arc<Self>, filter: &GraphFilter) -> Graph {
         self.view(&self.shown_by(filter), filter.first_parent)
+    }
+
+    /// A view of this full graph showing what `filter` keeps, reading the commit objects of
+    /// `repo` for the text filter. Stops with [`GraphError::Cancelled`] once `cancel` is.
+    pub fn filtered_in(
+        self: &Arc<Self>,
+        repo: &gix::ThreadSafeRepository,
+        filter: &GraphFilter,
+        cancel: &CancellationToken,
+    ) -> Result<Graph, GraphError> {
+        let mut shown = self.shown_by(filter);
+        keep_matching(repo, &self.index, &mut shown, &filter.text, cancel)?;
+        if cancel.is_cancelled() {
+            return Err(GraphError::Cancelled);
+        }
+        Ok(self.view(&shown, filter.first_parent))
     }
 
     /// Commits reachable from `tips`. Parents sit on later rows, so one pass down the rows

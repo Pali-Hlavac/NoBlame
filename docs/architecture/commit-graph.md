@@ -157,7 +157,9 @@ The filter bar of a repository tab (ADR [0021](../adr/0021-graph-filters.md)) ne
 
 1. **Choose commits.** `Graph::shown_by(filter)` returns a flag per commit. For chosen tips it
    makes one pass down the rows, marking parents of marked rows (first parents only in
-   first-parent mode). "No merges" then clears commits with several parents.
+   first-parent mode). "No merges" then clears commits with several parents. Author and
+   message filters (`text.rs`) then read the commits still marked on up to 16 threads and clear
+   those that do not match; a newer filter cancels them.
 2. **Rewrite parents.** `Graph::view(shown, first_parent)` walks the rows from the oldest up.
    - A hidden commit stands for the nearest shown commits below it: one `u32`, or a list for
      hidden merges that lead to several, capped at 32.
@@ -172,7 +174,8 @@ The session (`src-tauri/src/repository/sessions.rs`) holds the full graph, the f
 shown graph. A reload rebuilds the full graph and makes the view again. `set_graph_filter` reuses
 the loaded history. Every new view bumps the generation.
 
-Cost: 28–230 ms on the Linux kernel, 60–140 ms on synthetic-1m, almost all of it the lane layout
+Cost without text: 28–230 ms on the Linux kernel, 60–140 ms on synthetic-1m, almost all of it
+the lane layout. With an author or message: 1.2–1.9 s on the Linux kernel
 ([performance.md](../development/performance.md#graph-filters-m3-slice-4a-adr-0021-2026-10-29)).
 
 ## Performance

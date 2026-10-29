@@ -1,6 +1,6 @@
 //! The filter of a repository tab, as the frontend sends and receives it.
 
-use git_core::graph::{GraphFilter, RefKind, RefSelector, Tips};
+use git_core::graph::{GraphFilter, RefKind, RefSelector, TextFilter, Tips};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
@@ -41,6 +41,10 @@ pub struct GraphFilterDto {
     pub first_parent: bool,
     /// Leave merges out.
     pub no_merges: bool,
+    /// Part of the author's name or e-mail, ignoring case; `null` or blank for any author.
+    pub author: Option<String>,
+    /// Part of the message, ignoring case; `null` or blank for any message.
+    pub message: Option<String>,
 }
 
 impl From<GraphFilterDto> for GraphFilter {
@@ -60,6 +64,10 @@ impl From<GraphFilterDto> for GraphFilter {
             },
             first_parent: filter.first_parent,
             no_merges: filter.no_merges,
+            text: TextFilter {
+                author: filter.author.filter(|text| !text.trim().is_empty()),
+                message: filter.message.filter(|text| !text.trim().is_empty()),
+            },
         }
     }
 }
@@ -82,6 +90,8 @@ impl From<&GraphFilter> for GraphFilterDto {
             },
             first_parent: filter.first_parent,
             no_merges: filter.no_merges,
+            author: filter.text.author.clone(),
+            message: filter.text.message.clone(),
         }
     }
 }

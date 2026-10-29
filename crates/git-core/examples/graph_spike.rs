@@ -12,8 +12,11 @@ use std::process::ExitCode;
 use std::sync::Arc;
 use std::time::Instant;
 
-use git_core::graph::{Graph, GraphFilter, Tips, commit_details, commit_rows};
+use git_core::graph::{
+    CommitRow, Graph, GraphFilter, TextFilter, Tips, commit_details, commit_rows, keep_matching,
+};
 use git_core::repo::Repository;
+use tokio_util::sync::CancellationToken;
 
 /// Rows read for the "first screen" measurement.
 const FIRST_SCREEN_ROWS: u32 = 60;
@@ -93,7 +96,7 @@ fn run(path: &std::path::Path) -> Result<(), Box<dyn std::error::Error>> {
             highlight.elapsed()
         );
     }
-    filters(&graph);
+    filters(&graph, &repo, rows.first());
     let memory = graph.memory_bytes();
     println!(
         "memory          {} KiB, {} bytes per commit",
@@ -138,9 +141,25 @@ fn run(path: &std::path::Path) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-/// Filtered views (the repository tab's filter bar), made from the full graph.
-fn filters(graph: &Arc<Graph>) {
+/// Filtered views (the repository tab's filter bar), made from the full graph. The author filter
+/// uses a word of the newest commit's author, so it finds something in any repository.
+fn filters(graph: &Arc<Graph>, repo: &Repository, top: Option<&CommitRow>) {
+    let author = top
+        .and_then(|row| row.author_name.split_whitespace().last())
+        .unwrap_or("a")
+        .to_lowercase();
+    let author = author.as_str();
+    let text = |author: Option<&str>, message: Option<&str>| GraphFilter {
+        text: TextFilter {
+            author: author.map(str::to_owned),
+            message: message.map(str::to_owned),
+        },
+        ..GraphFilter::default()
+    };
     let cases = [
+        ("author", text(Some(author), None)),
+        ("message \"fix\"", text(None, Some("fix"))),
+        ("both", text(Some(author), Some("fix"))),
         (
             "no merges",
             GraphFilter {
@@ -167,13 +186,26 @@ fn filters(graph: &Arc<Graph>) {
             GraphFilter {
                 tips: Tips::Head,
                 first_parent: true,
-                no_merges: false,
+                ..GraphFilter::default()
             },
         ),
     ];
     for (name, filter) in cases {
         let started = Instant::now();
-        let shown = graph.shown_by(&filter);
+        let mut shown = graph.shown_by(&filter);
+        let cancel = CancellationToken::new();
+        if keep_matching(
+            &repo.thread_safe(),
+            graph.index(),
+            &mut shown,
+            &filter.text,
+            &cancel,
+        )
+        .is_err()
+        {
+            println!("filter {name}: search failed");
+            continue;
+        }
         let selected = started.elapsed();
         let view = graph.view(&shown, filter.first_parent);
         let _ = view.encode_block(0);

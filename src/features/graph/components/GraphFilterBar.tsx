@@ -1,4 +1,4 @@
-import { XIcon } from "lucide-react";
+import { MessageSquareTextIcon, UserIcon, XIcon } from "lucide-react";
 
 import type { GraphFilterDto, GraphSummary } from "@/shared/ipc/bindings";
 import { cn } from "@/shared/lib/cn";
@@ -6,6 +6,7 @@ import { cn } from "@/shared/lib/cn";
 import { NO_FILTER, isFiltered, useSetGraphFilter } from "../api/filter";
 import { formatShownCommits } from "../lib/format";
 import { BranchPicker } from "./BranchPicker";
+import { FilterTextField } from "./FilterTextField";
 import { FILTER_CONTROL_CLASSES } from "./filterStyles";
 
 interface GraphFilterBarProps {
@@ -67,6 +68,22 @@ export function GraphFilterBar({ repoId, repoPath, summary }: GraphFilterBarProp
         pressed={filter.noMerges}
         onClick={() => {
           change({ noMerges: !filter.noMerges });
+        }}
+      />
+      <FilterTextField
+        label="Message"
+        icon={MessageSquareTextIcon}
+        value={filter.message ?? null}
+        onCommit={(message) => {
+          change({ message });
+        }}
+      />
+      <FilterTextField
+        label="Author"
+        icon={UserIcon}
+        value={filter.author ?? null}
+        onCommit={(author) => {
+          change({ author });
         }}
       />
       <div className="ml-auto flex min-w-0 items-center gap-2 text-xs text-muted-foreground">

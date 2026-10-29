@@ -66,8 +66,13 @@ The code is in `crates/git-core/src/graph/filter.rs` and `view.rs`.
   - Rows are topological, so one pass down the rows marks the ancestors of the tips.
   - In first-parent mode, the pass follows first parents only.
 - **No merges**: commits with more than one parent are cleared.
-- **Author and message** (slice 4b, planned): the commit objects still marked are read on
-  several threads with gix. They are matched without case.
+- **Author and message** (slice 4b, `text.rs`):
+  - The commit objects still marked are read with gix on up to 16 threads, in chunks of 8,192
+    commits.
+  - Matching ignores case: ASCII search words fold the bytes, others lowercase the decoded text.
+  - The author matches on name or e-mail, the message on its subject and body.
+  - A newer filter cancels the search (`CancellationToken`, checked per chunk), and the
+    superseded request fails as `CANCELLED`, which the UI ignores.
 - **Path** (slice 4c, planned):
   - `git rev-list <tips> -- <path>` keeps git's history simplification, and its changed-path
     Bloom filters, which the commit-graph offer writes.
@@ -125,8 +130,12 @@ Bad:
 - Parent rewriting is the plain "nearest shown ancestor" rule. It is not git's
   `--simplify-merges`, so a side line can be drawn into a commit that is also reachable through
   the main line.
-- Text filters must read commit objects, and a path filter starts a `git` process. Those cost
-  more than the structural filters; they are measured in their own slices.
+- Text filters must read every commit object still shown:
+  - synthetic-1m: 0.5–0.8 s;
+  - Linux kernel: 1.2–1.9 s, against 5–13 s for the same `git log --author`/`--grep`, with the
+    same matches.
+  - They run again on every reload while the filter is on.
+- A path filter starts a `git` process (slice 4c).
 
 ## Pros and cons of the options
 

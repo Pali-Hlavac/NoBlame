@@ -38,3 +38,5 @@ export const DIMMED_ALPHA = 0.22;
 export const FLAG_MERGE = 1;
 /** Row flag: HEAD points here. */
 export const FLAG_HEAD = 2;
+/** Pause in typing after which the author and message filters apply. */
+export const TEXT_FILTER_DELAY_MS = 500;

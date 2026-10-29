@@ -57,6 +57,9 @@ The bar above the list chooses which commits the tab shows:
 - **First parent** shows only the main line of each branch: merged branches are reduced to their
   merge commit.
 - **No merges** hides merge commits.
+- **Message** shows the commits whose message contains what you type, and **Author** the
+  commits whose author's name or e-mail contains it. Upper and lower case do not matter. The
+  search starts when you stop typing, or when you press **Enter**; **Esc** empties the field.
 
 You can combine them. While a filter is on, the bar says how many commits are shown, for example
 "1,234 of 56,789 commits". Click **Clear** to see all commits again.
@@ -64,7 +67,9 @@ You can combine them. While a filter is on, the bar says how many commits are sh
 Lines still connect each commit to the nearest commit it came from, skipping hidden ones. The
 filter stays while the tab is open, and is reset when you close the tab.
 
-Coming later: filtering by author, by message and by file.
+In very large repositories, searching messages or authors takes a second or two.
+
+Coming later: showing only the commits that changed a file or folder.
 
 ## Large repositories
 

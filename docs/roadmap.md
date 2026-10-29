@@ -244,6 +244,16 @@ The owner's dev app was running and in use, so it was not clicked through. Cover
 
 New dependency: `@radix-ui/react-popover` 1.3.1 (MIT), for the branch picker.
 
+Slice 4b done: message and author fields in the filter bar.
+
+- Commits are read on up to 16 threads.
+- A newer filter cancels the search under way.
+- It matches `git log -i -F --author/--grep` in an integration test.
+- Timing: 0.5–0.8 s on synthetic-1m, 1.2–1.9 s on the Linux kernel, where `git log --author`
+  takes 13 s.
+
+Not clicked through in the app, for the same reason as 4a. A component test covers the fields.
+
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
 highlighted after a slow first load and names both costs (done). Option 2 later: show rows while
@@ -336,8 +346,8 @@ Not verified in the running app (they need someone at the keyboard; the logic is
 - [ ] File history (following renames) and blame with "blame previous revision"
 - [~] Filters: branch(es), author, committer, message, path, date range, first-parent only, hide merges
   (owner request 2026-10-28: show only a branch, only an author, changes to a file, and a
-  general search in messages). Done (ADR 0021): one branch or HEAD, first parent, no merges.
-  Still to do: author and message (4b), path (4c); committer and date range later
+  general search in messages). Done (ADR 0021): one branch or HEAD, first parent, no merges,
+  message and author. Still to do: path (4c); committer and date range later
 - [ ] Find in the graph (hash, message, ref) with jump-to; "go to commit"
 - [ ] Compare any two commits/branches
 

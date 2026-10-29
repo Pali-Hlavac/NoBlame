@@ -212,3 +212,18 @@ the commits plus building the view, which is mostly the new lane layout.
 
 The synthetic-1m run shared the machine with the owner's dev app. Hiding merges widens the
 graph (96 and 863 lanes), because a hidden merge joins its child to both of its sides.
+
+Text filters (slice 4b), the same way. Every commit is read: 16 threads on the owner's
+32-thread machine. Warm disk cache, so repeated runs differ by a few tenths of a second.
+
+| Repository   | Filter            | Matches | Total     | `git log` with the same option |
+| ------------ | ----------------- | ------- | --------- | ------------------------------ |
+| synthetic-1m | author "hopper"   | 142,286 | 0.7–0.8 s | 5.7 s (`--author -i`)          |
+| synthetic-1m | message "fix"     | 0       | 0.54 s    | 5.0 s (`--grep -i`)            |
+| linux (1.5M) | author "torvalds" | 47,220  | 1.2–1.9 s | 13.1 s (`--author -i`)         |
+| linux        | message "fix"     | 486,388 | 1.4 s     | not measured                   |
+
+Match counts equal `git log`'s. Tried and dropped:
+
+- 8 threads instead of 16: 30 % slower;
+- an 8 MB object cache per thread: 15 % slower (commits are rarely deltas).

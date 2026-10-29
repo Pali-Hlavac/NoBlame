@@ -5,8 +5,8 @@ Architecture: [commit-graph.md](../architecture/commit-graph.md). User guide:
 [commit-graph.md](../user-guide/commit-graph.md).
 
 Status: graph, columns, labels, selection, keyboard navigation, working tree rows, highlight and
-live reloads are done (M2, M2.5). Filters are in progress (M3 slice 4): branch, first parent and
-no merges are done; author, message and path come next. Stash labels are not done.
+live reloads are done (M2, M2.5). Filters are in progress (M3 slice 4): branch, first parent, no
+merges, message and author are done; path comes next. Stash labels are not done.
 
 ## Columns
 
@@ -104,11 +104,18 @@ A bar above the column titles chooses what the tab shows (ADR
 | Branch picker       | **All branches** (default), **Current branch** (HEAD's history), or one branch or tag      |
 | **First parent**    | Only first parents are followed and drawn: the main line of each branch (`--first-parent`) |
 | **No merges**       | Merge commits are left out (`--no-merges`)                                                 |
+| **Message**         | Commits whose message (subject or body) contains the text, ignoring case                   |
+| **Author**          | Commits whose author name or e-mail contains the text, ignoring case                       |
 | Count and **Clear** | "N of M commits" while filtered; **Clear** shows every commit again                        |
 
 - The branch picker lists local branches, remote branches and tags, with a search field. It shows
   at most 200 references; typing narrows the list (repositories have up to tens of thousands).
-- Filters combine: for example one branch, first parent, no merges.
+- Filters combine: for example one branch, first parent, no merges, and an author.
+- **Message** and **Author** apply half a second after typing stops, or at once on **Enter**.
+  **Esc** empties the field. A field with text has a coloured border. The text is plain, not a
+  regular expression.
+- Searching text reads every commit still shown: about a second on huge histories (1.2–1.9 s
+  for the 1.5M commits of the Linux kernel). Typing on cancels the search under way.
 - Lines join each shown commit to its nearest shown ancestors (git's parent rewriting). A hidden
   merge joins its child to both sides, so the commit has two lines but is not drawn as a merge.
 - A change applies at once and shows "Filtering…" until the new view is ready. The selected
@@ -123,7 +130,7 @@ A bar above the column titles chooses what the tab shows (ADR
 - When nothing matches (for example the chosen branch was deleted), the tab says "No commits
   match the filter" with **Show all commits**.
 
-Not yet: author and message (slice 4b), path (slice 4c), committer and date range.
+Not yet: path (slice 4c), committer and date range, regular expressions.
 
 ## States
 
@@ -157,9 +164,9 @@ Not yet: author and message (slice 4b), path (slice 4c), committer and date rang
 
 - 2026-10-29: the filter bar renders in the owner's running dev app (passive capture). Clicking
   through it was not possible while the owner worked in it; a component test covers the toggles,
-  the branch picker and **Clear**.
+  the branch picker, the text fields and **Clear**.
 
 ## Not yet
 
-Stash labels, the working tree file lists (M4), resizable columns, author/message/path
-filters (M3 slice 4b and 4c).
+Stash labels, the working tree file lists (M4), resizable columns, the path filter (M3 slice
+4c).
