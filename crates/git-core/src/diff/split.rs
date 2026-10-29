@@ -13,17 +13,23 @@ pub(super) struct Half {
     line: u32,
     kind: LineKind,
     no_newline: bool,
+    /// The unified row this line comes from.
+    row: u32,
 }
 
 impl Half {
-    fn new(line: u32, kind: LineKind) -> Self {
+    fn new(line: u32, kind: LineKind, row: usize) -> Self {
         Self {
             line,
             kind,
             no_newline: false,
+            row: to_u32(row),
         }
     }
 }
+
+/// No paired row.
+const NO_PARTNER: u32 = u32::MAX;
 
 /// One side-by-side row.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -37,44 +43,52 @@ pub(super) enum SplitRow {
     },
 }
 
-/// The side-by-side rows for `rows`.
-pub(super) fn build_split(rows: &[Row]) -> Vec<SplitRow> {
+/// The side-by-side rows for `rows`, and for each unified row the row it is paired with.
+pub(super) fn build_split(rows: &[Row]) -> (Vec<SplitRow>, Vec<u32>) {
     let mut split = Vec::with_capacity(rows.len());
+    let mut partners = vec![NO_PARTNER; rows.len()];
     let (mut removed, mut added) = (Vec::new(), Vec::new());
     for (index, row) in rows.iter().enumerate() {
         match *row {
             Row::Hunk { .. } => {
-                pair(&mut split, &mut removed, &mut added);
+                pair(&mut split, &mut partners, &mut removed, &mut added);
                 split.push(SplitRow::Hunk { row: to_u32(index) });
             }
             Row::Context { old, new } => {
-                pair(&mut split, &mut removed, &mut added);
+                pair(&mut split, &mut partners, &mut removed, &mut added);
                 split.push(SplitRow::Lines {
-                    left: Some(Half::new(old, LineKind::Context)),
-                    right: Some(Half::new(new, LineKind::Context)),
+                    left: Some(Half::new(old, LineKind::Context, index)),
+                    right: Some(Half::new(new, LineKind::Context, index)),
                 });
             }
             Row::Removed { old } => {
                 if !added.is_empty() {
-                    pair(&mut split, &mut removed, &mut added);
+                    pair(&mut split, &mut partners, &mut removed, &mut added);
                 }
-                removed.push(Half::new(old, LineKind::Removed));
+                removed.push(Half::new(old, LineKind::Removed, index));
             }
-            Row::Added { new } => added.push(Half::new(new, LineKind::Added)),
+            Row::Added { new } => added.push(Half::new(new, LineKind::Added, index)),
             Row::NoNewline => mark_no_newline(&mut split, &mut removed, &mut added, rows, index),
         }
     }
-    pair(&mut split, &mut removed, &mut added);
-    split
+    pair(&mut split, &mut partners, &mut removed, &mut added);
+    (split, partners)
 }
 
-/// Emits the pending removed and added runs side by side.
-fn pair(split: &mut Vec<SplitRow>, removed: &mut Vec<Half>, added: &mut Vec<Half>) {
+/// Emits the pending removed and added runs side by side, and records which rows pair up.
+fn pair(
+    split: &mut Vec<SplitRow>,
+    partners: &mut [u32],
+    removed: &mut Vec<Half>,
+    added: &mut Vec<Half>,
+) {
     for index in 0..removed.len().max(added.len()) {
-        split.push(SplitRow::Lines {
-            left: removed.get(index).copied(),
-            right: added.get(index).copied(),
-        });
+        let (left, right) = (removed.get(index).copied(), added.get(index).copied());
+        if let (Some(left), Some(right)) = (left, right) {
+            partners[left.row as usize] = right.row;
+            partners[right.row as usize] = left.row;
+        }
+        split.push(SplitRow::Lines { left, right });
     }
     removed.clear();
     added.clear();
@@ -144,16 +158,25 @@ impl FileDiff {
                     right: None,
                 }
             }
-            SplitRow::Lines { left, right } => SplitLine {
-                hunk: None,
-                left: left.map(|half| self.cell(half, true)),
-                right: right.map(|half| self.cell(half, false)),
-            },
+            SplitRow::Lines { left, right } => {
+                let words = match (left, right) {
+                    (Some(old), Some(new)) if old.kind == LineKind::Removed => {
+                        self.words(old.line, new.line)
+                    }
+                    _ => None,
+                }
+                .unwrap_or_default();
+                SplitLine {
+                    hunk: None,
+                    left: left.map(|half| self.cell(half, true, words.old)),
+                    right: right.map(|half| self.cell(half, false, words.new)),
+                }
+            }
         }
     }
 
     /// Context shows each side's own text: with whitespace ignored, the two may differ.
-    fn cell(&self, half: Half, old_side: bool) -> SplitCell {
+    fn cell(&self, half: Half, old_side: bool, highlights: Vec<(u32, u32)>) -> SplitCell {
         let side = if old_side { &self.old } else { &self.new };
         let (text, truncated) = display_text(side.line(half.line));
         SplitCell {
@@ -162,6 +185,7 @@ impl FileDiff {
             text,
             truncated,
             no_newline: half.no_newline,
+            highlights,
         }
     }
 }

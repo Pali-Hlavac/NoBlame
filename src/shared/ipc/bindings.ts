@@ -221,6 +221,8 @@ export type DiffLineDto = {
 	text: string,
 	/**  The line was cut at 4,096 bytes. */
 	truncated: boolean,
+	/**  Changed words of a removed or added line: `[start, end)` in UTF-16 code units. */
+	highlights: ([number, number])[],
 };
 
 /**  What a row shows. */
@@ -517,6 +519,8 @@ export type SplitCellDto = {
 	truncated: boolean,
 	/**  The last line of this side, without a newline at the end. */
 	noNewline: boolean,
+	/**  Changed words: `[start, end)` in UTF-16 code units. */
+	highlights: ([number, number])[],
 };
 
 /**  One side-by-side row: a hunk header, or a line on the left, the right or both. */

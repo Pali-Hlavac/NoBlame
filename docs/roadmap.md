@@ -212,6 +212,10 @@ Slice 3a done. Verified in the running dev app:
 
 All options match `git diff` in an integration test.
 
+Slice 3b done (word diff). Verified in the running dev app: the changed words of edited lines are
+marked (for example "side by side, " in a CHANGELOG line), including a line split in two by
+rustfmt (the moved part is marked).
+
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
 highlighted after a slow first load and names both costs (done). Option 2 later: show rows while
@@ -298,7 +302,7 @@ Not verified in the running app (they need someone at the keyboard; the logic is
       a file shows it in the single diff tab, which switches files in place and stays where it is
       docked (several diff tabs: later)
 - [~] Diff viewer (ADR 0013). Done: unified and side by side, virtualized and paged for huge
-  diffs, whitespace options, context lines, binary detection. Still to do: word diff, syntax
+  diffs, whitespace options, context lines, word diff, binary detection. Still to do: syntax
   highlighting, images.
 - [ ] Changed files list and file tree of any revision; open/save a file at a revision
 - [ ] File history (following renames) and blame with "blame previous revision"

@@ -75,5 +75,6 @@ Option 2.
   - Whitespace options compare lines by a key with the ignored whitespace removed. They and the
     context are part of the cache key; they match `git diff -w`, `-b`, `--ignore-space-at-eol`
     and `-U` in tests.
-  - Word diff and highlighting are computed per page in Rust, or per visible row in the
-    webview.
+  - Word diff (slice 3b) is computed in Rust when a page is rendered, for each removed line and
+    the added line paired with it, and sent as UTF-16 ranges. Syntax highlighting will be
+    computed per page in Rust or per visible row in the webview (slice 3c).

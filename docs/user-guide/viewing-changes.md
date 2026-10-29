@@ -19,6 +19,8 @@ and it stays there: choosing another file changes what it shows, not where it is
 - Removed lines are red and start with `-`, added lines are green and start with `+`. The two
   number columns are the line numbers before and after the change.
 - Lines starting with `@@` mark where each changed part of the file begins.
+- When a line was edited, the words that changed are marked in a stronger colour, so a small
+  fix in a long line is easy to spot.
 - The top of the tab shows the file, its folder and how many lines were added and removed.
 - When you select another commit, the Diff tab keeps showing the same file if that commit
   changed it too.
@@ -46,5 +48,5 @@ Some files have no line diff. The tab then says why:
 In a partial clone (made with `git clone --filter=blob:none`), older versions of files may not be
 on your computer yet. NoBlame says so; it does not download them.
 
-Coming later: highlighting of the changed words, syntax colours, image previews, and the
-changes in your working tree (with staging).
+Coming later: syntax colours, image previews, and the changes in your working tree (with
+staging).

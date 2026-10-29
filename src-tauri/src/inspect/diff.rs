@@ -122,6 +122,8 @@ pub struct DiffLineDto {
     pub text: String,
     /// The line was cut at 4,096 bytes.
     pub truncated: bool,
+    /// Changed words of a removed or added line: `[start, end)` in UTF-16 code units.
+    pub highlights: Vec<(u32, u32)>,
 }
 
 impl From<LineKind> for DiffLineKindDto {
@@ -144,6 +146,7 @@ impl From<DiffLine> for DiffLineDto {
             new_line: line.new_line,
             text: line.text,
             truncated: line.truncated,
+            highlights: line.highlights,
         }
     }
 }
@@ -162,6 +165,8 @@ pub struct SplitCellDto {
     pub truncated: bool,
     /// The last line of this side, without a newline at the end.
     pub no_newline: bool,
+    /// Changed words: `[start, end)` in UTF-16 code units.
+    pub highlights: Vec<(u32, u32)>,
 }
 
 /// One side-by-side row: a hunk header, or a line on the left, the right or both.
@@ -184,6 +189,7 @@ impl From<SplitCell> for SplitCellDto {
             text: cell.text,
             truncated: cell.truncated,
             no_newline: cell.no_newline,
+            highlights: cell.highlights,
         }
     }
 }

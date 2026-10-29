@@ -2,6 +2,7 @@ import type { DiffLineDto } from "@/shared/ipc/bindings";
 import { cn } from "@/shared/lib/cn";
 
 import { GUTTER_CLASSES, LINE_CLASSES, MARKERS, SPOKEN, TRUNCATED_NOTE } from "../lib/rowStyles";
+import { LineText } from "./LineText";
 
 interface DiffRowProps {
   /** `undefined` while its page loads. */
@@ -31,7 +32,11 @@ export function DiffRow({ line, digits }: DiffRowProps) {
       </span>
       <span className="pr-4 whitespace-pre">
         <span className="sr-only">{SPOKEN[line.kind]}</span>
-        {line.kind === "noNewline" ? "No newline at end of file" : line.text}
+        {line.kind === "noNewline" ? (
+          "No newline at end of file"
+        ) : (
+          <LineText text={line.text} kind={line.kind} highlights={line.highlights} />
+        )}
         {line.truncated && (
           <span className="pl-2 text-muted-foreground italic">{TRUNCATED_NOTE}</span>
         )}

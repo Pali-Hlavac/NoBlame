@@ -115,3 +115,19 @@ fn side_by_side_context_shows_each_sides_text() {
         .unwrap_or_default();
     assert_eq!((left, right), ("  a", "\ta"));
 }
+
+#[test]
+fn paired_lines_carry_their_changed_words_in_both_views() {
+    let diff = diff_with("let a = 1;\n", "let a = 2;\n", Whitespace::Show, 3);
+    let unified = diff.lines(0, diff.row_count());
+    let highlights: Vec<_> = unified.iter().map(|line| line.highlights.clone()).collect();
+    assert_eq!(highlights, [vec![], vec![(8, 9)], vec![(8, 9)]]);
+    let split = diff.split_lines(0, diff.split_row_count());
+    let pair = split
+        .last()
+        .and_then(|row| row.left.as_ref().zip(row.right.as_ref()));
+    assert_eq!(
+        pair.map(|(left, right)| (left.highlights.clone(), right.highlights.clone())),
+        Some((vec![(8, 9)], vec![(8, 9)]))
+    );
+}

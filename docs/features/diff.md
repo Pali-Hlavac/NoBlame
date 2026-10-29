@@ -1,8 +1,8 @@
 # Diff tab
 
 The **diff tab** shows the line diff of the file chosen in Changed files. Status: M3 slice 2
-(unified view) and slice 3a (side by side, whitespace and context options). Word diff, syntax
-highlighting and images follow (slices 3b to 3d). Design:
+(unified view), slice 3a (side by side, whitespace and context options) and slice 3b (word
+diff). Syntax highlighting and images follow (slices 3c and 3d). Design:
 [design/workbench.md](../design/workbench.md#diff-tab); ADR 0013.
 
 ## Behaviour
@@ -22,6 +22,10 @@ highlighting and images follow (slices 3b to 3d). Design:
   A missing newline at the end is noted after the line. Both halves scroll sideways together,
   through the scroll bar below them, shift + wheel, a trackpad, or the left and right arrow keys.
   With whitespace ignored, unchanged lines show each side's own text.
+- **Changed words**: a removed line and the added line paired with it (the same pairs side by
+  side shows) mark the words that differ in a stronger red or green. Lines longer than
+  1,000 bytes and pairs with less than 30% in common are not marked, since nearly everything
+  would be. Whitespace that the whitespace option ignores is not marked either.
 - **Options** in the header, saved in the settings (Settings → Diff) and used for every diff:
   - layout: Unified or Side by side (switching does not compute the diff again);
   - whitespace: show all changes, ignore at line ends (`--ignore-space-at-eol`), ignore changes
@@ -51,7 +55,12 @@ highlighting and images follow (slices 3b to 3d). Design:
   - **Whitespace options:** lines are compared by a key with the ignored whitespace removed
     (`diff/options.rs`, git's whitespace characters).
   - **Rows:** hunks with the chosen context are built in `diff/rows.rs`, side-by-side rows from
-    them in `diff/split.rs`, and the public row types are in `diff/lines.rs`.
+    them in `diff/split.rs` (which also records the pairs), unified rows are rendered in
+    `diff/unified.rs`, and the public row types are in `diff/lines.rs`.
+  - **Word diff** (`diff/words.rs`): both lines are split into words, whitespace runs and single
+    other characters, and the token sequences are diffed with imara-diff (Myers). Changed
+    ranges go to the UI as `highlights`, `[start, end)` in UTF-16 code units, and are computed
+    when a page is rendered.
   - **Tests:** every option is compared with `git diff --ignore-space-at-eol`, `-b`, `-w` and
     `-U` output.
 - The session keeps the last 8 diffs (256 MB at most) in `repository/diff_cache.rs`, keyed by
@@ -65,7 +74,8 @@ highlighting and images follow (slices 3b to 3d). Design:
   - `DiffView` resolves the chosen file and `FileDiffView` handles the special cases.
   - `DiffHeader` holds the options.
   - `DiffLines` (unified) and `SplitLines` virtualize and page with `useVirtualRows`; `DiffRow`
-    and `SplitRow` draw one row.
+    and `SplitRow` draw one row, and `LineText` marks the changed words (`<mark>`, tokens
+    `--diff-added-word` and `--diff-removed-word`).
   - Side by side moves its text with the CSS variable `--diff-scroll-x`, so scrolling sideways
     does not re-render rows.
   - Colours come from the `--diff-added`, `--diff-removed` and `--diff-hunk` tokens.

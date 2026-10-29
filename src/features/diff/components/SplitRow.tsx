@@ -2,6 +2,7 @@ import type { SplitCellDto, SplitLineDto } from "@/shared/ipc/bindings";
 import { cn } from "@/shared/lib/cn";
 
 import { LINE_CLASSES, MARKERS, SPOKEN, TRUNCATED_NOTE } from "../lib/rowStyles";
+import { LineText } from "./LineText";
 
 /**
  * Both halves scroll sideways together: the text moves by `--diff-scroll-x`, which the
@@ -33,7 +34,7 @@ function Half({ cell, digits, className }: HalfProps) {
       <span className="min-w-0 flex-1 overflow-hidden">
         <span className="block pr-4 whitespace-pre" style={SHIFTED}>
           <span className="sr-only">{SPOKEN[cell.kind]}</span>
-          {cell.text}
+          <LineText text={cell.text} kind={cell.kind} highlights={cell.highlights} />
           {cell.truncated && (
             <span className="pl-2 text-muted-foreground italic">{TRUNCATED_NOTE}</span>
           )}

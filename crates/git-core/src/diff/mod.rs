@@ -9,6 +9,8 @@ mod options;
 mod rows;
 mod split;
 mod text;
+mod unified;
+mod words;
 
 pub use changes::{ChangeStatus, ChangedFile, CommitChanges, MAX_CHANGED_FILES, commit_changes};
 pub use file::FileDiff;

@@ -40,6 +40,8 @@ pub struct DiffLine {
     pub text: String,
     /// The line was longer than [`MAX_LINE_BYTES`](super::MAX_LINE_BYTES) and was cut.
     pub truncated: bool,
+    /// Changed words of a removed or added line: `(start, end)` in UTF-16 code units.
+    pub highlights: Vec<(u32, u32)>,
 }
 
 /// One side of a side-by-side row.
@@ -55,6 +57,8 @@ pub struct SplitCell {
     pub truncated: bool,
     /// The last line of this side, without a newline at the end.
     pub no_newline: bool,
+    /// Changed words: `(start, end)` in UTF-16 code units.
+    pub highlights: Vec<(u32, u32)>,
 }
 
 /// One side-by-side row: a hunk header, or a line on the left, the right or both.
