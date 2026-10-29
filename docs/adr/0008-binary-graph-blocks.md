@@ -40,7 +40,7 @@ random access at negligible cost.
   `BLOCK_ROWS` = 256 rows (about 5 MB for 1M commits). `Graph::encode_block` replays one block
   from its checkpoint (0.1–0.2 ms) and encodes it (`graph/encode.rs`, format in
   [ipc.md](../architecture/ipc.md#binary-graph-blocks), version byte 1).
-- `get_graph_block(id, block)` returns a `GraphBytes` value. Tauri sends it as a raw
+- `get_graph_block(id, block)` returns a `RawBytes` value. Tauri sends it as a raw
   `InvokeResponseBody`, so the webview gets an `ArrayBuffer` with no JSON step. A manual
   `specta::Type` impl types it as `unknown`, and `fetchGraphBlock` narrows it to `ArrayBuffer`.
 - The frontend keeps the 96 most recently used blocks in typed arrays (`BlockCache`), requests the

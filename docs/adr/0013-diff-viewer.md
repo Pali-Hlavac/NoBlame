@@ -63,8 +63,10 @@ Option 2.
 - Measured on a 13 MB, 200,000-line file with 2,000 scattered edits, release build: the diff is
   ready in 46 ms; a page of 500 rows renders in 0.06 ms. Two unrelated 300,000-line files
   (600,001 rows) take 56 ms. `git diff` needs about 117 ms for the first case.
-- External diff drivers and `textconv` are not used, by design. Attributes such as `-diff` or
-  `binary` are not honoured yet (slice 3).
+- External diff drivers and `textconv` are not used, by design. The `diff` attribute is honoured
+  (slice 3d): `-diff` and `binary` show a file as binary, `diff` forces a text diff.
+- Images are previewed from their raw bytes (`get_file_contents`, at most 32 MB) as `blob:`
+  URLs (the CSP allows `img-src blob:`).
 - Partial clones: old blobs may be missing locally. The diff then says so; it does not download
   them (git would fetch them on demand).
 - Diffs longer than 1,000,000 rows show their first 1,000,000 rows (browsers cap element heights

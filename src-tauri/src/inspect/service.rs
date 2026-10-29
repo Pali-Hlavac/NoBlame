@@ -1,7 +1,9 @@
 //! Inspect operations behind the Tauri commands. They reuse the session's graph, so they cost
 //! nothing extra when the repository tab has already loaded its history.
 
-use git_core::diff::{DiffError, FileDiff, ObjectId, commit_changes, parse_object_id};
+use git_core::diff::{
+    DiffError, FileDiff, ObjectId, blob_contents, commit_changes, parse_object_id,
+};
 use git_core::graph::{GraphError, RefKind, commit_details};
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -15,11 +17,11 @@ use git_core::submodule::list_submodules;
 use tokio_util::sync::CancellationToken;
 
 use super::{
-    ChangedFilesDto, CommitDetailsDto, DiffLineDto, DiffOptionsDto, FileDiffDto, RefEntry,
+    ChangedFilesDto, CommitDetailsDto, DiffLineDto, DiffRequestDto, FileDiffDto, RefEntry,
     SplitLineDto, StashDto, StatusSummaryDto, SubmoduleDto,
 };
 use crate::git_env::GitEnvError;
-use crate::repository::{RepoId, RepoSessions, RepositoryError, blocking};
+use crate::repository::{RawBytes, RepoId, RepoSessions, RepositoryError, blocking};
 
 /// Details of the commit on `row`, including the references containing it.
 pub async fn details(
@@ -56,29 +58,23 @@ pub async fn changed_files(
 /// Most diff rows one request may ask for.
 const MAX_DIFF_PAGE_ROWS: u32 = 2_000;
 
-/// Which file diff a request is about: blob ids (hex; `None` when the file is absent on that
-/// side) and the options.
-pub struct DiffRequest {
-    pub old: Option<String>,
-    pub new: Option<String>,
-    pub options: DiffOptionsDto,
-}
-
 async fn computed(
     sessions: &RepoSessions,
     id: RepoId,
-    request: DiffRequest,
+    request: DiffRequestDto,
 ) -> Result<Arc<FileDiff>, RepositoryError> {
     let session = sessions.get(id)?;
-    let (old, new) = (parse(request.old)?, parse(request.new)?);
-    session.file_diff(old, new, request.options.into()).await
+    let (old, new) = (parse(request.old_id)?, parse(request.new_id)?);
+    session
+        .file_diff(old, new, request.path, request.options.into())
+        .await
 }
 
 /// The diff a request names: kind, counts and row counts.
 pub async fn file_diff(
     sessions: &RepoSessions,
     id: RepoId,
-    request: DiffRequest,
+    request: DiffRequestDto,
 ) -> Result<FileDiffDto, RepositoryError> {
     Ok(FileDiffDto::from(&*computed(sessions, id, request).await?))
 }
@@ -87,7 +83,7 @@ pub async fn file_diff(
 pub async fn diff_lines(
     sessions: &RepoSessions,
     id: RepoId,
-    request: DiffRequest,
+    request: DiffRequestDto,
     start: u32,
     count: u32,
 ) -> Result<Vec<DiffLineDto>, RepositoryError> {
@@ -100,13 +96,28 @@ pub async fn diff_lines(
 pub async fn split_diff_lines(
     sessions: &RepoSessions,
     id: RepoId,
-    request: DiffRequest,
+    request: DiffRequestDto,
     start: u32,
     count: u32,
 ) -> Result<Vec<SplitLineDto>, RepositoryError> {
     let diff = computed(sessions, id, request).await?;
     let lines = diff.split_lines(start, count.min(MAX_DIFF_PAGE_ROWS));
     Ok(lines.into_iter().map(SplitLineDto::from).collect())
+}
+
+/// Largest file sent for a preview (images).
+const MAX_PREVIEW_BYTES: u64 = 32 << 20;
+
+/// The contents of blob `blob` (hex id), for previews; refused above 32 MB.
+pub async fn file_contents(
+    sessions: &RepoSessions,
+    id: RepoId,
+    blob: String,
+) -> Result<RawBytes, RepositoryError> {
+    let repo = sessions.get(id)?.repo.clone();
+    let blob = parse_object_id(&blob)?;
+    let bytes = blocking(move || blob_contents(&repo.local(), blob, MAX_PREVIEW_BYTES)).await??;
+    Ok(RawBytes(bytes))
 }
 
 fn parse(id: Option<String>) -> Result<Option<ObjectId>, DiffError> {

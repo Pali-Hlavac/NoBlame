@@ -11,7 +11,7 @@ use tokio_util::sync::CancellationToken;
 use super::recent::{self, RecentStore};
 use super::sessions::Session;
 use super::{
-    CommitRowDto, GraphBytes, GraphSummary, ReloadedGraph, RepoId, RepoSessions, RepoSummary,
+    CommitRowDto, GraphSummary, RawBytes, ReloadedGraph, RepoId, RepoSessions, RepoSummary,
     RepositoryError, watch,
 };
 use crate::git_env::GitEnvError;
@@ -106,9 +106,9 @@ pub async fn graph_block(
     sessions: &RepoSessions,
     id: RepoId,
     block: u32,
-) -> Result<GraphBytes, RepositoryError> {
+) -> Result<RawBytes, RepositoryError> {
     let graph = sessions.get(id)?.graph(false).await?;
-    Ok(GraphBytes(graph.encode_block(block)))
+    Ok(RawBytes(graph.encode_block(block)))
 }
 
 /// The highlight overlay of `block` for the history of the commit on `row`.
@@ -117,11 +117,11 @@ pub async fn ancestry_block(
     id: RepoId,
     row: u32,
     block: u32,
-) -> Result<GraphBytes, RepositoryError> {
+) -> Result<RawBytes, RepositoryError> {
     let session = sessions.get(id)?;
     let graph = session.graph(false).await?;
     let bytes = blocking(move || session.ancestry_block(&graph, row, block)).await??;
-    Ok(GraphBytes(bytes))
+    Ok(RawBytes(bytes))
 }
 
 /// Text columns for rows `start..start + count`.

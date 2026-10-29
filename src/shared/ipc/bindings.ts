@@ -55,14 +55,16 @@ export const commands = {
 	/**  The files the commit on `row` changed against its parent number `parent` (0 = first). */
 	getChangedFiles: (id: number, row: number, parent: number) => typedError<ChangedFilesDto, AppError>(__TAURI_INVOKE("get_changed_files", { id, row, parent })),
 	/**
-	 *  The line diff between two blobs (hex ids; `null` where the file is absent): its kind,
-	 *  sizes and row counts. Rows come from `get_diff_lines` or `get_split_diff_lines`.
+	 *  The line diff a request names (two blobs, the file's path, the options): its kind, sizes
+	 *  and row counts. Rows come from `get_diff_lines` or `get_split_diff_lines`.
 	 */
-	getFileDiff: (id: number, oldId: string | null, newId: string | null, options: DiffOptionsDto) => typedError<FileDiffDto, AppError>(__TAURI_INVOKE("get_file_diff", { id, oldId, newId, options })),
+	getFileDiff: (id: number, request: DiffRequestDto) => typedError<FileDiffDto, AppError>(__TAURI_INVOKE("get_file_diff", { id, request })),
 	/**  Up to `count` unified rows (at most 2,000) of that diff, from row `start`. */
-	getDiffLines: (id: number, oldId: string | null, newId: string | null, options: DiffOptionsDto, start: number, count: number) => typedError<DiffLineDto[], AppError>(__TAURI_INVOKE("get_diff_lines", { id, oldId, newId, options, start, count })),
+	getDiffLines: (id: number, request: DiffRequestDto, start: number, count: number) => typedError<DiffLineDto[], AppError>(__TAURI_INVOKE("get_diff_lines", { id, request, start, count })),
 	/**  Up to `count` side-by-side rows (at most 2,000) of that diff, from row `start`. */
-	getSplitDiffLines: (id: number, oldId: string | null, newId: string | null, options: DiffOptionsDto, start: number, count: number) => typedError<SplitLineDto[], AppError>(__TAURI_INVOKE("get_split_diff_lines", { id, oldId, newId, options, start, count })),
+	getSplitDiffLines: (id: number, request: DiffRequestDto, start: number, count: number) => typedError<SplitLineDto[], AppError>(__TAURI_INVOKE("get_split_diff_lines", { id, request, start, count })),
+	/**  The raw contents of blob `blob_id` (at most 32 MB), for previews such as images. */
+	getFileContents: (id: number, blobId: string) => typedError<unknown, AppError>(__TAURI_INVOKE("get_file_contents", { id, blobId })),
 	/**  Every branch, remote branch and tag with the row of its commit. */
 	listRefs: (id: number) => typedError<RefEntry[], AppError>(__TAURI_INVOKE("list_refs", { id })),
 	/**  The stash list, newest first. */
@@ -244,6 +246,18 @@ export type DiffOptionsDto = {
 	whitespace: WhitespaceMode,
 	/**  Unchanged lines around each change; 4294967295 for the whole file. */
 	context: number,
+};
+
+/**  Which file diff a command is about. */
+export type DiffRequestDto = {
+	/**  Blob before the change (hex); `null` when the file is absent there. */
+	oldId: string | null,
+	/**  Blob after the change (hex); `null` when the file is absent there. */
+	newId: string | null,
+	/**  The file's path (its `.gitattributes` decide between text and binary). */
+	path: string | null,
+	/**  How to compare. */
+	options: DiffOptionsDto,
 };
 
 /**  Diff tab preferences. */

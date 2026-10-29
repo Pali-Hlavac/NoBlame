@@ -1,8 +1,8 @@
 # Diff tab
 
 The **diff tab** shows the line diff of the file chosen in Changed files. Status: M3 slice 2
-(unified view), slice 3a (side by side, whitespace and context options) and slice 3b (word
-diff). Syntax highlighting and images follow (slices 3c and 3d). Design:
+(unified view), slice 3a (side by side, whitespace and context options), slice 3b (word diff)
+and slice 3d (images, `.gitattributes`). Syntax highlighting (slice 3c) follows. Design:
 [design/workbench.md](../design/workbench.md#diff-tab); ADR 0013.
 
 ## Behaviour
@@ -33,8 +33,15 @@ diff). Syntax highlighting and images follow (slices 3c and 3d). Design:
   - context: 3, 10 or 25 unchanged lines around each change, or the whole file.
 - The header shows the file name, its folder (or the old name of a rename), the status and the
   added and removed line counts.
+- **Images** (PNG, JPEG, GIF, WebP, BMP, ICO, AVIF) are shown before and after, side by side
+  (above each other in a narrow pane), with their size and pixel dimensions, on a checkerboard
+  so transparency shows. An added or removed image shows one side. SVG is text and gets a text
+  diff. Images over 32 MB are not previewed.
+- **`.gitattributes`**: a file marked `-diff` or `binary` is shown as binary, and one marked
+  `diff` gets a text diff even if it contains NUL bytes. The attributes come from the work tree,
+  as with `git diff`.
 - Special cases, each with its own message:
-  - binary files (old and new size);
+  - other binary files (old and new size);
   - files over 64 MB (not compared);
   - files whose contents did not change (a pure rename, or only the mode changed);
   - only whitespace changed while whitespace is ignored;
@@ -63,12 +70,18 @@ diff). Syntax highlighting and images follow (slices 3c and 3d). Design:
     when a page is rendered.
   - **Tests:** every option is compared with `git diff --ignore-space-at-eol`, `-b`, `-w` and
     `-U` output.
+- `.gitattributes` (`diff/attributes.rs`): gix's attribute stack from the work tree and the index
+  answers the `diff` attribute (`binary` is a built-in macro for `-diff`). The session reads it
+  only when it computes a diff; it is part of `DiffOptions`.
 - The session keeps the last 8 diffs (256 MB at most) in `repository/diff_cache.rs`, keyed by
-  both blob ids and the options, so paging and switching back cost nothing.
+  both blob ids, the path and the options, so paging and switching back cost nothing.
 - **Commands:**
-  - `get_file_diff(id, oldId, newId, options)` returns the summary: kind, counts, sizes, line
-    counts, and the unified and side-by-side row counts;
-  - `get_diff_lines` and `get_split_diff_lines` return up to 2,000 rows from a start row.
+  - `get_file_diff(id, request)` returns the summary: kind, counts, sizes, line counts, and the
+    unified and side-by-side row counts. The request names the two blobs, the path and the
+    options;
+  - `get_diff_lines` and `get_split_diff_lines` return up to 2,000 rows from a start row;
+  - `get_file_contents(id, blobId)` returns a file's raw bytes (at most 32 MB) for image
+    previews, like the graph blocks (`RawBytes`).
   - Blob ids come from `get_changed_files`.
 - **Frontend:** `features/diff`.
   - `DiffView` resolves the chosen file and `FileDiffView` handles the special cases.
@@ -79,6 +92,9 @@ diff). Syntax highlighting and images follow (slices 3c and 3d). Design:
   - Side by side moves its text with the CSS variable `--diff-scroll-x`, so scrolling sideways
     does not re-render rows.
   - Colours come from the `--diff-added`, `--diff-removed` and `--diff-hunk` tokens.
+  - `ImageDiff` shows images. `objectUrlFor` makes one `blob:` URL per buffer and revokes it
+    after the buffer is garbage-collected (no effect, so StrictMode cannot revoke a shown
+    image).
 - The settings are `diff.layout`, `diff.whitespace` and `diff.contextLines` (`useDiffSettings`
   in `features/settings`; 4294967295 lines means the whole file).
 - The chosen path and the compared parent live in `features/selection` (`selectFile`,
@@ -94,7 +110,8 @@ rows, and 0.06 ms per page of 500 rows (release build, Windows). See
 
 - Word diff: the changed words inside paired lines (slice 3b).
 - Syntax highlighting (slice 3c).
-- Images and other binary previews; `.gitattributes` `binary`/`-diff` (slice 3d).
+- Diff drivers and `textconv` from `.gitattributes` (by design, see ADR 0013); previews of
+  other binary formats; an image overlay or slider mode.
 - Next/previous change shortcuts; search inside the diff.
 - Diffs of uncommitted changes and staging hunks or lines (M4).
 - Several diff tabs, or a diff in its own window (`noblame diff`); later.

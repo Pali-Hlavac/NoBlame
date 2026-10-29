@@ -83,6 +83,14 @@ impl From<RepositoryError> for AppError {
             ) => {
                 AppError::new(ErrorCode::InvalidInput, error.to_string())
             }
+            RepositoryError::Diff(DiffError::TooLarge { size, limit }) => AppError::new(
+                ErrorCode::InvalidInput,
+                format!(
+                    "The file is too large to preview ({} MB; the limit is {} MB).",
+                    size >> 20,
+                    limit >> 20
+                ),
+            ),
             RepositoryError::Diff(DiffError::Missing(_)) => AppError::new(
                 ErrorCode::NotFound,
                 "This version of the file is not in the local repository.",

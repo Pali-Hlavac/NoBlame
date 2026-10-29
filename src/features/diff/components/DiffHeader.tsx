@@ -106,7 +106,8 @@ export function DiffHeader({
           </span>
         )}
       </div>
-      <div className="ml-auto">{!file.submodule && <DiffOptionsBar />}</div>
+      {/* The options change text diffs only (not images, binaries or submodules). */}
+      <div className="ml-auto">{diff?.content === "text" && <DiffOptionsBar />}</div>
     </div>
   );
 }

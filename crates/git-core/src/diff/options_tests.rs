@@ -10,6 +10,7 @@ fn diff_with(old: &str, new: &str, whitespace: Whitespace, context: u32) -> File
     let options = DiffOptions {
         whitespace,
         context,
+        ..DiffOptions::default()
     };
     diff_blobs(old.into(), new.into(), Algorithm::Myers, options)
 }

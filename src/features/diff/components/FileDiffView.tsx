@@ -9,8 +9,10 @@ import type { ChangedFileDto, FileDiffDto } from "@/shared/ipc/bindings";
 
 import { useFileDiff, type DiffRequest } from "../api/diff";
 import { formatBytes, unchangedText } from "../lib/format";
+import { imageType } from "../lib/images";
 import { DiffHeader } from "./DiffHeader";
 import { DiffLines } from "./DiffLines";
+import { ImageDiff } from "./ImageDiff";
 
 interface DiffBodyProps {
   request: DiffRequest;
@@ -21,12 +23,16 @@ interface DiffBodyProps {
 function DiffBody({ request, file, diff }: DiffBodyProps) {
   const [settings] = useDiffSettings();
   const sizes = `${formatBytes(Number(diff.oldSize))} → ${formatBytes(Number(diff.newSize))}`;
+  const image = imageType(file.path);
+  if (diff.content === "binary" && image) {
+    return <ImageDiff repoId={request.repoId} file={file} diff={diff} type={image} />;
+  }
   if (diff.content === "binary") {
     return (
       <EmptyState
         icon={BinaryIcon}
         title="Binary file"
-        description={`${sizes}. Images and binary files get their own view in a later M3 slice.`}
+        description={`${sizes}. Binary files have no line diff; images are shown as pictures.`}
         className="flex-1"
       />
     );
@@ -68,6 +74,7 @@ export function FileDiffView({ repoId, file }: { repoId: number; file: ChangedFi
     repoId,
     oldId: file.oldId,
     newId: file.newId,
+    path: file.path,
     options: { whitespace: settings.whitespace, context: settings.contextLines },
   };
   // A submodule entry points at a commit, not at file contents.

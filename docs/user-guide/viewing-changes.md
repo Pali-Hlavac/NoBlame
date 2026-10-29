@@ -39,14 +39,18 @@ choice, and **Settings → Diff** has the same options.
 - **Context**: how many unchanged lines appear around each change (3, 10 or 25), or the
   **whole file**.
 
+Images (PNG, JPEG, GIF, WebP, BMP, ICO, AVIF) are shown as pictures: before on the left, after
+on the right, with their size in pixels and bytes. A checkerboard shows through transparent
+parts.
+
 Some files have no line diff. The tab then says why:
 
-- binary files, such as images (it shows their sizes);
+- other binary files (it shows their sizes), including files your repository's
+  `.gitattributes` mark as `binary`;
 - files larger than 64 MB;
 - files that were only renamed, or whose permissions changed.
 
 In a partial clone (made with `git clone --filter=blob:none`), older versions of files may not be
 on your computer yet. NoBlame says so; it does not download them.
 
-Coming later: syntax colours, image previews, and the changes in your working tree (with
-staging).
+Coming later: syntax colours, and the changes in your working tree (with staging).

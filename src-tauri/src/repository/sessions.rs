@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
-use git_core::diff::{DiffOptions, FileDiff, ObjectId, file_diff};
+use git_core::diff::{DiffAttribute, DiffOptions, FileDiff, ObjectId, diff_attribute, file_diff};
 use git_core::graph::{Ancestry, Graph, GraphError};
 use git_core::repo::Repository;
 use git_core::watch::RepoWatcher;
@@ -96,20 +96,39 @@ impl Session {
         *self.watcher.lock().unwrap_or_else(PoisonError::into_inner) = watcher;
     }
 
-    /// The diff between blobs `old` and `new` (`None`: absent) with `options`, computed on a
-    /// blocking thread unless it was shown recently.
+    /// The diff between blobs `old` and `new` (`None`: absent) of the file at `path` with
+    /// `options`, computed on a blocking thread unless it was shown recently. The path's
+    /// `.gitattributes` decide between text and binary; they are read only when computing.
     pub async fn file_diff(
         &self,
         old: Option<ObjectId>,
         new: Option<ObjectId>,
+        path: Option<String>,
         options: DiffOptions,
     ) -> Result<Arc<FileDiff>, RepositoryError> {
-        let key = (old, new, options);
+        let key = (old, new, path.clone(), options);
         if let Some(diff) = self.diffs.get(&key) {
             return Ok(diff);
         }
         let repo = self.repo.clone();
-        let diff = Arc::new(blocking(move || file_diff(&repo.local(), old, new, options)).await??);
+        let diff = blocking(move || {
+            let repo = repo.local();
+            let attribute = match &path {
+                Some(path) => diff_attribute(&repo, path.as_str().into())?,
+                None => DiffAttribute::Unspecified,
+            };
+            file_diff(
+                &repo,
+                old,
+                new,
+                DiffOptions {
+                    attribute,
+                    ..options
+                },
+            )
+        })
+        .await??;
+        let diff = Arc::new(diff);
         self.diffs.insert(key, Arc::clone(&diff));
         Ok(diff)
     }

@@ -6,10 +6,12 @@ mod changes;
 pub mod commands;
 mod diff;
 mod service;
+mod split;
 mod status;
 mod types;
 
 pub use changes::ChangedFilesDto;
-pub use diff::{DiffLineDto, DiffOptionsDto, FileDiffDto, SplitLineDto};
+pub use diff::{DiffLineDto, DiffRequestDto, FileDiffDto};
+pub use split::SplitLineDto;
 pub use status::StatusSummaryDto;
 pub use types::{CommitDetailsDto, RefEntry, StashDto, SubmoduleDto};

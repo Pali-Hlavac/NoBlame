@@ -13,7 +13,7 @@ mod sessions;
 mod types;
 mod watch;
 
-pub use bytes::GraphBytes;
+pub use bytes::RawBytes;
 pub use error::RepositoryError;
 pub use graph_types::{CommitRowDto, GraphSummary, RefLabel, ReloadedGraph};
 pub(crate) use service::blocking;

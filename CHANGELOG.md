@@ -63,13 +63,16 @@ All notable changes to NoBlame are documented here. The format follows
   files over 64 MB, renames without changes, submodule pointers and file versions missing from
   a partial clone each get their own message. Diffs are computed in Rust with gix (honouring
   `diff.algorithm`) and paged: a 200,000-line file with 2,000 edits diffs in 46 ms.
-  **Not yet:** syntax highlighting, images (slice 3).
+  **Not yet:** syntax highlighting (slice 3c).
 - Diff options (M3): side by side (old version left, new right, scrolling sideways together),
   ignoring whitespace at line ends, changes in amount or all whitespace (as `git diff
 --ignore-space-at-eol`, `-b`, `-w`), and 3, 10 or 25 lines of context or the whole file. Set
   in the Diff tab's header or Settings → Diff, and remembered.
 - Word diff (M3): in an edited line, the words that changed are marked in a stronger colour, in
   both layouts.
+- Image previews in the Diff tab (M3): PNG, JPEG, GIF, WebP, BMP, ICO and AVIF files are shown
+  before and after, with pixel and byte sizes. Files that `.gitattributes` mark `binary` or
+  `-diff` are shown as binary; `diff` forces a text diff.
 - The commit-graph offer explains what the file is (one index file in `.git`; commits, branches
   and files do not change) and, after a load slower than 2 s, is highlighted with how long
   loading took and how long writing the file would take. It is still only written on request.

@@ -6,6 +6,7 @@ use std::borrow::Cow;
 
 use gix::diff::blob::InternedInput;
 
+use super::attributes::DiffAttribute;
 use super::rows::CONTEXT_LINES;
 use super::text::Side;
 
@@ -34,6 +35,8 @@ pub struct DiffOptions {
     pub whitespace: Whitespace,
     /// Unchanged lines around each change; [`WHOLE_FILE_CONTEXT`] for the whole file.
     pub context: u32,
+    /// The file's `diff` attribute (from `.gitattributes`, not a user choice).
+    pub attribute: DiffAttribute,
 }
 
 impl Default for DiffOptions {
@@ -41,6 +44,7 @@ impl Default for DiffOptions {
         Self {
             whitespace: Whitespace::Show,
             context: CONTEXT_LINES,
+            attribute: DiffAttribute::Unspecified,
         }
     }
 }

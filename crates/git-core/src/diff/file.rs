@@ -4,6 +4,7 @@
 
 use gix::diff::blob::{Algorithm, diff_with_slider_heuristics};
 
+use super::attributes::DiffAttribute;
 use super::lines::DiffContent;
 use super::options::{DiffOptions, Whitespace, intern};
 use super::rows::{Row, Sides, build_rows};
@@ -38,7 +39,12 @@ pub(crate) fn diff_blobs(
     options: DiffOptions,
 ) -> FileDiff {
     let (old_size, new_size) = (old.len() as u64, new.len() as u64);
-    if is_binary(&old) || is_binary(&new) {
+    let binary = match options.attribute {
+        DiffAttribute::Binary => true,
+        DiffAttribute::Text => false,
+        DiffAttribute::Unspecified => is_binary(&old) || is_binary(&new),
+    };
+    if binary {
         return FileDiff::sizes_only(DiffContent::Binary, old_size, new_size);
     }
     let (old, new) = (Side::new(old), Side::new(new));

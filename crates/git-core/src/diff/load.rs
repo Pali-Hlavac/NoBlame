@@ -1,4 +1,4 @@
-//! Reading the two blobs of a file diff from the repository.
+//! Reading blobs from the repository: the two sides of a file diff, or one file's contents.
 
 use gix::ObjectId;
 use gix::diff::blob::Algorithm;
@@ -35,6 +35,22 @@ pub fn file_diff(
         algorithm,
         options,
     ))
+}
+
+/// The contents of blob `id` if it is at most `max_bytes` long (for previews). Blocking.
+pub fn blob_contents(
+    repo: &gix::Repository,
+    id: ObjectId,
+    max_bytes: u64,
+) -> Result<Vec<u8>, DiffError> {
+    let size = blob_size(repo, Some(id))?;
+    if size > max_bytes {
+        return Err(DiffError::TooLarge {
+            size,
+            limit: max_bytes,
+        });
+    }
+    read_blob(repo, Some(id))
 }
 
 fn blob_size(repo: &gix::Repository, id: Option<ObjectId>) -> Result<u64, DiffError> {

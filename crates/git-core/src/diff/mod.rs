@@ -1,6 +1,7 @@
 //! What a commit changed: the list of files ([`commit_changes`]) and the line diff of one file
 //! ([`file_diff`]). Both run in-process with gix; nothing here starts `git`.
 
+mod attributes;
 mod changes;
 mod file;
 mod lines;
@@ -12,10 +13,11 @@ mod text;
 mod unified;
 mod words;
 
+pub use attributes::{DiffAttribute, diff_attribute};
 pub use changes::{ChangeStatus, ChangedFile, CommitChanges, MAX_CHANGED_FILES, commit_changes};
 pub use file::FileDiff;
 pub use lines::{DiffContent, DiffLine, LineKind, SplitCell, SplitLine};
-pub use load::{MAX_DIFF_BLOB_BYTES, file_diff};
+pub use load::{MAX_DIFF_BLOB_BYTES, blob_contents, file_diff};
 pub use options::{DiffOptions, WHOLE_FILE_CONTEXT, Whitespace};
 pub use rows::CONTEXT_LINES;
 pub use text::MAX_LINE_BYTES;
@@ -38,6 +40,14 @@ pub enum DiffError {
     /// The object is not in the local repository (for example in a partial clone).
     #[error("object {0} is not in the local repository")]
     Missing(ObjectId),
+    /// The file is larger than a caller's limit.
+    #[error("the file has {size} bytes; at most {limit} are read")]
+    TooLarge {
+        /// Size of the file.
+        size: u64,
+        /// The limit.
+        limit: u64,
+    },
     /// The object is a tree, commit or tag where a file's contents were expected.
     #[error("object {0} is not a file")]
     NotAFile(ObjectId),

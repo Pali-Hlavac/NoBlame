@@ -1,8 +1,8 @@
-//! The line diff of one file, for the diff tab: a summary, then rows page by page, unified or
-//! side by side.
+//! The line diff of one file, for the diff tab: the request, a summary, then unified rows page
+//! by page (side-by-side rows are in `split.rs`).
 
 use git_core::diff::{
-    DiffContent, DiffLine, DiffOptions, FileDiff, LineKind, SplitCell, SplitLine, Whitespace,
+    DiffAttribute, DiffContent, DiffLine, DiffOptions, FileDiff, LineKind, Whitespace,
 };
 use serde::{Deserialize, Serialize};
 use specta::Type;
@@ -19,6 +19,20 @@ pub struct DiffOptionsDto {
     pub context: u32,
 }
 
+/// Which file diff a command is about.
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct DiffRequestDto {
+    /// Blob before the change (hex); `null` when the file is absent there.
+    pub old_id: Option<String>,
+    /// Blob after the change (hex); `null` when the file is absent there.
+    pub new_id: Option<String>,
+    /// The file's path (its `.gitattributes` decide between text and binary).
+    pub path: Option<String>,
+    /// How to compare.
+    pub options: DiffOptionsDto,
+}
+
 impl From<DiffOptionsDto> for DiffOptions {
     fn from(options: DiffOptionsDto) -> Self {
         Self {
@@ -29,6 +43,8 @@ impl From<DiffOptionsDto> for DiffOptions {
                 WhitespaceMode::IgnoreAll => Whitespace::IgnoreAll,
             },
             context: options.context,
+            // Read from `.gitattributes` when the diff is computed.
+            attribute: DiffAttribute::Unspecified,
         }
     }
 }
@@ -147,59 +163,6 @@ impl From<DiffLine> for DiffLineDto {
             text: line.text,
             truncated: line.truncated,
             highlights: line.highlights,
-        }
-    }
-}
-
-/// One side of a side-by-side row.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Type)]
-#[serde(rename_all = "camelCase")]
-pub struct SplitCellDto {
-    /// `context`, `removed` (left) or `added` (right).
-    pub kind: DiffLineKindDto,
-    /// 1-based line number on this side.
-    pub line: u32,
-    /// The line without its line ending (non-UTF-8 bytes replaced).
-    pub text: String,
-    /// The line was cut at 4,096 bytes.
-    pub truncated: bool,
-    /// The last line of this side, without a newline at the end.
-    pub no_newline: bool,
-    /// Changed words: `[start, end)` in UTF-16 code units.
-    pub highlights: Vec<(u32, u32)>,
-}
-
-/// One side-by-side row: a hunk header, or a line on the left, the right or both.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Type)]
-#[serde(rename_all = "camelCase")]
-pub struct SplitLineDto {
-    /// `@@ -1,3 +1,4 @@` for a hunk header (the cells are then `null`).
-    pub hunk: Option<String>,
-    /// Old version.
-    pub left: Option<SplitCellDto>,
-    /// New version.
-    pub right: Option<SplitCellDto>,
-}
-
-impl From<SplitCell> for SplitCellDto {
-    fn from(cell: SplitCell) -> Self {
-        Self {
-            kind: cell.kind.into(),
-            line: cell.line,
-            text: cell.text,
-            truncated: cell.truncated,
-            no_newline: cell.no_newline,
-            highlights: cell.highlights,
-        }
-    }
-}
-
-impl From<SplitLine> for SplitLineDto {
-    fn from(line: SplitLine) -> Self {
-        Self {
-            hunk: line.hunk,
-            left: line.left.map(SplitCellDto::from),
-            right: line.right.map(SplitCellDto::from),
         }
     }
 }

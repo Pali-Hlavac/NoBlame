@@ -175,6 +175,7 @@ fn whitespace_options_and_context_match_git() {
         let options = DiffOptions {
             whitespace,
             context,
+            ..DiffOptions::default()
         };
         let diff = head_diff_with(&fixture, "ws.rs", options);
         assert_eq!(

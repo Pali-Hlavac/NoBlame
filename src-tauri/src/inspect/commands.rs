@@ -3,12 +3,11 @@
 use tauri::State;
 
 use super::{
-    ChangedFilesDto, CommitDetailsDto, DiffLineDto, DiffOptionsDto, FileDiffDto, RefEntry,
+    ChangedFilesDto, CommitDetailsDto, DiffLineDto, DiffRequestDto, FileDiffDto, RefEntry,
     SplitLineDto, StashDto, StatusSummaryDto, SubmoduleDto, service,
 };
 use crate::error::CommandResult;
-use crate::repository::{RepoId, RepoSessions};
-use service::DiffRequest;
+use crate::repository::{RawBytes, RepoId, RepoSessions};
 
 /// Details of the commit on `row`: message, people, parents, refs and refs containing it.
 #[tauri::command]
@@ -33,22 +32,15 @@ pub async fn get_changed_files(
     Ok(service::changed_files(&sessions, id, row, parent).await?)
 }
 
-/// The line diff between two blobs (hex ids; `null` where the file is absent): its kind,
-/// sizes and row counts. Rows come from `get_diff_lines` or `get_split_diff_lines`.
+/// The line diff a request names (two blobs, the file's path, the options): its kind, sizes
+/// and row counts. Rows come from `get_diff_lines` or `get_split_diff_lines`.
 #[tauri::command]
 #[specta::specta]
 pub async fn get_file_diff(
     sessions: State<'_, RepoSessions>,
     id: RepoId,
-    old_id: Option<String>,
-    new_id: Option<String>,
-    options: DiffOptionsDto,
+    request: DiffRequestDto,
 ) -> CommandResult<FileDiffDto> {
-    let request = DiffRequest {
-        old: old_id,
-        new: new_id,
-        options,
-    };
     Ok(service::file_diff(&sessions, id, request).await?)
 }
 
@@ -58,17 +50,10 @@ pub async fn get_file_diff(
 pub async fn get_diff_lines(
     sessions: State<'_, RepoSessions>,
     id: RepoId,
-    old_id: Option<String>,
-    new_id: Option<String>,
-    options: DiffOptionsDto,
+    request: DiffRequestDto,
     start: u32,
     count: u32,
 ) -> CommandResult<Vec<DiffLineDto>> {
-    let request = DiffRequest {
-        old: old_id,
-        new: new_id,
-        options,
-    };
     Ok(service::diff_lines(&sessions, id, request, start, count).await?)
 }
 
@@ -78,18 +63,22 @@ pub async fn get_diff_lines(
 pub async fn get_split_diff_lines(
     sessions: State<'_, RepoSessions>,
     id: RepoId,
-    old_id: Option<String>,
-    new_id: Option<String>,
-    options: DiffOptionsDto,
+    request: DiffRequestDto,
     start: u32,
     count: u32,
 ) -> CommandResult<Vec<SplitLineDto>> {
-    let request = DiffRequest {
-        old: old_id,
-        new: new_id,
-        options,
-    };
     Ok(service::split_diff_lines(&sessions, id, request, start, count).await?)
+}
+
+/// The raw contents of blob `blob_id` (at most 32 MB), for previews such as images.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_file_contents(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    blob_id: String,
+) -> CommandResult<RawBytes> {
+    Ok(service::file_contents(&sessions, id, blob_id).await?)
 }
 
 /// Every branch, remote branch and tag with the row of its commit.

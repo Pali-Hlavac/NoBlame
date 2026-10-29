@@ -4,8 +4,7 @@ use tauri::State;
 
 use super::recent::{self, RecentRepository, RecentStore};
 use super::{
-    CommitRowDto, GraphBytes, GraphSummary, ReloadedGraph, RepoId, RepoSessions, RepoSummary,
-    service,
+    CommitRowDto, GraphSummary, RawBytes, ReloadedGraph, RepoId, RepoSessions, RepoSummary, service,
 };
 use crate::error::CommandResult;
 
@@ -75,7 +74,7 @@ pub async fn get_graph_block(
     sessions: State<'_, RepoSessions>,
     id: RepoId,
     block: u32,
-) -> CommandResult<GraphBytes> {
+) -> CommandResult<RawBytes> {
     Ok(service::graph_block(&sessions, id, block).await?)
 }
 
@@ -88,7 +87,7 @@ pub async fn get_ancestry_block(
     id: RepoId,
     row: u32,
     block: u32,
-) -> CommandResult<GraphBytes> {
+) -> CommandResult<RawBytes> {
     Ok(service::ancestry_block(&sessions, id, row, block).await?)
 }
 
