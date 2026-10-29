@@ -7,6 +7,7 @@ use git_core::diff::{
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
+use super::syntax::{SyntaxClassDto, syntax_spans};
 use crate::settings::WhitespaceMode;
 
 /// How the diff is computed (the diff tab sends its settings).
@@ -17,6 +18,8 @@ pub struct DiffOptionsDto {
     pub whitespace: WhitespaceMode,
     /// Unchanged lines around each change; 4294967295 for the whole file.
     pub context: u32,
+    /// Colour the code by the language of the path.
+    pub syntax: bool,
 }
 
 /// Which file diff a command is about.
@@ -140,6 +143,8 @@ pub struct DiffLineDto {
     pub truncated: bool,
     /// Changed words of a removed or added line: `[start, end)` in UTF-16 code units.
     pub highlights: Vec<(u32, u32)>,
+    /// Syntax colours: `[start, end, class]` in UTF-16 code units.
+    pub syntax: Vec<(u32, u32, SyntaxClassDto)>,
 }
 
 impl From<LineKind> for DiffLineKindDto {
@@ -163,6 +168,7 @@ impl From<DiffLine> for DiffLineDto {
             text: line.text,
             truncated: line.truncated,
             highlights: line.highlights,
+            syntax: syntax_spans(line.syntax),
         }
     }
 }

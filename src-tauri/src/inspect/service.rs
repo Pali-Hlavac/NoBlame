@@ -21,7 +21,7 @@ use super::{
     SplitLineDto, StashDto, StatusSummaryDto, SubmoduleDto,
 };
 use crate::git_env::GitEnvError;
-use crate::repository::{RawBytes, RepoId, RepoSessions, RepositoryError, blocking};
+use crate::repository::{DiffKey, RawBytes, RepoId, RepoSessions, RepositoryError, blocking};
 
 /// Details of the commit on `row`, including the references containing it.
 pub async fn details(
@@ -65,9 +65,14 @@ async fn computed(
 ) -> Result<Arc<FileDiff>, RepositoryError> {
     let session = sessions.get(id)?;
     let (old, new) = (parse(request.old_id)?, parse(request.new_id)?);
-    session
-        .file_diff(old, new, request.path, request.options.into())
-        .await
+    let key = DiffKey {
+        old,
+        new,
+        path: request.path,
+        syntax: request.options.syntax,
+        options: request.options.into(),
+    };
+    session.file_diff(key).await
 }
 
 /// The diff a request names: kind, counts and row counts.

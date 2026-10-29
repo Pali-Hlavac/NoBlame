@@ -225,6 +225,8 @@ export type DiffLineDto = {
 	truncated: boolean,
 	/**  Changed words of a removed or added line: `[start, end)` in UTF-16 code units. */
 	highlights: ([number, number])[],
+	/**  Syntax colours: `[start, end, class]` in UTF-16 code units. */
+	syntax: ([number, number, SyntaxClassDto])[],
 };
 
 /**  What a row shows. */
@@ -246,6 +248,8 @@ export type DiffOptionsDto = {
 	whitespace: WhitespaceMode,
 	/**  Unchanged lines around each change; 4294967295 for the whole file. */
 	context: number,
+	/**  Colour the code by the language of the path. */
+	syntax: boolean,
 };
 
 /**  Which file diff a command is about. */
@@ -268,6 +272,8 @@ export type DiffSettings = {
 	whitespace?: WhitespaceMode,
 	/**  Unchanged lines around each change; 4294967295 shows the whole file. */
 	contextLines?: number,
+	/**  Colour the code by its language. */
+	syntaxHighlighting?: boolean,
 };
 
 /**  Stable, machine-readable error category the frontend can branch on. */
@@ -535,6 +541,8 @@ export type SplitCellDto = {
 	noNewline: boolean,
 	/**  Changed words: `[start, end)` in UTF-16 code units. */
 	highlights: ([number, number])[],
+	/**  Syntax colours: `[start, end, class]` in UTF-16 code units. */
+	syntax: ([number, number, SyntaxClassDto])[],
 };
 
 /**  One side-by-side row: a hunk header, or a line on the left, the right or both. */
@@ -588,6 +596,25 @@ export type SubmoduleDto = {
 	/**  Nested submodules. */
 	children: SubmoduleDto[],
 };
+
+/**  What a coloured part of a line is. */
+export type SyntaxClassDto = 
+/**  A comment. */
+"comment" | 
+/**  A string or character literal. */
+"string" | 
+/**  A keyword or storage modifier. */
+"keyword" | 
+/**  A number or language constant. */
+"constant" | 
+/**  A type name. */
+"type" | 
+/**  A function name. */
+"function" | 
+/**  A markup tag. */
+"tag" | 
+/**  A markup attribute name. */
+"attribute";
 
 /**  A focused task window. Also the list of `noblame` subcommands (ADR 0015). */
 export type TaskKind = 

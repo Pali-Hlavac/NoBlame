@@ -34,7 +34,12 @@ function Half({ cell, digits, className }: HalfProps) {
       <span className="min-w-0 flex-1 overflow-hidden">
         <span className="block pr-4 whitespace-pre" style={SHIFTED}>
           <span className="sr-only">{SPOKEN[cell.kind]}</span>
-          <LineText text={cell.text} kind={cell.kind} highlights={cell.highlights} />
+          <LineText
+            text={cell.text}
+            kind={cell.kind}
+            highlights={cell.highlights}
+            syntax={cell.syntax}
+          />
           {cell.truncated && (
             <span className="pl-2 text-muted-foreground italic">{TRUNCATED_NOTE}</span>
           )}

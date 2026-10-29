@@ -180,5 +180,16 @@ are not local; the diff tab says so instead of downloading them.
 With side-by-side rows built as well (slice 3a, 2026-10-29): 40–50 ms and 31 MB for the first
 case, 70 ms and 56 MB for the second.
 
+Syntax highlighting (slice 3c), 3.7 MB Rust file, 58,000 lines, 549 hunks (4,862 rows), release:
+
+| Approach                                     | Last page, cold | Page, warm |
+| -------------------------------------------- | --------------- | ---------- |
+| fancy-regex, every line between hunks parsed | 11.9 s          | 1.37 s     |
+| Oniguruma, every line between hunks parsed   | 3.8 s           | 449 ms     |
+| Oniguruma, only shown lines parsed           | 258 ms          | 37 ms      |
+| **fancy-regex, only shown lines (shipped)**  | **866 ms**      | **123 ms** |
+
+Oniguruma's parser state is not `Send`, so the session could not cache it (ADR 0013).
+
 Not measured yet: frame times while scrolling, a real large repository (Linux kernel), a cold
 disk cache, macOS and Linux.

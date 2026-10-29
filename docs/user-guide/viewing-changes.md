@@ -21,6 +21,7 @@ and it stays there: choosing another file changes what it shows, not where it is
 - Lines starting with `@@` mark where each changed part of the file begins.
 - When a line was edited, the words that changed are marked in a stronger colour, so a small
   fix in a long line is easy to spot.
+- Code is coloured by its language. You can switch this off in **Settings → Diff**.
 - The top of the tab shows the file, its folder and how many lines were added and removed.
 - When you select another commit, the Diff tab keeps showing the same file if that commit
   changed it too.
@@ -53,4 +54,4 @@ Some files have no line diff. The tab then says why:
 In a partial clone (made with `git clone --filter=blob:none`), older versions of files may not be
 on your computer yet. NoBlame says so; it does not download them.
 
-Coming later: syntax colours, and the changes in your working tree (with staging).
+Coming later: the changes in your working tree (with staging).

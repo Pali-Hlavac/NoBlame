@@ -5,6 +5,7 @@ use serde::Serialize;
 use specta::Type;
 
 use super::diff::DiffLineKindDto;
+use super::syntax::{SyntaxClassDto, syntax_spans};
 
 /// One side of a side-by-side row.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Type)]
@@ -22,6 +23,8 @@ pub struct SplitCellDto {
     pub no_newline: bool,
     /// Changed words: `[start, end)` in UTF-16 code units.
     pub highlights: Vec<(u32, u32)>,
+    /// Syntax colours: `[start, end, class]` in UTF-16 code units.
+    pub syntax: Vec<(u32, u32, SyntaxClassDto)>,
 }
 
 /// One side-by-side row: a hunk header, or a line on the left, the right or both.
@@ -45,6 +48,7 @@ impl From<SplitCell> for SplitCellDto {
             truncated: cell.truncated,
             no_newline: cell.no_newline,
             highlights: cell.highlights,
+            syntax: syntax_spans(cell.syntax),
         }
     }
 }

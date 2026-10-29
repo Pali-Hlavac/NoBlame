@@ -4,11 +4,13 @@
 mod attributes;
 mod changes;
 mod file;
+mod highlight;
 mod lines;
 mod load;
 mod options;
 mod rows;
 mod split;
+mod syntax;
 mod text;
 mod unified;
 mod words;
@@ -20,6 +22,7 @@ pub use lines::{DiffContent, DiffLine, LineKind, SplitCell, SplitLine};
 pub use load::{MAX_DIFF_BLOB_BYTES, blob_contents, file_diff};
 pub use options::{DiffOptions, WHOLE_FILE_CONTEXT, Whitespace};
 pub use rows::CONTEXT_LINES;
+pub use syntax::{MAX_HIGHLIGHT_BYTES, SyntaxClass, SyntaxSpan};
 pub use text::MAX_LINE_BYTES;
 
 /// Blob and commit ids, re-exported so callers need no gix dependency.

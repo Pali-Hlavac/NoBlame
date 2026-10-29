@@ -115,6 +115,8 @@ pub struct DiffSettings {
     pub whitespace: WhitespaceMode,
     /// Unchanged lines around each change; 4294967295 shows the whole file.
     pub context_lines: u32,
+    /// Colour the code by its language.
+    pub syntax_highlighting: bool,
 }
 
 /// `git diff`'s default context.
@@ -126,6 +128,7 @@ impl Default for DiffSettings {
             layout: DiffLayout::default(),
             whitespace: WhitespaceMode::default(),
             context_lines: DEFAULT_CONTEXT_LINES,
+            syntax_highlighting: true,
         }
     }
 }

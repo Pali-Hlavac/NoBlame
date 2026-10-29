@@ -8,6 +8,7 @@ mod diff;
 mod service;
 mod split;
 mod status;
+mod syntax;
 mod types;
 
 pub use changes::ChangedFilesDto;

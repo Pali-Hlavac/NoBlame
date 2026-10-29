@@ -14,6 +14,7 @@ mod types;
 mod watch;
 
 pub use bytes::RawBytes;
+pub use diff_cache::DiffKey;
 pub use error::RepositoryError;
 pub use graph_types::{CommitRowDto, GraphSummary, RefLabel, ReloadedGraph};
 pub(crate) use service::blocking;

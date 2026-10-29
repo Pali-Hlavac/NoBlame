@@ -2,7 +2,7 @@
 
 The **diff tab** shows the line diff of the file chosen in Changed files. Status: M3 slice 2
 (unified view), slice 3a (side by side, whitespace and context options), slice 3b (word diff)
-and slice 3d (images, `.gitattributes`). Syntax highlighting (slice 3c) follows. Design:
+slice 3c (syntax highlighting) and slice 3d (images, `.gitattributes`): slice 3 is done. Design:
 [design/workbench.md](../design/workbench.md#diff-tab); ADR 0013.
 
 ## Behaviour
@@ -26,6 +26,10 @@ and slice 3d (images, `.gitattributes`). Syntax highlighting (slice 3c) follows.
   side shows) mark the words that differ in a stronger red or green. Lines longer than
   1,000 bytes and pairs with less than 30% in common are not marked, since nearly everything
   would be. Whitespace that the whitespace option ignores is not marked either.
+- **Syntax colours**: code is coloured by its language (found by extension, file name or first
+  line, from the grammars Sublime Text ships: Rust, TypeScript, Python, C, Java, Markdown, JSON,
+  HTML and many more). Removed lines are coloured as the old version, the others as the new
+  one. Files over 4 MB per side are not coloured. Settings → Diff can switch it off.
 - **Options** in the header, saved in the settings (Settings → Diff) and used for every diff:
   - layout: Unified or Side by side (switching does not compute the diff again);
   - whitespace: show all changes, ignore at line ends (`--ignore-space-at-eol`), ignore changes
@@ -70,6 +74,13 @@ and slice 3d (images, `.gitattributes`). Syntax highlighting (slice 3c) follows.
     when a page is rendered.
   - **Tests:** every option is compared with `git diff --ignore-space-at-eol`, `-b`, `-w` and
     `-U` output.
+- **Syntax highlighting** (`diff/syntax.rs`, `diff/highlight.rs`): syntect 5.3 (MIT) with its
+  bundled Sublime Text grammars and pure-Rust regexes (`fancy-regex`). Each side is parsed along
+  the lines the diff shows, carrying the parser state across the unchanged lines between hunks
+  (as `delta` does). The state is saved every 256 shown lines, so a page costs its own lines.
+  Scopes are reduced to eight classes (comment, string, keyword, constant, type, function, tag,
+  attribute), sent as `syntax: [start, end, class]` in UTF-16 units and coloured with the
+  `--syntax-*` tokens. The flag is part of the request and the cache key.
 - `.gitattributes` (`diff/attributes.rs`): gix's attribute stack from the work tree and the index
   answers the `diff` attribute (`binary` is a built-in macro for `-diff`). The session reads it
   only when it computes a diff; it is part of `DiffOptions`.
@@ -103,13 +114,19 @@ and slice 3d (images, `.gitattributes`). Syntax highlighting (slice 3c) follows.
 ## Performance
 
 13 MB file, 200,000 lines, 2,000 scattered edits: 40–50 ms to diff, including the side-by-side
-rows, and 0.06 ms per page of 500 rows (release build, Windows). See
+rows, and 0.06 ms per page of 500 rows (release build, Windows).
+
+Syntax colours on a 3.7 MB Rust file (58,000 lines, 4,862 rows): about 120 ms per page of 500
+rows, and 0.9 s the first time the last page is shown (every shown line before it is parsed
+once). See
 [performance.md](../development/performance.md).
 
 ## Not yet
 
 - Word diff: the changed words inside paired lines (slice 3b).
 - Syntax highlighting (slice 3c).
+- A construct opened between two hunks (a block comment starting in unchanged lines) is not
+  seen by the colouring; choose the whole file as context to colour exactly.
 - Diff drivers and `textconv` from `.gitattributes` (by design, see ADR 0013); previews of
   other binary formats; an image overlay or slider mode.
 - Next/previous change shortcuts; search inside the diff.

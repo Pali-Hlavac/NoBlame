@@ -10,8 +10,9 @@ Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 [docs/roadmap.md](docs/roadmap.md); requirements: [docs/project-brief.md](docs/project-brief.md).
 
 > Status: M1, M2 and M2.5 done (graph, working tree rows, watcher, index cache; measured on the
-> Linux kernel). M3 in progress: Changed files and the unified diff tab done; side by side,
-> highlighting and images are next. Parts marked _(later)_ below are planned and do not exist yet.
+> Linux kernel). M3 in progress: Changed files and the diff tab done (unified and side by side,
+> word diff, syntax colours, images); graph filters are next. Parts marked _(later)_ below are
+> planned and do not exist yet.
 
 ## Architecture
 

@@ -217,8 +217,9 @@ marked (for example "side by side, " in a CHANGELOG line), including a line spli
 rustfmt (the moved part is marked).
 
 Slice 3d done (image previews, `.gitattributes` `binary`/`-diff`/`diff`, `get_file_contents`).
-Next: 3c, syntax highlighting; it needs a new dependency, whose licence and size are to be
-checked first.
+Slice 3c done (syntax highlighting with syntect: licences checked, Oniguruma measured and
+rejected, see ADR 0013 and performance.md). Slice 3 is complete. Next: slice 4, filters in the
+repository tab (the owner's request).
 
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
@@ -305,9 +306,9 @@ Not verified in the running app (they need someone at the keyboard; the logic is
 - [x] Changed files module for the selected commit (list, renames, merge parents); selecting
       a file shows it in the single diff tab, which switches files in place and stays where it is
       docked (several diff tabs: later)
-- [~] Diff viewer (ADR 0013). Done: unified and side by side, virtualized and paged for huge
-  diffs, whitespace options, context lines, word diff, image previews, binary detection with
-  `.gitattributes`. Still to do: syntax highlighting (slice 3c).
+- [x] Diff viewer (ADR 0013): unified and side by side, virtualized and paged for huge diffs,
+      whitespace options, context lines, word diff, syntax highlighting, image previews, binary
+      detection with `.gitattributes`
 - [ ] Changed files list and file tree of any revision; open/save a file at a revision
 - [ ] File history (following renames) and blame with "blame previous revision"
 - [ ] Filters: branch(es), author, committer, message, path, date range, first-parent only, hide merges
@@ -390,7 +391,9 @@ Slices, in order (planned 2026-10-28):
 
 ### M9: Polish and release
 
-- [ ] Final logo: refined finch-on-a-branch artwork, small-size variants (16/24/32 px), monochrome version for the macOS menu bar and Linux symbolic icons, installer and website artwork
+- [ ] Third-party licence notices shipped with the installers (for example generated with
+      `cargo-about` and a JS equivalent): the bundled Sublime Text grammars ask for theirs
+- [~] Final logo: the owner's painted finch and songbird are in (2026-10-29). Still to do: refined finch-on-a-branch artwork, small-size variants (16/24/32 px), monochrome version for the macOS menu bar and Linux symbolic icons, installer and website artwork
 - [ ] Keyboard shortcuts everywhere; accessibility pass (focus, ARIA, contrast)
 - [ ] Remember window sizes and filters (open tabs and layout are restored from M2.5)
 - [ ] E2E smoke tests: open repo, browse graph, commit, branch, merge — ADR 0016

@@ -3,6 +3,7 @@
 //! end of file" becomes a flag on the cell instead of a row of its own.
 
 use super::file::FileDiff;
+use super::highlight::PageSyntax;
 use super::lines::{LineKind, SplitCell, SplitLine};
 use super::rows::Row;
 use super::text::{display_text, hunk_range, to_u32};
@@ -130,13 +131,21 @@ impl FileDiff {
     pub fn split_lines(&self, start: u32, count: u32) -> Vec<SplitLine> {
         let start = (start as usize).min(self.split.len());
         let end = start.saturating_add(count as usize).min(self.split.len());
+        let (mut old_lines, mut new_lines) = (Vec::new(), Vec::new());
+        for row in &self.split[start..end] {
+            if let SplitRow::Lines { left, right } = row {
+                old_lines.extend(left.map(|half| half.line));
+                new_lines.extend(right.map(|half| half.line));
+            }
+        }
+        let syntax = self.page_syntax(&old_lines, &new_lines);
         self.split[start..end]
             .iter()
-            .map(|row| self.render_split(*row))
+            .map(|row| self.render_split(*row, &syntax))
             .collect()
     }
 
-    fn render_split(&self, row: SplitRow) -> SplitLine {
+    fn render_split(&self, row: SplitRow, syntax: &PageSyntax) -> SplitLine {
         match row {
             SplitRow::Hunk { row } => {
                 let hunk = match self.rows.get(row as usize) {
@@ -168,16 +177,23 @@ impl FileDiff {
                 .unwrap_or_default();
                 SplitLine {
                     hunk: None,
-                    left: left.map(|half| self.cell(half, true, words.old)),
-                    right: right.map(|half| self.cell(half, false, words.new)),
+                    left: left.map(|half| self.cell(half, true, words.old, syntax)),
+                    right: right.map(|half| self.cell(half, false, words.new, syntax)),
                 }
             }
         }
     }
 
     /// Context shows each side's own text: with whitespace ignored, the two may differ.
-    fn cell(&self, half: Half, old_side: bool, highlights: Vec<(u32, u32)>) -> SplitCell {
+    fn cell(
+        &self,
+        half: Half,
+        old_side: bool,
+        highlights: Vec<(u32, u32)>,
+        (old_syntax, new_syntax): &PageSyntax,
+    ) -> SplitCell {
         let side = if old_side { &self.old } else { &self.new };
+        let syntax = if old_side { old_syntax } else { new_syntax };
         let (text, truncated) = display_text(side.line(half.line));
         SplitCell {
             kind: half.kind,
@@ -186,6 +202,7 @@ impl FileDiff {
             truncated,
             no_newline: half.no_newline,
             highlights,
+            syntax: syntax.get(&half.line).cloned().unwrap_or_default(),
         }
     }
 }

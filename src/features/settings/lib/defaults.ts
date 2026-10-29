@@ -22,7 +22,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   theme: "system",
   graph: { highlightSelection: true, workingTree: "rows" },
   repositories: { showActionsMenu: true },
-  diff: { layout: "unified", whitespace: "show", contextLines: 3 },
+  diff: { layout: "unified", whitespace: "show", contextLines: 3, syntaxHighlighting: true },
 };
 
 /** Fills fields missing from `settings` with their defaults. */

@@ -65,6 +65,14 @@ function DiffSection() {
         }}
         inline
       />
+      <Toggle
+        label="Colour code by its language"
+        description="Syntax highlighting for the languages Sublime Text knows. Files over 4 MB are not coloured."
+        checked={diff.syntaxHighlighting}
+        onChange={(syntaxHighlighting) => {
+          changeDiff({ syntaxHighlighting });
+        }}
+      />
     </Section>
   );
 }

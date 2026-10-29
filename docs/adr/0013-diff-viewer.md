@@ -78,5 +78,13 @@ Option 2.
     context are part of the cache key; they match `git diff -w`, `-b`, `--ignore-space-at-eol`
     and `-U` in tests.
   - Word diff (slice 3b) is computed in Rust when a page is rendered, for each removed line and
-    the added line paired with it, and sent as UTF-16 ranges. Syntax highlighting will be
-    computed per page in Rust or per visible row in the webview (slice 3c).
+    the added line paired with it, and sent as UTF-16 ranges.
+  - Syntax highlighting (slice 3c) is computed in Rust per page with syntect 5.3 and its bundled
+    Sublime Text grammars. syntect is MIT; the grammars are under Sublime HQ's permissive
+    licence. Only the 3 crates syntect, fancy-regex and bincode were added, all MIT.
+    - Oniguruma was measured 3× faster, but it makes the parser state non-`Send`, so the
+      session could not cache it. The pure-Rust regexes are fast enough once only the shown
+      lines are parsed: 120 ms per page on a 3.7 MB file, against 1.4 s when every line between
+      hunks was parsed.
+    - Highlighting in the webview (Shiki, highlight.js) was not chosen: it would need the whole
+      file in the webview for correct multi-line state.

@@ -75,7 +75,11 @@ export function FileDiffView({ repoId, file }: { repoId: number; file: ChangedFi
     oldId: file.oldId,
     newId: file.newId,
     path: file.path,
-    options: { whitespace: settings.whitespace, context: settings.contextLines },
+    options: {
+      whitespace: settings.whitespace,
+      context: settings.contextLines,
+      syntax: settings.syntaxHighlighting,
+    },
   };
   // A submodule entry points at a commit, not at file contents.
   const diff = useFileDiff(request, !file.submodule);

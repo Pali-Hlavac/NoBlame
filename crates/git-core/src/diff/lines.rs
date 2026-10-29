@@ -1,5 +1,7 @@
 //! What a rendered file diff looks like: unified rows and side-by-side rows.
 
+use super::syntax::SyntaxSpan;
+
 /// What kind of comparison a file got.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DiffContent {
@@ -42,6 +44,8 @@ pub struct DiffLine {
     pub truncated: bool,
     /// Changed words of a removed or added line: `(start, end)` in UTF-16 code units.
     pub highlights: Vec<(u32, u32)>,
+    /// Syntax colours, when highlighting is on and the language is known.
+    pub syntax: Vec<SyntaxSpan>,
 }
 
 /// One side of a side-by-side row.
@@ -59,6 +63,8 @@ pub struct SplitCell {
     pub no_newline: bool,
     /// Changed words: `(start, end)` in UTF-16 code units.
     pub highlights: Vec<(u32, u32)>,
+    /// Syntax colours, when highlighting is on and the language is known.
+    pub syntax: Vec<SyntaxSpan>,
 }
 
 /// One side-by-side row: a hunk header, or a line on the left, the right or both.

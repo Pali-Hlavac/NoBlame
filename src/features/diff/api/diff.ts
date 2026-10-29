@@ -23,7 +23,16 @@ export interface DiffRequest extends DiffRequestDto {
  */
 export const diffKeys = {
   summary: ({ repoId, oldId, newId, path, options }: DiffRequest) =>
-    ["diff", repoId, oldId, newId, path, options.whitespace, options.context] as const,
+    [
+      "diff",
+      repoId,
+      oldId,
+      newId,
+      path,
+      options.whitespace,
+      options.context,
+      options.syntax,
+    ] as const,
   page: (request: DiffRequest, layout: "unified" | "split", page: number) =>
     [...diffKeys.summary(request), layout, page] as const,
 };

@@ -73,6 +73,9 @@ All notable changes to NoBlame are documented here. The format follows
 - Image previews in the Diff tab (M3): PNG, JPEG, GIF, WebP, BMP, ICO and AVIF files are shown
   before and after, with pixel and byte sizes. Files that `.gitattributes` mark `binary` or
   `-diff` are shown as binary; `diff` forces a text diff.
+- Syntax colours in the Diff tab (M3): code is coloured by its language, using the grammars
+  Sublime Text ships (via syntect). Files over 4 MB are not coloured; Settings → Diff can switch
+  it off.
 - The commit-graph offer explains what the file is (one index file in `.git`; commits, branches
   and files do not change) and, after a load slower than 2 s, is highlighted with how long
   loading took and how long writing the file would take. It is still only written on request.

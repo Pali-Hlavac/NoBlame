@@ -50,6 +50,15 @@
   --diff-hunk: oklch(0.95 0.02 250);
   --diff-added-word: oklch(0.86 0.11 150);
   --diff-removed-word: oklch(0.86 0.1 25);
+  /* Syntax colours of diff lines. */
+  --syntax-comment: oklch(0.55 0.02 250);
+  --syntax-string: oklch(0.48 0.12 145);
+  --syntax-keyword: oklch(0.5 0.17 300);
+  --syntax-constant: oklch(0.52 0.14 50);
+  --syntax-type: oklch(0.5 0.12 220);
+  --syntax-function: oklch(0.48 0.14 260);
+  --syntax-tag: oklch(0.5 0.15 20);
+  --syntax-attribute: oklch(0.52 0.12 80);
 }
 
 .dark {
@@ -94,6 +103,14 @@
   --diff-hunk: oklch(0.27 0.03 250);
   --diff-added-word: oklch(0.43 0.1 150);
   --diff-removed-word: oklch(0.43 0.12 25);
+  --syntax-comment: oklch(0.65 0.02 250);
+  --syntax-string: oklch(0.8 0.12 145);
+  --syntax-keyword: oklch(0.75 0.14 300);
+  --syntax-constant: oklch(0.8 0.12 60);
+  --syntax-type: oklch(0.8 0.1 200);
+  --syntax-function: oklch(0.78 0.12 255);
+  --syntax-tag: oklch(0.75 0.13 20);
+  --syntax-attribute: oklch(0.82 0.11 85);
 }
 
 @theme inline {
@@ -123,6 +140,14 @@
   --color-diff-hunk: var(--diff-hunk);
   --color-diff-added-word: var(--diff-added-word);
   --color-diff-removed-word: var(--diff-removed-word);
+  --color-syntax-comment: var(--syntax-comment);
+  --color-syntax-string: var(--syntax-string);
+  --color-syntax-keyword: var(--syntax-keyword);
+  --color-syntax-constant: var(--syntax-constant);
+  --color-syntax-type: var(--syntax-type);
+  --color-syntax-function: var(--syntax-function);
+  --color-syntax-tag: var(--syntax-tag);
+  --color-syntax-attribute: var(--syntax-attribute);
   --color-ref-branch: var(--ref-branch);
   --color-ref-branch-foreground: var(--ref-branch-foreground);
   --color-ref-remote: var(--ref-remote);

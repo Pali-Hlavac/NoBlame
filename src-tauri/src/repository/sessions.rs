@@ -4,12 +4,12 @@ use std::collections::HashMap;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
-use git_core::diff::{DiffAttribute, DiffOptions, FileDiff, ObjectId, diff_attribute, file_diff};
+use git_core::diff::{DiffAttribute, DiffOptions, FileDiff, diff_attribute, file_diff};
 use git_core::graph::{Ancestry, Graph, GraphError};
 use git_core::repo::Repository;
 use git_core::watch::RepoWatcher;
 
-use super::diff_cache::DiffCache;
+use super::diff_cache::{DiffCache, DiffKey};
 use super::graph_cache::GraphCache;
 use super::service::blocking;
 use super::{RepoId, RepositoryError};
@@ -96,36 +96,36 @@ impl Session {
         *self.watcher.lock().unwrap_or_else(PoisonError::into_inner) = watcher;
     }
 
-    /// The diff between blobs `old` and `new` (`None`: absent) of the file at `path` with
-    /// `options`, computed on a blocking thread unless it was shown recently. The path's
-    /// `.gitattributes` decide between text and binary; they are read only when computing.
-    pub async fn file_diff(
-        &self,
-        old: Option<ObjectId>,
-        new: Option<ObjectId>,
-        path: Option<String>,
-        options: DiffOptions,
-    ) -> Result<Arc<FileDiff>, RepositoryError> {
-        let key = (old, new, path.clone(), options);
+    /// The diff a key names, computed on a blocking thread unless it was shown recently. The
+    /// path's `.gitattributes` decide between text and binary (read only when computing), and
+    /// its language colours the rows when `syntax` is set.
+    pub async fn file_diff(&self, key: DiffKey) -> Result<Arc<FileDiff>, RepositoryError> {
         if let Some(diff) = self.diffs.get(&key) {
             return Ok(diff);
         }
         let repo = self.repo.clone();
+        let DiffKey {
+            old,
+            new,
+            path,
+            options,
+            syntax,
+        } = key.clone();
         let diff = blocking(move || {
             let repo = repo.local();
             let attribute = match &path {
                 Some(path) => diff_attribute(&repo, path.as_str().into())?,
                 None => DiffAttribute::Unspecified,
             };
-            file_diff(
-                &repo,
-                old,
-                new,
-                DiffOptions {
-                    attribute,
-                    ..options
-                },
-            )
+            let options = DiffOptions {
+                attribute,
+                ..options
+            };
+            let mut diff = file_diff(&repo, old, new, options)?;
+            if let Some(path) = path.as_deref().filter(|_| syntax) {
+                diff.highlight_as(path);
+            }
+            Ok::<_, RepositoryError>(diff)
         })
         .await??;
         let diff = Arc::new(diff);

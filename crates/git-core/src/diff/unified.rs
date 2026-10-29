@@ -1,6 +1,7 @@
 //! Rendering unified rows, with the changed words of paired lines.
 
 use super::file::FileDiff;
+use super::highlight::PageSyntax;
 use super::lines::{DiffLine, LineKind};
 use super::rows::Row;
 use super::text::{display_text, hunk_range};
@@ -11,7 +12,18 @@ impl FileDiff {
     pub fn lines(&self, start: u32, count: u32) -> Vec<DiffLine> {
         let start = (start as usize).min(self.rows.len());
         let end = start.saturating_add(count as usize).min(self.rows.len());
-        (start..end).map(|index| self.render(index)).collect()
+        let (mut old_lines, mut new_lines) = (Vec::new(), Vec::new());
+        for row in &self.rows[start..end] {
+            match *row {
+                Row::Removed { old } => old_lines.push(old),
+                Row::Context { new, .. } | Row::Added { new } => new_lines.push(new),
+                Row::Hunk { .. } | Row::NoNewline => {}
+            }
+        }
+        let syntax = self.page_syntax(&old_lines, &new_lines);
+        (start..end)
+            .map(|index| self.render(index, &syntax))
+            .collect()
     }
 
     /// Changed words between removed line `old` and added line `new` (0-based).
@@ -31,9 +43,15 @@ impl FileDiff {
         }
     }
 
-    fn render(&self, index: usize) -> DiffLine {
+    fn render(&self, index: usize, (old_syntax, new_syntax): &PageSyntax) -> DiffLine {
         let line = |kind, old: Option<u32>, new: Option<u32>, bytes: &[u8]| {
             let (text, truncated) = display_text(bytes);
+            // Removed lines are coloured as the old version, all others as the new one.
+            let syntax = match (kind, old, new) {
+                (LineKind::Removed, Some(old), _) => old_syntax.get(&old),
+                (_, _, Some(new)) => new_syntax.get(&new),
+                _ => None,
+            };
             DiffLine {
                 kind,
                 old_line: old.map(|index| index + 1),
@@ -41,6 +59,7 @@ impl FileDiff {
                 text,
                 truncated,
                 highlights: Vec::new(),
+                syntax: syntax.cloned().unwrap_or_default(),
             }
         };
         match self.rows[index] {
@@ -60,6 +79,7 @@ impl FileDiff {
                 ),
                 truncated: false,
                 highlights: Vec::new(),
+                syntax: Vec::new(),
             },
             Row::Context { old, new } => {
                 line(LineKind::Context, Some(old), Some(new), self.new.line(new))

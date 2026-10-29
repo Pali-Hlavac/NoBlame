@@ -9,6 +9,7 @@ use super::lines::DiffContent;
 use super::options::{DiffOptions, Whitespace, intern};
 use super::rows::{Row, Sides, build_rows};
 use super::split::{SplitRow, build_split};
+use super::syntax::Highlighter;
 use super::text::{Side, is_binary, to_u32};
 
 /// The diff of two versions of a file.
@@ -25,6 +26,9 @@ pub struct FileDiff {
     pub(super) partners: Vec<u32>,
     /// Which whitespace counts, also when comparing words.
     pub(super) whitespace: Whitespace,
+    /// Syntax highlighting of each side (see `highlight.rs`); `None` when off or unknown.
+    pub(super) old_syntax: Option<Highlighter>,
+    pub(super) new_syntax: Option<Highlighter>,
     additions: u32,
     deletions: u32,
     old_size: u64,
@@ -65,6 +69,8 @@ pub(crate) fn diff_blobs(
         split,
         partners,
         whitespace: options.whitespace,
+        old_syntax: None,
+        new_syntax: None,
         rows,
         additions: diff.count_additions(),
         deletions: diff.count_removals(),
@@ -85,6 +91,8 @@ impl FileDiff {
             split: Vec::new(),
             partners: Vec::new(),
             whitespace: Whitespace::Show,
+            old_syntax: None,
+            new_syntax: None,
             additions: 0,
             deletions: 0,
             old_size,

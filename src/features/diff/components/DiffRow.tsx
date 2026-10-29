@@ -35,7 +35,12 @@ export function DiffRow({ line, digits }: DiffRowProps) {
         {line.kind === "noNewline" ? (
           "No newline at end of file"
         ) : (
-          <LineText text={line.text} kind={line.kind} highlights={line.highlights} />
+          <LineText
+            text={line.text}
+            kind={line.kind}
+            highlights={line.highlights}
+            syntax={line.syntax}
+          />
         )}
         {line.truncated && (
           <span className="pl-2 text-muted-foreground italic">{TRUNCATED_NOTE}</span>

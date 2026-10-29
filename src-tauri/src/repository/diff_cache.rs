@@ -11,14 +11,17 @@ const MAX_ENTRIES: usize = 8;
 /// Older diffs are dropped while the cache holds more than this; the newest always stays.
 const MAX_BYTES: usize = 256 << 20;
 
-/// The two versions a diff compares (`None`: the file is absent on that side), the file's path
-/// (its `.gitattributes` apply) and the options.
-pub type DiffKey = (
-    Option<ObjectId>,
-    Option<ObjectId>,
-    Option<String>,
-    DiffOptions,
-);
+/// Which diff: the two versions it compares (`None`: the file is absent on that side), the
+/// file's path (its `.gitattributes` and language apply), the options and whether it is
+/// syntax-highlighted.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DiffKey {
+    pub old: Option<ObjectId>,
+    pub new: Option<ObjectId>,
+    pub path: Option<String>,
+    pub options: DiffOptions,
+    pub syntax: bool,
+}
 
 /// Most recently used first.
 #[derive(Default)]
