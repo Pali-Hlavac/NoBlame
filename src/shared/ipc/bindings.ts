@@ -56,11 +56,13 @@ export const commands = {
 	getChangedFiles: (id: number, row: number, parent: number) => typedError<ChangedFilesDto, AppError>(__TAURI_INVOKE("get_changed_files", { id, row, parent })),
 	/**
 	 *  The line diff between two blobs (hex ids; `null` where the file is absent): its kind,
-	 *  size and row count. Rows come from `get_diff_lines`.
+	 *  sizes and row counts. Rows come from `get_diff_lines` or `get_split_diff_lines`.
 	 */
-	getFileDiff: (id: number, oldId: string | null, newId: string | null) => typedError<FileDiffDto, AppError>(__TAURI_INVOKE("get_file_diff", { id, oldId, newId })),
-	/**  Up to `count` rows (at most 2,000) of that diff, from row `start`. */
-	getDiffLines: (id: number, oldId: string | null, newId: string | null, start: number, count: number) => typedError<DiffLineDto[], AppError>(__TAURI_INVOKE("get_diff_lines", { id, oldId, newId, start, count })),
+	getFileDiff: (id: number, oldId: string | null, newId: string | null, options: DiffOptionsDto) => typedError<FileDiffDto, AppError>(__TAURI_INVOKE("get_file_diff", { id, oldId, newId, options })),
+	/**  Up to `count` unified rows (at most 2,000) of that diff, from row `start`. */
+	getDiffLines: (id: number, oldId: string | null, newId: string | null, options: DiffOptionsDto, start: number, count: number) => typedError<DiffLineDto[], AppError>(__TAURI_INVOKE("get_diff_lines", { id, oldId, newId, options, start, count })),
+	/**  Up to `count` side-by-side rows (at most 2,000) of that diff, from row `start`. */
+	getSplitDiffLines: (id: number, oldId: string | null, newId: string | null, options: DiffOptionsDto, start: number, count: number) => typedError<SplitLineDto[], AppError>(__TAURI_INVOKE("get_split_diff_lines", { id, oldId, newId, options, start, count })),
 	/**  Every branch, remote branch and tag with the row of its commit. */
 	listRefs: (id: number) => typedError<RefEntry[], AppError>(__TAURI_INVOKE("list_refs", { id })),
 	/**  The stash list, newest first. */
@@ -200,6 +202,13 @@ export type DiffContentDto =
 /**  Larger than 64 MiB: only the sizes. */
 "tooLarge";
 
+/**  How the diff tab lays out a diff. */
+export type DiffLayout = 
+/**  One column, removed lines above added ones (`git diff`). */
+"unified" | 
+/**  Old version on the left, new version on the right. */
+"split";
+
 /**  One row of the unified diff. */
 export type DiffLineDto = {
 	/**  What the row shows. */
@@ -226,6 +235,24 @@ export type DiffLineKindDto =
 "removed" | 
 /**  "No newline at end of file" for the row above (empty `text`). */
 "noNewline";
+
+/**  How the diff is computed (the diff tab sends its settings). */
+export type DiffOptionsDto = {
+	/**  Which whitespace changes count. */
+	whitespace: WhitespaceMode,
+	/**  Unchanged lines around each change; 4294967295 for the whole file. */
+	context: number,
+};
+
+/**  Diff tab preferences. */
+export type DiffSettings = {
+	/**  Unified or side by side. */
+	layout?: DiffLayout,
+	/**  Which whitespace changes are shown. */
+	whitespace?: WhitespaceMode,
+	/**  Unchanged lines around each change; 4294967295 shows the whole file. */
+	contextLines?: number,
+};
 
 /**  Stable, machine-readable error category the frontend can branch on. */
 export type ErrorCode = 
@@ -258,6 +285,8 @@ export type FileDiffDto = {
 	content: DiffContentDto,
 	/**  Rows of the unified diff, hunk headers included (fetch them with `get_diff_lines`). */
 	rows: number,
+	/**  Rows of the side-by-side diff (fetch them with `get_split_diff_lines`). */
+	splitRows: number,
 	/**  Added lines. */
 	additions: number,
 	/**  Removed lines. */
@@ -460,6 +489,8 @@ export type Settings = {
 	graph?: GraphSettings,
 	/**  Repositories module. */
 	repositories?: RepositoriesSettings,
+	/**  The diff tab. */
+	diff?: DiffSettings,
 };
 
 /**  Author or committer. */
@@ -472,6 +503,30 @@ export type SignatureDto = {
 	time: number | null,
 	/**  Time-zone offset in minutes east of UTC. */
 	offsetMinutes: number,
+};
+
+/**  One side of a side-by-side row. */
+export type SplitCellDto = {
+	/**  `context`, `removed` (left) or `added` (right). */
+	kind: DiffLineKindDto,
+	/**  1-based line number on this side. */
+	line: number,
+	/**  The line without its line ending (non-UTF-8 bytes replaced). */
+	text: string,
+	/**  The line was cut at 4,096 bytes. */
+	truncated: boolean,
+	/**  The last line of this side, without a newline at the end. */
+	noNewline: boolean,
+};
+
+/**  One side-by-side row: a hunk header, or a line on the left, the right or both. */
+export type SplitLineDto = {
+	/**  `@@ -1,3 +1,4 @@` for a hunk header (the cells are then `null`). */
+	hunk: string | null,
+	/**  Old version. */
+	left: SplitCellDto | null,
+	/**  New version. */
+	right: SplitCellDto | null,
 };
 
 /**  One stash, newest first. */
@@ -555,6 +610,17 @@ export type ThemePreference =
 "light" | 
 /**  Always dark. */
 "dark";
+
+/**  Which whitespace changes the diff shows, as git's options name them. */
+export type WhitespaceMode = 
+/**  Every change. */
+"show" | 
+/**  Not whitespace at the end of lines (`--ignore-space-at-eol`). */
+"ignoreAtEol" | 
+/**  Not changes in the amount of whitespace (`-b`). */
+"ignoreChange" | 
+/**  No whitespace at all (`-w`). */
+"ignoreAll";
 
 /**  What a window is for. Each window asks for its own context when it starts. */
 export type WindowContext = 

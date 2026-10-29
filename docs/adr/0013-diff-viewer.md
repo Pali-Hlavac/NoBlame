@@ -69,6 +69,11 @@ Option 2.
   them (git would fetch them on demand).
 - Diffs longer than 1,000,000 rows show their first 1,000,000 rows (browsers cap element heights
   at about 33 million pixels). A scaled scroll bar like the commit graph's can lift this later.
-- Side by side reuses the same rows: context rows go to both columns, and removed and added runs
-  are paired. Word diff and highlighting are computed per page in Rust, or per visible row in
-  the webview.
+- Side by side (slice 3a) is built in Rust from the same rows: context rows go to both columns,
+  and each removed run is paired line by line with the added run after it
+  (`diff/split.rs`, `get_split_diff_lines`).
+  - Whitespace options compare lines by a key with the ignored whitespace removed. They and the
+    context are part of the cache key; they match `git diff -w`, `-b`, `--ignore-space-at-eol`
+    and `-U` in tests.
+  - Word diff and highlighting are computed per page in Rust, or per visible row in the
+    webview.

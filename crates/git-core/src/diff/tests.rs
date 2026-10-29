@@ -3,10 +3,15 @@
 use gix::diff::blob::Algorithm;
 
 use super::file::diff_blobs;
-use super::{DiffContent, FileDiff, LineKind, MAX_LINE_BYTES};
+use super::{DiffContent, DiffOptions, FileDiff, LineKind, MAX_LINE_BYTES};
 
 fn diff(old: &str, new: &str) -> FileDiff {
-    diff_blobs(old.into(), new.into(), Algorithm::Myers)
+    diff_blobs(
+        old.into(),
+        new.into(),
+        Algorithm::Myers,
+        DiffOptions::default(),
+    )
 }
 
 /// Rows as `git diff` prints them, without the file header.
@@ -102,7 +107,12 @@ fn marks_a_missing_newline_at_the_end() {
             "\\ No newline at end of file",
         ]
     );
-    let added_newline = diff_blobs("a".into(), "a\n".into(), Algorithm::Myers);
+    let added_newline = diff_blobs(
+        "a".into(),
+        "a\n".into(),
+        Algorithm::Myers,
+        DiffOptions::default(),
+    );
     assert_eq!(
         unified(&added_newline),
         ["@@ -1 +1 @@", "-a", "\\ No newline at end of file", "+a"]
@@ -143,6 +153,7 @@ fn binary_contents_are_not_compared() {
         b"PNG\0\x01".to_vec(),
         b"PNG\0\x02\x03".to_vec(),
         Algorithm::Myers,
+        DiffOptions::default(),
     );
     assert_eq!(diff.content(), DiffContent::Binary);
     assert_eq!(
@@ -173,6 +184,11 @@ fn pages_through_rows() {
 
 #[test]
 fn non_utf8_text_is_shown_lossily() {
-    let diff = diff_blobs(b"caf\xe9\n".to_vec(), b"cafe\n".to_vec(), Algorithm::Myers);
+    let diff = diff_blobs(
+        b"caf\xe9\n".to_vec(),
+        b"cafe\n".to_vec(),
+        Algorithm::Myers,
+        DiffOptions::default(),
+    );
     assert_eq!(unified(&diff), ["@@ -1 +1 @@", "-caf\u{fffd}", "+cafe"]);
 }

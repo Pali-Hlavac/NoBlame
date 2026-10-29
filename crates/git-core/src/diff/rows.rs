@@ -48,7 +48,9 @@ pub(super) fn build_rows(
     let mut first = 0;
     while first < changes.len() {
         let mut end = first + 1;
-        while end < changes.len() && changes[end].0.start - changes[end - 1].0.end <= 2 * context {
+        while end < changes.len()
+            && changes[end].0.start - changes[end - 1].0.end <= context.saturating_mul(2)
+        {
             end += 1;
         }
         push_hunk(&mut rows, &changes[first..end], sides, context);

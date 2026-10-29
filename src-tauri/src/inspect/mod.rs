@@ -10,6 +10,6 @@ mod status;
 mod types;
 
 pub use changes::ChangedFilesDto;
-pub use diff::{DiffLineDto, FileDiffDto};
+pub use diff::{DiffLineDto, DiffOptionsDto, FileDiffDto, SplitLineDto};
 pub use status::StatusSummaryDto;
 pub use types::{CommitDetailsDto, RefEntry, StashDto, SubmoduleDto};

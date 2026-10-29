@@ -13,7 +13,7 @@ use std::path::PathBuf;
 use std::process::ExitCode;
 use std::time::Instant;
 
-use git_core::diff::{file_diff, parse_object_id};
+use git_core::diff::{DiffOptions, file_diff, parse_object_id};
 use git_core::repo::Repository;
 
 /// Rows the diff tab asks for at once.
@@ -38,7 +38,7 @@ fn run(path: &std::path::Path, old: &str, new: &str) -> Result<(), Box<dyn std::
     let repo = Repository::discover(path)?.local();
     let (old, new) = (parse_object_id(old)?, parse_object_id(new)?);
     let started = Instant::now();
-    let diff = file_diff(&repo, Some(old), Some(new))?;
+    let diff = file_diff(&repo, Some(old), Some(new), DiffOptions::default())?;
     let computed = started.elapsed();
     let started = Instant::now();
     let middle = diff.row_count() / 2;

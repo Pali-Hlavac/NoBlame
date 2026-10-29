@@ -2,60 +2,23 @@
 //! git's slider heuristics and the repository's `diff.algorithm`). The result keeps both blobs
 //! and compact rows, so a huge diff is rendered page by page (see [`FileDiff::lines`]).
 
-use gix::diff::blob::{Algorithm, InternedInput, diff_with_slider_heuristics};
+use gix::diff::blob::{Algorithm, diff_with_slider_heuristics};
 
-use super::rows::{CONTEXT_LINES, Row, Sides, build_rows};
+use super::lines::{DiffContent, DiffLine, LineKind};
+use super::options::{DiffOptions, intern};
+use super::rows::{Row, Sides, build_rows};
+use super::split::{SplitRow, build_split};
 use super::text::{Side, display_text, hunk_range, is_binary, to_u32};
-
-/// What kind of comparison a file got.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum DiffContent {
-    /// Compared line by line.
-    Text,
-    /// One side is binary (a NUL byte, as git decides); only the sizes are known.
-    Binary,
-    /// One side is larger than [`MAX_DIFF_BLOB_BYTES`](super::MAX_DIFF_BLOB_BYTES); only the
-    /// sizes are known.
-    TooLarge,
-}
-
-/// What a row of the diff shows.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum LineKind {
-    /// Hunk header; the text is `@@ -1,3 +1,4 @@`.
-    Hunk,
-    /// Unchanged line.
-    Context,
-    /// Line only in the new version.
-    Added,
-    /// Line only in the old version.
-    Removed,
-    /// The line above has no newline at the end of the file (no text).
-    NoNewline,
-}
-
-/// One rendered row.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct DiffLine {
-    /// What the row shows.
-    pub kind: LineKind,
-    /// 1-based line number in the old version (context and removed lines).
-    pub old_line: Option<u32>,
-    /// 1-based line number in the new version (context and added lines).
-    pub new_line: Option<u32>,
-    /// The line without its line ending; lossy for non-UTF-8 bytes.
-    pub text: String,
-    /// The line was longer than [`MAX_LINE_BYTES`](super::MAX_LINE_BYTES) and was cut.
-    pub truncated: bool,
-}
 
 /// The diff of two versions of a file.
 #[derive(Debug)]
 pub struct FileDiff {
     content: DiffContent,
-    old: Side,
-    new: Side,
-    rows: Vec<Row>,
+    pub(super) old: Side,
+    pub(super) new: Side,
+    pub(super) rows: Vec<Row>,
+    /// The same rows side by side.
+    pub(super) split: Vec<SplitRow>,
     additions: u32,
     deletions: u32,
     old_size: u64,
@@ -63,14 +26,20 @@ pub struct FileDiff {
 }
 
 /// The diff of two file contents.
-pub(crate) fn diff_blobs(old: Vec<u8>, new: Vec<u8>, algorithm: Algorithm) -> FileDiff {
+pub(crate) fn diff_blobs(
+    old: Vec<u8>,
+    new: Vec<u8>,
+    algorithm: Algorithm,
+    options: DiffOptions,
+) -> FileDiff {
     let (old_size, new_size) = (old.len() as u64, new.len() as u64);
     if is_binary(&old) || is_binary(&new) {
         return FileDiff::sizes_only(DiffContent::Binary, old_size, new_size);
     }
     let (old, new) = (Side::new(old), Side::new(new));
-    let input = InternedInput::new(old.data.as_slice(), new.data.as_slice());
+    let input = intern(&old, &new, options.whitespace);
     let diff = diff_with_slider_heuristics(algorithm, &input);
+    drop(input);
     let changes: Vec<_> = diff.hunks().map(|hunk| (hunk.before, hunk.after)).collect();
     let sides = Sides {
         old_lines: old.line_count(),
@@ -78,9 +47,11 @@ pub(crate) fn diff_blobs(old: Vec<u8>, new: Vec<u8>, algorithm: Algorithm) -> Fi
         old_open: old.open(),
         new_open: new.open(),
     };
+    let rows = build_rows(&changes, sides, options.context);
     FileDiff {
         content: DiffContent::Text,
-        rows: build_rows(&changes, sides, CONTEXT_LINES),
+        split: build_split(&rows),
+        rows,
         additions: diff.count_additions(),
         deletions: diff.count_removals(),
         old,
@@ -97,6 +68,7 @@ impl FileDiff {
             old: Side::default(),
             new: Side::default(),
             rows: Vec::new(),
+            split: Vec::new(),
             additions: 0,
             deletions: 0,
             old_size,
@@ -157,7 +129,10 @@ impl FileDiff {
     /// Bytes held, for cache budgets.
     pub fn memory_bytes(&self) -> usize {
         let side = |side: &Side| side.data.capacity() + side.starts.capacity() * size_of::<usize>();
-        side(&self.old) + side(&self.new) + self.rows.capacity() * size_of::<Row>()
+        side(&self.old)
+            + side(&self.new)
+            + self.rows.capacity() * size_of::<Row>()
+            + self.split.capacity() * size_of::<SplitRow>()
     }
 
     /// Up to `count` rows from row `start`.

@@ -1,39 +1,7 @@
-import type { DiffLineDto, DiffLineKindDto } from "@/shared/ipc/bindings";
+import type { DiffLineDto } from "@/shared/ipc/bindings";
 import { cn } from "@/shared/lib/cn";
 
-const ROW_CLASSES: Readonly<Record<DiffLineKindDto, string>> = {
-  hunk: "bg-diff-hunk text-muted-foreground",
-  context: "",
-  added: "bg-diff-added",
-  removed: "bg-diff-removed",
-  noNewline: "text-muted-foreground italic",
-};
-
-/** The line numbers stay put while scrolling sideways, so they need an opaque background. */
-const GUTTER_CLASSES: Readonly<Record<DiffLineKindDto, string>> = {
-  hunk: "bg-diff-hunk",
-  context: "bg-background",
-  added: "bg-diff-added",
-  removed: "bg-diff-removed",
-  noNewline: "bg-background",
-};
-
-const MARKERS: Readonly<Record<DiffLineKindDto, string>> = {
-  hunk: "",
-  context: "",
-  added: "+",
-  removed: "-",
-  noNewline: "",
-};
-
-/** Read by screen readers instead of the + and - markers. */
-const SPOKEN: Readonly<Record<DiffLineKindDto, string>> = {
-  hunk: "",
-  context: "",
-  added: "added: ",
-  removed: "removed: ",
-  noNewline: "",
-};
+import { GUTTER_CLASSES, LINE_CLASSES, MARKERS, SPOKEN, TRUNCATED_NOTE } from "../lib/rowStyles";
 
 interface DiffRowProps {
   /** `undefined` while its page loads. */
@@ -42,12 +10,12 @@ interface DiffRowProps {
   digits: number;
 }
 
-/** One row: old and new line numbers, the +/- marker, and the text. */
+/** One unified row: old and new line numbers, the +/- marker, and the text. */
 export function DiffRow({ line, digits }: DiffRowProps) {
   if (!line) return null;
   const number = { width: `${digits}ch` };
   return (
-    <div className={cn("flex h-full w-max min-w-full", ROW_CLASSES[line.kind])}>
+    <div className={cn("flex h-full w-max min-w-full", LINE_CLASSES[line.kind])}>
       <span
         aria-hidden
         className={cn(
@@ -65,7 +33,7 @@ export function DiffRow({ line, digits }: DiffRowProps) {
         <span className="sr-only">{SPOKEN[line.kind]}</span>
         {line.kind === "noNewline" ? "No newline at end of file" : line.text}
         {line.truncated && (
-          <span className="pl-2 text-muted-foreground italic">… line cut at 4,096 bytes</span>
+          <span className="pl-2 text-muted-foreground italic">{TRUNCATED_NOTE}</span>
         )}
       </span>
     </div>

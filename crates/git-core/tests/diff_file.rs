@@ -5,12 +5,19 @@ mod support;
 
 use std::fs;
 
-use git_core::diff::{DiffContent, DiffError, FileDiff, LineKind, commit_changes, file_diff};
+use git_core::diff::{
+    DiffContent, DiffError, DiffOptions, FileDiff, LineKind, WHOLE_FILE_CONTEXT, Whitespace,
+    commit_changes, file_diff,
+};
 use git_core::repo::Repository;
 use support::Fixture;
 
 /// The diff of `path` in HEAD against its first parent.
 fn head_diff(fixture: &Fixture, path: &str) -> FileDiff {
+    head_diff_with(fixture, path, DiffOptions::default())
+}
+
+fn head_diff_with(fixture: &Fixture, path: &str, options: DiffOptions) -> FileDiff {
     let repo = Repository::discover(&fixture.path()).unwrap().local();
     let head = repo.head_id().unwrap().detach();
     let changes = commit_changes(&repo, head, 0).unwrap();
@@ -19,7 +26,7 @@ fn head_diff(fixture: &Fixture, path: &str) -> FileDiff {
         .iter()
         .find(|file| file.display_path() == path)
         .unwrap();
-    file_diff(&repo, file.old_id, file.new_id).unwrap()
+    file_diff(&repo, file.old_id, file.new_id, options).unwrap()
 }
 
 /// Rows as `git diff` prints them.
@@ -38,7 +45,14 @@ fn unified(diff: &FileDiff) -> Vec<String> {
 
 /// `git diff` of `path` in HEAD, without the file header and without hunk function names.
 fn git_diff(fixture: &Fixture, path: &str) -> Vec<String> {
-    let output = fixture.git(&["diff", "--no-color", "HEAD~1", "HEAD", "--", path]);
+    git_diff_with(fixture, path, &[])
+}
+
+fn git_diff_with(fixture: &Fixture, path: &str, options: &[&str]) -> Vec<String> {
+    let mut args = vec!["diff", "--no-color"];
+    args.extend_from_slice(options);
+    args.extend(["HEAD~1", "HEAD", "--", path]);
+    let output = fixture.git(&args);
     output
         .lines()
         .skip_while(|line| !line.starts_with("@@"))
@@ -106,7 +120,67 @@ fn refuses_objects_that_are_not_files() {
     let repo = Repository::discover(&fixture.path()).unwrap().local();
     let tree = repo.head_commit().unwrap().tree_id().unwrap().detach();
     assert!(matches!(
-        file_diff(&repo, None, Some(tree)),
+        file_diff(&repo, None, Some(tree), DiffOptions::default()),
         Err(DiffError::NotAFile(id)) if id == tree
     ));
+}
+
+#[test]
+fn whitespace_options_and_context_match_git() {
+    let fixture = Fixture::new();
+    let before = (1..=30)
+        .map(|line| {
+            format!(
+                "    let value_{line} = {line};
+"
+            )
+        })
+        .collect::<Vec<_>>()
+        .concat();
+    write(&fixture, "ws.rs", &before);
+    fixture.git(&["add", "."]);
+    fixture.commit("base");
+    let after = before
+        .replace(
+            "    let value_3 = 3;
+",
+            "	let value_3 = 3;
+",
+        )
+        .replace(
+            "value_8 = 8;
+",
+            "value_8 = 8;   
+",
+        )
+        .replace(
+            "    let value_12 = 12;
+",
+            "    let  value_12 =  12;
+",
+        )
+        .replace("value_25 = 25", "value_25 = 26");
+    write(&fixture, "ws.rs", &after);
+    fixture.git(&["add", "."]);
+    fixture.commit("edit");
+
+    let cases: [(Whitespace, u32, &[&str]); 5] = [
+        (Whitespace::IgnoreAtEol, 3, &["--ignore-space-at-eol"]),
+        (Whitespace::IgnoreChange, 3, &["-b"]),
+        (Whitespace::IgnoreAll, 3, &["-w"]),
+        (Whitespace::Show, 0, &["-U0"]),
+        (Whitespace::Show, WHOLE_FILE_CONTEXT, &["-U100"]),
+    ];
+    for (whitespace, context, git_options) in cases {
+        let options = DiffOptions {
+            whitespace,
+            context,
+        };
+        let diff = head_diff_with(&fixture, "ws.rs", options);
+        assert_eq!(
+            unified(&diff),
+            git_diff_with(&fixture, "ws.rs", git_options),
+            "{git_options:?}"
+        );
+    }
 }

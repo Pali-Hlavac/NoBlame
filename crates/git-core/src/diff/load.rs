@@ -4,7 +4,9 @@ use gix::ObjectId;
 use gix::diff::blob::Algorithm;
 
 use super::DiffError;
-use super::file::{DiffContent, FileDiff, diff_blobs};
+use super::file::{FileDiff, diff_blobs};
+use super::lines::DiffContent;
+use super::options::DiffOptions;
 
 /// Larger files are not compared; their sizes are shown instead.
 pub const MAX_DIFF_BLOB_BYTES: u64 = 64 << 20;
@@ -15,6 +17,7 @@ pub fn file_diff(
     repo: &gix::Repository,
     old: Option<ObjectId>,
     new: Option<ObjectId>,
+    options: DiffOptions,
 ) -> Result<FileDiff, DiffError> {
     let (old_size, new_size) = (blob_size(repo, old)?, blob_size(repo, new)?);
     if old_size.max(new_size) > MAX_DIFF_BLOB_BYTES {
@@ -30,6 +33,7 @@ pub fn file_diff(
         read_blob(repo, old)?,
         read_blob(repo, new)?,
         algorithm,
+        options,
     ))
 }
 

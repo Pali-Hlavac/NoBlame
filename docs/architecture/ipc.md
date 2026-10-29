@@ -73,18 +73,19 @@ returned by `open_repository`; a session lives as long as its tab.
 Read-only views for the workbench modules (`src-tauri/src/inspect/`), and the saved layout
 (`src-tauri/src/workbench/`). Main window only.
 
-| Command                 | Async | Returns                            | Purpose                                                                                                       |
-| ----------------------- | ----- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `get_changed_files`     | yes   | `Result<ChangedFilesDto>`          | Files the commit on `row` changed against parent number `parent` (status, paths, blob ids; max. 5,000)        |
-| `get_file_diff`         | yes   | `Result<FileDiffDto>`              | Line diff of two blobs (hex ids, `null` = absent): text/binary/too large, counts, sizes, row count (ADR 0013) |
-| `get_diff_lines`        | yes   | `Result<DiffLineDto[]>`            | Up to 2,000 rows of that diff from `start`: kind, old/new line numbers, text (cut at 4,096 bytes)             |
-| `get_commit_details`    | yes   | `Result<CommitDetailsDto>`         | Message, author/committer, parents with rows, refs, refs containing the commit (max. 500)                     |
-| `list_refs`             | yes   | `Result<RefEntry[]>`               | Branches, remote branches and tags from the session's graph, with the row of their commit                     |
-| `list_stashes`          | yes   | `Result<StashDto[]>`               | The stash list from the `refs/stash` reflog, newest first                                                     |
-| `get_status_summary`    | yes   | `Result<StatusSummaryDto \| null>` | Staged, unstaged, untracked and conflicted counts (`git status --porcelain=v2`); `null` for a bare repository |
-| `list_submodules`       | yes   | `Result<SubmoduleDto[]>`           | Submodules of the repository containing `path`, nested (no session needed)                                    |
-| `get_workbench_layout`  | yes   | `Result<unknown \| null>`          | The saved layout (opaque JSON owned by the frontend); a damaged file is treated as missing                    |
-| `save_workbench_layout` | yes   | `Result<null>`                     | Saves the layout; `null` forgets it ("Reset layout")                                                          |
+| Command                 | Async | Returns                            | Purpose                                                                                                                                                     |
+| ----------------------- | ----- | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `get_changed_files`     | yes   | `Result<ChangedFilesDto>`          | Files the commit on `row` changed against parent number `parent` (status, paths, blob ids; max. 5,000)                                                      |
+| `get_file_diff`         | yes   | `Result<FileDiffDto>`              | Line diff of two blobs (hex ids, `null` = absent) with `options` (whitespace, context): kind, counts, sizes, unified and side-by-side row counts (ADR 0013) |
+| `get_diff_lines`        | yes   | `Result<DiffLineDto[]>`            | Up to 2,000 unified rows of that diff from `start`: kind, old/new line numbers, text (cut at 4,096 bytes)                                                   |
+| `get_split_diff_lines`  | yes   | `Result<SplitLineDto[]>`           | Up to 2,000 side-by-side rows: a hunk header, or a left and a right cell (line, kind, text, no-newline flag)                                                |
+| `get_commit_details`    | yes   | `Result<CommitDetailsDto>`         | Message, author/committer, parents with rows, refs, refs containing the commit (max. 500)                                                                   |
+| `list_refs`             | yes   | `Result<RefEntry[]>`               | Branches, remote branches and tags from the session's graph, with the row of their commit                                                                   |
+| `list_stashes`          | yes   | `Result<StashDto[]>`               | The stash list from the `refs/stash` reflog, newest first                                                                                                   |
+| `get_status_summary`    | yes   | `Result<StatusSummaryDto \| null>` | Staged, unstaged, untracked and conflicted counts (`git status --porcelain=v2`); `null` for a bare repository                                               |
+| `list_submodules`       | yes   | `Result<SubmoduleDto[]>`           | Submodules of the repository containing `path`, nested (no session needed)                                                                                  |
+| `get_workbench_layout`  | yes   | `Result<unknown \| null>`          | The saved layout (opaque JSON owned by the frontend); a damaged file is treated as missing                                                                  |
+| `save_workbench_layout` | yes   | `Result<null>`                     | Saves the layout; `null` forgets it ("Reset layout")                                                                                                        |
 
 The layout travels as `Layout`, a transparent `serde_json::Value` with a manual `specta::Type`
 impl (`unknown`), because specta refuses `serde_json::Value`'s 64-bit numbers. The frontend

@@ -1,8 +1,9 @@
 # Diff tab
 
 The **diff tab** shows the line diff of the file chosen in Changed files. Status: M3 slice 2
-(unified view). Side by side, syntax highlighting, whitespace options, word diff and images
-are slice 3. Design: [design/workbench.md](../design/workbench.md#diff-tab); ADR 0013.
+(unified view) and slice 3a (side by side, whitespace and context options). Word diff, syntax
+highlighting and images follow (slices 3b to 3d). Design:
+[design/workbench.md](../design/workbench.md#diff-tab); ADR 0013.
 
 ## Behaviour
 
@@ -13,15 +14,26 @@ are slice 3. Design: [design/workbench.md](../design/workbench.md#diff-tab); ADR
   and the chosen file. The file is remembered by path, so selecting another commit shows the same
   file there if that commit changed it too. Otherwise the tab says the file did not change in
   that commit.
-- Rows: hunk headers (`@@ -10,7 +10,8 @@`), unchanged lines, removed lines (`-`, red) and added
-  lines (`+`, green), each with its old and new line number. "No newline at end of file" is
-  shown as git shows it. Line endings are not shown; tabs are 4 columns wide.
+- **Unified** rows: hunk headers (`@@ -10,7 +10,8 @@`), unchanged lines, removed lines (`-`,
+  red) and added lines (`+`, green), each with its old and new line number. "No newline at end of
+  file" is shown as git shows it. Line endings are not shown; tabs are 4 columns wide.
+- **Side by side**: the old version on the left, the new one on the right. Each run of removed
+  lines is paired line by line with the added lines after it; the shorter side is left empty.
+  A missing newline at the end is noted after the line. Both halves scroll sideways together,
+  through the scroll bar below them, shift + wheel, a trackpad, or the left and right arrow keys.
+  With whitespace ignored, unchanged lines show each side's own text.
+- **Options** in the header, saved in the settings (Settings → Diff) and used for every diff:
+  - layout: Unified or Side by side (switching does not compute the diff again);
+  - whitespace: show all changes, ignore at line ends (`--ignore-space-at-eol`), ignore changes
+    in amount (`-b`) or ignore all whitespace (`-w`);
+  - context: 3, 10 or 25 unchanged lines around each change, or the whole file.
 - The header shows the file name, its folder (or the old name of a rename), the status and the
   added and removed line counts.
 - Special cases, each with its own message:
   - binary files (old and new size);
   - files over 64 MB (not compared);
   - files whose contents did not change (a pure rename, or only the mode changed);
+  - only whitespace changed while whitespace is ignored;
   - empty added or removed files;
   - submodule pointers (old and new commit);
   - partial clones, where the old version of a file is not local;
@@ -33,28 +45,46 @@ are slice 3. Design: [design/workbench.md](../design/workbench.md#diff-tab); ADR
 
 ## How it works
 
-- `git_core::diff::file_diff` (in `diff/load.rs`, `diff/file.rs`, `diff/rows.rs`, `diff/text.rs`)
-  reads both blobs and diffs them with gix's imara-diff and git's slider heuristics. It honours
-  `diff.algorithm` and builds rows with 3 lines of context.
-- The session keeps the last 8 diffs (256 MB at most) in `repository/diff_cache.rs`, so paging
-  and switching back cost nothing.
-- `get_file_diff` returns the summary; `get_diff_lines` returns up to 2,000 rows from a start
-  row. Both take blob ids from `get_changed_files`.
-- Frontend: `features/diff` (`DiffView` resolves the chosen file, `FileDiffView` handles the
-  special cases, `DiffLines` virtualizes and pages, `DiffRow` draws one row). Colours come from
-  the `--diff-added`, `--diff-removed` and `--diff-hunk` tokens.
+- `git_core::diff::file_diff(repo, old, new, options)` reads both blobs (`diff/load.rs`) and
+  diffs them (`diff/file.rs`) with gix's imara-diff and git's slider heuristics. It honours
+  `diff.algorithm`.
+  - **Whitespace options:** lines are compared by a key with the ignored whitespace removed
+    (`diff/options.rs`, git's whitespace characters).
+  - **Rows:** hunks with the chosen context are built in `diff/rows.rs`, side-by-side rows from
+    them in `diff/split.rs`, and the public row types are in `diff/lines.rs`.
+  - **Tests:** every option is compared with `git diff --ignore-space-at-eol`, `-b`, `-w` and
+    `-U` output.
+- The session keeps the last 8 diffs (256 MB at most) in `repository/diff_cache.rs`, keyed by
+  both blob ids and the options, so paging and switching back cost nothing.
+- **Commands:**
+  - `get_file_diff(id, oldId, newId, options)` returns the summary: kind, counts, sizes, line
+    counts, and the unified and side-by-side row counts;
+  - `get_diff_lines` and `get_split_diff_lines` return up to 2,000 rows from a start row.
+  - Blob ids come from `get_changed_files`.
+- **Frontend:** `features/diff`.
+  - `DiffView` resolves the chosen file and `FileDiffView` handles the special cases.
+  - `DiffHeader` holds the options.
+  - `DiffLines` (unified) and `SplitLines` virtualize and page with `useVirtualRows`; `DiffRow`
+    and `SplitRow` draw one row.
+  - Side by side moves its text with the CSS variable `--diff-scroll-x`, so scrolling sideways
+    does not re-render rows.
+  - Colours come from the `--diff-added`, `--diff-removed` and `--diff-hunk` tokens.
+- The settings are `diff.layout`, `diff.whitespace` and `diff.contextLines` (`useDiffSettings`
+  in `features/settings`; 4294967295 lines means the whole file).
 - The chosen path and the compared parent live in `features/selection` (`selectFile`,
   `compareWithParent`); `showDiffTab` in `features/workspace` opens the tab.
 
 ## Performance
 
-13 MB file, 200,000 lines, 2,000 scattered edits: 46 ms to diff, 0.06 ms per page of 500
-rows (release build, Windows). See [performance.md](../development/performance.md).
+13 MB file, 200,000 lines, 2,000 scattered edits: 40–50 ms to diff, including the side-by-side
+rows, and 0.06 ms per page of 500 rows (release build, Windows). See
+[performance.md](../development/performance.md).
 
 ## Not yet
 
-- Side by side, syntax highlighting, word diff, whitespace options, more or less context (slice 3).
-- Images and other binary previews (slice 3); `.gitattributes` `binary`/`-diff` (slice 3).
+- Word diff: the changed words inside paired lines (slice 3b).
+- Syntax highlighting (slice 3c).
+- Images and other binary previews; `.gitattributes` `binary`/`-diff` (slice 3d).
 - Next/previous change shortcuts; search inside the diff.
 - Diffs of uncommitted changes and staging hunks or lines (M4).
 - Several diff tabs, or a diff in its own window (`noblame diff`); later.

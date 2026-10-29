@@ -35,6 +35,15 @@ impl Side {
         self.data.last().is_some_and(|&byte| byte != b'\n')
     }
 
+    /// Line `index` with its line ending.
+    pub fn raw_line(&self, index: u32) -> &[u8] {
+        let index = index as usize;
+        match (self.starts.get(index), self.starts.get(index + 1)) {
+            (Some(&start), Some(&end)) => &self.data[start..end],
+            _ => &[],
+        }
+    }
+
     /// Line `index` without its line ending.
     pub fn line(&self, index: u32) -> &[u8] {
         let index = index as usize;

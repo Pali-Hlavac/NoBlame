@@ -177,5 +177,8 @@ warm. Synthetic files written with `git hash-object -w`:
 first pair takes about 117 ms. The Linux benchmark clone is blobless, so its old file contents
 are not local; the diff tab says so instead of downloading them.
 
+With side-by-side rows built as well (slice 3a, 2026-10-29): 40–50 ms and 31 MB for the first
+case, 70 ms and 56 MB for the second.
+
 Not measured yet: frame times while scrolling, a real large repository (Linux kernel), a cold
 disk cache, macOS and Linux.

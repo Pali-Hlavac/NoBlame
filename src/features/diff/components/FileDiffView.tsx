@@ -1,56 +1,25 @@
 import { BinaryIcon, EqualIcon, FileWarningIcon, PackageIcon } from "lucide-react";
 
-import { STATUS_LABELS, splitPath } from "@/features/changed-files";
 import { shortId } from "@/features/graph";
+import { useDiffSettings } from "@/features/settings";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { LoadingState } from "@/shared/components/LoadingState";
 import type { ChangedFileDto, FileDiffDto } from "@/shared/ipc/bindings";
 
-import { useFileDiff } from "../api/diff";
-import { formatBytes, formatChangeCounts } from "../lib/format";
+import { useFileDiff, type DiffRequest } from "../api/diff";
+import { formatBytes, unchangedText } from "../lib/format";
+import { DiffHeader } from "./DiffHeader";
 import { DiffLines } from "./DiffLines";
 
-/** File name, folder, old name of a rename, status and line counts. */
-function DiffHeader({ file, diff }: { file: ChangedFileDto; diff: FileDiffDto | undefined }) {
-  const { name, folder } = splitPath(file.path);
-  return (
-    <div className="flex shrink-0 flex-wrap items-baseline gap-x-2 border-b border-border px-3 py-1.5 text-sm">
-      <span className="font-medium">{name}</span>
-      <span className="min-w-0 truncate text-xs text-muted-foreground">
-        {file.previousPath
-          ? `${STATUS_LABELS[file.status].word} from ${file.previousPath}`
-          : folder}
-      </span>
-      <span className="ml-auto flex gap-2 text-xs text-muted-foreground">
-        {!file.previousPath && <span>{STATUS_LABELS[file.status].word}</span>}
-        {diff?.content === "text" && diff.rows > 0 && (
-          <span className="font-mono">{formatChangeCounts(diff.additions, diff.deletions)}</span>
-        )}
-      </span>
-    </div>
-  );
-}
-
-/** Why there are no rows although the file is listed as changed. */
-function unchangedText(file: ChangedFileDto): string {
-  if (file.oldId === file.newId) {
-    return file.previousPath
-      ? "The file was moved; its contents did not change."
-      : "Only the file mode changed (for example the executable bit).";
-  }
-  return file.status === "added" ? "The new file is empty." : "The removed file was empty.";
-}
-
-function DiffBody({
-  repoId,
-  file,
-  diff,
-}: {
-  repoId: number;
+interface DiffBodyProps {
+  request: DiffRequest;
   file: ChangedFileDto;
   diff: FileDiffDto;
-}) {
+}
+
+function DiffBody({ request, file, diff }: DiffBodyProps) {
+  const [settings] = useDiffSettings();
   const sizes = `${formatBytes(Number(diff.oldSize))} → ${formatBytes(Number(diff.newSize))}`;
   if (diff.content === "binary") {
     return (
@@ -77,17 +46,16 @@ function DiffBody({
       <EmptyState
         icon={EqualIcon}
         title="No changed lines"
-        description={unchangedText(file)}
+        description={unchangedText(file, settings.whitespace)}
         className="flex-1"
       />
     );
   }
   return (
     <DiffLines
-      repoId={repoId}
-      oldId={file.oldId}
-      newId={file.newId}
+      request={request}
       diff={diff}
+      layout={settings.layout}
       label={`Diff of ${file.path}`}
     />
   );
@@ -95,8 +63,15 @@ function DiffBody({
 
 /** The diff of one changed file of the selected commit. */
 export function FileDiffView({ repoId, file }: { repoId: number; file: ChangedFileDto }) {
+  const [settings] = useDiffSettings();
+  const request: DiffRequest = {
+    repoId,
+    oldId: file.oldId,
+    newId: file.newId,
+    options: { whitespace: settings.whitespace, context: settings.contextLines },
+  };
   // A submodule entry points at a commit, not at file contents.
-  const diff = useFileDiff(repoId, file.oldId, file.newId, !file.submodule);
+  const diff = useFileDiff(request, !file.submodule);
   let body;
   if (file.submodule) {
     const from = file.oldId ? shortId(file.oldId) : "nothing";
@@ -121,7 +96,7 @@ export function FileDiffView({ repoId, file }: { repoId: number; file: ChangedFi
   } else if (!diff.data) {
     body = <LoadingState label="Comparing…" className="flex-1" />;
   } else {
-    body = <DiffBody repoId={repoId} file={file} diff={diff.data} />;
+    body = <DiffBody request={request} file={file} diff={diff.data} />;
   }
   return (
     <div className="flex h-full flex-col">

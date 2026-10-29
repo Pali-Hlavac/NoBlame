@@ -1,4 +1,12 @@
-import { diffTabTitle, formatBytes, formatChangeCounts, gutterDigits } from "./format";
+import type { ChangedFileDto } from "@/shared/ipc/bindings";
+
+import {
+  diffTabTitle,
+  formatBytes,
+  formatChangeCounts,
+  gutterDigits,
+  unchangedText,
+} from "./format";
 
 describe("formatBytes", () => {
   it("names bytes, then binary units", () => {
@@ -29,5 +37,26 @@ describe("gutterDigits", () => {
   it("fits the largest line number", () => {
     expect(gutterDigits(5, 9)).toBe(3);
     expect(gutterDigits(12_345, 99)).toBe(5);
+  });
+});
+
+describe("unchangedText", () => {
+  const file = (change: Partial<ChangedFileDto>): ChangedFileDto => ({
+    path: "a.txt",
+    previousPath: null,
+    status: "modified",
+    oldId: "1",
+    newId: "2",
+    submodule: false,
+    ...change,
+  });
+
+  it("explains each reason a changed file has no rows", () => {
+    expect(unchangedText(file({ newId: "1" }), "show")).toMatch(/mode changed/);
+    expect(unchangedText(file({ newId: "1", previousPath: "b.txt" }), "show")).toMatch(/moved/);
+    expect(unchangedText(file({}), "ignoreAll")).toMatch(/Only whitespace changed/);
+    expect(unchangedText(file({ status: "added", oldId: null }), "show")).toMatch(
+      /new file is empty/,
+    );
   });
 });

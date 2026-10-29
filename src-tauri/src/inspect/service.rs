@@ -1,9 +1,10 @@
 //! Inspect operations behind the Tauri commands. They reuse the session's graph, so they cost
 //! nothing extra when the repository tab has already loaded its history.
 
-use git_core::diff::{DiffError, ObjectId, commit_changes, parse_object_id};
+use git_core::diff::{DiffError, FileDiff, ObjectId, commit_changes, parse_object_id};
 use git_core::graph::{GraphError, RefKind, commit_details};
 use std::path::PathBuf;
+use std::sync::Arc;
 
 use git_core::cli::Git;
 use git_core::repo::RepoKind;
@@ -14,8 +15,8 @@ use git_core::submodule::list_submodules;
 use tokio_util::sync::CancellationToken;
 
 use super::{
-    ChangedFilesDto, CommitDetailsDto, DiffLineDto, FileDiffDto, RefEntry, StashDto,
-    StatusSummaryDto, SubmoduleDto,
+    ChangedFilesDto, CommitDetailsDto, DiffLineDto, DiffOptionsDto, FileDiffDto, RefEntry,
+    SplitLineDto, StashDto, StatusSummaryDto, SubmoduleDto,
 };
 use crate::git_env::GitEnvError;
 use crate::repository::{RepoId, RepoSessions, RepositoryError, blocking};
@@ -55,31 +56,57 @@ pub async fn changed_files(
 /// Most diff rows one request may ask for.
 const MAX_DIFF_PAGE_ROWS: u32 = 2_000;
 
-/// The diff between blobs `old` and `new` (hex ids; `None` when the file is absent there).
+/// Which file diff a request is about: blob ids (hex; `None` when the file is absent on that
+/// side) and the options.
+pub struct DiffRequest {
+    pub old: Option<String>,
+    pub new: Option<String>,
+    pub options: DiffOptionsDto,
+}
+
+async fn computed(
+    sessions: &RepoSessions,
+    id: RepoId,
+    request: DiffRequest,
+) -> Result<Arc<FileDiff>, RepositoryError> {
+    let session = sessions.get(id)?;
+    let (old, new) = (parse(request.old)?, parse(request.new)?);
+    session.file_diff(old, new, request.options.into()).await
+}
+
+/// The diff a request names: kind, counts and row counts.
 pub async fn file_diff(
     sessions: &RepoSessions,
     id: RepoId,
-    old: Option<String>,
-    new: Option<String>,
+    request: DiffRequest,
 ) -> Result<FileDiffDto, RepositoryError> {
-    let session = sessions.get(id)?;
-    let diff = session.file_diff(parse(old)?, parse(new)?).await?;
-    Ok(FileDiffDto::from(&*diff))
+    Ok(FileDiffDto::from(&*computed(sessions, id, request).await?))
 }
 
-/// Up to `count` rows of that diff from row `start`.
+/// Up to `count` unified rows of that diff from row `start`.
 pub async fn diff_lines(
     sessions: &RepoSessions,
     id: RepoId,
-    old: Option<String>,
-    new: Option<String>,
+    request: DiffRequest,
     start: u32,
     count: u32,
 ) -> Result<Vec<DiffLineDto>, RepositoryError> {
-    let session = sessions.get(id)?;
-    let diff = session.file_diff(parse(old)?, parse(new)?).await?;
+    let diff = computed(sessions, id, request).await?;
     let lines = diff.lines(start, count.min(MAX_DIFF_PAGE_ROWS));
     Ok(lines.into_iter().map(DiffLineDto::from).collect())
+}
+
+/// Up to `count` side-by-side rows of that diff from row `start`.
+pub async fn split_diff_lines(
+    sessions: &RepoSessions,
+    id: RepoId,
+    request: DiffRequest,
+    start: u32,
+    count: u32,
+) -> Result<Vec<SplitLineDto>, RepositoryError> {
+    let diff = computed(sessions, id, request).await?;
+    let lines = diff.split_lines(start, count.min(MAX_DIFF_PAGE_ROWS));
+    Ok(lines.into_iter().map(SplitLineDto::from).collect())
 }
 
 fn parse(id: Option<String>) -> Result<Option<ObjectId>, DiffError> {

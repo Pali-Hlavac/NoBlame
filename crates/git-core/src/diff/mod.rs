@@ -3,13 +3,18 @@
 
 mod changes;
 mod file;
+mod lines;
 mod load;
+mod options;
 mod rows;
+mod split;
 mod text;
 
 pub use changes::{ChangeStatus, ChangedFile, CommitChanges, MAX_CHANGED_FILES, commit_changes};
-pub use file::{DiffContent, DiffLine, FileDiff, LineKind};
+pub use file::FileDiff;
+pub use lines::{DiffContent, DiffLine, LineKind, SplitCell, SplitLine};
 pub use load::{MAX_DIFF_BLOB_BYTES, file_diff};
+pub use options::{DiffOptions, WHOLE_FILE_CONTEXT, Whitespace};
 pub use rows::CONTEXT_LINES;
 pub use text::MAX_LINE_BYTES;
 
@@ -47,5 +52,7 @@ pub fn parse_object_id(hex: &str) -> Result<ObjectId, DiffError> {
     ObjectId::from_hex(hex.as_bytes()).map_err(|_| DiffError::InvalidId(hex.to_owned()))
 }
 
+#[cfg(test)]
+mod options_tests;
 #[cfg(test)]
 mod tests;

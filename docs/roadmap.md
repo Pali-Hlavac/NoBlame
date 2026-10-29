@@ -199,6 +199,19 @@ Verified in the running dev app (NoBlame's own repository, through the DevTools 
 Known cosmetic issue: when scrolling sideways, a coloured row background ends at the pane width.
 Next: slice 3 (side by side, highlighting, whitespace, word diff, images).
 
+2026-10-29: the owner's new logo and icons (painted finch, hand-made `.ico`, transparent songbird
+in the title bar). Slice 3 split into 3a (side by side, whitespace, context), 3b (word diff),
+3c (syntax highlighting), 3d (images, binary attributes).
+
+Slice 3a done. Verified in the running dev app:
+
+- switching to side by side (pairs and empty halves correct);
+- the shared sideways scroll bar and the wheel;
+- ignoring all whitespace and showing the whole file (one hunk over the whole file);
+- the toolbar in a narrow pane.
+
+All options match `git diff` in an integration test.
+
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
 highlighted after a slow first load and names both costs (done). Option 2 later: show rows while
@@ -284,9 +297,9 @@ Not verified in the running app (they need someone at the keyboard; the logic is
 - [x] Changed files module for the selected commit (list, renames, merge parents); selecting
       a file shows it in the single diff tab, which switches files in place and stays where it is
       docked (several diff tabs: later)
-- [~] Diff viewer (ADR 0013). Done: unified, virtualized and paged for huge diffs, binary
-  detection. Still to do: side-by-side, syntax highlighting, whitespace options, word diff,
-  images.
+- [~] Diff viewer (ADR 0013). Done: unified and side by side, virtualized and paged for huge
+  diffs, whitespace options, context lines, binary detection. Still to do: word diff, syntax
+  highlighting, images.
 - [ ] Changed files list and file tree of any revision; open/save a file at a revision
 - [ ] File history (following renames) and blame with "blame previous revision"
 - [ ] Filters: branch(es), author, committer, message, path, date range, first-parent only, hide merges

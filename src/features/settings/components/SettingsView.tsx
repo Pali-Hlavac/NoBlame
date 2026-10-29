@@ -1,7 +1,15 @@
 import type { WorkingTreeDisplay } from "@/shared/ipc/bindings";
 
 import { useAppSettings, useChangeSettings } from "../hooks/useAppSettings";
+import { useDiffSettings } from "../hooks/useDiffSettings";
 import { useThemePreference } from "../hooks/useThemePreference";
+import {
+  CONTEXT_OPTIONS,
+  DIFF_LAYOUT_OPTIONS,
+  WHITESPACE_OPTIONS,
+  contextLines,
+  contextValue,
+} from "../lib/diff";
 import { THEME_OPTIONS } from "../lib/theme";
 import { Choice, Section, Toggle } from "./SettingControls";
 
@@ -24,6 +32,40 @@ function ThemeChoice() {
       onChange={setPreference}
       inline
     />
+  );
+}
+
+function DiffSection() {
+  const [diff, changeDiff] = useDiffSettings();
+  return (
+    <Section title="Diff">
+      <Choice
+        legend="Layout"
+        options={DIFF_LAYOUT_OPTIONS}
+        value={diff.layout}
+        onChange={(layout) => {
+          changeDiff({ layout });
+        }}
+        inline
+      />
+      <Choice
+        legend="Whitespace"
+        options={WHITESPACE_OPTIONS}
+        value={diff.whitespace}
+        onChange={(whitespace) => {
+          changeDiff({ whitespace });
+        }}
+      />
+      <Choice
+        legend="Unchanged lines around each change"
+        options={CONTEXT_OPTIONS}
+        value={contextValue(diff.contextLines)}
+        onChange={(value) => {
+          changeDiff({ contextLines: contextLines(value) });
+        }}
+        inline
+      />
+    </Section>
   );
 }
 
@@ -59,6 +101,7 @@ export function SettingsView() {
             }}
           />
         </Section>
+        <DiffSection />
         <Section title="Repositories">
           <Toggle
             label="Show the actions button (…) on repositories"

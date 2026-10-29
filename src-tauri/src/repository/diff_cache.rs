@@ -4,15 +4,15 @@
 use std::collections::VecDeque;
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
-use git_core::diff::{FileDiff, ObjectId};
+use git_core::diff::{DiffOptions, FileDiff, ObjectId};
 
 /// Diffs kept per session.
 const MAX_ENTRIES: usize = 8;
 /// Older diffs are dropped while the cache holds more than this; the newest always stays.
 const MAX_BYTES: usize = 256 << 20;
 
-/// The two versions a diff compares (`None`: the file is absent on that side).
-pub type DiffKey = (Option<ObjectId>, Option<ObjectId>);
+/// The two versions a diff compares (`None`: the file is absent on that side), and how.
+pub type DiffKey = (Option<ObjectId>, Option<ObjectId>, DiffOptions);
 
 /// Most recently used first.
 #[derive(Default)]

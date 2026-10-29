@@ -35,6 +35,7 @@
     "allow-get-changed-files",
     "allow-get-file-diff",
     "allow-get-diff-lines",
+    "allow-get-split-diff-lines",
     "allow-list-refs",
     "allow-list-stashes",
     "allow-get-status-summary",
