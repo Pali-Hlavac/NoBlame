@@ -76,6 +76,16 @@ All notable changes to NoBlame are documented here. The format follows
 - Syntax colours in the Diff tab (M3): code is coloured by its language, using the grammars
   Sublime Text ships (via syntect). Files over 4 MB are not coloured; Settings → Diff can switch
   it off.
+- Filter bar in the repository tab (M3, ADR 0021):
+  - show the history of all branches, the current branch, or one branch or tag;
+  - follow only first parents, and hide merges;
+  - the bar counts the shown commits, and **Clear** shows everything again;
+  - lines join each commit to its nearest shown ancestors;
+  - Commit details still shows real parents, and greys out the ones the filter hides;
+  - on the Linux kernel (1.5M commits) a change takes under a quarter of a second.
+
+  **Not yet:** author, message and path filters (next slices).
+
 - The commit-graph offer explains what the file is (one index file in `.git`; commits, branches
   and files do not change) and, after a load slower than 2 s, is highlighted with how long
   loading took and how long writing the file would take. It is still only written on request.

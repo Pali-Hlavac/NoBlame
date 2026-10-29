@@ -25,6 +25,7 @@
     "allow-load-graph",
     "allow-get-graph-block",
     "allow-reload-graph",
+    "allow-set-graph-filter",
     "allow-refresh-repository",
     "allow-get-ancestry-block",
     "allow-get-commit-rows",

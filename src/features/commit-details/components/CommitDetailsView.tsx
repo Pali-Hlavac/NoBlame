@@ -93,18 +93,28 @@ export function CommitDetailsView({ details, repoPath }: CommitDetailsViewProps)
         </Field>
         {details.parents.length > 0 && (
           <Field label={details.parents.length > 1 ? "Parents" : "Parent"}>
-            {details.parents.map((parent) => (
-              <button
-                key={parent.id}
-                className="rounded font-mono text-xs text-primary underline-offset-2 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
-                title={`Select parent ${parent.id}`}
-                onClick={() => {
-                  selectRow(repoPath, parent.row);
-                }}
-              >
-                {shortId(parent.id)}
-              </button>
-            ))}
+            {details.parents.map(({ id, row }) =>
+              row === null ? (
+                <span
+                  key={id}
+                  className="font-mono text-xs text-muted-foreground"
+                  title={`${id} (hidden by the filter)`}
+                >
+                  {shortId(id)}
+                </span>
+              ) : (
+                <button
+                  key={id}
+                  className="rounded font-mono text-xs text-primary underline-offset-2 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
+                  title={`Select parent ${id}`}
+                  onClick={() => {
+                    selectRow(repoPath, row);
+                  }}
+                >
+                  {shortId(id)}
+                </button>
+              ),
+            )}
           </Field>
         )}
         <Field label="Author">

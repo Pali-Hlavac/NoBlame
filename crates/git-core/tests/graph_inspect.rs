@@ -90,7 +90,7 @@ fn details_carry_message_people_and_parents() {
     let parents: Vec<&str> = details.parents.iter().map(|p| p.id.as_str()).collect();
     assert_eq!(parents, [main.as_str(), topic.as_str()]);
     for parent in &details.parents {
-        let row = &commit_rows(&repo, &graph, parent.row, 1).unwrap()[0];
+        let row = &commit_rows(&repo, &graph, parent.row.unwrap(), 1).unwrap()[0];
         assert_eq!(row.id, parent.id);
     }
     let expected_time: i64 = fixture

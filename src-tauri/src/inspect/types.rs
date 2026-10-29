@@ -41,8 +41,8 @@ impl From<Signature> for SignatureDto {
 pub struct ParentDto {
     /// Full commit id.
     pub id: String,
-    /// Row in the graph.
-    pub row: u32,
+    /// Row in the graph; `None` when the tab's filter hides it.
+    pub row: Option<u32>,
 }
 
 impl From<ParentInfo> for ParentDto {

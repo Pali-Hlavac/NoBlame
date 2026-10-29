@@ -193,3 +193,22 @@ Oniguruma's parser state is not `Send`, so the session could not cache it (ADR 0
 
 Not measured yet: frame times while scrolling, a real large repository (Linux kernel), a cold
 disk cache, macOS and Linux.
+
+### Graph filters (M3 slice 4a, ADR 0021, 2026-10-29)
+
+Measured with `graph_spike` (release), from the loaded full graph. The view's time is choosing
+the commits plus building the view, which is mostly the new lane layout.
+
+| Repository   | Filter             | Shown rows | Lanes | Total  | Choose commits |
+| ------------ | ------------------ | ---------- | ----- | ------ | -------------- |
+| synthetic-1m | no merges          | 920,235    | 96    | 137 ms | 1.5 ms         |
+| synthetic-1m | first parent       | 482,289    | 65    | 63 ms  | 9.1 ms         |
+| synthetic-1m | HEAD               | 999,669    | 65    | 103 ms | 4.0 ms         |
+| synthetic-1m | HEAD, first parent | 447,846    | 1     | 60 ms  | 8.0 ms         |
+| linux (1.5M) | no merges          | 1,389,739  | 863   | 229 ms | 1.8 ms         |
+| linux        | first parent       | 79,113     | 4     | 28 ms  | 3.7 ms         |
+| linux        | HEAD               | 1,503,134  | 702   | 219 ms | 6.7 ms         |
+| linux        | HEAD, first parent | 77,524     | 1     | 28 ms  | 3.2 ms         |
+
+The synthetic-1m run shared the machine with the owner's dev app. Hiding merges widens the
+graph (96 and 863 lanes), because a hidden merge joins its child to both of its sides.

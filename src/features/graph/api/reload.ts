@@ -11,10 +11,41 @@ import { commands, unwrap } from "@/shared/ipc/client";
 import { graphKeys } from "./graph";
 
 /**
- * Rebuilds the graph of session `repoId` if it has been loaded. Text pages are keyed by the
- * graph generation, so they start fresh; everything else read from the graph (refs, stashes,
- * commit details) is refetched.
+ * Selects `row` in `repoPath`, or else HEAD, or else the first commit; clears the selection when
+ * the graph shows no commits (a filter can hide HEAD, or everything).
  */
+export function selectOrFallBack(repoPath: string, row: number | null, summary: GraphSummary) {
+  const next = row ?? summary.headRow ?? (summary.rows > 0 ? 0 : null);
+  if (next === null) useSelectionStore.getState().clear(repoPath);
+  else select(repoPath, { kind: "commit", row: next });
+}
+
+/** The selected commit's row in `repoPath`, or null. */
+export function selectedRowOf(repoPath: string): number | null {
+  const selection = useSelectionStore.getState().selections[repoPath];
+  return selection?.kind === "commit" ? selection.row : null;
+}
+
+/**
+ * Makes `summary` the graph of session `repoId`, then lets `reselect` move the selection to
+ * its new row. Text pages are keyed by the graph generation, so they start fresh; everything
+ * else read from the graph (refs, stashes, commit details) is refetched.
+ */
+export async function showGraph(
+  queryClient: QueryClient,
+  repoId: number,
+  summary: GraphSummary,
+  reselect: () => void,
+): Promise<void> {
+  queryClient.setQueryData(graphKeys.summary(repoId), summary);
+  reselect();
+  await queryClient.invalidateQueries({
+    queryKey: graphKeys.all(repoId),
+    predicate: (query) => query.queryKey[2] !== "summary",
+  });
+}
+
+/** Rebuilds the graph of session `repoId` if it has been loaded. */
 export async function reloadGraph(
   queryClient: QueryClient,
   repoId: number,
@@ -22,19 +53,13 @@ export async function reloadGraph(
 ): Promise<void> {
   const previous = queryClient.getQueryData<GraphSummary>(graphKeys.summary(repoId));
   if (!previous) return;
-  const selection = useSelectionStore.getState().selections[repoPath];
-  const selectedRow = selection?.kind === "commit" ? selection.row : null;
+  const selectedRow = selectedRowOf(repoPath);
   const { summary, row } = await unwrap(commands.reloadGraph(repoId, selectedRow));
-  queryClient.setQueryData(graphKeys.summary(repoId), summary);
-  if (selectedRow !== null) {
+  await showGraph(queryClient, repoId, summary, () => {
+    if (selectedRow === null) return;
     // Whoever was on HEAD follows it (to the commit just made); other selections stay on their
     // commit, or fall back to HEAD when it is gone (amended, rebased away).
     const followHead = selectedRow === previous.headRow;
-    const next = followHead ? summary.headRow : (row ?? summary.headRow);
-    if (next !== null) select(repoPath, { kind: "commit", row: next });
-  }
-  await queryClient.invalidateQueries({
-    queryKey: graphKeys.all(repoId),
-    predicate: (query) => query.queryKey[2] !== "summary",
+    selectOrFallBack(repoPath, followHead ? summary.headRow : row, summary);
   });
 }

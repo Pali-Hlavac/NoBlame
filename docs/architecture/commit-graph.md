@@ -150,6 +150,31 @@ and jumping straight to the last block 245 ms (one layout pass over everything b
 paid once per selection). An integration test checks the members against `git rev-list` and
 that exactly the history's commits receive a lit line.
 
+## Filtered views
+
+The filter bar of a repository tab (ADR [0021](../adr/0021-graph-filters.md)) never runs
+`git log`; it makes a view of the graph already loaded (`graph/filter.rs`, `graph/view.rs`):
+
+1. **Choose commits.** `Graph::shown_by(filter)` returns a flag per commit. For chosen tips it
+   makes one pass down the rows, marking parents of marked rows (first parents only in
+   first-parent mode). "No merges" then clears commits with several parents.
+2. **Rewrite parents.** `Graph::view(shown, first_parent)` walks the rows from the oldest up.
+   - A hidden commit stands for the nearest shown commits below it: one `u32`, or a list for
+     hidden merges that lead to several, capped at 32.
+   - A shown commit's parents are the union of what its real parents stand for.
+3. **Lay out.** The view keeps the full graph's row order (already topological and by date), so
+   commit `i` of the view is on row `i`, and only `Layout::compute` runs again.
+4. **Map back.** `full_rows` (ascending) maps view rows to full rows; `shown_row` is a binary
+   search. Merge flags, parent counts and commit details come from the full graph
+   (`Graph::full`).
+
+The session (`src-tauri/src/repository/sessions.rs`) holds the full graph, the filter, and the
+shown graph. A reload rebuilds the full graph and makes the view again. `set_graph_filter` reuses
+the loaded history. Every new view bumps the generation.
+
+Cost: 28–230 ms on the Linux kernel, 60–140 ms on synthetic-1m, almost all of it the lane layout
+([performance.md](../development/performance.md#graph-filters-m3-slice-4a-adr-0021-2026-10-29)).
+
 ## Performance
 
 Measured on Windows 11 with the synthetic repositories (details and method in

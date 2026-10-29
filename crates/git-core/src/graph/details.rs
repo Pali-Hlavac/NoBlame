@@ -73,7 +73,7 @@ fn read_row(
         author_name: author.name.to_string(),
         author_email: author.email.to_string(),
         author_time: author.seconds(),
-        parent_count: u32::try_from(index.parents(commit).len()).unwrap_or(u32::MAX),
+        parent_count: u32::try_from(graph.parent_count(commit)).unwrap_or(u32::MAX),
         refs,
     })
 }

@@ -4,7 +4,8 @@ use tauri::State;
 
 use super::recent::{self, RecentRepository, RecentStore};
 use super::{
-    CommitRowDto, GraphSummary, RawBytes, ReloadedGraph, RepoId, RepoSessions, RepoSummary, service,
+    CommitRowDto, GraphFilterDto, GraphSummary, RawBytes, ReloadedGraph, RepoId, RepoSessions,
+    RepoSummary, service,
 };
 use crate::error::CommandResult;
 
@@ -40,6 +41,19 @@ pub async fn reload_graph(
     row: Option<u32>,
 ) -> CommandResult<ReloadedGraph> {
     Ok(service::reload_graph(&sessions, id, row).await?)
+}
+
+/// Shows only the commits `filter` keeps (or all, with the default filter); `row` (the
+/// selected commit) is mapped to that commit's row in the new view, if it is shown.
+#[tauri::command]
+#[specta::specta]
+pub async fn set_graph_filter(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    filter: GraphFilterDto,
+    row: Option<u32>,
+) -> CommandResult<ReloadedGraph> {
+    Ok(service::set_graph_filter(&sessions, id, filter, row).await?)
 }
 
 /// Creates a repository in `path` with `git init` (open it with `open_repository` next).

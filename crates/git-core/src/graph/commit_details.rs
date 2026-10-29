@@ -25,8 +25,8 @@ pub struct Signature {
 pub struct ParentInfo {
     /// Full hex object id.
     pub id: String,
-    /// Its row in the graph.
-    pub row: u32,
+    /// Its row in the graph; `None` when a filter hides it.
+    pub row: Option<u32>,
 }
 
 /// Details of one commit.
@@ -52,17 +52,21 @@ pub struct CommitDetails {
     pub contained_in_total: u32,
 }
 
-/// Reads the details of the commit on `row`.
+/// Reads the details of the commit on `row`. Parents and containing refs come from the full
+/// history, also when `graph` is a filtered view.
 pub fn commit_details(
     repo: &gix::Repository,
     graph: &Graph,
     row: u32,
 ) -> Result<CommitDetails, GraphError> {
     let rows = graph.row_count();
+    let out_of_range = GraphError::RowOutOfRange { row, rows };
+    let full = graph.full();
     let commit = graph
-        .commit_at(row)
-        .ok_or(GraphError::RowOutOfRange { row, rows })?;
-    let index = graph.index();
+        .full_row(row)
+        .and_then(|full_row| full.commit_at(full_row))
+        .ok_or(out_of_range)?;
+    let index = full.index();
     let id = *index.id(commit);
     let object = repo.find_commit(id).map_err(GraphError::gix)?;
     let message = object.message_raw().map_err(GraphError::gix)?.to_string();
@@ -74,12 +78,12 @@ pub fn commit_details(
         .iter()
         .map(|&parent| ParentInfo {
             id: index.id(parent).to_string(),
-            row: graph.rows_of[parent as usize],
+            row: graph.shown_row(full.rows_of[parent as usize]),
         })
         .collect();
-    let mut refs: Vec<GraphRef> = graph.refs_of(commit).cloned().collect();
+    let mut refs: Vec<GraphRef> = full.refs_of(commit).cloned().collect();
     refs.sort_by(|a, b| (a.kind, &a.name).cmp(&(b.kind, &b.name)));
-    let containing = graph.refs_containing(commit);
+    let containing = full.refs_containing(commit);
     Ok(CommitDetails {
         row,
         id: id.to_string(),

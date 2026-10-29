@@ -1,5 +1,6 @@
 /** Public API of the commit graph feature. */
 export { graphKeys, useGraphSummary } from "./api/graph";
+export { useRefs } from "./api/refs";
 export { reloadGraph } from "./api/reload";
 export { GraphView } from "./components/GraphView";
 export { RefBadge } from "./components/RefBadge";

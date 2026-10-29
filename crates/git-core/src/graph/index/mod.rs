@@ -83,6 +83,25 @@ impl CommitIndex {
             .map(|position| by_id[position])
     }
 
+    /// An index from its columns, for filtered views: `parent_start` has one entry per commit
+    /// plus a final one, and `parents` holds the parent indices (CSR).
+    pub(crate) fn from_parts(
+        ids: Vec<ObjectId>,
+        times: Vec<i64>,
+        parent_start: Vec<u32>,
+        parents: Vec<u32>,
+        missing_parents: usize,
+    ) -> Self {
+        Self {
+            ids,
+            times,
+            parent_start,
+            parents,
+            missing_parents,
+            by_id: OnceLock::new(),
+        }
+    }
+
     /// Builds the index of all commits reachable from `tips`. Returns the index of each tip,
     /// or `None` for tips that are not commits (tags on trees or blobs, missing objects).
     pub fn build(

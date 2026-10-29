@@ -1,6 +1,7 @@
 //! Repository operations behind the Tauri commands.
 
 use std::path::PathBuf;
+use std::sync::Arc;
 use std::time::Duration;
 
 use git_core::cli::Git;
@@ -11,8 +12,8 @@ use tokio_util::sync::CancellationToken;
 use super::recent::{self, RecentStore};
 use super::sessions::Session;
 use super::{
-    CommitRowDto, GraphSummary, RawBytes, ReloadedGraph, RepoId, RepoSessions, RepoSummary,
-    RepositoryError, watch,
+    CommitRowDto, GraphFilterDto, GraphSummary, RawBytes, ReloadedGraph, RepoId, RepoSessions,
+    RepoSummary, RepositoryError, watch,
 };
 use crate::git_env::GitEnvError;
 
@@ -59,7 +60,7 @@ pub async fn load_graph(
 ) -> Result<GraphSummary, RepositoryError> {
     let session = sessions.get(id)?;
     let graph = session.graph(reload).await?;
-    Ok(summary_of(&session, &graph))
+    Ok(summary_of(&session, &graph).await)
 }
 
 /// Rebuilds the graph after the repository changed, and finds the commit that was on `row`.
@@ -70,11 +71,34 @@ pub async fn reload_graph(
 ) -> Result<ReloadedGraph, RepositoryError> {
     let session = sessions.get(id)?;
     let previous = session.loaded_graph().await;
-    let selected = previous.zip(row).and_then(|(graph, row)| graph.id_at(row));
     let graph = session.graph(true).await?;
+    reselect(&session, previous, graph, row).await
+}
+
+/// Shows `filter` in the tab and finds the commit that was on `row`.
+pub async fn set_graph_filter(
+    sessions: &RepoSessions,
+    id: RepoId,
+    filter: GraphFilterDto,
+    row: Option<u32>,
+) -> Result<ReloadedGraph, RepositoryError> {
+    let session = sessions.get(id)?;
+    let previous = session.loaded_graph().await;
+    let graph = session.set_filter(filter.into()).await?;
+    reselect(&session, previous, graph, row).await
+}
+
+/// The summary of the new `graph`, with the row of the commit that was on `row` of `previous`.
+async fn reselect(
+    session: &Session,
+    previous: Option<Arc<Graph>>,
+    graph: Arc<Graph>,
+    row: Option<u32>,
+) -> Result<ReloadedGraph, RepositoryError> {
+    let selected = previous.zip(row).and_then(|(graph, row)| graph.id_at(row));
     let row = selected.and_then(|commit| graph.row_of_id(&commit));
     Ok(ReloadedGraph {
-        summary: summary_of(&session, &graph),
+        summary: summary_of(session, &graph).await,
         row,
     })
 }
@@ -89,9 +113,11 @@ pub async fn refresh(sessions: &RepoSessions, id: RepoId) -> Result<RepoSummary,
     .await?
 }
 
-fn summary_of(session: &Session, graph: &Graph) -> GraphSummary {
+async fn summary_of(session: &Session, graph: &Graph) -> GraphSummary {
     GraphSummary {
         rows: graph.row_count(),
+        total_rows: graph.full().row_count(),
+        filter: GraphFilterDto::from(&session.filter().await),
         max_lanes: u32::from(graph.max_lanes()),
         block_rows: BLOCK_ROWS,
         head_row: graph.head_row(),

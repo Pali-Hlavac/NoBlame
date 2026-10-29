@@ -9,9 +9,10 @@
 
 use std::path::PathBuf;
 use std::process::ExitCode;
+use std::sync::Arc;
 use std::time::Instant;
 
-use git_core::graph::{Graph, commit_details, commit_rows};
+use git_core::graph::{Graph, GraphFilter, Tips, commit_details, commit_rows};
 use git_core::repo::Repository;
 
 /// Rows read for the "first screen" measurement.
@@ -36,7 +37,7 @@ fn run(path: &std::path::Path) -> Result<(), Box<dyn std::error::Error>> {
     let repo = Repository::discover(path)?;
     let opened = started.elapsed();
     let local = repo.local();
-    let graph = Graph::build(&local)?;
+    let graph = Arc::new(Graph::build(&local)?);
     let built = started.elapsed();
     let first_block = graph.encode_block(0);
     let rows = commit_rows(&local, &graph, 0, FIRST_SCREEN_ROWS)?;
@@ -92,6 +93,7 @@ fn run(path: &std::path::Path) -> Result<(), Box<dyn std::error::Error>> {
             highlight.elapsed()
         );
     }
+    filters(&graph);
     let memory = graph.memory_bytes();
     println!(
         "memory          {} KiB, {} bytes per commit",
@@ -134,4 +136,53 @@ fn run(path: &std::path::Path) -> Result<(), Box<dyn std::error::Error>> {
         );
     }
     Ok(())
+}
+
+/// Filtered views (the repository tab's filter bar), made from the full graph.
+fn filters(graph: &Arc<Graph>) {
+    let cases = [
+        (
+            "no merges",
+            GraphFilter {
+                no_merges: true,
+                ..GraphFilter::default()
+            },
+        ),
+        (
+            "first parent",
+            GraphFilter {
+                first_parent: true,
+                ..GraphFilter::default()
+            },
+        ),
+        (
+            "HEAD",
+            GraphFilter {
+                tips: Tips::Head,
+                ..GraphFilter::default()
+            },
+        ),
+        (
+            "HEAD, 1st par.",
+            GraphFilter {
+                tips: Tips::Head,
+                first_parent: true,
+                no_merges: false,
+            },
+        ),
+    ];
+    for (name, filter) in cases {
+        let started = Instant::now();
+        let shown = graph.shown_by(&filter);
+        let selected = started.elapsed();
+        let view = graph.view(&shown, filter.first_parent);
+        let _ = view.encode_block(0);
+        println!(
+            "filter {name:<15} {:.1?} total ({selected:.1?} select, layout {:.1?}), {} rows, {} lanes",
+            started.elapsed(),
+            view.timings.filter,
+            view.row_count(),
+            view.max_lanes()
+        );
+    }
 }

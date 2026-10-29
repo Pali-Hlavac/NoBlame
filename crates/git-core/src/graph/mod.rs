@@ -7,10 +7,12 @@ mod contains;
 mod details;
 mod encode;
 mod error;
+mod filter;
 mod index;
 mod layout;
 mod order;
 mod refs;
+mod view;
 
 use std::collections::HashMap;
 use std::time::{Duration, Instant};
@@ -25,6 +27,7 @@ pub use encode::{
     encode_block,
 };
 pub use error::GraphError;
+pub use filter::{GraphFilter, RefSelector, Tips};
 pub use index::{CommitIndex, IndexFileError};
 pub use layout::{BLOCK_ROWS, Edge, Layout, RowGeometry};
 pub use order::{date_order, rows_of};
@@ -41,12 +44,14 @@ pub struct BuildTimings {
     pub order: Duration,
     /// Lane layout pass.
     pub layout: Duration,
+    /// Making a filtered view (zero for the full graph).
+    pub filter: Duration,
 }
 
 impl BuildTimings {
     /// Sum of all phases.
     pub fn total(&self) -> Duration {
-        self.refs + self.index + self.order + self.layout
+        self.refs + self.index + self.order + self.layout + self.filter
     }
 }
 
@@ -62,6 +67,8 @@ pub struct Graph {
     head_commit: Option<u32>,
     /// Phase timings of [`Graph::build`].
     pub timings: BuildTimings,
+    /// For a filtered view: the full graph and where its rows come from.
+    source: Option<view::ViewSource>,
 }
 
 impl Graph {
@@ -116,7 +123,9 @@ impl Graph {
                 index: index_done - refs_done,
                 order: order_done - index_done,
                 layout: layout_done - order_done,
+                filter: Duration::ZERO,
             },
+            source: None,
         })
     }
 
@@ -203,7 +212,7 @@ impl Graph {
             let row = first_row + offset;
             let commit = self.order[row as usize];
             let mut flags = 0;
-            if self.index.parents(commit).len() > 1 {
+            if self.parent_count(commit) > 1 {
                 flags |= FLAG_MERGE;
             }
             if Some(commit) == self.head_commit {
@@ -216,3 +225,6 @@ impl Graph {
 
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+mod view_tests;

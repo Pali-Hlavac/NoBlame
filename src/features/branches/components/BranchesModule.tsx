@@ -1,13 +1,13 @@
 import { SearchIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { useRefs } from "@/features/graph";
 import { WithActiveRepository } from "@/features/repositories";
 import { selectRow } from "@/features/selection";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { VirtualList } from "@/shared/components/VirtualList";
 
-import { useRefs } from "../api/refs";
 import { buildRows } from "../lib/rows";
 import { BranchRowView } from "./BranchRowView";
 

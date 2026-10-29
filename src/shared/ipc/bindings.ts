@@ -35,6 +35,11 @@ export const commands = {
 	 *  that commit's row in the new graph.
 	 */
 	reloadGraph: (id: number, row: number | null) => typedError<ReloadedGraph, AppError>(__TAURI_INVOKE("reload_graph", { id, row })),
+	/**
+	 *  Shows only the commits `filter` keeps (or all, with the default filter); `row` (the
+	 *  selected commit) is mapped to that commit's row in the new view, if it is shown.
+	 */
+	setGraphFilter: (id: number, filter: GraphFilterDto, row: number | null) => typedError<ReloadedGraph, AppError>(__TAURI_INVOKE("set_graph_filter", { id, filter, row })),
 	/**  Re-reads HEAD and the other facts of an open repository. */
 	refreshRepository: (id: number) => typedError<RepoSummary, AppError>(__TAURI_INVOKE("refresh_repository", { id })),
 	/**
@@ -337,6 +342,16 @@ export type GitInfo = {
 	minimumVersion: string,
 };
 
+/**  What a repository tab shows. */
+export type GraphFilterDto = {
+	/**  Whose history. */
+	tips: TipsDto,
+	/**  Follow first parents only. */
+	firstParent: boolean,
+	/**  Leave merges out. */
+	noMerges: boolean,
+};
+
 /**  Commit graph preferences. */
 export type GraphSettings = {
 	/**  Selecting a commit highlights its history and the commits by the same author. */
@@ -347,8 +362,12 @@ export type GraphSettings = {
 
 /**  Size and shape of a loaded graph. */
 export type GraphSummary = {
-	/**  Number of rows (commits). */
+	/**  Number of rows (commits shown). */
 	rows: number,
+	/**  Number of commits without the filter. */
+	totalRows: number,
+	/**  What the tab shows. */
+	filter: GraphFilterDto,
 	/**  Widest lane count. */
 	maxLanes: number,
 	/**  Rows per block returned by `get_graph_block`. */
@@ -385,8 +404,8 @@ id: string };
 export type ParentDto = {
 	/**  Full commit id. */
 	id: string,
-	/**  Row in the graph. */
-	row: number,
+	/**  Row in the graph; `None` when the tab's filter hides it. */
+	row: number | null,
 };
 
 /**  One entry of the list as the UI sees it. */
@@ -430,6 +449,14 @@ export type RefLabel = {
 	kind: RefKindDto,
 	/**  HEAD points here. */
 	isHead: boolean,
+};
+
+/**  One reference, by kind and short name. */
+export type RefSelectorDto = {
+	/**  Branch, remote branch or tag. */
+	kind: RefKindDto,
+	/**  Short name (`main`, `origin/main`, `v1.0`). */
+	name: string,
 };
 
 /**  The graph after a reload, and where the commit selected before it is now. */
@@ -655,6 +682,17 @@ export type ThemePreference =
 "light" | 
 /**  Always dark. */
 "dark";
+
+/**  Whose history the tab shows. */
+export type TipsDto = 
+/**  Every branch, remote branch and tag. */
+{ type: "all" } | 
+/**  The commit HEAD points to (the current branch). */
+{ type: "head" } | 
+/**  The given references. */
+{ type: "refs"; 
+/**  The references. */
+refs: RefSelectorDto[] };
 
 /**  Which whitespace changes the diff shows, as git's options name them. */
 export type WhitespaceMode = 

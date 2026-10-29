@@ -48,6 +48,24 @@ highlight off in **Settings → Commit graph**.
 
 To see the files a commit changed and their diffs, see [Viewing changes](viewing-changes.md).
 
+## Showing fewer commits
+
+The bar above the list chooses which commits the tab shows:
+
+- **All branches** opens a list: pick **Current branch** to see only the history of the branch
+  you are on, or pick any branch or tag (type to find it).
+- **First parent** shows only the main line of each branch: merged branches are reduced to their
+  merge commit.
+- **No merges** hides merge commits.
+
+You can combine them. While a filter is on, the bar says how many commits are shown, for example
+"1,234 of 56,789 commits". Click **Clear** to see all commits again.
+
+Lines still connect each commit to the nearest commit it came from, skipping hidden ones. The
+filter stays while the tab is open, and is reset when you close the tab.
+
+Coming later: filtering by author, by message and by file.
+
 ## Large repositories
 
 NoBlame reads only what is on screen, so even a history with a million commits opens in about a

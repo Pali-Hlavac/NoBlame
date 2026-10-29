@@ -221,6 +221,29 @@ Slice 3c done (syntax highlighting with syntect: licences checked, Oniguruma mea
 rejected, see ADR 0013 and performance.md). Slice 3 is complete. Next: slice 4, filters in the
 repository tab (the owner's request).
 
+Slice 4 is split into three parts:
+
+- 4a: views of the graph, plus the branch, first-parent and no-merges filters;
+- 4b: author and message;
+- 4c: path.
+
+Slice 4a done (ADR 0021):
+
+- the filter bar in the repository tab;
+- `set_graph_filter`;
+- parent rewriting, and a new lane layout per view;
+- commit details read from the full history.
+
+It is checked against `git log` in an integration test. Measured: 28–230 ms per filter on the
+Linux kernel.
+
+The owner's dev app was running and in use, so it was not clicked through. Covered instead:
+
+- a component test of the bar (toggles, branch picker, clear) with mocked IPC;
+- a passive PrintWindow capture showing the bar.
+
+New dependency: `@radix-ui/react-popover` 1.3.1 (MIT), for the branch picker.
+
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
 highlighted after a slow first load and names both costs (done). Option 2 later: show rows while
@@ -311,9 +334,10 @@ Not verified in the running app (they need someone at the keyboard; the logic is
       detection with `.gitattributes`
 - [ ] Changed files list and file tree of any revision; open/save a file at a revision
 - [ ] File history (following renames) and blame with "blame previous revision"
-- [ ] Filters: branch(es), author, committer, message, path, date range, first-parent only, hide merges
-      (owner request 2026-10-28: show only a branch, only an author, changes to a file, and a
-      general search in messages)
+- [~] Filters: branch(es), author, committer, message, path, date range, first-parent only, hide merges
+  (owner request 2026-10-28: show only a branch, only an author, changes to a file, and a
+  general search in messages). Done (ADR 0021): one branch or HEAD, first parent, no merges.
+  Still to do: author and message (4b), path (4c); committer and date range later
 - [ ] Find in the graph (hash, message, ref) with jump-to; "go to commit"
 - [ ] Compare any two commits/branches
 
@@ -471,6 +495,7 @@ The owner's idea inbox (with where each idea is planned) is in
 | 0018 | Shell integration architecture                                      | T1        | Planned  |
 | 0019 | Status cache service and overlays                                   | T4        | Planned  |
 | 0020 | Workbench layout: activity bar, side panel modules, docking library | M2.5      | Accepted |
+| 0021 | Graph filters as views of the loaded graph                          | M3        | Accepted |
 
 ## Working agreement
 

@@ -4,12 +4,18 @@ use git_core::graph::{CommitRow, GraphRef, RefKind};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
+use super::filter_types::GraphFilterDto;
+
 /// Size and shape of a loaded graph.
 #[derive(Debug, Clone, PartialEq, Serialize, Type)]
 #[serde(rename_all = "camelCase")]
 pub struct GraphSummary {
-    /// Number of rows (commits).
+    /// Number of rows (commits shown).
     pub rows: u32,
+    /// Number of commits without the filter.
+    pub total_rows: u32,
+    /// What the tab shows.
+    pub filter: GraphFilterDto,
     /// Widest lane count.
     pub max_lanes: u32,
     /// Rows per block returned by `get_graph_block`.
@@ -50,6 +56,17 @@ pub enum RefKindDto {
     Tag,
 }
 
+impl From<RefKind> for RefKindDto {
+    fn from(kind: RefKind) -> Self {
+        match kind {
+            RefKind::DetachedHead => Self::Head,
+            RefKind::LocalBranch => Self::Branch,
+            RefKind::RemoteBranch => Self::Remote,
+            RefKind::Tag => Self::Tag,
+        }
+    }
+}
+
 /// A reference label on a row.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Type)]
 #[serde(rename_all = "camelCase")]
@@ -66,12 +83,7 @@ impl From<&GraphRef> for RefLabel {
     fn from(reference: &GraphRef) -> Self {
         Self {
             name: reference.name.clone(),
-            kind: match reference.kind {
-                RefKind::DetachedHead => RefKindDto::Head,
-                RefKind::LocalBranch => RefKindDto::Branch,
-                RefKind::RemoteBranch => RefKindDto::Remote,
-                RefKind::Tag => RefKindDto::Tag,
-            },
+            kind: reference.kind.into(),
             is_head: reference.is_head,
         }
     }

@@ -5,7 +5,7 @@ use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
 use git_core::diff::{DiffAttribute, DiffOptions, FileDiff, diff_attribute, file_diff};
-use git_core::graph::{Ancestry, Graph, GraphError};
+use git_core::graph::{Ancestry, Graph, GraphError, GraphFilter};
 use git_core::repo::Repository;
 use git_core::watch::RepoWatcher;
 
@@ -14,14 +14,23 @@ use super::graph_cache::GraphCache;
 use super::service::blocking;
 use super::{RepoId, RepositoryError};
 
+/// The history of a session and what the tab's filter shows of it.
+#[derive(Default)]
+struct GraphSlot {
+    full: Option<Arc<Graph>>,
+    /// The full graph itself when nothing is filtered.
+    shown: Option<Arc<Graph>>,
+    filter: GraphFilter,
+}
+
 /// One open repository. The graph is built on first use and kept until reloaded.
 pub struct Session {
     /// The repository handle.
     pub repo: Repository,
-    graph: tokio::sync::Mutex<Option<Arc<Graph>>>,
+    graph: tokio::sync::Mutex<GraphSlot>,
     /// The highlighted history of the last selected row, for the graph it was found in.
     ancestry: Mutex<Option<(Arc<Graph>, Ancestry)>>,
-    /// Builds of the graph so far.
+    /// Graphs shown so far (builds and filter changes).
     generation: AtomicU32,
     /// Reports changes made outside the app; stops when the session is dropped.
     watcher: Mutex<Option<RepoWatcher>>,
@@ -32,17 +41,60 @@ pub struct Session {
 }
 
 impl Session {
-    /// The graph, building it on a blocking thread the first time (or when `reload` is set).
-    /// Concurrent callers wait for the same build instead of starting another.
-    ///
-    /// Commits already known are not read again: a reload reuses the previous build, the first
-    /// build the on-disk cache (ADR 0010). After each build the index is saved for next time.
+    /// The graph the tab shows (filtered or not), building it on a blocking thread the first
+    /// time or when `reload` is set. Concurrent callers wait for the same build instead of
+    /// starting another; a reload keeps the filter.
     pub async fn graph(&self, reload: bool) -> Result<Arc<Graph>, RepositoryError> {
         let mut slot = self.graph.lock().await;
-        if let Some(graph) = slot.as_ref().filter(|_| !reload) {
+        if let Some(graph) = slot.shown.as_ref().filter(|_| !reload) {
             return Ok(Arc::clone(graph));
         }
-        let previous = slot.clone();
+        let full = self.build(slot.full.clone()).await?;
+        self.show(&mut slot, full).await
+    }
+
+    /// Shows `filter`, keeping the history already read, and returns the new view.
+    pub async fn set_filter(&self, filter: GraphFilter) -> Result<Arc<Graph>, RepositoryError> {
+        let mut slot = self.graph.lock().await;
+        let full = match slot.full.clone() {
+            Some(full) => full,
+            None => self.build(None).await?,
+        };
+        slot.filter = filter;
+        self.show(&mut slot, full).await
+    }
+
+    /// The filter of the tab.
+    pub async fn filter(&self) -> GraphFilter {
+        self.graph.lock().await.filter.clone()
+    }
+
+    /// Makes the view of `full` the slot's filter asks for, and makes it the shown graph.
+    async fn show(
+        &self,
+        slot: &mut GraphSlot,
+        full: Arc<Graph>,
+    ) -> Result<Arc<Graph>, RepositoryError> {
+        let shown = if slot.filter.is_empty() {
+            Arc::clone(&full)
+        } else {
+            let (source, filter) = (Arc::clone(&full), slot.filter.clone());
+            let view = blocking(move || source.filtered(&filter)).await?;
+            tracing::info!(rows = view.row_count(), time = ?view.timings.filter, "graph filtered");
+            Arc::new(view)
+        };
+        slot.full = Some(full);
+        slot.shown = Some(Arc::clone(&shown));
+        // The highlight belongs to the old graph; dropping it frees that graph now.
+        *self.ancestry.lock().unwrap_or_else(PoisonError::into_inner) = None;
+        self.generation.fetch_add(1, Ordering::Relaxed);
+        Ok(shown)
+    }
+
+    /// Reads the full history on a blocking thread. Commits already known are not read again:
+    /// a reload reuses the previous build, the first build the on-disk cache (ADR 0010). After
+    /// each build the index is saved for next time.
+    async fn build(&self, previous: Option<Arc<Graph>>) -> Result<Arc<Graph>, RepositoryError> {
         let repo = self.repo.clone();
         let cache = Arc::clone(&self.cache);
         let (graph, reused) = tokio::task::spawn_blocking(move || {
@@ -64,9 +116,7 @@ impl Session {
             "graph built"
         );
         let graph = Arc::new(graph);
-        *slot = Some(Arc::clone(&graph));
         self.save_index(&graph);
-        self.generation.fetch_add(1, Ordering::Relaxed);
         Ok(graph)
     }
 
@@ -81,12 +131,12 @@ impl Session {
         tokio::task::spawn_blocking(move || cache.store(&repo, graph.index()));
     }
 
-    /// The graph if it has been built, without building it.
+    /// The graph shown if it has been built, without building it.
     pub async fn loaded_graph(&self) -> Option<Arc<Graph>> {
-        self.graph.lock().await.clone()
+        self.graph.lock().await.shown.clone()
     }
 
-    /// How many times the graph has been built.
+    /// How many graphs have been shown (builds and filter changes).
     pub fn generation(&self) -> u32 {
         self.generation.load(Ordering::Relaxed)
     }
@@ -187,7 +237,7 @@ impl RepoSessions {
         let id = inner.next_id;
         let session = Arc::new(Session {
             repo,
-            graph: tokio::sync::Mutex::new(None),
+            graph: tokio::sync::Mutex::default(),
             ancestry: Mutex::new(None),
             generation: AtomicU32::new(0),
             watcher: Mutex::new(None),

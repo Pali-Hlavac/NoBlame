@@ -91,18 +91,23 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
     return pageResults[index]?.data?.[row % PAGE_ROWS];
   };
 
-  // Restore the scroll position, or reveal HEAD the first time the repository is shown.
+  // Restore the scroll position, or reveal the selection (HEAD the first time the repository
+  // is shown, or the selected commit after a filter change).
   useEffect(() => {
     const element = scrollRef.current;
     if (!element || size.height === 0) return;
     const remembered = useGraphViewStore.getState().scrollTop[repoPath];
     if (remembered !== undefined) {
       element.scrollTop = remembered;
-    } else if (summary.headRow !== null) {
-      // First time shown: select HEAD, unless something is selected already (after a reload).
-      if (!selection) selectAny(repoPath, { kind: "commit", row: summary.headRow });
-      const index = summary.headRow + rows.offset;
-      element.scrollTop = scrollTopToReveal(index, 0, size.height, rows.count);
+      return;
+    }
+    if (!selection && summary.headRow !== null) {
+      selectAny(repoPath, { kind: "commit", row: summary.headRow });
+    }
+    const target =
+      selectedIndex ?? (summary.headRow === null ? undefined : summary.headRow + rows.offset);
+    if (target !== undefined) {
+      element.scrollTop = scrollTopToReveal(target, 0, size.height, rows.count);
     }
     // Only when the view (re)appears with a measured size.
     // eslint-disable-next-line react-hooks/exhaustive-deps

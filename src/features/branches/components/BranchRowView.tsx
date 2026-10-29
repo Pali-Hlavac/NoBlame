@@ -27,7 +27,11 @@ export function BranchRowView({ row, active }: { row: BranchRow; active: boolean
   const Icon = ICONS[label.kind];
   return (
     <div
-      title={commitRow === null ? `${label.name} (does not point to a commit)` : label.name}
+      title={
+        commitRow === null
+          ? `${label.name} (its commit is not shown: not a commit, or hidden by the filter)`
+          : label.name
+      }
       className={cn(
         "flex h-full cursor-default items-center gap-2 pr-2 pl-6 text-sm hover:bg-muted/60",
         active && "bg-accent text-accent-foreground hover:bg-accent",

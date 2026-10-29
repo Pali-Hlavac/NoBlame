@@ -4,9 +4,9 @@ The history of a repository as a graph with commit columns, in every repository 
 Architecture: [commit-graph.md](../architecture/commit-graph.md). User guide:
 [commit-graph.md](../user-guide/commit-graph.md).
 
-Status: **M2 in progress.** The graph, columns, labels, selection and keyboard navigation are
-done; artificial working-tree rows, stash labels, the on-disk cache, the file watcher and commit
-details (M3) are not.
+Status: graph, columns, labels, selection, keyboard navigation, working tree rows, highlight and
+live reloads are done (M2, M2.5). Filters are in progress (M3 slice 4): branch, first parent and
+no merges are done; author, message and path come next. Stash labels are not done.
 
 ## Columns
 
@@ -94,6 +94,37 @@ The history comes from the backend as an overlay per block (`get_ancestry_block`
 [architecture/commit-graph.md](../architecture/commit-graph.md#highlighted-history)). While a block's
 overlay is loading, its rows are drawn dimmed; it usually arrives within a few milliseconds.
 
+## Filters
+
+A bar above the column titles chooses what the tab shows (ADR
+[0021](../adr/0021-graph-filters.md)):
+
+| Control             | Shows                                                                                      |
+| ------------------- | ------------------------------------------------------------------------------------------ |
+| Branch picker       | **All branches** (default), **Current branch** (HEAD's history), or one branch or tag      |
+| **First parent**    | Only first parents are followed and drawn: the main line of each branch (`--first-parent`) |
+| **No merges**       | Merge commits are left out (`--no-merges`)                                                 |
+| Count and **Clear** | "N of M commits" while filtered; **Clear** shows every commit again                        |
+
+- The branch picker lists local branches, remote branches and tags, with a search field. It shows
+  at most 200 references; typing narrows the list (repositories have up to tens of thousands).
+- Filters combine: for example one branch, first parent, no merges.
+- Lines join each shown commit to its nearest shown ancestors (git's parent rewriting). A hidden
+  merge joins its child to both sides, so the commit has two lines but is not drawn as a merge.
+- A change applies at once and shows "Filtering…" until the new view is ready. The selected
+  commit stays selected if the filter shows it. Otherwise HEAD is selected, or the first commit.
+  The list scrolls to the selection.
+- The filter belongs to the tab's session. It survives reloads after changes outside the app,
+  and is reset when the tab is closed (remembering filters is planned for M7).
+- Commit details reads the full history: parents hidden by the filter are shown in grey and
+  cannot be clicked, and "Contained in" counts every reference.
+- In the Branches module, a reference whose commit the filter hides is dimmed and cannot be
+  selected.
+- When nothing matches (for example the chosen branch was deleted), the tab says "No commits
+  match the filter" with **Show all commits**.
+
+Not yet: author and message (slice 4b), path (slice 4c), committer and date range.
+
 ## States
 
 - **Loading**: "Reading history…" while the graph is built (about half a second for a million
@@ -124,6 +155,11 @@ overlay is loading, its rows are drawn dimmed; it usually arrives within a few m
   merged topic lines lit below their merges, other branches dimmed, the author's rows tinted) and
   on a one-commit submodule.
 
+- 2026-10-29: the filter bar renders in the owner's running dev app (passive capture). Clicking
+  through it was not possible while the owner worked in it; a component test covers the toggles,
+  the branch picker and **Clear**.
+
 ## Not yet
 
-Stash labels, on-disk cache and incremental reloads, the working tree file lists (M4), commit details and diffs (M3), resizable columns.
+Stash labels, the working tree file lists (M4), resizable columns, author/message/path
+filters (M3 slice 4b and 4c).
