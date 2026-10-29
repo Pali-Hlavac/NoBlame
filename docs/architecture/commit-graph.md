@@ -159,7 +159,9 @@ The filter bar of a repository tab (ADR [0021](../adr/0021-graph-filters.md)) ne
    makes one pass down the rows, marking parents of marked rows (first parents only in
    first-parent mode). "No merges" then clears commits with several parents. Author and
    message filters (`text.rs`) then read the commits still marked on up to 16 threads and clear
-   those that do not match; a newer filter cancels them.
+   those that do not match; a newer filter cancels them. A path filter first runs
+   `git rev-list --stdin -- <path>` with the tips' ids (`paths.rs`), so git's history
+   simplification and Bloom filters apply, and keeps only the commits it lists.
 2. **Rewrite parents.** `Graph::view(shown, first_parent)` walks the rows from the oldest up.
    - A hidden commit stands for the nearest shown commits below it: one `u32`, or a list for
      hidden merges that lead to several, capped at 32.
@@ -170,7 +172,7 @@ The filter bar of a repository tab (ADR [0021](../adr/0021-graph-filters.md)) ne
    search. Merge flags, parent counts and commit details come from the full graph
    (`Graph::full`).
 
-The session (`src-tauri/src/repository/sessions.rs`) holds the full graph, the filter, and the
+The session (`src-tauri/src/repository/sessions/graph.rs`) holds the full graph, the filter, and the
 shown graph. A reload rebuilds the full graph and makes the view again. `set_graph_filter` reuses
 the loaded history. Every new view bumps the generation.
 

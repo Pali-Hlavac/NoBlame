@@ -8,6 +8,8 @@ import { TEXT_FILTER_DELAY_MS } from "../lib/constants";
 interface FilterTextFieldProps {
   /** Accessible name and placeholder. */
   label: string;
+  /** Tooltip, when the label needs explaining. */
+  title?: string;
   icon: LucideIcon;
   /** The text the tab filters by now. */
   value: string | null;
@@ -21,7 +23,13 @@ function normalized(text: string | null): string | null {
 }
 
 /** A search field of the filter bar. Typing applies the text after a short pause. */
-export function FilterTextField({ label, icon: Icon, value, onCommit }: FilterTextFieldProps) {
+export function FilterTextField({
+  label,
+  title,
+  icon: Icon,
+  value,
+  onCommit,
+}: FilterTextFieldProps) {
   const [draft, setDraft] = useState(value ?? "");
   // The filter changed elsewhere (Clear, another field): show its text.
   const [shown, setShown] = useState(value);
@@ -44,8 +52,9 @@ export function FilterTextField({ label, icon: Icon, value, onCommit }: FilterTe
 
   return (
     <label
+      title={title}
       className={cn(
-        "flex h-6 max-w-44 min-w-16 flex-1 basis-32 items-center gap-1 rounded border border-border px-1.5 text-xs focus-within:ring-2 focus-within:ring-ring",
+        "flex h-6 max-w-44 min-w-22 flex-1 basis-32 items-center gap-1 rounded border border-border px-1.5 text-xs focus-within:ring-2 focus-within:ring-ring",
         normalized(value) !== null && "border-primary",
       )}
     >

@@ -4,9 +4,10 @@
 use std::collections::BTreeSet;
 use std::sync::Arc;
 
+use git_core::cli::Git;
 use git_core::graph::{
     Graph, GraphError, GraphFilter, MAX_ROWS_PER_PAGE, RefKind, RefSelector, TextFilter, Tips,
-    commit_details, commit_rows,
+    commit_details, commit_rows, commits_changing,
 };
 use git_core::repo::Repository;
 use noblame_repo_gen::{Preset, generate};
@@ -165,7 +166,7 @@ fn author_and_message_filters_match_git_log() {
     for (filter, args) in cases {
         let cancel = CancellationToken::new();
         let view = full
-            .filtered_in(&opened.thread_safe(), &filter, &cancel)
+            .filtered_in(&opened.thread_safe(), &filter, None, &cancel)
             .unwrap();
         let mut git_args = vec!["--all", "--first-parent", "-i", "-F"];
         git_args.extend(&args);
@@ -176,6 +177,41 @@ fn author_and_message_filters_match_git_log() {
 
     let cancel = CancellationToken::new();
     cancel.cancel();
-    let cancelled = full.filtered_in(&opened.thread_safe(), &text(Some("a"), None), &cancel);
+    let cancelled = full.filtered_in(&opened.thread_safe(), &text(Some("a"), None), None, &cancel);
     assert!(matches!(cancelled, Err(GraphError::Cancelled)));
+}
+
+#[tokio::test]
+async fn path_filter_matches_git_log() {
+    let dir = tempfile::tempdir().unwrap();
+    generate(&Preset::Tiny.spec(), dir.path()).unwrap();
+    let opened = Repository::discover(dir.path()).unwrap();
+    let repo = opened.local();
+    let full = Arc::new(Graph::build(&repo).unwrap());
+    // A folder some commits changed: the one holding the newest commit's first file.
+    let names = git_log(dir.path(), &["-1", "--format=", "--name-only"]);
+    let folder = names[0].rsplit_once('/').unwrap().0.to_owned();
+    let git = Git::locate().unwrap();
+    let cancel = CancellationToken::new();
+
+    for (first_parent, extra) in [(false, None), (true, Some("--first-parent"))] {
+        let filter = GraphFilter {
+            path: Some(folder.clone()),
+            first_parent,
+            ..GraphFilter::default()
+        };
+        let tips = full.tip_ids(&filter.tips);
+        let changing = commits_changing(&git, dir.path(), &tips, first_parent, &folder, &cancel)
+            .await
+            .unwrap();
+        let view = full
+            .filtered_in(&opened.thread_safe(), &filter, Some(&changing), &cancel)
+            .unwrap();
+        let mut args = vec!["--all"];
+        args.extend(extra);
+        args.extend(["--", folder.as_str()]);
+        let expected = git_log(dir.path(), &args);
+        assert!(!expected.is_empty() && expected.len() < full.row_count() as usize);
+        assert_eq!(set(&ids(&repo, &view)), set(&expected), "{args:?}");
+    }
 }

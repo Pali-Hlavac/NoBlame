@@ -9,6 +9,7 @@ use git_core::graph::{BLOCK_ROWS, Graph, commit_rows};
 use git_core::repo::Repository;
 use tokio_util::sync::CancellationToken;
 
+use super::filter_types::relative_to;
 use super::recent::{self, RecentStore};
 use super::sessions::Session;
 use super::{
@@ -84,6 +85,11 @@ pub async fn set_graph_filter(
 ) -> Result<ReloadedGraph, RepositoryError> {
     let session = sessions.get(id)?;
     let previous = session.loaded_graph().await;
+    let work_dir = session.repo.info().work_dir.as_deref();
+    let filter = GraphFilterDto {
+        path: filter.path.map(|path| relative_to(work_dir, path)),
+        ..filter
+    };
     let graph = session.set_filter(filter.into()).await?;
     reselect(&session, previous, graph, row).await
 }

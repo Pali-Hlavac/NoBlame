@@ -89,7 +89,7 @@ describe("GraphFilterBar", () => {
     });
   });
 
-  it("searches messages after a pause in typing, and authors on Enter", async () => {
+  it("searches messages after a pause in typing, and authors and paths on Enter", async () => {
     renderBar(NO_FILTER);
     await userEvent.type(screen.getByRole("searchbox", { name: "Message" }), " fix ");
     await waitFor(() => {
@@ -101,6 +101,14 @@ describe("GraphFilterBar", () => {
         1,
         { ...NO_FILTER, message: "fix", author: "ada" },
         // HEAD was selected when the first filter was shown.
+        0,
+      );
+    });
+    await userEvent.type(screen.getByRole("searchbox", { name: "Path" }), "src/{Enter}");
+    await waitFor(() => {
+      expect(ipc.setGraphFilter).toHaveBeenLastCalledWith(
+        1,
+        { ...NO_FILTER, message: "fix", author: "ada", path: "src/" },
         0,
       );
     });

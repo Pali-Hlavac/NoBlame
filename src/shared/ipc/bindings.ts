@@ -354,6 +354,11 @@ export type GraphFilterDto = {
 	author: string | null,
 	/**  Part of the message, ignoring case; `null` or blank for any message. */
 	message: string | null,
+	/**
+	 *  Only commits changing this file or folder, relative to the top of the working tree (a
+	 *  git pathspec, so `*.rs` works); `null` or blank for any.
+	 */
+	path: string | null,
 };
 
 /**  Commit graph preferences. */

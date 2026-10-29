@@ -223,6 +223,14 @@ Text filters (slice 4b), the same way. Every commit is read: 16 threads on the o
 | linux (1.5M) | author "torvalds" | 47,220  | 1.2–1.9 s | 13.1 s (`--author -i`)         |
 | linux        | message "fix"     | 486,388 | 1.4 s     | not measured                   |
 
+Path filter (slice 4c): the time is `git rev-list <tips> -- <path>`. Making the view adds the
+times above.
+
+| Repository   | Path          | Matches | `git rev-list`                                       |
+| ------------ | ------------- | ------- | ---------------------------------------------------- |
+| synthetic-1m | `src/m0080`   | 3,392   | 1.6 s (commit-graph with changed-path Bloom filters) |
+| linux (1.5M) | `MAINTAINERS` | 22,019  | 6.2 s (commit-graph without Bloom filters)           |
+
 Match counts equal `git log`'s. Tried and dropped:
 
 - 8 threads instead of 16: 30 % slower;

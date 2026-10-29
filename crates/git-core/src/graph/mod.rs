@@ -11,6 +11,7 @@ mod filter;
 mod index;
 mod layout;
 mod order;
+mod paths;
 mod refs;
 mod text;
 mod view;
@@ -32,6 +33,7 @@ pub use filter::{GraphFilter, RefSelector, Tips};
 pub use index::{CommitIndex, IndexFileError};
 pub use layout::{BLOCK_ROWS, Edge, Layout, RowGeometry};
 pub use order::{date_order, rows_of};
+pub use paths::commits_changing;
 pub use refs::{GraphRef, RefKind, collect_refs};
 pub use text::{TextFilter, keep_matching};
 

@@ -1,4 +1,4 @@
-import { MessageSquareTextIcon, UserIcon, XIcon } from "lucide-react";
+import { FolderTreeIcon, MessageSquareTextIcon, UserIcon, XIcon } from "lucide-react";
 
 import type { GraphFilterDto, GraphSummary } from "@/shared/ipc/bindings";
 import { cn } from "@/shared/lib/cn";
@@ -45,7 +45,7 @@ export function GraphFilterBar({ repoId, repoPath, summary }: GraphFilterBarProp
     <div
       role="group"
       aria-label="Filter commits"
-      className="flex h-8 shrink-0 items-center gap-1.5 overflow-hidden border-b border-border px-2"
+      className="flex min-h-8 shrink-0 flex-wrap items-center gap-1.5 border-b border-border px-2 py-1"
     >
       <BranchPicker
         repoId={repoId}
@@ -84,6 +84,15 @@ export function GraphFilterBar({ repoId, repoPath, summary }: GraphFilterBarProp
         value={filter.author ?? null}
         onCommit={(author) => {
           change({ author });
+        }}
+      />
+      <FilterTextField
+        label="Path"
+        title="Only commits that change this file or folder (relative to the repository root; *.rs works)"
+        icon={FolderTreeIcon}
+        value={filter.path ?? null}
+        onCommit={(path) => {
+          change({ path });
         }}
       />
       <div className="ml-auto flex min-w-0 items-center gap-2 text-xs text-muted-foreground">

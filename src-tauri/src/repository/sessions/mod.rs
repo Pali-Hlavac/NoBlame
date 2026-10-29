@@ -1,11 +1,13 @@
-//! Open repositories ("sessions") and their lazily built graphs.
+//! Open repositories ("sessions") and their lazily built graphs (`graph.rs`).
+
+mod graph;
 
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
 use git_core::diff::{DiffAttribute, DiffOptions, FileDiff, diff_attribute, file_diff};
-use git_core::graph::{Ancestry, Graph, GraphError, GraphFilter};
+use git_core::graph::{Ancestry, Graph, GraphError};
 use git_core::repo::Repository;
 use git_core::watch::RepoWatcher;
 use tokio_util::sync::CancellationToken;
@@ -14,15 +16,7 @@ use super::diff_cache::{DiffCache, DiffKey};
 use super::graph_cache::GraphCache;
 use super::service::blocking;
 use super::{RepoId, RepositoryError};
-
-/// The history of a session and what the tab's filter shows of it.
-#[derive(Default)]
-struct GraphSlot {
-    full: Option<Arc<Graph>>,
-    /// The full graph itself when nothing is filtered.
-    shown: Option<Arc<Graph>>,
-    filter: GraphFilter,
-}
+use graph::GraphSlot;
 
 /// One open repository. The graph is built on first use and kept until reloaded.
 pub struct Session {
@@ -44,120 +38,6 @@ pub struct Session {
 }
 
 impl Session {
-    /// The graph the tab shows (filtered or not), building it on a blocking thread the first
-    /// time or when `reload` is set. Concurrent callers wait for the same build instead of
-    /// starting another; a reload keeps the filter.
-    pub async fn graph(&self, reload: bool) -> Result<Arc<Graph>, RepositoryError> {
-        let mut slot = self.graph.lock().await;
-        if let Some(graph) = slot.shown.as_ref().filter(|_| !reload) {
-            return Ok(Arc::clone(graph));
-        }
-        let full = self.build(slot.full.clone()).await?;
-        let filter = slot.filter.clone();
-        self.show(&mut slot, full, filter, CancellationToken::new())
-            .await
-    }
-
-    /// Shows `filter`, keeping the history already read, and returns the new view. A newer
-    /// call cancels this one ([`GraphError::Cancelled`]): searching authors and messages takes
-    /// a second or two on huge histories.
-    pub async fn set_filter(&self, filter: GraphFilter) -> Result<Arc<Graph>, RepositoryError> {
-        let cancel = {
-            let mut current = self
-                .filter_cancel
-                .lock()
-                .unwrap_or_else(PoisonError::into_inner);
-            current.cancel();
-            *current = CancellationToken::new();
-            current.clone()
-        };
-        let mut slot = self.graph.lock().await;
-        if cancel.is_cancelled() {
-            return Err(GraphError::Cancelled.into());
-        }
-        let full = match slot.full.clone() {
-            Some(full) => full,
-            None => self.build(None).await?,
-        };
-        self.show(&mut slot, full, filter, cancel).await
-    }
-
-    /// The filter of the tab.
-    pub async fn filter(&self) -> GraphFilter {
-        self.graph.lock().await.filter.clone()
-    }
-
-    /// Makes the view of `full` that `filter` asks for, and makes it the shown graph.
-    async fn show(
-        &self,
-        slot: &mut GraphSlot,
-        full: Arc<Graph>,
-        filter: GraphFilter,
-        cancel: CancellationToken,
-    ) -> Result<Arc<Graph>, RepositoryError> {
-        let shown = if filter.is_empty() {
-            Arc::clone(&full)
-        } else {
-            let (source, wanted, repo) =
-                (Arc::clone(&full), filter.clone(), self.repo.thread_safe());
-            let view = blocking(move || source.filtered_in(&repo, &wanted, &cancel)).await??;
-            tracing::info!(rows = view.row_count(), time = ?view.timings.filter, "graph filtered");
-            Arc::new(view)
-        };
-        slot.filter = filter;
-        slot.full = Some(full);
-        slot.shown = Some(Arc::clone(&shown));
-        // The highlight belongs to the old graph; dropping it frees that graph now.
-        *self.ancestry.lock().unwrap_or_else(PoisonError::into_inner) = None;
-        self.generation.fetch_add(1, Ordering::Relaxed);
-        Ok(shown)
-    }
-
-    /// Reads the full history on a blocking thread. Commits already known are not read again:
-    /// a reload reuses the previous build, the first build the on-disk cache (ADR 0010). After
-    /// each build the index is saved for next time.
-    async fn build(&self, previous: Option<Arc<Graph>>) -> Result<Arc<Graph>, RepositoryError> {
-        let repo = self.repo.clone();
-        let cache = Arc::clone(&self.cache);
-        let (graph, reused) = tokio::task::spawn_blocking(move || {
-            let local = repo.local();
-            let cached = previous.is_none().then(|| cache.load(&repo)).flatten();
-            let base = match &previous {
-                Some(graph) => Some(graph.index()).filter(|index| index.reusable(&local)),
-                None => cached.as_ref(),
-            };
-            let reused = base.map_or(0, git_core::graph::CommitIndex::len);
-            Graph::build_with(&local, base).map(|graph| (graph, reused))
-        })
-        .await
-        .map_err(|error| RepositoryError::Task(error.to_string()))??;
-        let t = graph.timings;
-        tracing::info!(
-            rows = graph.row_count(), reused,
-            refs = ?t.refs, index = ?t.index, order = ?t.order, layout = ?t.layout,
-            "graph built"
-        );
-        let graph = Arc::new(graph);
-        self.save_index(&graph);
-        Ok(graph)
-    }
-
-    /// Saves the index in the background; this also sorts its ids, which the next reload
-    /// needs for looking commits up.
-    fn save_index(&self, graph: &Arc<Graph>) {
-        let (repo, cache, graph) = (
-            self.repo.clone(),
-            Arc::clone(&self.cache),
-            Arc::clone(graph),
-        );
-        tokio::task::spawn_blocking(move || cache.store(&repo, graph.index()));
-    }
-
-    /// The graph shown if it has been built, without building it.
-    pub async fn loaded_graph(&self) -> Option<Arc<Graph>> {
-        self.graph.lock().await.shown.clone()
-    }
-
     /// How many graphs have been shown (builds and filter changes).
     pub fn generation(&self) -> u32 {
         self.generation.load(Ordering::Relaxed)

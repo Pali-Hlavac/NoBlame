@@ -1,6 +1,8 @@
 //! The filter of a repository tab, as the frontend sends and receives it.
 
 use git_core::graph::{GraphFilter, RefKind, RefSelector, TextFilter, Tips};
+use std::path::Path;
+
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
@@ -45,6 +47,9 @@ pub struct GraphFilterDto {
     pub author: Option<String>,
     /// Part of the message, ignoring case; `null` or blank for any message.
     pub message: Option<String>,
+    /// Only commits changing this file or folder, relative to the top of the working tree (a
+    /// git pathspec, so `*.rs` works); `null` or blank for any.
+    pub path: Option<String>,
 }
 
 impl From<GraphFilterDto> for GraphFilter {
@@ -68,6 +73,7 @@ impl From<GraphFilterDto> for GraphFilter {
                 author: filter.author.filter(|text| !text.trim().is_empty()),
                 message: filter.message.filter(|text| !text.trim().is_empty()),
             },
+            path: filter.path.and_then(|path| pathspec(&path)),
         }
     }
 }
@@ -92,7 +98,24 @@ impl From<&GraphFilter> for GraphFilterDto {
             no_merges: filter.no_merges,
             author: filter.text.author.clone(),
             message: filter.text.message.clone(),
+            path: filter.path.clone(),
         }
+    }
+}
+
+/// `path` as git expects it: forward slashes, no leading `./` or `/`; `None` when blank.
+fn pathspec(path: &str) -> Option<String> {
+    let path = path.trim().replace('\\', "/");
+    let path = path.trim_start_matches("./").trim_start_matches('/');
+    (!path.is_empty()).then(|| path.to_owned())
+}
+
+/// `path` relative to `root` when it is an absolute path inside it (pasted from a file
+/// manager); otherwise unchanged.
+pub fn relative_to(root: Option<&Path>, path: String) -> String {
+    match root.and_then(|root| Path::new(&path).strip_prefix(root).ok()) {
+        Some(relative) => relative.to_string_lossy().into_owned(),
+        None => path,
     }
 }
 
@@ -102,5 +125,31 @@ fn ref_kind(kind: RefKindDto) -> RefKind {
         RefKindDto::Branch => RefKind::LocalBranch,
         RefKindDto::Remote => RefKind::RemoteBranch,
         RefKindDto::Tag => RefKind::Tag,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn paths_become_git_pathspecs() {
+        assert_eq!(pathspec(r" .\src\lib.rs "), Some("src/lib.rs".to_owned()));
+        assert_eq!(pathspec("/docs/"), Some("docs/".to_owned()));
+        assert_eq!(pathspec("*.rs"), Some("*.rs".to_owned()));
+        assert_eq!(pathspec("  "), None);
+    }
+
+    #[test]
+    fn absolute_paths_inside_the_repository_become_relative() {
+        let root = std::env::temp_dir().join("repo");
+        let inside = root.join("src").join("lib.rs");
+        let inside = inside.to_string_lossy().into_owned();
+        assert_eq!(
+            pathspec(&relative_to(Some(&root), inside)),
+            Some("src/lib.rs".to_owned())
+        );
+        assert_eq!(relative_to(Some(&root), "src".to_owned()), "src");
+        assert_eq!(relative_to(None, "src".to_owned()), "src");
     }
 }

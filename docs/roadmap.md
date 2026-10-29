@@ -254,6 +254,19 @@ Slice 4b done: message and author fields in the filter bar.
 
 Not clicked through in the app, for the same reason as 4a. A component test covers the fields.
 
+Slice 4c done: a Path field.
+
+- `git rev-list --stdin <tips> -- <path>` lists the commits, so git's history simplification
+  and changed-path Bloom filters apply. The result is intersected with the other filters.
+- Paths are normalised: backslashes, `./`, and absolute paths inside the repository.
+- The integration test matches `git log --all [--first-parent] -- <folder>`.
+- Timing: 1.6 s on synthetic-1m (with Bloom filters), 6.2 s on the Linux clone (without).
+- The filter bar wraps onto a second line in narrow panes rather than hiding a field. This was
+  checked in passive captures of the owner's app.
+- `sessions.rs` was split into `sessions/mod.rs` and `sessions/graph.rs` (300-line limit).
+
+Slice 4 is complete. Next: slice 5, find in the graph and "go to commit".
+
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
 highlighted after a slow first load and names both costs (done). Option 2 later: show rows while
@@ -344,10 +357,11 @@ Not verified in the running app (they need someone at the keyboard; the logic is
       detection with `.gitattributes`
 - [ ] Changed files list and file tree of any revision; open/save a file at a revision
 - [ ] File history (following renames) and blame with "blame previous revision"
-- [~] Filters: branch(es), author, committer, message, path, date range, first-parent only, hide merges
-  (owner request 2026-10-28: show only a branch, only an author, changes to a file, and a
-  general search in messages). Done (ADR 0021): one branch or HEAD, first parent, no merges,
-  message and author. Still to do: path (4c); committer and date range later
+- [x] Filters: branch(es), author, committer, message, path, date range, first-parent only, hide merges
+      (owner request 2026-10-28: show only a branch, only an author, changes to a file, and a
+      general search in messages). Done (ADR 0021): one branch or HEAD, first parent, no merges,
+      message, author and path (slices 4a–4c)
+- [ ] Filters, later: committer, date range, several branches at once, regular expressions
 - [ ] Find in the graph (hash, message, ref) with jump-to; "go to commit"
 - [ ] Compare any two commits/branches
 

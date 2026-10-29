@@ -16,6 +16,7 @@ export const NO_FILTER: GraphFilterDto = {
   noMerges: false,
   author: null,
   message: null,
+  path: null,
 };
 
 function hasText(text: string | null | undefined): boolean {
@@ -29,7 +30,8 @@ export function isFiltered(filter: GraphFilterDto): boolean {
     filter.firstParent ||
     filter.noMerges ||
     hasText(filter.author) ||
-    hasText(filter.message)
+    hasText(filter.message) ||
+    hasText(filter.path)
   );
 }
 

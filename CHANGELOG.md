@@ -91,7 +91,9 @@ All notable changes to NoBlame are documented here. The format follows
   - commits are read on several threads: 1–2 s on the Linux kernel, against 13 s for
     `git log --author`.
 
-  **Not yet:** the path filter (next slice).
+- Path filter in the filter bar (M3): shows only the commits that change a file or folder (a
+  git pathspec such as `src/` or `*.rs`), as `git log -- <path>` lists them. Pasted absolute
+  paths inside the repository are accepted.
 
 - The commit-graph offer explains what the file is (one index file in `.git`; commits, branches
   and files do not change) and, after a load slower than 2 s, is highlighted with how long

@@ -73,10 +73,13 @@ The code is in `crates/git-core/src/graph/filter.rs` and `view.rs`.
   - The author matches on name or e-mail, the message on its subject and body.
   - A newer filter cancels the search (`CancellationToken`, checked per chunk), and the
     superseded request fails as `CANCELLED`, which the UI ignores.
-- **Path** (slice 4c, planned):
+- **Path** (slice 4c, `paths.rs`):
   - `git rev-list <tips> -- <path>` keeps git's history simplification, and its changed-path
     Bloom filters, which the commit-graph offer writes.
   - The ids it prints are intersected with the flags.
+  - The tips go to git as commit ids on standard input (`--stdin`), so tens of thousands of
+    references fit on any platform.
+  - git is cancelled (killed) when a newer filter arrives.
 
 ### Views
 
@@ -135,7 +138,10 @@ Bad:
   - Linux kernel: 1.2–1.9 s, against 5–13 s for the same `git log --author`/`--grep`, with the
     same matches.
   - They run again on every reload while the filter is on.
-- A path filter starts a `git` process (slice 4c).
+- A path filter costs what `git rev-list -- <path>` costs:
+  - synthetic-1m, with changed-path Bloom filters: 1.6 s;
+  - Linux kernel, whose commit-graph file has none: 6.2 s.
+  - Writing the commit-graph file with `--changed-paths` (what the offer does) is the remedy.
 
 ## Pros and cons of the options
 

@@ -60,6 +60,9 @@ The bar above the list chooses which commits the tab shows:
 - **Message** shows the commits whose message contains what you type, and **Author** the
   commits whose author's name or e-mail contains it. Upper and lower case do not matter. The
   search starts when you stop typing, or when you press **Enter**; **Esc** empties the field.
+- **Path** shows only the commits that changed a file or folder, for example `src/` or
+  `README.md`. Write it relative to the repository's top folder, or paste the full path of a file
+  inside the repository. `*.rs` finds every Rust file.
 
 You can combine them. While a filter is on, the bar says how many commits are shown, for example
 "1,234 of 56,789 commits". Click **Clear** to see all commits again.
@@ -69,7 +72,7 @@ filter stays while the tab is open, and is reset when you close the tab.
 
 In very large repositories, searching messages or authors takes a second or two.
 
-Coming later: showing only the commits that changed a file or folder.
+Coming later: the full history of one file, following renames, and blame.
 
 ## Large repositories
 
