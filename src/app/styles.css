@@ -201,36 +201,4 @@
   }
 }
 
-/* The loading bird's notes leave its beak, rise and fade (`BirdLoader`). */
-@keyframes bird-note {
-  0% {
-    opacity: 0;
-    transform: translate(-6px, 6px) scale(0.5);
-  }
-  25%,
-  65% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translate(3px, -4px) scale(1);
-  }
-}
-
-@layer components {
-  .bird-note {
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: bird-note 1.8s ease-out infinite both;
-  }
-
-  .bird-note-late {
-    animation-delay: 0.9s;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .bird-note {
-      animation: none;
-    }
-  }
-}
+/* The loading bird's own styles are in public/loading.css (the start screen uses them too). */

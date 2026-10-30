@@ -71,7 +71,7 @@ export function StartupCurtain({ rendered }: { rendered: boolean }) {
         phase === "lifting" && "pointer-events-none opacity-0 backdrop-blur-[0px]",
       )}
     >
-      <BirdLoader className="h-16 w-24 text-foreground" />
+      <BirdLoader className="h-16 text-foreground" />
       <span className="text-sm text-muted-foreground">Starting…</span>
     </div>
   );

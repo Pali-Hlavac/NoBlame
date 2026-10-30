@@ -160,11 +160,13 @@ can also be read with the keyboard.
 
 - **Start screen** (`index.html`): the bird and "Starting…" are plain HTML and CSS inside
   `#root`, so they show as soon as the page is parsed, before any app code has loaded (that
-  takes seconds in dev, where Vite serves every module separately). React replaces them with
-  the startup curtain, which looks the same. `public/theme-boot.js` (a classic script: the CSP
-  allows no inline ones) applies the theme saved in local storage by `ThemeController`
-  (`noblame.theme`; "system" or nothing follows the OS). A test keeps the bird in `index.html`
-  equal to `BirdLoader`.
+  takes seconds in dev, where Vite serves every module separately). A plugin in
+  `vite.config.ts` fills them in from `shared/lib/loadingBird.ts` and preloads the picture
+  first thing (in dev, module requests would otherwise hold it back). React replaces them with
+  the startup curtain, which looks the same. `public/loading.css` styles both.
+  `public/theme-boot.js` (a classic script: the CSP allows no inline ones) applies the theme
+  saved in local storage by `ThemeController` (`noblame.theme`; "system" or nothing follows the
+  OS).
 - **Window background**: windows are built hidden, get the saved theme's background colour
   (`--background`, the OS theme for "System"), then are shown. So the webview never shows white
   before the page paints.
@@ -177,6 +179,13 @@ can also be read with the keyboard.
   commit at each end, in the text colour (black on light, white on dark), two notes rising from
   its open beak. Still with reduced motion. `LoadingState` (every module's loading message) and
   `LoadingOverlay` (stale content kept under a blur, as in the diff tab) use it.
+  - The picture is one file, `public/loading-bird.svg`, used as a CSS mask over the text colour:
+    only its shape counts. The notes are drawn on top, from `NOTES` in `loadingBird.ts`.
+  - **To replace it**: put another single-colour SVG (or a PNG with transparency) in its place,
+    with details such as the eye cut out. If its size or beak differ, set `LOADING_BIRD` in
+    `shared/lib/loadingBird.ts`: `width` and `height` (the viewBox), `beak` (where the notes
+    start, in the same units) and `noteScale` (1 suits a picture 60 units wide). A different
+    file name goes in `image`. Nothing else needs changing.
 
 ## Keyboard
 

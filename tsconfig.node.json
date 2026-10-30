@@ -11,5 +11,5 @@
     "checkJs": true,
     "types": ["node"]
   },
-  "include": ["vite.config.ts", "scripts/**/*.mjs"]
+  "include": ["vite.config.ts", "src/shared/lib/loadingBird.ts", "scripts/**/*.mjs"]
 }

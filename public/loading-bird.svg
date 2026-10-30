@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The loading bird (src/shared/lib/loadingBird.ts). Only its shape counts: the app paints it in
+  the theme's text colour, so draw it in any one colour on a transparent background, with
+  details (the eye, the wing) cut out. If you change the viewBox or where the beak is, update
+  LOADING_BIRD in loadingBird.ts.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 40" width="60" height="40" fill="#000">
+  <defs>
+    <mask id="cutouts" maskUnits="userSpaceOnUse" x="0" y="0" width="60" height="40">
+      <rect width="60" height="40" fill="#fff" />
+      <circle cx="31.6" cy="11.4" r="1.25" fill="#000" />
+      <path
+        d="M21 15.5C26 16.5 30 20 30.5 25C27 25.5 22 25 17.5 27.5"
+        fill="none"
+        stroke="#000"
+        stroke-width="1.1"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </mask>
+  </defs>
+  <path
+    mask="url(#cutouts)"
+    d="M24 9.5C27 6 34 6 36 11C37.5 14 37 17 36 19C35.5 24 31.5 29 24.5 29.5C21.5 29.7 19.3 29.2 17.5 28.5L8 35.5L5.5 33L15.5 25C15.5 19 19 13 24 9.5Z"
+  />
+  <path d="M35.6 11.2L42.6 9.6L36.3 13.6Z" />
+  <path d="M36.2 15L41.6 17.4L35.8 16.9Z" />
+  <path
+    d="M24.5 29L23.5 34.5M28.5 28.6L28.5 34.5"
+    fill="none"
+    stroke="#000"
+    stroke-width="1.2"
+    stroke-linecap="round"
+  />
+  <path d="M14 35L44 35" stroke="#000" stroke-width="1.6" stroke-linecap="round" />
+  <circle cx="14" cy="35" r="2" />
+  <circle cx="44" cy="35" r="2" />
+</svg>

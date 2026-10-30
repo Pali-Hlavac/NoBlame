@@ -13,7 +13,7 @@ export function LoadingState({ label, className }: { label: string; className?: 
         className,
       )}
     >
-      <BirdLoader className="h-6 w-9 text-foreground" />
+      <BirdLoader className="h-6 text-foreground" />
       <span>{label}</span>
     </div>
   );

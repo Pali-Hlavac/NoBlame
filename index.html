@@ -6,135 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NoBlame</title>
     <script src="/theme-boot.js"></script>
-    <!--
-      The start screen, shown until the app's code has loaded (seconds in dev, where Vite serves
-      every module on its own). It matches the first state of StartupCurtain, which replaces it
-      without a visible change. Colours: --background, --foreground and --muted-foreground of
-      src/app/styles.css; the bird: src/shared/components/BirdLoader.tsx (a test keeps them equal).
-    -->
-    <style>
-      html {
-        background: oklch(0.995 0 0);
-        color: oklch(0.21 0.01 220);
-      }
-      html.dark {
-        background: oklch(0.18 0.012 210);
-        color: oklch(0.96 0 0);
-      }
-      .boot-screen {
-        position: fixed;
-        inset: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        font-family:
-          system-ui,
-          -apple-system,
-          "Segoe UI",
-          Roboto,
-          "Helvetica Neue",
-          Arial,
-          sans-serif;
-        user-select: none;
-      }
-      .boot-screen svg {
-        width: 96px;
-        height: 64px;
-        overflow: visible;
-      }
-      .boot-screen p {
-        margin: 0;
-        font-size: 14px;
-        line-height: 20px;
-        color: oklch(0.5 0.016 220);
-      }
-      html.dark .boot-screen p {
-        color: oklch(0.72 0.014 210);
-      }
-      @keyframes boot-note {
-        0% {
-          opacity: 0;
-          transform: translate(-6px, 6px) scale(0.5);
-        }
-        25%,
-        65% {
-          opacity: 1;
-        }
-        100% {
-          opacity: 0;
-          transform: translate(3px, -4px) scale(1);
-        }
-      }
-      .boot-note {
-        transform-box: fill-box;
-        transform-origin: center;
-        animation: boot-note 1.8s ease-out infinite both;
-      }
-      .boot-note-late {
-        animation-delay: 0.9s;
-      }
-      @media (prefers-reduced-motion: reduce) {
-        .boot-note {
-          animation: none;
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="/loading.css" />
   </head>
   <body>
     <div id="root">
-      <div class="boot-screen" role="status" aria-live="polite">
-        <svg viewBox="0 0 60 40" fill="currentColor" aria-hidden="true">
-          <defs>
-            <mask id="boot-cutouts" maskUnits="userSpaceOnUse" x="0" y="0" width="60" height="40">
-              <rect width="60" height="40" fill="white" />
-              <circle cx="31.6" cy="11.4" r="1.25" fill="black" />
-              <path
-                d="M21 15.5C26 16.5 30 20 30.5 25C27 25.5 22 25 17.5 27.5"
-                fill="none"
-                stroke="black"
-                stroke-width="1.1"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </mask>
-          </defs>
-          <path
-            mask="url(#boot-cutouts)"
-            d="M24 9.5C27 6 34 6 36 11C37.5 14 37 17 36 19C35.5 24 31.5 29 24.5 29.5C21.5 29.7 19.3 29.2 17.5 28.5L8 35.5L5.5 33L15.5 25C15.5 19 19 13 24 9.5Z"
-          />
-          <path d="M35.6 11.2L42.6 9.6L36.3 13.6Z" />
-          <path d="M36.2 15L41.6 17.4L35.8 16.9Z" />
-          <path
-            d="M24.5 29L23.5 34.5M28.5 28.6L28.5 34.5"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.2"
-            stroke-linecap="round"
-          />
-          <path d="M14 35L44 35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-          <circle cx="14" cy="35" r="2" />
-          <circle cx="44" cy="35" r="2" />
-          <g transform="translate(46 4)">
-            <g class="boot-note">
-              <ellipse cx="0" cy="5" rx="1.7" ry="1.25" transform="rotate(-20 0 5)" />
-              <rect x="1.05" y="0" width="0.7" height="5" />
-              <path d="M1.75 0C3.4 1 4.1 2.2 3.3 3.9C3.4 2.6 2.8 1.9 1.75 1.6Z" />
-            </g>
-          </g>
-          <g transform="translate(51 -1) scale(0.9)">
-            <g class="boot-note boot-note-late">
-              <ellipse cx="0" cy="6" rx="1.7" ry="1.25" transform="rotate(-20 0 6)" />
-              <ellipse cx="4.6" cy="5" rx="1.7" ry="1.25" transform="rotate(-20 4.6 5)" />
-              <rect x="1.05" y="1" width="0.7" height="5" />
-              <rect x="5.65" y="0" width="0.7" height="5" />
-              <path d="M1.05 1L6.35 0L6.35 1.4L1.05 2.4Z" />
-            </g>
-          </g>
-        </svg>
-        <p>Starting…</p>
-      </div>
+      <!--
+        The start screen, shown until the app's code has loaded (seconds in dev, where Vite
+        serves every module on its own). vite.config.ts fills it in from
+        src/shared/lib/loadingBird.ts; StartupCurtain then replaces it without a visible change.
+      -->
+      <!-- start-screen -->
     </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
