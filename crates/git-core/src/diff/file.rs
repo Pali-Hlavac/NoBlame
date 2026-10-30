@@ -81,6 +81,47 @@ pub(crate) fn diff_blobs(
     }
 }
 
+/// One version of a file shown whole, for viewing it at a revision: every line is an unchanged
+/// row and there is no hunk header. Rows read their text from the new side; the old side and
+/// the side-by-side rows stay empty (a file view is always one column).
+pub(crate) fn whole_blob(data: Vec<u8>, attribute: DiffAttribute) -> FileDiff {
+    let size = data.len() as u64;
+    let binary = match attribute {
+        DiffAttribute::Binary => true,
+        DiffAttribute::Text => false,
+        DiffAttribute::Unspecified => is_binary(&data),
+    };
+    if binary {
+        return FileDiff::sizes_only(DiffContent::Binary, size, size);
+    }
+    let new = Side::new(data);
+    let lines = new.line_count();
+    let mut rows: Vec<Row> = (0..lines)
+        .map(|line| Row::Context {
+            old: line,
+            new: line,
+        })
+        .collect();
+    if new.open() {
+        rows.push(Row::NoNewline);
+    }
+    FileDiff {
+        content: DiffContent::Text,
+        old: Side::default(),
+        new,
+        rows,
+        split: Vec::new(),
+        partners: Vec::new(),
+        whitespace: Whitespace::Show,
+        old_syntax: None,
+        new_syntax: None,
+        additions: 0,
+        deletions: 0,
+        old_size: size,
+        new_size: size,
+    }
+}
+
 impl FileDiff {
     pub(super) fn sizes_only(content: DiffContent, old_size: u64, new_size: u64) -> Self {
         Self {

@@ -23,7 +23,12 @@ pub fn diff_attribute(repo: &gix::Repository, path: &BStr) -> Result<DiffAttribu
     let Some(worktree) = repo.worktree() else {
         return Ok(DiffAttribute::Unspecified);
     };
-    let mut stack = worktree.attributes_only().map_err(DiffError::gix)?;
+    let mut stack = match worktree.attributes_only() {
+        Ok(stack) => stack,
+        // No index yet (`git clone --no-checkout`): no `.gitattributes` is checked out either.
+        Err(error) if error.classify().is_not_found() => return Ok(DiffAttribute::Unspecified),
+        Err(error) => return Err(DiffError::gix(error)),
+    };
     let mut outcome = stack.selected_attribute_matches(["diff"]);
     let platform = stack.at_entry(path, None).map_err(DiffError::gix)?;
     platform.matching_attributes(&mut outcome);

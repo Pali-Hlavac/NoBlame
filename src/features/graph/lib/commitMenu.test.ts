@@ -23,6 +23,7 @@ function actions() {
     copyMessage: vi.fn(),
     highlighted: false as boolean | undefined,
     toggleHighlight: vi.fn(),
+    browseFiles: vi.fn(),
   };
 }
 
@@ -45,6 +46,15 @@ describe("commitMenu", () => {
     if (shortId?.type !== "item") throw new Error("missing");
     shortId.run?.();
     expect(handlers.copy).toHaveBeenCalledWith("01234567", "Short commit id");
+  });
+
+  it("browses the commit's files", () => {
+    const handlers = actions();
+    const browse = find(commitMenu(commit(), handlers), "browse");
+    if (browse?.type !== "item") throw new Error("missing");
+    expect(browse.milestone).toBeUndefined();
+    browse.run?.();
+    expect(handlers.browseFiles).toHaveBeenCalled();
   });
 
   it("names the milestone of operations that arrive later", () => {

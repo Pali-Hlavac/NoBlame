@@ -27,7 +27,12 @@ export interface DiffTab extends TabBase {
   kind: "diff";
 }
 
-export type WorkspaceTab = WelcomeTab | RepositoryTab | SettingsTab | DiffTab;
+/** The file chosen in the Files module, at the selected commit (one tab at most, like the diff). */
+export interface FileTab extends TabBase {
+  kind: "file";
+}
+
+export type WorkspaceTab = WelcomeTab | RepositoryTab | SettingsTab | DiffTab | FileTab;
 
 /** Checks a tab read back from a saved layout (which may come from another app version). */
 export function isWorkspaceTab(value: unknown): value is WorkspaceTab {
@@ -38,6 +43,7 @@ export function isWorkspaceTab(value: unknown): value is WorkspaceTab {
     case "welcome":
     case "settings":
     case "diff":
+    case "file":
       return true;
     case "repository":
       return typeof tab.path === "string";

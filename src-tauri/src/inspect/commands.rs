@@ -1,10 +1,11 @@
 //! Tauri boundary for the read-only repository views.
 
-use tauri::State;
+use tauri::{State, WebviewWindow};
 
 use super::{
-    ChangedFilesDto, CommitDetailsDto, DiffLineDto, DiffRequestDto, FileDiffDto, LineSideDto,
-    RefEntry, SplitLineDto, StashDto, StatusSummaryDto, SubmoduleDto, service,
+    ChangedFilesDto, CommitDetailsDto, DiffLineDto, DiffRequestDto, FileDiffDto,
+    FileViewRequestDto, LineSideDto, RefEntry, SplitLineDto, StashDto, StatusSummaryDto,
+    SubmoduleDto, TreeEntryDto, TreeListingDto, files, service,
 };
 use crate::error::CommandResult;
 use crate::repository::{RawBytes, RepoId, RepoSessions};
@@ -95,6 +96,69 @@ pub async fn get_file_contents(
     blob_id: String,
 ) -> CommandResult<RawBytes> {
     Ok(service::file_contents(&sessions, id, blob_id).await?)
+}
+
+/// The entry at `path` (`/`-separated) in the tree of the commit on `row`; `""` is the root
+/// folder. `null` when that commit has nothing there.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_tree_entry(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    row: u32,
+    path: String,
+) -> CommandResult<Option<TreeEntryDto>> {
+    Ok(files::tree_entry(&sessions, id, row, path).await?)
+}
+
+/// The entries of folder `tree_id` (at most 50,000), folders first.
+#[tauri::command]
+#[specta::specta]
+pub async fn list_tree(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    tree_id: String,
+) -> CommandResult<TreeListingDto> {
+    Ok(files::folder(&sessions, id, tree_id).await?)
+}
+
+/// A file shown whole (every line unchanged): its kind, size and row count. Rows come from
+/// `get_file_view_lines`.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_file_view(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    request: FileViewRequestDto,
+) -> CommandResult<FileDiffDto> {
+    Ok(files::file_view(&sessions, id, request).await?)
+}
+
+/// Up to `count` rows (at most 2,000) of that file, from row `start`.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_file_view_lines(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    request: FileViewRequestDto,
+    start: u32,
+    count: u32,
+) -> CommandResult<Vec<DiffLineDto>> {
+    Ok(files::file_view_lines(&sessions, id, request, start, count).await?)
+}
+
+/// Asks where to save blob `blob_id` (proposing `file_name`) and writes it there exactly as
+/// the repository stores it. Returns the path written, or `null` when cancelled.
+#[tauri::command]
+#[specta::specta]
+pub async fn save_file_as(
+    window: WebviewWindow,
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    blob_id: String,
+    file_name: String,
+) -> CommandResult<Option<String>> {
+    Ok(files::save_file_as(&window, &sessions, id, blob_id, file_name).await?)
 }
 
 /// Every branch, remote branch and tag with the row of its commit.

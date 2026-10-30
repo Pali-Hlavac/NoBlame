@@ -295,6 +295,31 @@ Slice 6 done: find in the graph and go to commit.
 Not clicked through in the running app (owner's instance in use). Next: slice 7, file tree of
 a revision.
 
+Slice 7 done (2026-10-30): the files of a revision ([features/files.md](features/files.md)).
+
+- **Files** module (Alt+6): the selected commit's tree, folders read as they are opened, with
+  tree keyboard navigation and a context menu (Show, Save as…, Copy path, Copy name).
+- **File** tab: the chosen file at the selected commit, with the diff tab's rows (line numbers,
+  syntax colours, paging), images, and **Save as…** (native dialog opened in Rust; the bytes as
+  stored). It shares a group with the diff tab.
+- "Browse files at this commit" in the commit menu works.
+- Fixed on the way: a work tree without an index (the Linux kernel clone) made every diff fail
+  while reading `.gitattributes`.
+- Checked in the running dev app:
+  - the tree on the Linux kernel (folders 1–6 ms);
+  - a 100,000-file folder (163 ms; 50,000 listed);
+  - viewing a file of NoBlame itself;
+  - where the file and diff tabs open;
+  - the commit menu entry.
+- Not clicked through: the native Save dialog (it would appear on the owner's screen; covered by
+  a git-core test).
+- In the dev app, the synthetic Alt+n events did not switch modules, also for Alt+3 and Alt+5
+  (pre-existing; still to try on a real keyboard).
+- A hot-module update during testing left dockview's document groups inconsistent, so opening a
+  tab threw "invalid location" and blanked the window. It did not happen after a reload.
+
+Next: slice 8, file history (following renames) and blame.
+
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
 highlighted after a slow first load and names both costs (done). Option 2 later: show rows while
@@ -383,7 +408,8 @@ Not verified in the running app (they need someone at the keyboard; the logic is
 - [x] Diff viewer (ADR 0013): unified and side by side, virtualized and paged for huge diffs,
       whitespace options, context lines, word diff, syntax highlighting, image previews, binary
       detection with `.gitattributes`
-- [ ] Changed files list and file tree of any revision; open/save a file at a revision
+- [x] Changed files list and file tree of any revision; open/save a file at a revision
+      (slice 7: Files module and file tab; opening in an external program later)
 - [ ] File history (following renames) and blame with "blame previous revision"
 - [x] Filters: branch(es), author, committer, message, path, date range, first-parent only, hide merges
       (owner request 2026-10-28: show only a branch, only an author, changes to a file, and a
@@ -417,22 +443,22 @@ Slices, in order (planned 2026-10-28):
 
 On any commit row:
 
-| Entry                                                                  | Arrives      |
-| ---------------------------------------------------------------------- | ------------ |
-| Copy full id / short id / subject / whole message                      | M3           |
-| Highlight this commit's history (and clear the highlight)              | M3           |
-| Compare with HEAD / with the working tree / with the selected commit   | M3 (slice 9) |
-| Browse files at this commit; save a file from it                       | M3 (slice 7) |
-| Check out this commit (detached HEAD, explained in the dialog)         | M5           |
-| Create branch here… / Create tag here…                                 | M5           |
-| Merge into the current branch                                          | M6           |
-| Rebase the current branch onto this commit                             | M6           |
-| Interactive rebase from here                                           | M6           |
-| Cherry-pick / Revert this commit                                       | M6           |
-| Reset the current branch to here (soft, mixed, hard with confirmation) | M6           |
-| Mark as good / bad (bisect)                                            | M7           |
-| Create a patch; save an archive (zip, tar) of this commit              | M7           |
-| Run a user script with this commit                                     | M7           |
+| Entry                                                                  | Arrives        |
+| ---------------------------------------------------------------------- | -------------- |
+| Copy full id / short id / subject / whole message                      | M3             |
+| Highlight this commit's history (and clear the highlight)              | M3             |
+| Compare with HEAD / with the working tree / with the selected commit   | M3 (slice 9)   |
+| Browse files at this commit; save a file from it                       | Done (slice 7) |
+| Check out this commit (detached HEAD, explained in the dialog)         | M5             |
+| Create branch here… / Create tag here…                                 | M5             |
+| Merge into the current branch                                          | M6             |
+| Rebase the current branch onto this commit                             | M6             |
+| Interactive rebase from here                                           | M6             |
+| Cherry-pick / Revert this commit                                       | M6             |
+| Reset the current branch to here (soft, mixed, hard with confirmation) | M6             |
+| Mark as good / bad (bisect)                                            | M7             |
+| Create a patch; save an archive (zip, tar) of this commit              | M7             |
+| Run a user script with this commit                                     | M7             |
 
 When branches or tags point at the commit, a submenu for each one offers:
 

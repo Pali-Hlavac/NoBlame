@@ -6,6 +6,7 @@ import {
   ArchiveIcon,
   FileDiffIcon,
   FolderGitIcon,
+  FolderTreeIcon,
   GitBranchIcon,
   GitCommitHorizontalIcon,
 } from "lucide-react";
@@ -13,6 +14,7 @@ import {
 import { BranchesModule } from "@/features/branches";
 import { ChangedFilesModule } from "@/features/changed-files";
 import { CommitDetailsModule } from "@/features/commit-details";
+import { FilesModule } from "@/features/files";
 import { RepositoriesModule } from "@/features/repositories";
 import { StashesModule } from "@/features/stashes";
 import type { WorkbenchModule } from "@/features/workbench";
@@ -53,10 +55,18 @@ export const MODULES: readonly WorkbenchModule[] = [
     hotkey: "alt+5",
     component: ChangedFilesModule,
   },
+  {
+    // The commit context menu opens it by this id ("Browse files at this commit").
+    id: "files",
+    title: "Files",
+    icon: FolderTreeIcon,
+    hotkey: "alt+6",
+    component: FilesModule,
+  },
 ];
 
 /** Module dock on first start and after "Reset layout": groups top to bottom, tabs inside. */
 export const DEFAULT_MODULE_LAYOUT: readonly (readonly string[])[] = [
   ["repositories", "branches"],
-  ["commit-details", "changed-files", "stashes"],
+  ["commit-details", "changed-files", "files", "stashes"],
 ];

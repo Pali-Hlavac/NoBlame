@@ -16,6 +16,7 @@ On macOS, use **⌘** where this page says **Ctrl**, except for switching tabs, 
 | Alt+3              | Show Commit details                     |
 | Alt+4              | Show Stashes                            |
 | Alt+5              | Show Changed files                      |
+| Alt+6              | Show Files                              |
 | Ctrl+, (⌘,)        | Open Settings                           |
 | Ctrl+F (⌘F)        | Find commits in the active repository   |
 | Ctrl+Shift+G (⌘⇧G) | Go to a commit, branch or tag           |

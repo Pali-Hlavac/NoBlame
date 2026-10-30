@@ -197,6 +197,21 @@ warm page, unchanged.
 Not measured yet: frame times while scrolling, a real large repository (Linux kernel), a cold
 disk cache, macOS and Linux.
 
+### Files of a revision (M3 slice 7, 2026-10-30)
+
+Debug build, measured in the running app through IPC (`invoke`), Windows 11:
+
+| What                                              | Time     | Notes                              |
+| ------------------------------------------------- | -------- | ---------------------------------- |
+| Linux kernel: root entry of a commit              | 1.3 ms   | `get_tree_entry(row, "")`          |
+| Linux kernel: list a folder                       | 1.3–6 ms | `include/linux`: 1,614 entries     |
+| Synthetic folder of 100,000 files: list it        | 163 ms   | first 50,000 sent (4.5 MB of JSON) |
+| The same folder opened again in the tree (cached) | 13–17 ms | until the rows are on screen       |
+
+File views use the diff pipeline (`file_view`), so their cost is a file diff's without the
+comparison. They were not timed on the Linux clone: it is blobless and has no checkout, so its
+file contents are not local.
+
 ### Graph filters (M3 slice 4a, ADR 0021, 2026-10-29)
 
 Measured with `graph_spike` (release), from the loaded full graph. The view's time is choosing

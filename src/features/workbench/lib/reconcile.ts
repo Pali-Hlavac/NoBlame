@@ -41,10 +41,16 @@ export interface DockApiLike {
 type Position =
   { referenceGroup: string; direction: "within" } | { referencePanel: string; direction: "right" };
 
+/** Tabs that show what a module chose (the diff, a file): they open beside the graph. */
+function isViewer(tab: WorkspaceTab): boolean {
+  return tab.kind === "diff" || tab.kind === "file";
+}
+
 /**
- * Where a new tab opens. The diff tab opens to the right of the active repository's tab, so the
- * graph stays visible beside it. Other tabs open in the group the user is working in, but not in
- * the diff tab's group: they would hide the diff. (Without a position dockview opens a new group.)
+ * Where a new tab opens. The diff and file tabs open together: in the group of the other one
+ * if it is open, else to the right of the active repository's tab, so the graph stays visible
+ * beside them. Other tabs open in the group the user is working in, but not in that viewer
+ * group: they would hide the diff. (Without a position dockview opens a new group.)
  */
 function positionFor(
   api: DockApiLike,
@@ -53,14 +59,15 @@ function positionFor(
   activeRepositoryTabId: string | null,
 ): Position | undefined {
   const repository = activeRepositoryTabId ? api.getPanel(activeRepositoryTabId) : undefined;
-  if (tab.kind === "diff" && repository) {
-    return { referencePanel: repository.id, direction: "right" };
+  const viewer = tabs.find((open) => open.id !== tab.id && isViewer(open));
+  const viewerGroup = viewer ? api.getPanel(viewer.id)?.group?.id : undefined;
+  if (isViewer(tab)) {
+    if (viewerGroup) return { referenceGroup: viewerGroup, direction: "within" };
+    if (repository) return { referencePanel: repository.id, direction: "right" };
   }
-  const diff = tabs.find((open) => open.kind === "diff");
-  const diffGroup = diff ? api.getPanel(diff.id)?.group?.id : undefined;
   let group = api.activeGroup ?? api.groups[0];
-  if (group && group.id === diffGroup) {
-    group = repository?.group ?? api.groups.find((other) => other.id !== diffGroup) ?? group;
+  if (group && group.id === viewerGroup) {
+    group = repository?.group ?? api.groups.find((other) => other.id !== viewerGroup) ?? group;
   }
   return group && { referenceGroup: group.id, direction: "within" };
 }

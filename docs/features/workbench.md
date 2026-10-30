@@ -93,10 +93,11 @@ Settings shown there (stored in `settings.json`, see `src-tauri/src/settings/typ
 | Commit details | Alt+3    | Message, commit id (copy), parents (click to select), author and committer with their time zones, refs, and the branches and tags containing the commit |
 | Changed files  | Alt+5    | The files the selected commit changed (status, renames); a merge can be compared with any parent ([changed-files.md](changed-files.md))                 |
 | Stashes        | Alt+4    | Stash list (`stash@{n}`, message, branch, date); refreshed when the window regains focus                                                                |
+| Files          | Alt+6    | The folders and files of the selected commit, read as they are opened; showing a file opens the file tab ([files.md](files.md))                         |
 
 Default arrangement: Repositories and Branches as tabs on top, Commit details, Changed files and
-Stashes as tabs below. A layout saved before Changed files existed does not show it; open it
-from the activity bar or with Alt+5.
+Stashes as tabs below (Files after Changed files). A layout saved before Changed files or Files
+existed does not show them; open them from the activity bar or with Alt+5 and Alt+6.
 
 Details:
 
@@ -187,7 +188,7 @@ can also be read with the keyboard.
 
 - `F6` / `Shift+F6` move focus to the next or previous region: activity bar, modules, toolbar,
   tabs, status bar. A collapsed sidebar is skipped.
-- `Alt+1` … `Alt+4` open a module.
+- `Alt+1` … `Alt+6` open a module.
 - Each module is also in the command palette under **View** ("Show Branches", ...), next to
   **Reset layout**.
 - The commit list, the Branches list and other long lists are listboxes. Arrows, Page Up/Down

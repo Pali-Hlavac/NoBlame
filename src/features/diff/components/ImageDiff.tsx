@@ -24,7 +24,8 @@ interface ImagePaneProps {
   size: number;
 }
 
-function ImagePane({ repoId, blobId, type, label, absent, path, size }: ImagePaneProps) {
+/** One image with its size and pixel dimensions, on a checkerboard. */
+export function ImagePane({ repoId, blobId, type, label, absent, path, size }: ImagePaneProps) {
   const contents = useFileContents(repoId, blobId);
   const url = contents.data && objectUrlFor(contents.data, type);
   const [pixels, setPixels] = useState<string>();

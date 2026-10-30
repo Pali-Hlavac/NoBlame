@@ -23,12 +23,21 @@ interface VirtualListProps {
   renderRow: (index: number, active: boolean) => ReactNode;
   /** Accessible text of one row (screen readers announce it). */
   rowLabel: (index: number) => string;
+  /**
+   * Tree semantics (role `tree`): each row's level (1 at the top) and whether it is an open
+   * folder (`undefined` for rows that do not open).
+   */
+  tree?: { level: (index: number) => number; expanded: (index: number) => boolean | undefined };
+  /** Keys the list does not handle itself (a tree's Left and Right); true when handled. */
+  onKey?: (key: string, activeIndex: number | undefined) => boolean;
   className?: string;
 }
 
 /**
  * A long list with fixed-height rows that renders only what is on screen. Keyboard: arrows,
- * Page Up/Down, Home/End move the active row; Enter activates it. One tab stop, like a listbox.
+ * Page Up/Down, Home/End move the active row; Enter activates it. One tab stop, like a listbox
+ * (or a tree). Pressing a row with the primary button activates it; other buttons only make it
+ * active, so a context menu can open for it.
  */
 export function VirtualList(props: VirtualListProps) {
   const { count, rowHeight, label, activeIndex, onActiveChange, onActivate } = props;
@@ -60,6 +69,10 @@ export function VirtualList(props: VirtualListProps) {
       onActivate(activeIndex);
       return;
     }
+    if (props.onKey?.(event.key, activeIndex)) {
+      event.preventDefault();
+      return;
+    }
     const next = nextRow(event.key, activeIndex, count, Math.floor(size.height / rowHeight));
     if (next === null) return;
     event.preventDefault();
@@ -73,15 +86,17 @@ export function VirtualList(props: VirtualListProps) {
       <div
         key={index}
         id={`${idPrefix}-${index}`}
-        role="option"
+        role={props.tree ? "treeitem" : "option"}
         aria-selected={active}
         aria-label={props.rowLabel(index)}
+        aria-level={props.tree?.level(index)}
+        aria-expanded={props.tree?.expanded(index)}
         className="absolute right-0 left-0"
         style={{ top: index * rowHeight, height: rowHeight }}
         tabIndex={-1}
-        onMouseDown={() => {
+        onMouseDown={(event) => {
           onActiveChange(index);
-          onActivate(index);
+          if (event.button === 0) onActivate(index);
         }}
       >
         {props.renderRow(index, active)}
@@ -92,7 +107,7 @@ export function VirtualList(props: VirtualListProps) {
   return (
     <div
       ref={scrollRef}
-      role="listbox"
+      role={props.tree ? "tree" : "listbox"}
       aria-label={label}
       aria-activedescendant={
         activeIndex !== undefined && activeIndex >= first && activeIndex <= last

@@ -40,6 +40,7 @@ One page per user-facing feature: behaviour, edge cases and status.
 - [commit-graph.md](features/commit-graph.md): the commit graph and its columns
 - [changed-files.md](features/changed-files.md): the files the selected commit changed
 - [diff.md](features/diff.md): the diff tab (unified diff of the chosen file)
+- [files.md](features/files.md): the Files module (tree of a commit), the file tab, saving a file
 
 ## User guide
 

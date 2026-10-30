@@ -4,11 +4,19 @@
  */
 import { create } from "zustand";
 
-import type { DiffTab, RepositoryTab, SettingsTab, WelcomeTab, WorkspaceTab } from "../types";
+import type {
+  DiffTab,
+  FileTab,
+  RepositoryTab,
+  SettingsTab,
+  WelcomeTab,
+  WorkspaceTab,
+} from "../types";
 
 export const WELCOME_TAB: WelcomeTab = { id: "welcome", kind: "welcome", title: "Welcome" };
 export const SETTINGS_TAB: SettingsTab = { id: "settings", kind: "settings", title: "Settings" };
 export const DIFF_TAB: DiffTab = { id: "diff", kind: "diff", title: "Diff" };
+export const FILE_TAB: FileTab = { id: "file", kind: "file", title: "File" };
 
 interface TabsState {
   tabs: WorkspaceTab[];
@@ -123,6 +131,11 @@ export const useTabsStore = create<TabsState>()((set) => ({
 /** Shows the diff tab: opens it the first time, otherwise focuses it where it is docked. */
 export function showDiffTab(): void {
   useTabsStore.getState().openTab(DIFF_TAB);
+}
+
+/** Shows the file tab: opens it the first time, otherwise focuses it where it is docked. */
+export function showFileTab(): void {
+  useTabsStore.getState().openTab(FILE_TAB);
 }
 
 /** The currently active tab, if any. */

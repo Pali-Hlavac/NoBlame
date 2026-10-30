@@ -6,6 +6,7 @@ use git_core::repo::RepoError;
 use git_core::stash::StashError;
 use git_core::status::StatusError;
 use git_core::submodule::SubmoduleError;
+use git_core::tree::TreeError;
 
 use crate::error::{AppError, ErrorCode};
 use crate::git_env::GitEnvError;
@@ -29,6 +30,9 @@ pub enum RepositoryError {
     /// Diffing failed.
     #[error(transparent)]
     Diff(#[from] DiffError),
+    /// Reading the files of a revision, or saving one, failed.
+    #[error(transparent)]
+    Tree(#[from] TreeError),
     /// Reading the working tree status failed.
     #[error(transparent)]
     Status(#[from] StatusError),
@@ -69,7 +73,8 @@ impl From<RepositoryError> for AppError {
             | RepositoryError::Graph(GraphError::Gix(message))
             | RepositoryError::Stash(StashError::Gix(message))
             | RepositoryError::Submodule(SubmoduleError::Gix(message))
-            | RepositoryError::Diff(DiffError::Gix(message)) => {
+            | RepositoryError::Diff(DiffError::Gix(message))
+            | RepositoryError::Tree(TreeError::Gix(message)) => {
                 tracing::error!(%message, "repository read failed");
                 AppError::new(ErrorCode::GitFailed, format!("Reading the repository failed: {message}"))
             }
@@ -99,7 +104,16 @@ impl From<RepositoryError> for AppError {
                     limit >> 20
                 ),
             ),
-            RepositoryError::Diff(DiffError::Missing(_)) => AppError::new(
+            RepositoryError::Tree(TreeError::Write { path, source }) => {
+                tracing::warn!(path = %path.display(), %source, "saving a file failed");
+                AppError::new(
+                    ErrorCode::Io,
+                    format!("Could not save {}: {source}.", path.display()),
+                )
+                .with_hint("Choose a folder you can write to.")
+            }
+            RepositoryError::Diff(DiffError::Missing(_))
+            | RepositoryError::Tree(TreeError::Missing(_)) => AppError::new(
                 ErrorCode::NotFound,
                 "This version of the file is not in the local repository.",
             )

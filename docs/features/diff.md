@@ -151,6 +151,14 @@ rows, and 0.9 s the first time the last page is shown (every shown line before i
 once). See
 [performance.md](../development/performance.md).
 
+The file tab ([files.md](files.md)) shows one version of a file with the same rows:
+`file_view` makes every line an unchanged row without a hunk header, and `FileContents` renders
+them with one line-number column.
+
+A work tree without an index (`git clone --no-checkout`) has no checked-out `.gitattributes`, so
+its files have no `diff` attribute; reading the attributes no longer fails there (found on the
+Linux kernel clone during slice 7).
+
 ## Not yet
 
 - Word diff: the changed words inside paired lines (slice 3b).

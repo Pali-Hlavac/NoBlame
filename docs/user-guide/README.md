@@ -14,6 +14,7 @@ buttons and the task windows are labelled placeholders.
 | [Opening repositories](opening-repositories.md) | Open, create and recent repositories         |
 | [The commit graph](commit-graph.md)             | Reading and moving through the history       |
 | [Viewing changes](viewing-changes.md)           | Changed files of a commit and their diffs    |
+| [Browsing files](browsing-files.md)             | Every file of a commit; saving one           |
 | [Command palette](command-palette.md)           | Running any command by typing its name       |
 | [Command line](command-line.md)                 | Starting NoBlame from a terminal or a script |
 | [Keyboard shortcuts](keyboard-shortcuts.md)     | All shortcuts in one table                   |

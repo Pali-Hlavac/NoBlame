@@ -13,7 +13,7 @@ const MAX_BYTES: usize = 256 << 20;
 
 /// Which diff: the two versions it compares (`None`: the file is absent on that side), the
 /// file's path (its `.gitattributes` and language apply), the options and whether it is
-/// syntax-highlighted.
+/// syntax-highlighted. With `whole`, it is the new version shown whole (a file view) instead.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DiffKey {
     pub old: Option<ObjectId>,
@@ -21,6 +21,7 @@ pub struct DiffKey {
     pub path: Option<String>,
     pub options: DiffOptions,
     pub syntax: bool,
+    pub whole: bool,
 }
 
 /// Most recently used first.

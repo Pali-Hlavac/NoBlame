@@ -72,6 +72,7 @@ async fn computed(
         path: request.path,
         syntax: request.options.syntax,
         options: request.options.into(),
+        whole: false,
     };
     session.file_diff(key).await
 }

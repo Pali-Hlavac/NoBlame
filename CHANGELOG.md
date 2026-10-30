@@ -106,6 +106,12 @@ All notable changes to NoBlame are documented here. The format follows
   window at start with the app blurred behind it, until everything has loaded (at most 5 s).
   The bird is a songbird chirping on a berry branch, drawn inline from one definition
   (`loadingBird.ts`), so it shows from the first frame.
+- Files module (Alt+6): the folders and files of the selected commit, read as folders are
+  opened (a 1,600-entry folder of the Linux kernel in a few milliseconds), with tree keys
+  (Right/Left open, close and move) and a context menu. Showing a file opens the **File** tab:
+  the whole file with line numbers and syntax colours, or the picture for images. **Save as…**
+  writes it exactly as the repository stores it. "Browse files at this commit" in the commit
+  menu now works.
 - Find commits (Ctrl+F):
   - matches ids, branch and tag names, authors and messages;
   - Enter and Shift+Enter step through the matches ("3 of 120").
@@ -171,6 +177,10 @@ All notable changes to NoBlame are documented here. The format follows
 
 ### Fixed
 
+- Diffs failed in a work tree without an index (for example after `git clone --no-checkout`)
+  while reading `.gitattributes`.
+- Right-clicking a row in Changed files or Branches no longer activates it; it only
+  moves the cursor there.
 - The window no longer opens white: it starts in the theme's background colour with the
   singing bird, drawn in the page itself, until the app has loaded (seconds in dev).
 - Found during M1 verification: `noblame .` opened a tab named "." and forwarded paths kept

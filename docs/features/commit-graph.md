@@ -74,7 +74,8 @@ subject.
 | -------------------------------------------------------------- | ------------------------------- |
 | Copy ▸ Commit id, Short commit id, Subject, Whole message      | Works                           |
 | Highlight its history / Clear the highlight                    | Works (when highlighting is on) |
-| Compare with HEAD, Compare with the working tree, Browse files | Disabled, **M3** (later slices) |
+| Browse files at this commit                                    | Works (opens the Files module)  |
+| Compare with HEAD, Compare with the working tree               | Disabled, **M3** (slice 9)      |
 | Check out this commit, Create a branch here, Create a tag here | Disabled, **M5**                |
 | Merge, Rebase, Interactive rebase, Cherry-pick, Revert, Reset  | Disabled, **M6**                |
 | A submenu per branch or tag on the commit                      | Copy name works; the rest M5/M6 |

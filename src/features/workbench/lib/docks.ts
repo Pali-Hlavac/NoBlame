@@ -16,9 +16,15 @@ export const MODULE_COMPONENT = "module";
 /** Wait this long after the last layout change before writing it to disk. */
 const SAVE_DELAY_MS = 500;
 
-export const docks: { modules: DockviewApi | null; documents: DockviewApi | null } = {
+export const docks: {
+  modules: DockviewApi | null;
+  documents: DockviewApi | null;
+  /** The modules the workbench was given, so features can open one by id. */
+  registered: readonly WorkbenchModule[];
+} = {
   modules: null,
   documents: null,
+  registered: [],
 };
 
 /** Current layout of both docks and the sidebar. */
@@ -71,6 +77,15 @@ export function openModule(module: Pick<WorkbenchModule, "id" | "title">): void 
     params,
     ...(group && { position: { referenceGroup: group.id, direction: "within" } }),
   });
+}
+
+/**
+ * Opens the registered module with this id, for features that cannot import the registry
+ * (the app shell imports them). Does nothing for an unknown id.
+ */
+export function openModuleById(id: string): void {
+  const module = docks.registered.find((registered) => registered.id === id);
+  if (module) openModule(module);
 }
 
 /**

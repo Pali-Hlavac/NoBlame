@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { toast } from "sonner";
 
+import { openModuleById } from "@/features/workbench";
 import type { CommitRowDto } from "@/shared/ipc/bindings";
 import { commands, toIpcError, unwrap } from "@/shared/ipc/client";
 import { copyToClipboard } from "@/shared/lib/clipboard";
@@ -56,6 +57,9 @@ function Entries({ entries }: { entries: readonly MenuEntry[] }) {
   });
 }
 
+/** The Files module's id in the module registry (`app/workbench/modules.ts`). */
+const FILES_MODULE_ID = "files";
+
 interface CommitContextMenuProps {
   repoId: number;
   /** The selected commit's row and text; no menu without them (working tree rows, loading). */
@@ -85,6 +89,10 @@ export function CommitContextMenu(props: CommitContextMenuProps) {
           },
           highlighted: props.highlighted,
           toggleHighlight: props.onToggleHighlight,
+          // The commit is already selected (right click selects first); the module follows it.
+          browseFiles: () => {
+            openModuleById(FILES_MODULE_ID);
+          },
         })
       : null;
   return (

@@ -83,6 +83,25 @@ export const commands = {
 	findDiffRow: (id: number, request: DiffRequestDto, layout: DiffLayout, side: LineSideDto, line: number) => typedError<number | null, AppError>(__TAURI_INVOKE("find_diff_row", { id, request, layout, side, line })),
 	/**  The raw contents of blob `blob_id` (at most 32 MB), for previews such as images. */
 	getFileContents: (id: number, blobId: string) => typedError<unknown, AppError>(__TAURI_INVOKE("get_file_contents", { id, blobId })),
+	/**
+	 *  The entry at `path` (`/`-separated) in the tree of the commit on `row`; `""` is the root
+	 *  folder. `null` when that commit has nothing there.
+	 */
+	getTreeEntry: (id: number, row: number, path: string) => typedError<TreeEntryDto | null, AppError>(__TAURI_INVOKE("get_tree_entry", { id, row, path })),
+	/**  The entries of folder `tree_id` (at most 50,000), folders first. */
+	listTree: (id: number, treeId: string) => typedError<TreeListingDto, AppError>(__TAURI_INVOKE("list_tree", { id, treeId })),
+	/**
+	 *  A file shown whole (every line unchanged): its kind, size and row count. Rows come from
+	 *  `get_file_view_lines`.
+	 */
+	getFileView: (id: number, request: FileViewRequestDto) => typedError<FileDiffDto, AppError>(__TAURI_INVOKE("get_file_view", { id, request })),
+	/**  Up to `count` rows (at most 2,000) of that file, from row `start`. */
+	getFileViewLines: (id: number, request: FileViewRequestDto, start: number, count: number) => typedError<DiffLineDto[], AppError>(__TAURI_INVOKE("get_file_view_lines", { id, request, start, count })),
+	/**
+	 *  Asks where to save blob `blob_id` (proposing `file_name`) and writes it there exactly as
+	 *  the repository stores it. Returns the path written, or `null` when cancelled.
+	 */
+	saveFileAs: (id: number, blobId: string, fileName: string) => typedError<string | null, AppError>(__TAURI_INVOKE("save_file_as", { id, blobId, fileName })),
 	/**  Every branch, remote branch and tag with the row of its commit. */
 	listRefs: (id: number) => typedError<RefEntry[], AppError>(__TAURI_INVOKE("list_refs", { id })),
 	/**  The stash list, newest first. */
@@ -359,6 +378,16 @@ export type FileDiffDto = {
 	oldSize: string,
 	/**  Size of the new version in bytes, as a decimal string (0 when absent). */
 	newSize: string,
+};
+
+/**  Which file a file view shows. */
+export type FileViewRequestDto = {
+	/**  The file's blob (hex). */
+	blobId: string,
+	/**  Its path (its `.gitattributes` and language apply). */
+	path: string,
+	/**  Colour the code by the language of the path. */
+	syntax: boolean,
 };
 
 /**  One match of the find bar. */
@@ -776,6 +805,37 @@ export type TipsDto =
 { type: "refs"; 
 /**  The references. */
 refs: RefSelectorDto[] };
+
+/**  One entry of a folder. The name is for display (non-UTF-8 bytes are replaced). */
+export type TreeEntryDto = {
+	/**  Name in its folder (empty for the root folder). */
+	name: string,
+	/**  What it is. */
+	kind: TreeEntryKindDto,
+	/**  Tree, blob or commit id (hex). */
+	id: string,
+};
+
+/**  What a tree entry is. */
+export type TreeEntryKindDto = 
+/**  A folder. */
+"folder" | 
+/**  A file. */
+"file" | 
+/**  A file with the executable bit. */
+"executable" | 
+/**  A symbolic link (its contents are the target path). */
+"symlink" | 
+/**  A submodule (`id` is its commit). */
+"submodule";
+
+/**  The entries of one folder. */
+export type TreeListingDto = {
+	/**  Folders first, then files, by name ignoring case; at most 50,000. */
+	entries: TreeEntryDto[],
+	/**  All entries, including those not listed. */
+	total: number,
+};
 
 /**  Which whitespace changes the diff shows, as git's options name them. */
 export type WhitespaceMode = 

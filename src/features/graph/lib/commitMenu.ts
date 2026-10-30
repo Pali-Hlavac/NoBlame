@@ -33,6 +33,8 @@ export interface CommitMenuActions {
   /** Whether the commit's history is highlighted now; `undefined` when highlighting is off. */
   highlighted: boolean | undefined;
   toggleHighlight: () => void;
+  /** Shows the commit's files (the Files module). */
+  browseFiles: () => void;
 }
 
 const { inspect, branches, history, advanced } = MENU_MILESTONES;
@@ -132,7 +134,7 @@ export function commitMenu(commit: CommitRowDto, actions: CommitMenuActions): Me
     separator("sep-inspect"),
     item("compare-head", "Compare with HEAD", inspect),
     item("compare-worktree", "Compare with the working tree", inspect),
-    item("browse", "Browse files at this commit", inspect),
+    item("browse", "Browse files at this commit", undefined, actions.browseFiles),
     separator("sep-branches"),
     item("checkout", "Check out this commit…", branches),
     item("create-branch", "Create a branch here…", branches),

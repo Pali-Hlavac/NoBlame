@@ -107,9 +107,9 @@ pub(super) struct Highlighter {
 
 impl Highlighter {
     /// A highlighter for the `shown` lines (ascending) of `side` of the file at `path`, if its
-    /// language is known (by extension, file name or first line) and the side is small enough.
+    /// language is known (by extension, name or first line) and the side is non-empty and small.
     pub fn for_file(path: &str, side: &Side, shown: Vec<u32>) -> Option<Self> {
-        if side.data.len() > MAX_HIGHLIGHT_BYTES || shown.is_empty() {
+        if side.data.len() > MAX_HIGHLIGHT_BYTES || side.data.is_empty() || shown.is_empty() {
             return None;
         }
         let set = syntaxes();

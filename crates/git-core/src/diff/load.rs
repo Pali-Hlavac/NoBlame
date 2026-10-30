@@ -1,10 +1,12 @@
-//! Reading blobs from the repository: the two sides of a file diff, or one file's contents.
+//! Reading blobs from the repository: the two sides of a file diff, one file shown whole, or
+//! one file's contents.
 
 use gix::ObjectId;
 use gix::diff::blob::Algorithm;
 
 use super::DiffError;
-use super::file::{FileDiff, diff_blobs};
+use super::attributes::DiffAttribute;
+use super::file::{FileDiff, diff_blobs, whole_blob};
 use super::lines::DiffContent;
 use super::options::DiffOptions;
 
@@ -35,6 +37,21 @@ pub fn file_diff(
         algorithm,
         options,
     ))
+}
+
+/// Blob `id` shown whole, for viewing a file at a revision: every line an unchanged row, no
+/// hunk header (`attribute` decides between text and binary). Files over
+/// [`MAX_DIFF_BLOB_BYTES`] get their size only. Blocking.
+pub fn file_view(
+    repo: &gix::Repository,
+    id: ObjectId,
+    attribute: DiffAttribute,
+) -> Result<FileDiff, DiffError> {
+    let size = blob_size(repo, Some(id))?;
+    if size > MAX_DIFF_BLOB_BYTES {
+        return Ok(FileDiff::sizes_only(DiffContent::TooLarge, size, size));
+    }
+    Ok(whole_blob(read_blob(repo, Some(id))?, attribute))
 }
 
 /// The contents of blob `id` if it is at most `max_bytes` long (for previews). Blocking.

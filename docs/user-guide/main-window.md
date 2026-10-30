@@ -28,6 +28,7 @@ Each icon in the activity bar opens a module in the sidebar:
 | Commit | Commit details | Alt+3    | Everything about the selected commit                                   |
 | Box    | Stashes        | Alt+4    | Your stashes                                                           |
 | File   | Changed files  | Alt+5    | The files the selected commit changed; choose one to see its diff      |
+| Tree   | Files          | Alt+6    | Every folder and file of the selected commit; choose one to see it     |
 
 The gear at the bottom of the activity bar opens **Settings** in a tab: the theme, the commit
 highlight, and whether repositories show their **…** button.
@@ -90,7 +91,9 @@ current branch are shown on the right of the title bar.
 
 Every open repository has its own tab, and there is a **Welcome** tab. Choosing a file in
 Changed files opens the **Diff** tab, which shows that file's changes
-([Viewing changes](viewing-changes.md)).
+([Viewing changes](viewing-changes.md)). Choosing a file in Files opens the **File** tab, which
+shows the whole file at that commit ([Browsing files](browsing-files.md)). The two open next to
+each other, beside the commit graph.
 
 - Click a tab to show it. Click the **×** on a tab to close it.
 - Opening a repository that is already open switches to its tab instead of opening a second one.

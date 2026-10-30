@@ -1,5 +1,6 @@
 //! What a commit changed: the list of files ([`commit_changes`]) and the line diff of one file
-//! ([`file_diff`]). Both run in-process with gix; nothing here starts `git`.
+//! ([`file_diff`]); also one version of a file shown whole ([`file_view`]) with the same rows.
+//! All run in-process with gix; nothing here starts `git`.
 
 mod attributes;
 mod changes;
@@ -20,7 +21,7 @@ pub use attributes::{DiffAttribute, diff_attribute};
 pub use changes::{ChangeStatus, ChangedFile, CommitChanges, MAX_CHANGED_FILES, commit_changes};
 pub use file::FileDiff;
 pub use lines::{DiffContent, DiffLine, LineKind, SplitCell, SplitLine};
-pub use load::{MAX_DIFF_BLOB_BYTES, blob_contents, file_diff};
+pub use load::{MAX_DIFF_BLOB_BYTES, blob_contents, file_diff, file_view};
 pub use locate::LineSide;
 pub use options::{DiffOptions, WHOLE_FILE_CONTEXT, Whitespace};
 pub use rows::CONTEXT_LINES;

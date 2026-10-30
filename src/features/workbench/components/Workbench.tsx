@@ -6,7 +6,7 @@ import { Group, Panel, Separator, usePanelRef, type PanelSize } from "react-resi
 import type { WorkspaceTab } from "@/features/workspace";
 
 import { useWorkbenchHotkeys } from "../hooks/useWorkbenchHotkeys";
-import { scheduleLayoutSave } from "../lib/docks";
+import { docks, scheduleLayoutSave } from "../lib/docks";
 import type { SavedLayout } from "../lib/layout";
 import { restoreWorkbench } from "../lib/restore";
 import { useWorkbenchStore } from "../store/workbench";
@@ -58,6 +58,10 @@ export function Workbench(props: WorkbenchProps) {
   const layout = epoch === 0 ? restored : null;
   const sidebar = usePanelRef();
   useWorkbenchHotkeys(modules);
+
+  useEffect(() => {
+    docks.registered = modules;
+  }, [modules]);
 
   useEffect(() => {
     const panel = sidebar.current;

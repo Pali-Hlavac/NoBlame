@@ -7,7 +7,7 @@ use std::collections::HashMap;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
-use git_core::diff::{DiffAttribute, DiffOptions, FileDiff, diff_attribute, file_diff};
+use git_core::diff::{DiffAttribute, DiffOptions, FileDiff, diff_attribute, file_diff, file_view};
 use git_core::graph::{Ancestry, Graph, GraphError};
 use git_core::repo::Repository;
 use git_core::watch::RepoWatcher;
@@ -54,9 +54,9 @@ impl Session {
         *self.watcher.lock().unwrap_or_else(PoisonError::into_inner) = watcher;
     }
 
-    /// The diff a key names, computed on a blocking thread unless it was shown recently. The
-    /// path's `.gitattributes` decide between text and binary (read only when computing), and
-    /// its language colours the rows when `syntax` is set.
+    /// The diff a key names (or the file view, with `whole`), computed on a blocking thread
+    /// unless it was shown recently. The path's `.gitattributes` decide between text and binary
+    /// (read only when computing), and its language colours the rows when `syntax` is set.
     pub async fn file_diff(&self, key: DiffKey) -> Result<Arc<FileDiff>, RepositoryError> {
         if let Some(diff) = self.diffs.get(&key) {
             return Ok(diff);
@@ -68,6 +68,7 @@ impl Session {
             path,
             options,
             syntax,
+            whole,
         } = key.clone();
         let diff = blocking(move || {
             let repo = repo.local();
@@ -79,7 +80,10 @@ impl Session {
                 attribute,
                 ..options
             };
-            let mut diff = file_diff(&repo, old, new, options)?;
+            let mut diff = match new.filter(|_| whole) {
+                Some(new) => file_view(&repo, new, attribute)?,
+                None => file_diff(&repo, old, new, options)?,
+            };
             if let Some(path) = path.as_deref().filter(|_| syntax) {
                 diff.highlight_as(path);
             }
