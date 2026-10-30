@@ -95,6 +95,11 @@ All notable changes to NoBlame are documented here. The format follows
 - Syntax colours for many more languages: the 213 grammars `bat` ships (via two-face), including
   TypeScript, TSX, TOML, Kotlin, Swift, Dockerfile, Vue, Svelte, SCSS, Terraform and Nix.
 - The sidebar keeps its width in pixels when the window is resized.
+- Find commits (Ctrl+F):
+  - matches ids, branch and tag names, authors and messages;
+  - Enter and Shift+Enter step through the matches ("3 of 120").
+- Go to commit (Ctrl+Shift+G): any id, branch, tag or `HEAD~2`; offers to clear a filter that
+  hides the commit.
 - Context menu on commits in the graph (right click, Shift+F10):
   - copy the id, short id, subject or whole message;
   - highlight the commit's history;

@@ -14,6 +14,9 @@ pub enum GraphError {
         /// Rows in the graph.
         rows: u32,
     },
+    /// No commit has this name or id.
+    #[error("no commit is called \"{0}\"")]
+    UnknownRevision(String),
     /// A newer request made the work pointless (a filter changed again while searching).
     #[error("cancelled")]
     Cancelled,

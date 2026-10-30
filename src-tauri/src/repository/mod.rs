@@ -6,6 +6,7 @@ pub mod commands;
 mod diff_cache;
 mod error;
 mod filter_types;
+mod find;
 mod graph_cache;
 mod graph_types;
 mod recent;
@@ -18,7 +19,9 @@ pub use bytes::RawBytes;
 pub use diff_cache::DiffKey;
 pub use error::RepositoryError;
 pub use filter_types::GraphFilterDto;
-pub use graph_types::{CommitRowDto, GraphSummary, RefLabel, ReloadedGraph};
+pub use graph_types::{
+    CommitRowDto, FoundCommit, GoToCommit, GoToStatus, GraphSummary, RefLabel, ReloadedGraph,
+};
 pub(crate) use service::blocking;
 pub use sessions::RepoSessions;
 pub use types::{RepoId, RepoSummary};

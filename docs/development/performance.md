@@ -234,7 +234,16 @@ times above.
 | synthetic-1m | `src/m0080`   | 3,392   | 1.6 s (commit-graph with changed-path Bloom filters) |
 | linux (1.5M) | `MAINTAINERS` | 22,019  | 6.2 s (commit-graph without Bloom filters)           |
 
-Match counts equal `git log`'s. Tried and dropped:
+Find bar (slice 6), first search of a query (later Next/Previous reuse it):
+
+| Repository   | Query        | Matches | Time   |
+| ------------ | ------------ | ------- | ------ |
+| synthetic-1m | "hopper"     | 142,286 | 666 ms |
+| synthetic-1m | "b4aae6fe"   | 1       | 385 ms |
+| linux (1.5M) | "torvalds"   | 116,863 | 1.8 s  |
+| linux        | "c339f4010d" | 1       | 746 ms |
+
+Match counts of the text filters equal `git log`'s. Tried and dropped:
 
 - 8 threads instead of 16: 30 % slower;
 - an 8 MB object cache per thread: 15 % slower (commits are rarely deltas).

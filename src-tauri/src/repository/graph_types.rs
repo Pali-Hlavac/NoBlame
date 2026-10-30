@@ -127,3 +127,39 @@ impl From<CommitRow> for CommitRowDto {
         }
     }
 }
+
+/// One match of the find bar.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct FoundCommit {
+    /// Row of the match; `None` when nothing matches.
+    pub row: Option<u32>,
+    /// Its number among the matches, from 1 (0 when nothing matches).
+    pub position: u32,
+    /// How many rows match.
+    pub total: u32,
+}
+
+/// Where "go to commit" found a commit.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub enum GoToStatus {
+    /// On `row`.
+    Shown,
+    /// In the history, but hidden by the tab's filter.
+    HiddenByFilter,
+    /// Not reachable from any branch, tag or HEAD (a stash, a dangling commit).
+    NotInGraph,
+}
+
+/// The commit a revision names and where it is.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct GoToCommit {
+    /// Full commit id.
+    pub id: String,
+    /// Its row, when shown.
+    pub row: Option<u32>,
+    /// Whether and why it is (not) shown.
+    pub status: GoToStatus,
+}

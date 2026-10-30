@@ -12,7 +12,8 @@ Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 > Status: M1, M2 and M2.5 done (graph, working tree rows, watcher, index cache; measured on the
 > Linux kernel). M3 in progress: Changed files and the diff tab done (unified and side by side,
 > word diff, syntax colours, images) and graph filters (branch, first parent, no merges,
-> message, author, path; views of the graph, ADR 0021). Next: find in the graph. Parts marked _(later)_ below are
+> message, author, path; views of the graph, ADR 0021), commit context menu, find and go to
+> commit. Next: file tree of a revision. Parts marked _(later)_ below are
 > planned and do not exist yet.
 
 ## Architecture

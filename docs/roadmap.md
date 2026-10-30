@@ -282,6 +282,19 @@ Slice 5 done: the commit context menu.
 - Covered by unit and component tests. Not clicked through in the running app (owner's instance
   in use).
 
+Slice 6 done: find in the graph and go to commit.
+
+- **Find bar** (Ctrl+F): ids, branch and tag names, authors and messages.
+  - It searches once per query on up to 16 threads, then Next and Previous reuse the result.
+  - Cost of the first search: 0.4–0.7 s on synthetic-1m, 0.7–1.8 s on the Linux kernel.
+- **Go to commit** (Ctrl+Shift+G): any revision gix can resolve. It explains a commit the filter
+  hides, and offers to clear the filter.
+- `find_commit` and `go_to_commit`, with integration tests against git and component tests.
+- `repository/find.rs` was split out of `service.rs` (300-line limit).
+
+Not clicked through in the running app (owner's instance in use). Next: slice 7, file tree of
+a revision.
+
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
 highlighted after a slow first load and names both costs (done). Option 2 later: show rows while
@@ -379,7 +392,7 @@ Not verified in the running app (they need someone at the keyboard; the logic is
 - [ ] Filters, later: committer, date range, several branches at once, regular expressions
 - [x] Context menu on commits in the graph (owner request 2026-10-30), see the list below;
       the same entries in the Branches module follow with M5
-- [ ] Find in the graph (hash, message, ref) with jump-to; "go to commit"
+- [x] Find in the graph (hash, message, ref) with jump-to; "go to commit"
 - [ ] Compare any two commits/branches
 
 Slices, in order (planned 2026-10-28):

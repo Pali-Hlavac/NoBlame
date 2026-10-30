@@ -2,10 +2,11 @@
 
 use tauri::State;
 
+use super::find;
 use super::recent::{self, RecentRepository, RecentStore};
 use super::{
-    CommitRowDto, GraphFilterDto, GraphSummary, RawBytes, ReloadedGraph, RepoId, RepoSessions,
-    RepoSummary, service,
+    CommitRowDto, FoundCommit, GoToCommit, GraphFilterDto, GraphSummary, RawBytes, ReloadedGraph,
+    RepoId, RepoSessions, RepoSummary, service,
 };
 use crate::error::CommandResult;
 
@@ -54,6 +55,32 @@ pub async fn set_graph_filter(
     row: Option<u32>,
 ) -> CommandResult<ReloadedGraph> {
     Ok(service::set_graph_filter(&sessions, id, filter, row).await?)
+}
+
+/// The match of `query` (commit id, branch or tag name, author, message) after row `from`, or
+/// before it when `backwards`; wraps around. The first search of a query reads every commit
+/// shown, later calls reuse its result.
+#[tauri::command]
+#[specta::specta]
+pub async fn find_commit(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    query: String,
+    from: Option<u32>,
+    backwards: bool,
+) -> CommandResult<FoundCommit> {
+    Ok(find::find_commit(&sessions, id, query, from, backwards).await?)
+}
+
+/// The commit `revision` names (id, branch, tag, `HEAD~2`, ...) and its row, if shown.
+#[tauri::command]
+#[specta::specta]
+pub async fn go_to_commit(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    revision: String,
+) -> CommandResult<GoToCommit> {
+    Ok(find::go_to_commit(&sessions, id, revision).await?)
 }
 
 /// Creates a repository in `path` with `git init` (open it with `open_repository` next).

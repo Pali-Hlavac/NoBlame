@@ -52,6 +52,19 @@ highlight off in **Settings → Commit graph**.
 
 To see the files a commit changed and their diffs, see [Viewing changes](viewing-changes.md).
 
+## Finding a commit
+
+- Press **Ctrl+F** to find commits by id, branch or tag name, author, or words in the message.
+  NoBlame jumps to the first match from the selected commit on and shows, for example, "3 of 120".
+  - **Enter** goes to the next (older) match, **Shift+Enter** to the previous (newer) one.
+  - **Esc** closes the find bar.
+- Press **Ctrl+Shift+G** to go straight to a commit: type its id (the first few characters are
+  enough), a branch or tag name, or `HEAD~2`.
+  - If a filter hides that commit, NoBlame offers to show all commits and go there.
+
+Both search only the commits the tab shows (with a filter on, the filtered ones). In very large
+repositories the first search for a word takes a second or so.
+
 ## Showing fewer commits
 
 The bar above the list chooses which commits the tab shows:

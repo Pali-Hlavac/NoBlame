@@ -76,6 +76,10 @@ impl From<RepositoryError> for AppError {
             RepositoryError::Graph(error @ GraphError::RowOutOfRange { .. }) => {
                 AppError::new(ErrorCode::InvalidInput, error.to_string())
             }
+            RepositoryError::Graph(error @ GraphError::UnknownRevision(_)) => {
+                AppError::new(ErrorCode::NotFound, format!("{}.", capitalized(&error.to_string())))
+                    .with_hint("Enter a commit id (at least 4 characters), a branch or tag name, or HEAD~2.")
+            }
             RepositoryError::Graph(GraphError::Cancelled) => AppError::new(
                 ErrorCode::Cancelled,
                 "A newer filter replaced this one before it was ready.",
@@ -120,4 +124,12 @@ impl From<RepositoryError> for AppError {
             }
         }
     }
+}
+
+/// `text` with its first letter in upper case (error texts start lower case in Rust).
+fn capitalized(text: &str) -> String {
+    let mut chars = text.chars();
+    chars.next().map_or_else(String::new, |first| {
+        first.to_uppercase().chain(chars).collect()
+    })
 }

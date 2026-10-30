@@ -40,3 +40,5 @@ export const FLAG_MERGE = 1;
 export const FLAG_HEAD = 2;
 /** Pause in typing after which the author and message filters apply. */
 export const TEXT_FILTER_DELAY_MS = 500;
+/** Pause in typing after which the find bar searches. */
+export const FIND_DELAY_MS = 300;

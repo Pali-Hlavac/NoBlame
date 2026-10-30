@@ -30,7 +30,7 @@ impl TextFilter {
 }
 
 /// A search word, lowercased once; `None` when blank.
-fn needle(text: Option<&str>) -> Option<Needle> {
+pub(super) fn needle(text: Option<&str>) -> Option<Needle> {
     let text = text?.trim();
     (!text.is_empty()).then(|| Needle {
         ascii: text.is_ascii(),
@@ -38,15 +38,30 @@ fn needle(text: Option<&str>) -> Option<Needle> {
     })
 }
 
-struct Needle {
+pub(super) struct Needle {
     ascii: bool,
     lower: String,
 }
 
 impl Needle {
+    /// Whether the author's name or e-mail contains the needle.
+    pub(super) fn found_in_author(&self, commit: &gix::Commit<'_>, buffer: &mut Vec<u8>) -> bool {
+        commit.author().is_ok_and(|signature| {
+            let signature = signature.trim();
+            self.found_in(signature.name, buffer) || self.found_in(signature.email, buffer)
+        })
+    }
+
+    /// Whether the whole message contains the needle.
+    pub(super) fn found_in_message(&self, commit: &gix::Commit<'_>, buffer: &mut Vec<u8>) -> bool {
+        commit
+            .message_raw()
+            .is_ok_and(|text| self.found_in(text, buffer))
+    }
+
     /// Whether `haystack` contains the needle, ignoring case. ASCII needles fold the haystack
     /// byte by byte into `buffer`; others decode it (lossily) and lowercase it.
-    fn found_in(&self, haystack: &[u8], buffer: &mut Vec<u8>) -> bool {
+    pub(super) fn found_in(&self, haystack: &[u8], buffer: &mut Vec<u8>) -> bool {
         if self.ascii {
             buffer.clear();
             buffer.extend(haystack.iter().map(u8::to_ascii_lowercase));
@@ -73,44 +88,58 @@ pub fn keep_matching(
     if author.is_none() && message.is_none() {
         return Ok(());
     }
+    let rejected = scan(repo, index, shown, cancel, |commit, buffer| {
+        let matches = author
+            .as_ref()
+            .is_none_or(|needle| needle.found_in_author(commit, buffer))
+            && message
+                .as_ref()
+                .is_none_or(|needle| needle.found_in_message(commit, buffer));
+        !matches
+    })?;
+    for commit in rejected {
+        shown[commit] = false;
+    }
+    Ok(())
+}
+
+/// Reads the commits of `index` marked in `candidates` on up to [`MAX_SCAN_THREADS`] threads
+/// and returns those `test` accepts (commit indices, in no particular order). `test` gets a
+/// scratch buffer for [`Needle::found_in`]. Stops with [`GraphError::Cancelled`] once `cancel`
+/// is cancelled.
+pub(super) fn scan(
+    repo: &gix::ThreadSafeRepository,
+    index: &CommitIndex,
+    candidates: &[bool],
+    cancel: &CancellationToken,
+    test: impl Fn(&gix::Commit<'_>, &mut Vec<u8>) -> bool + Sync,
+) -> Result<Vec<usize>, GraphError> {
     let next = AtomicUsize::new(0);
     let threads = std::thread::available_parallelism()
         .map_or(1, std::num::NonZero::get)
         .min(MAX_SCAN_THREADS);
-    let flags: &[bool] = shown;
-    let rejected = std::thread::scope(|scope| {
+    let accepted = std::thread::scope(|scope| {
         let workers: Vec<_> = (0..threads)
             .map(|_| {
                 scope.spawn(|| {
                     let repo = repo.to_thread_local();
-                    let mut rejected = Vec::new();
+                    let mut accepted = Vec::new();
                     let mut buffer = Vec::new();
                     loop {
                         if cancel.is_cancelled() {
                             return Err(GraphError::Cancelled);
                         }
                         let start = next.fetch_add(SCAN_CHUNK, Ordering::Relaxed);
-                        if start >= flags.len() {
-                            return Ok(rejected);
+                        if start >= candidates.len() {
+                            return Ok(accepted);
                         }
-                        let end = (start + SCAN_CHUNK).min(flags.len());
-                        let chunk = flags[start..end].iter().enumerate();
-                        for commit in chunk.filter(|(_, shown)| **shown).map(|(i, _)| start + i) {
+                        let end = (start + SCAN_CHUNK).min(candidates.len());
+                        let chunk = candidates[start..end].iter().enumerate();
+                        for commit in chunk.filter(|(_, marked)| **marked).map(|(i, _)| start + i) {
                             let id = index.id(to_u32(commit));
                             let object = repo.find_commit(*id).map_err(GraphError::gix)?;
-                            let matches = author.as_ref().is_none_or(|needle| {
-                                object.author().is_ok_and(|signature| {
-                                    let signature = signature.trim();
-                                    needle.found_in(signature.name, &mut buffer)
-                                        || needle.found_in(signature.email, &mut buffer)
-                                })
-                            }) && message.as_ref().is_none_or(|needle| {
-                                object
-                                    .message_raw()
-                                    .is_ok_and(|text| needle.found_in(text, &mut buffer))
-                            });
-                            if !matches {
-                                rejected.push(commit);
+                            if test(&object, &mut buffer) {
+                                accepted.push(commit);
                             }
                         }
                     }
@@ -126,10 +155,7 @@ pub fn keep_matching(
             })
             .collect::<Result<Vec<_>, _>>()
     })?;
-    for commit in rejected.into_iter().flatten() {
-        shown[commit] = false;
-    }
-    Ok(())
+    Ok(accepted.into_iter().flatten().collect())
 }
 
 fn to_u32(value: usize) -> u32 {

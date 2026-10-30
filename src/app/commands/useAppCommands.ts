@@ -1,5 +1,6 @@
 /** Composes the command-palette entries contributed by each feature. */
 import {
+  CrosshairIcon,
   ExternalLinkIcon,
   FolderOpenIcon,
   FolderPlusIcon,
@@ -9,6 +10,7 @@ import {
   LayoutTemplateIcon,
   MonitorIcon,
   MoonIcon,
+  SearchIcon,
   SettingsIcon,
   SunIcon,
   XIcon,
@@ -18,7 +20,12 @@ import { APP_NAME } from "@/app.config";
 import { useAboutStore } from "@/features/about";
 import type { PaletteCommand } from "@/features/command-palette";
 import { useGitInfo } from "@/features/git-env";
-import { useCreateRepository, useOpenRepository } from "@/features/repositories";
+import { FIND_HOTKEY, GO_TO_HOTKEY, openFind, openGoTo } from "@/features/graph";
+import {
+  useActiveRepository,
+  useCreateRepository,
+  useOpenRepository,
+} from "@/features/repositories";
 import { THEME_OPTIONS, useThemePreference } from "@/features/settings";
 import { TASKS, TASK_WINDOWS_MILESTONE, useOpenTaskWindow } from "@/features/windows";
 import { openModule, resetLayout, type WorkbenchModule } from "@/features/workbench";
@@ -37,6 +44,7 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
   const openTaskWindow = useOpenTaskWindow();
   const gitInfo = useGitInfo();
   const activeTab = useActiveTab();
+  const activeRepository = useActiveRepository();
   const repositoryPath = activeTab?.kind === "repository" ? activeTab.path : null;
 
   const taskCommands = repositoryPath
@@ -63,6 +71,34 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
       openModule(module);
     },
   }));
+
+  const historyPath = activeRepository.tab?.path;
+  const historyCommands: PaletteCommand[] = historyPath
+    ? [
+        {
+          id: "history.find",
+          group: "History",
+          label: "Find commits…",
+          icon: SearchIcon,
+          hotkey: FIND_HOTKEY,
+          keywords: ["search", "message", "author", "hash"],
+          run: () => {
+            openFind(historyPath);
+          },
+        },
+        {
+          id: "history.goto",
+          group: "History",
+          label: "Go to commit…",
+          icon: CrosshairIcon,
+          hotkey: GO_TO_HOTKEY,
+          keywords: ["jump", "hash", "id", "revision", "branch", "tag"],
+          run: () => {
+            openGoTo(historyPath);
+          },
+        },
+      ]
+    : [];
 
   const themeCommands = THEME_OPTIONS.map((option): PaletteCommand => ({
     id: `theme.${option.value}`,
@@ -92,6 +128,7 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
       keywords: ["init", "new"],
       run: () => void createRepository.create(),
     },
+    ...historyCommands,
     ...taskCommands,
     {
       id: "tabs.welcome",

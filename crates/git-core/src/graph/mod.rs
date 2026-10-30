@@ -8,6 +8,7 @@ mod details;
 mod encode;
 mod error;
 mod filter;
+mod find;
 mod index;
 mod layout;
 mod order;
@@ -30,6 +31,7 @@ pub use encode::{
 };
 pub use error::GraphError;
 pub use filter::{GraphFilter, RefSelector, Tips};
+pub use find::{Located, resolve_commit};
 pub use index::{CommitIndex, IndexFileError};
 pub use layout::{BLOCK_ROWS, Edge, Layout, RowGeometry};
 pub use order::{date_order, rows_of};

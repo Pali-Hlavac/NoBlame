@@ -44,6 +44,8 @@ pub fn builder() -> Builder<tauri::Wry> {
             repository::commands::get_graph_block,
             repository::commands::reload_graph,
             repository::commands::set_graph_filter,
+            repository::commands::find_commit,
+            repository::commands::go_to_commit,
             repository::commands::refresh_repository,
             repository::commands::get_ancestry_block,
             repository::commands::get_commit_rows,

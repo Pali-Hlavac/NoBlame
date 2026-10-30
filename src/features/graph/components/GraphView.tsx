@@ -8,6 +8,8 @@ import { Button } from "@/shared/ui/button";
 
 import { NO_FILTER, useSetGraphFilter } from "../api/filter";
 import { useGraphSummary } from "../api/graph";
+import { FindBar } from "./FindBar";
+import { GoToCommitDialog } from "./GoToCommitDialog";
 import { GraphFilterBar } from "./GraphFilterBar";
 import { GraphTable } from "./GraphTable";
 
@@ -81,6 +83,8 @@ export function GraphView({ repoId, repoPath }: GraphViewProps) {
   return (
     <div className="flex h-full min-h-0 flex-col">
       <GraphFilterBar repoId={repoId} repoPath={repoPath} summary={summary.data} />
+      <FindBar repoId={repoId} repoPath={repoPath} />
+      <GoToCommitDialog repoId={repoId} repoPath={repoPath} />
       <div className="min-h-0 flex-1">
         <GraphContent repoId={repoId} repoPath={repoPath} summary={summary.data} />
       </div>

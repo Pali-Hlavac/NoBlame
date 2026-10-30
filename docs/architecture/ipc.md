@@ -53,21 +53,23 @@ specta marks every field optional in the bindings; the frontend fills them with 
 All of them are granted to the main window only (`capabilities/main.json`). `id` is the session id
 returned by `open_repository`; a session lives as long as its tab.
 
-| Command                    | Async | Returns                         | Purpose                                                                       |
-| -------------------------- | ----- | ------------------------------- | ----------------------------------------------------------------------------- |
-| `open_repository`          | yes   | `Result<RepoSummary>`           | Finds the repository containing a path, opens a session, records recent       |
-| `init_repository`          | yes   | `Result<null>`                  | Runs `git init -- <path>`; the caller opens it next with `open_repository`    |
-| `close_repository`         | no    | `null`                          | Forgets a session (when its tab closes)                                       |
-| `load_graph`               | yes   | `Result<GraphSummary>`          | Builds the graph on a blocking thread (cached; `reload` forces a rebuild)     |
-| `get_graph_block`          | yes   | `Result<unknown>` (ArrayBuffer) | One block of 256 rows in the binary format below                              |
-| `get_ancestry_block`       | yes   | `Result<unknown>` (ArrayBuffer) | Highlight overlay of one block for the history of `row` (format below)        |
-| `get_commit_rows`          | yes   | `Result<CommitRowDto[]>`        | Text columns (id, summary, author, date, refs) for up to 500 rows             |
-| `reload_graph`             | yes   | `Result<ReloadedGraph>`         | Rebuilds the graph; maps the selected `row` to that commit's new row          |
-| `set_graph_filter`         | yes   | `Result<ReloadedGraph>`         | Shows only what a `GraphFilterDto` keeps (ADR 0021); maps `row` like a reload |
-| `refresh_repository`       | yes   | `Result<RepoSummary>`           | Re-reads HEAD and the other repository facts                                  |
-| `write_commit_graph`       | yes   | `Result<RepoSummary>`           | Runs `git commit-graph write --reachable --changed-paths`                     |
-| `list_recent_repositories` | yes   | `Result<RecentRepository[]>`    | Recently opened repositories, newest first, with an `exists` flag             |
-| `remove_recent_repository` | yes   | `Result<RecentRepository[]>`    | Removes one entry and returns the rest                                        |
+| Command                    | Async | Returns                         | Purpose                                                                           |
+| -------------------------- | ----- | ------------------------------- | --------------------------------------------------------------------------------- |
+| `open_repository`          | yes   | `Result<RepoSummary>`           | Finds the repository containing a path, opens a session, records recent           |
+| `init_repository`          | yes   | `Result<null>`                  | Runs `git init -- <path>`; the caller opens it next with `open_repository`        |
+| `close_repository`         | no    | `null`                          | Forgets a session (when its tab closes)                                           |
+| `load_graph`               | yes   | `Result<GraphSummary>`          | Builds the graph on a blocking thread (cached; `reload` forces a rebuild)         |
+| `get_graph_block`          | yes   | `Result<unknown>` (ArrayBuffer) | One block of 256 rows in the binary format below                                  |
+| `get_ancestry_block`       | yes   | `Result<unknown>` (ArrayBuffer) | Highlight overlay of one block for the history of `row` (format below)            |
+| `get_commit_rows`          | yes   | `Result<CommitRowDto[]>`        | Text columns (id, summary, author, date, refs) for up to 500 rows                 |
+| `reload_graph`             | yes   | `Result<ReloadedGraph>`         | Rebuilds the graph; maps the selected `row` to that commit's new row              |
+| `set_graph_filter`         | yes   | `Result<ReloadedGraph>`         | Shows only what a `GraphFilterDto` keeps (ADR 0021); maps `row` like a reload     |
+| `find_commit`              | yes   | `Result<FoundCommit>`           | Match of a query after/before a row, wrapping; `{ row, position, total }`         |
+| `go_to_commit`             | yes   | `Result<GoToCommit>`            | Resolves a revision; `{ id, row, status: shown \| hiddenByFilter \| notInGraph }` |
+| `refresh_repository`       | yes   | `Result<RepoSummary>`           | Re-reads HEAD and the other repository facts                                      |
+| `write_commit_graph`       | yes   | `Result<RepoSummary>`           | Runs `git commit-graph write --reachable --changed-paths`                         |
+| `list_recent_repositories` | yes   | `Result<RecentRepository[]>`    | Recently opened repositories, newest first, with an `exists` flag                 |
+| `remove_recent_repository` | yes   | `Result<RecentRepository[]>`    | Removes one entry and returns the rest                                            |
 
 ### Inspect and workbench commands (M2.5)
 

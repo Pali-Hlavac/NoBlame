@@ -1,5 +1,6 @@
 //! Open repositories ("sessions") and their lazily built graphs (`graph.rs`).
 
+mod find;
 mod graph;
 
 use std::collections::HashMap;
@@ -16,6 +17,7 @@ use super::diff_cache::{DiffCache, DiffKey};
 use super::graph_cache::GraphCache;
 use super::service::blocking;
 use super::{RepoId, RepositoryError};
+use find::FoundRows;
 use graph::GraphSlot;
 
 /// One open repository. The graph is built on first use and kept until reloaded.
@@ -35,6 +37,10 @@ pub struct Session {
     cache: Arc<GraphCache>,
     /// File diffs shown recently (ADR 0013).
     diffs: DiffCache,
+    /// The rows the find bar found last.
+    found: Mutex<Option<FoundRows>>,
+    /// Stops a search when a newer one is asked for.
+    find_cancel: Mutex<CancellationToken>,
 }
 
 impl Session {
@@ -146,6 +152,8 @@ impl RepoSessions {
             watcher: Mutex::new(None),
             cache: Arc::clone(&self.cache),
             diffs: DiffCache::default(),
+            found: Mutex::new(None),
+            find_cancel: Mutex::default(),
         });
         inner.sessions.insert(id, Arc::clone(&session));
         (id, session)

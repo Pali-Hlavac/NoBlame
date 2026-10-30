@@ -40,6 +40,30 @@ truncated when the column is narrow.
 - The HEAD commit has a yellow ring.
 - Colours follow the theme (light and dark palettes).
 
+## Find and go to commit
+
+- **Find** (Ctrl+F, palette "Find commits…"): a bar under the filter bar.
+  - It matches the commit id (at least 4 hex digits, as a prefix), branch and tag names, the
+    author's name or e-mail, and the whole message, ignoring case.
+  - Typing searches after 300 ms and selects the first match at or below the selected commit.
+  - **Enter** / **Shift+Enter** (or the arrows) go to the next older / newer match and wrap
+    around; the bar shows "3 of 120", "No matches" or "Searching…"; **Esc** closes it.
+  - The search covers the shown graph, so a filter limits it.
+- **Go to commit** (Ctrl+Shift+G as in Git Extensions, palette "Go to commit…"): a dialog that
+  resolves git's revision syntax with gix (full or short id, branch, remote branch, tag,
+  `HEAD~2`, `main^2`) and selects the commit.
+  - A commit the filter hides offers **Show all commits and go there**.
+  - A commit outside the graph (a stash, a dropped commit) is explained.
+  - An unknown name says so, with a hint.
+- Both act on the active repository, also while the Diff tab has focus.
+- Backend: `Graph::find_rows` (`graph/find.rs`).
+  - Ids and ref names are checked in memory; the other commits are read on up to 16 threads,
+    with the scan of the author/message filters.
+  - The session keeps the rows of the last query (`sessions/find.rs`), so Next and Previous are
+    binary searches.
+  - A new query cancels a search still running.
+- Cost of the first search of a query: 0.4–0.7 s on synthetic-1m, 0.7–1.8 s on the Linux kernel.
+
 ## Context menu
 
 Right-clicking a commit selects it and opens its menu; **Shift+F10** or the **Menu** key opens

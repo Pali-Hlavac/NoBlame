@@ -40,6 +40,14 @@ export const commands = {
 	 *  selected commit) is mapped to that commit's row in the new view, if it is shown.
 	 */
 	setGraphFilter: (id: number, filter: GraphFilterDto, row: number | null) => typedError<ReloadedGraph, AppError>(__TAURI_INVOKE("set_graph_filter", { id, filter, row })),
+	/**
+	 *  The match of `query` (commit id, branch or tag name, author, message) after row `from`, or
+	 *  before it when `backwards`; wraps around. The first search of a query reads every commit
+	 *  shown, later calls reuse its result.
+	 */
+	findCommit: (id: number, query: string, from: number | null, backwards: boolean) => typedError<FoundCommit, AppError>(__TAURI_INVOKE("find_commit", { id, query, from, backwards })),
+	/**  The commit `revision` names (id, branch, tag, `HEAD~2`, ...) and its row, if shown. */
+	goToCommit: (id: number, revision: string) => typedError<GoToCommit, AppError>(__TAURI_INVOKE("go_to_commit", { id, revision })),
 	/**  Re-reads HEAD and the other facts of an open repository. */
 	refreshRepository: (id: number) => typedError<RepoSummary, AppError>(__TAURI_INVOKE("refresh_repository", { id })),
 	/**
@@ -335,6 +343,16 @@ export type FileDiffDto = {
 	newSize: string,
 };
 
+/**  One match of the find bar. */
+export type FoundCommit = {
+	/**  Row of the match; `None` when nothing matches. */
+	row: number | null,
+	/**  Its number among the matches, from 1 (0 when nothing matches). */
+	position: number,
+	/**  How many rows match. */
+	total: number,
+};
+
 /**  The git executable NoBlame will run, shown in the status bar and About dialog. */
 export type GitInfo = {
 	/**  Absolute path of the executable (for display). */
@@ -346,6 +364,25 @@ export type GitInfo = {
 	/**  Oldest version NoBlame supports. */
 	minimumVersion: string,
 };
+
+/**  The commit a revision names and where it is. */
+export type GoToCommit = {
+	/**  Full commit id. */
+	id: string,
+	/**  Its row, when shown. */
+	row: number | null,
+	/**  Whether and why it is (not) shown. */
+	status: GoToStatus,
+};
+
+/**  Where "go to commit" found a commit. */
+export type GoToStatus = 
+/**  On `row`. */
+"shown" | 
+/**  In the history, but hidden by the tab's filter. */
+"hiddenByFilter" | 
+/**  Not reachable from any branch, tag or HEAD (a stash, a dangling commit). */
+"notInGraph";
 
 /**  What a repository tab shows. */
 export type GraphFilterDto = {
