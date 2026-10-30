@@ -3,7 +3,7 @@
 pub mod commands;
 mod types;
 
-pub use types::{DiffLayout, Settings, WhitespaceMode};
+pub use types::{DiffLayout, Settings, ThemePreference, WhitespaceMode};
 
 use tauri::{App, Manager};
 

@@ -169,6 +169,8 @@ All notable changes to NoBlame are documented here. The format follows
 
 ### Fixed
 
+- The window no longer opens white: it starts in the theme's background colour with the
+  singing bird, drawn in the page itself, until the app has loaded (seconds in dev).
 - Found during M1 verification: `noblame .` opened a tab named "." and forwarded paths kept
   mixed separators on Windows; command-line paths are now normalized.
 - Found during M1 verification: typing "about" in the command palette selected "Close current

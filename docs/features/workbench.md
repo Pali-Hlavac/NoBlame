@@ -158,6 +158,16 @@ can also be read with the keyboard.
 
 ## Starting and loading
 
+- **Start screen** (`index.html`): the bird and "Starting…" are plain HTML and CSS inside
+  `#root`, so they show as soon as the page is parsed, before any app code has loaded (that
+  takes seconds in dev, where Vite serves every module separately). React replaces them with
+  the startup curtain, which looks the same. `public/theme-boot.js` (a classic script: the CSP
+  allows no inline ones) applies the theme saved in local storage by `ThemeController`
+  (`noblame.theme`; "system" or nothing follows the OS). A test keeps the bird in `index.html`
+  equal to `BirdLoader`.
+- **Window background**: windows are built hidden, get the saved theme's background colour
+  (`--background`, the OS theme for "System"), then are shown. So the webview never shows white
+  before the page paints.
 - **Startup curtain** (`app/layout/StartupCurtain.tsx`): opaque while the settings and the
   window's purpose load, then translucent over the rendered window, blurred (`backdrop-blur-xl`).
   It lifts once no query or mutation has run for 200 ms, or 5 s after the first render at the

@@ -56,5 +56,10 @@ export default tseslint.config(
     files: ["**/*.{js,mjs}"],
     languageOptions: { globals: globals.node },
   },
+  {
+    // Plain scripts the page loads before the app (theme-boot.js).
+    files: ["public/**/*.js"],
+    languageOptions: { globals: globals.browser, sourceType: "script" },
+  },
   prettier,
 );

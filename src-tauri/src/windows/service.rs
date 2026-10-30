@@ -2,12 +2,16 @@
 
 use std::path::{Path, PathBuf};
 
-use tauri::{AppHandle, Manager, WebviewUrl, WebviewWindowBuilder, WindowEvent};
+use tauri::window::Color;
+use tauri::{
+    AppHandle, Manager, Theme, WebviewUrl, WebviewWindow, WebviewWindowBuilder, WindowEvent,
+};
 use tauri_specta::Event;
 
 use super::registry::MAIN_WINDOW_LABEL;
 use super::{RepositoriesRequested, WindowContext, WindowError, WindowRegistry};
 use crate::cli::{self, LaunchRequest, LaunchTarget, TaskKind};
+use crate::settings::{SettingsStore, ThemePreference};
 
 /// Logical size (width, height) of a new main window and its minimum.
 const MAIN_WINDOW_SIZE: (f64, f64) = (1280.0, 800.0);
@@ -18,6 +22,9 @@ const TASK_WINDOW_MIN_SIZE: (f64, f64) = (640.0, 480.0);
 /// Where the macOS traffic lights sit: vertically centred in the 36 px title bar (`TitleBar.tsx`).
 #[cfg(target_os = "macos")]
 const TRAFFIC_LIGHTS_POSITION: (f64, f64) = (14.0, 12.0);
+/// `--background` of the light and the dark theme (`src/app/styles.css`), in sRGB.
+const LIGHT_BACKGROUND: Color = Color(253, 253, 253, 255);
+const DARK_BACKGROUND: Color = Color(11, 19, 20, 255);
 
 /// Opens whatever `request` asks for: the main window (queueing its repository) or a task
 /// window.
@@ -71,8 +78,31 @@ pub fn show_main_window(app: &AppHandle) -> Result<(), WindowError> {
         .center()
         // Tauri's file-drop handler swallows HTML drag and drop on Windows, which the docks
         // need for moving tabs. Dropping folders onto the window can use HTML events later.
-        .disable_drag_drop_handler();
-    with_custom_title_bar(builder).build()?;
+        .disable_drag_drop_handler()
+        .visible(false);
+    show_in_theme(app, &with_custom_title_bar(builder).build()?)
+}
+
+/// Gives a window built hidden the background of the saved theme (the system's for "System"),
+/// then shows it: the webview does not flash white before the page paints its start screen.
+fn show_in_theme(app: &AppHandle, window: &WebviewWindow) -> Result<(), WindowError> {
+    let preference = app
+        .try_state::<SettingsStore>()
+        .and_then(|store| store.load().ok())
+        .map(|settings| settings.theme)
+        .unwrap_or_default();
+    let dark = match preference {
+        ThemePreference::Dark => true,
+        ThemePreference::Light => false,
+        ThemePreference::System => window.theme().is_ok_and(|theme| theme == Theme::Dark),
+    };
+    let background = if dark {
+        DARK_BACKGROUND
+    } else {
+        LIGHT_BACKGROUND
+    };
+    window.set_background_color(Some(background))?;
+    window.show()?;
     Ok(())
 }
 
@@ -119,6 +149,7 @@ pub fn open_task_window(
         .min_inner_size(TASK_WINDOW_MIN_SIZE.0, TASK_WINDOW_MIN_SIZE.1)
         .center()
         .disable_drag_drop_handler()
+        .visible(false)
         .build();
     let window = match built {
         Ok(window) => window,
@@ -127,6 +158,7 @@ pub fn open_task_window(
             return Err(error.into());
         }
     };
+    show_in_theme(app, &window)?;
     let handle = app.clone();
     let closed_label = label.clone();
     window.on_window_event(move |event| {
