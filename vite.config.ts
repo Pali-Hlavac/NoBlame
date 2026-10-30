@@ -6,35 +6,17 @@ import react from "@vitejs/plugin-react";
 import type { Plugin } from "vite";
 import { defineConfig } from "vitest/config";
 
-import { LOADING_BIRD, startScreenHtml } from "./src/shared/lib/loadingBird";
+import { startScreenHtml } from "./src/shared/lib/loadingBird";
 
 /** Port Tauri expects the dev server on (see `build.devUrl` in tauri.conf.json). */
 const DEV_SERVER_PORT = 1420;
 const tauriDevHost = process.env.TAURI_DEV_HOST;
 
-/**
- * Fills the start screen into index.html from the loading bird's settings (`loadingBird.ts`),
- * and preloads the picture first thing: in dev, hundreds of module requests would otherwise
- * delay it until the app has loaded.
- */
+/** Fills the start screen into index.html from the loading bird (`loadingBird.ts`). */
 function startScreen(): Plugin {
   return {
     name: "noblame-start-screen",
-    transformIndexHtml: (html) => ({
-      html: html.replace("<!-- start-screen -->", startScreenHtml()),
-      tags: [
-        {
-          tag: "link",
-          attrs: {
-            rel: "preload",
-            href: LOADING_BIRD.image,
-            as: "image",
-            fetchpriority: "high",
-          },
-          injectTo: "head-prepend",
-        },
-      ],
-    }),
+    transformIndexHtml: (html) => html.replace("<!-- start-screen -->", startScreenHtml()),
   };
 }
 

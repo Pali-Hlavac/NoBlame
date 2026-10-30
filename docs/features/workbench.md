@@ -158,15 +158,14 @@ can also be read with the keyboard.
 
 ## Starting and loading
 
-- **Start screen** (`index.html`): the bird and "Starting…" are plain HTML and CSS inside
-  `#root`, so they show as soon as the page is parsed, before any app code has loaded (that
-  takes seconds in dev, where Vite serves every module separately). A plugin in
-  `vite.config.ts` fills them in from `shared/lib/loadingBird.ts` and preloads the picture
-  first thing (in dev, module requests would otherwise hold it back). React replaces them with
-  the startup curtain, which looks the same. `public/loading.css` styles both.
-  `public/theme-boot.js` (a classic script: the CSP allows no inline ones) applies the theme
-  saved in local storage by `ThemeController` (`noblame.theme`; "system" or nothing follows the
-  OS).
+- **Start screen** (`index.html`): the bird and "Starting…" are inline SVG and HTML inside
+  `#root`, styled by the `<style>` in the page head, so they show as soon as the page is parsed,
+  before any app code has loaded (that takes seconds in dev, where Vite serves every module
+  separately). Nothing is fetched for them. A plugin in `vite.config.ts` writes the markup from
+  `shared/lib/loadingBird.ts`. React replaces it with the startup curtain, which looks the
+  same. `public/theme-boot.js` (a classic script: the CSP allows no inline ones) applies the
+  theme saved in local storage by `ThemeController` (`noblame.theme`; "system" or nothing
+  follows the OS).
 - **Window background**: windows are built hidden, get the saved theme's background colour
   (`--background`, the OS theme for "System"), then are shown. So the webview never shows white
   before the page paints.
@@ -175,17 +174,14 @@ can also be read with the keyboard.
   It lifts once no query or mutation has run for 200 ms, or 5 s after the first render at the
   latest (a huge repository's history has its own loading state): the blur goes to 0 and the
   curtain fades out over 0.5 s. Clicks do not reach the window under it.
-- **Loading bird** (`shared/components/BirdLoader.tsx`): a flat songbird on a branch with a
-  commit at each end, in the text colour (black on light, white on dark), two notes rising from
-  its open beak. Still with reduced motion. `LoadingState` (every module's loading message) and
-  `LoadingOverlay` (stale content kept under a blur, as in the diff tab) use it.
-  - The picture is one file, `public/loading-bird.svg`, used as a CSS mask over the text colour:
-    only its shape counts. The notes are drawn on top, from `NOTES` in `loadingBird.ts`.
-  - **To replace it**: put another single-colour SVG (or a PNG with transparency) in its place,
-    with details such as the eye cut out. If its size or beak differ, set `LOADING_BIRD` in
-    `shared/lib/loadingBird.ts`: `width` and `height` (the viewBox), `beak` (where the notes
-    start, in the same units) and `noteScale` (1 suits a picture 60 units wide). A different
-    file name goes in `image`. Nothing else needs changing.
+- **Loading bird** (`shared/components/BirdLoader.tsx`): a songbird chirping on a berry branch
+  (the owner's `assets/chirping birb/Chirping-Songbird-on-Berry-Branch.svg`), drawn inline in
+  the text colour (black on light, white on dark), two notes rising from its open beak. Still
+  with reduced motion. `LoadingState` (every module's loading message) and `LoadingOverlay`
+  (stale content kept under a blur, as in the diff tab) use it.
+  - **To replace it**: put the new single-colour picture's path, transform and a viewBox
+    around it into `BIRD` in `shared/lib/loadingBird.ts`, with where its beak is and how big
+    the notes should be. The app and the start screen both follow.
 
 ## Keyboard
 
