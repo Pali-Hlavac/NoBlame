@@ -1,13 +1,16 @@
 import { BinaryIcon, EqualIcon, FileWarningIcon, PackageIcon } from "lucide-react";
+import { useRef, type RefObject } from "react";
 
 import { shortId } from "@/features/graph";
 import { requestedContext, useDiffSettings } from "@/features/settings";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { ErrorState } from "@/shared/components/ErrorState";
+import { LoadingOverlay } from "@/shared/components/LoadingOverlay";
 import { LoadingState } from "@/shared/components/LoadingState";
-import type { ChangedFileDto, FileDiffDto } from "@/shared/ipc/bindings";
+import type { ChangedFileDto } from "@/shared/ipc/bindings";
 
-import { useFileDiff, type DiffRequest } from "../api/diff";
+import type { DiffRequest } from "../api/diff";
+import { useShownDiff, viewKey, type ShownDiff } from "../hooks/useShownDiff";
 import { formatBytes, unchangedText } from "../lib/format";
 import { imageType } from "../lib/images";
 import { DiffHeader } from "./DiffHeader";
@@ -15,13 +18,13 @@ import { DiffLines } from "./DiffLines";
 import { ImageDiff } from "./ImageDiff";
 
 interface DiffBodyProps {
-  request: DiffRequest;
+  shown: ShownDiff;
   file: ChangedFileDto;
-  diff: FileDiffDto;
+  viewport: RefObject<HTMLDivElement | null>;
 }
 
-function DiffBody({ request, file, diff }: DiffBodyProps) {
-  const [settings] = useDiffSettings();
+function DiffBody({ shown, file, viewport }: DiffBodyProps) {
+  const { request, diff, layout, scrollTop } = shown;
   const sizes = `${formatBytes(Number(diff.oldSize))} → ${formatBytes(Number(diff.newSize))}`;
   const image = imageType(file.path);
   if (diff.content === "binary" && image) {
@@ -52,7 +55,7 @@ function DiffBody({ request, file, diff }: DiffBodyProps) {
       <EmptyState
         icon={EqualIcon}
         title="No changed lines"
-        description={unchangedText(file, settings.whitespace)}
+        description={unchangedText(file, request.options.whitespace)}
         className="flex-1"
       />
     );
@@ -61,13 +64,18 @@ function DiffBody({ request, file, diff }: DiffBodyProps) {
     <DiffLines
       request={request}
       diff={diff}
-      layout={settings.layout}
+      layout={layout}
       label={`Diff of ${file.path}`}
+      viewport={viewport}
+      scrollTop={scrollTop}
     />
   );
 }
 
-/** The diff of one changed file of the selected commit. */
+/**
+ * The diff of one changed file of the selected commit. Changing the options or the layout keeps
+ * the old diff under an overlay until the new one is ready, then opens it at the same line.
+ */
 export function FileDiffView({ repoId, file }: { repoId: number; file: ChangedFileDto }) {
   const [settings] = useDiffSettings();
   const request: DiffRequest = {
@@ -81,8 +89,14 @@ export function FileDiffView({ repoId, file }: { repoId: number; file: ChangedFi
       syntax: settings.syntaxHighlighting,
     },
   };
+  const viewport = useRef<HTMLDivElement>(null);
   // A submodule entry points at a commit, not at file contents.
-  const diff = useFileDiff(request, !file.submodule);
+  const { shown, pending, summary } = useShownDiff(
+    request,
+    settings.layout,
+    viewport,
+    !file.submodule,
+  );
   let body;
   if (file.submodule) {
     const from = file.oldId ? shortId(file.oldId) : "nothing";
@@ -95,23 +109,33 @@ export function FileDiffView({ repoId, file }: { repoId: number; file: ChangedFi
         className="flex-1"
       />
     );
-  } else if (diff.error) {
+  } else if (summary.error) {
     body = (
       <ErrorState
-        error={diff.error}
+        error={summary.error}
         title="Could not compare the file"
-        onRetry={() => void diff.refetch()}
+        onRetry={() => void summary.refetch()}
         className="flex-1 justify-center"
       />
     );
-  } else if (!diff.data) {
+  } else if (!shown) {
     body = <LoadingState label="Comparing…" className="flex-1" />;
   } else {
-    body = <DiffBody request={request} file={file} diff={diff.data} />;
+    body = (
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        <DiffBody
+          key={viewKey(shown.request, shown.layout)}
+          shown={shown}
+          file={file}
+          viewport={viewport}
+        />
+        {pending && <LoadingOverlay label="Comparing…" />}
+      </div>
+    );
   }
   return (
     <div className="flex h-full flex-col">
-      <DiffHeader file={file} diff={diff.data} />
+      <DiffHeader file={file} diff={summary.data ?? shown?.diff} />
       {body}
     </div>
   );

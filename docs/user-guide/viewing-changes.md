@@ -41,6 +41,13 @@ choice, and **Settings → Diff** has the same options.
   **Whole file** shows the whole file. Click **Whole file** again to go back to the number of
   lines you had.
 
+When you change any of these, the line in the middle of the diff stays where it is, so you can
+zoom out around the line you are reading.
+
+To copy code from a diff, drag over the lines and press **Ctrl+C** (**⌘C** on a Mac). You get
+just the code: no line numbers and no `+` or `-`. In side by side, the selection stays on the
+side where you started it.
+
 Images (PNG, JPEG, GIF, WebP, BMP, ICO, AVIF) are shown as pictures: before on the left, after
 on the right, with their size in pixels and bytes. A checkerboard shows through transparent
 parts.

@@ -3,11 +3,12 @@
 use tauri::State;
 
 use super::{
-    ChangedFilesDto, CommitDetailsDto, DiffLineDto, DiffRequestDto, FileDiffDto, RefEntry,
-    SplitLineDto, StashDto, StatusSummaryDto, SubmoduleDto, service,
+    ChangedFilesDto, CommitDetailsDto, DiffLineDto, DiffRequestDto, FileDiffDto, LineSideDto,
+    RefEntry, SplitLineDto, StashDto, StatusSummaryDto, SubmoduleDto, service,
 };
 use crate::error::CommandResult;
 use crate::repository::{RawBytes, RepoId, RepoSessions};
+use crate::settings::DiffLayout;
 
 /// Details of the commit on `row`: message, people, parents, refs and refs containing it.
 #[tauri::command]
@@ -68,6 +69,21 @@ pub async fn get_split_diff_lines(
     count: u32,
 ) -> CommandResult<Vec<SplitLineDto>> {
     Ok(service::split_diff_lines(&sessions, id, request, start, count).await?)
+}
+
+/// The row of `layout` that shows line `line` (1-based) of `side`, or the row of the nearest
+/// line shown, so the diff tab keeps its place when the options change.
+#[tauri::command]
+#[specta::specta]
+pub async fn find_diff_row(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    request: DiffRequestDto,
+    layout: DiffLayout,
+    side: LineSideDto,
+    line: u32,
+) -> CommandResult<Option<u32>> {
+    Ok(service::diff_row_of_line(&sessions, id, request, layout, side, line).await?)
 }
 
 /// The raw contents of blob `blob_id` (at most 32 MB), for previews such as images.

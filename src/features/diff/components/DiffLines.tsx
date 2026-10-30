@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import type { RefObject } from "react";
 
 import { InlineError } from "@/shared/components/InlineError";
 import type { DiffLayout, FileDiffDto } from "@/shared/ipc/bindings";
@@ -14,9 +14,8 @@ import { SplitLines } from "./SplitLines";
 const counts = new Intl.NumberFormat("en-US");
 
 /** The unified diff: one column with both line numbers; long lines scroll sideways. */
-function UnifiedLines({ request, diff, count, label }: LinesProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const { first, last, pages, onScroll } = useVirtualRows(scrollRef, count);
+function UnifiedLines({ request, diff, count, label, viewport, scrollTop }: LinesProps) {
+  const { first, last, pages, onScroll } = useVirtualRows(viewport, count, scrollTop);
   const results = useDiffPages(request, pages);
   const failed = results.find((result) => result.error)?.error;
   const digits = gutterDigits(diff.oldLines, diff.newLines);
@@ -38,7 +37,7 @@ function UnifiedLines({ request, diff, count, label }: LinesProps) {
     <>
       {failed !== undefined && <InlineError error={failed} className="m-2" />}
       <div
-        ref={scrollRef}
+        ref={viewport}
         role="region"
         aria-label={label}
         // A scrolling region must take focus so the keyboard can scroll it (WCAG 2.1.1).
@@ -58,16 +57,18 @@ interface DiffLinesProps {
   diff: FileDiffDto;
   layout: DiffLayout;
   label: string;
+  viewport: RefObject<HTMLDivElement | null>;
+  scrollTop: number;
 }
 
 /**
  * The diff, virtualized: only the rows on screen are rendered, and their text is fetched in
  * pages. Focus it to scroll with the keyboard.
  */
-export function DiffLines({ request, diff, layout, label }: DiffLinesProps) {
-  const total = layout === "split" ? diff.splitRows : diff.rows;
+export function DiffLines({ layout, ...rest }: DiffLinesProps) {
+  const total = layout === "split" ? rest.diff.splitRows : rest.diff.rows;
   const count = Math.min(total, MAX_SHOWN_ROWS);
-  const props = { request, diff, count, label };
+  const props = { ...rest, count };
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       {layout === "split" ? <SplitLines {...props} /> : <UnifiedLines {...props} />}

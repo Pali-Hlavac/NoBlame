@@ -8,6 +8,10 @@ At the top is the **title bar** with the toolbar. Below it, from left to right:
 
 The status bar runs along the bottom.
 
+While NoBlame starts, a small singing bird covers the window, which shows blurred behind it.
+When everything has loaded (at most five seconds), the blur clears and the bird fades away. The
+same bird shows wherever something is still loading.
+
 Drag the empty part of the title bar to move the window, and double-click it to maximize. On
 Windows and Linux the minimize, maximize and close buttons are at its right end. On macOS the
 usual coloured buttons are at its left end.

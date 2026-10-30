@@ -152,6 +152,18 @@ can also be read with the keyboard.
 - A saved layout from another version, or one that cannot be read, is ignored and the default
   is used. Modules that no longer exist are dropped from a restored layout.
 
+## Starting and loading
+
+- **Startup curtain** (`app/layout/StartupCurtain.tsx`): opaque while the settings and the
+  window's purpose load, then translucent over the rendered window, blurred (`backdrop-blur-xl`).
+  It lifts once no query or mutation has run for 200 ms, or 5 s after the first render at the
+  latest (a huge repository's history has its own loading state): the blur goes to 0 and the
+  curtain fades out over 0.5 s. Clicks do not reach the window under it.
+- **Loading bird** (`shared/components/BirdLoader.tsx`): a flat songbird on a branch with a
+  commit at each end, in the text colour (black on light, white on dark), two notes rising from
+  its open beak. Still with reduced motion. `LoadingState` (every module's loading message) and
+  `LoadingOverlay` (stale content kept under a blur, as in the diff tab) use it.
+
 ## Keyboard
 
 - `F6` / `Shift+F6` move focus to the next or previous region: activity bar, modules, toolbar,

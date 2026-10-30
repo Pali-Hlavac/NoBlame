@@ -1,8 +1,8 @@
-import { LoaderCircleIcon } from "lucide-react";
-
 import { cn } from "@/shared/lib/cn";
 
-/** Spinner with an accessible label announced to screen readers. */
+import { BirdLoader } from "./BirdLoader";
+
+/** The singing bird with a label announced to screen readers. */
 export function LoadingState({ label, className }: { label: string; className?: string }) {
   return (
     <div
@@ -13,7 +13,7 @@ export function LoadingState({ label, className }: { label: string; className?: 
         className,
       )}
     >
-      <LoaderCircleIcon className="size-4 animate-spin" aria-hidden />
+      <BirdLoader className="h-6 w-9 text-foreground" />
       <span>{label}</span>
     </div>
   );

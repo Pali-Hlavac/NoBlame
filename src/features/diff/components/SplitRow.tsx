@@ -10,16 +10,26 @@ import { LineText } from "./LineText";
  */
 const SHIFTED = { transform: "translateX(calc(-1 * var(--diff-scroll-x, 0px)))" } as const;
 
+/**
+ * A selection stays in the half it started in: the side-by-side view marks that side on its
+ * scrolling element (`data-selecting`), and the other half's text is not selectable then.
+ */
+const SELECTABLE_SIDE = {
+  left: "select-text in-data-[selecting=right]:select-none",
+  right: "select-text in-data-[selecting=left]:select-none",
+} as const;
+
 interface HalfProps {
   cell: SplitCellDto | null;
+  side: keyof typeof SELECTABLE_SIDE;
   digits: number;
   className?: string;
 }
 
-function Half({ cell, digits, className }: HalfProps) {
+function Half({ cell, side, digits, className }: HalfProps) {
   if (!cell) return <div className={cn("h-full bg-muted/40", className)} />;
   return (
-    <div className={cn("flex h-full min-w-0", LINE_CLASSES[cell.kind], className)}>
+    <div data-side={side} className={cn("flex h-full min-w-0", LINE_CLASSES[cell.kind], className)}>
       <span
         aria-hidden
         className="shrink-0 border-r border-border px-2 text-right text-muted-foreground select-none"
@@ -28,12 +38,13 @@ function Half({ cell, digits, className }: HalfProps) {
           {cell.line}
         </span>
       </span>
-      <span aria-hidden className="w-5 shrink-0 text-center select-none">
-        {MARKERS[cell.kind]}
+      {/* Not selectable, so copied text has no + and - (screen readers hear "added:"). */}
+      <span className="w-5 shrink-0 text-center select-none">
+        <span aria-hidden>{MARKERS[cell.kind]}</span>
+        <span className="sr-only">{SPOKEN[cell.kind]}</span>
       </span>
       <span className="min-w-0 flex-1 overflow-hidden">
-        <span className="block pr-4 whitespace-pre" style={SHIFTED}>
-          <span className="sr-only">{SPOKEN[cell.kind]}</span>
+        <span className={cn("block pr-4 whitespace-pre", SELECTABLE_SIDE[side])} style={SHIFTED}>
           <LineText
             text={cell.text}
             kind={cell.kind}
@@ -41,10 +52,12 @@ function Half({ cell, digits, className }: HalfProps) {
             syntax={cell.syntax}
           />
           {cell.truncated && (
-            <span className="pl-2 text-muted-foreground italic">{TRUNCATED_NOTE}</span>
+            <span className="pl-2 text-muted-foreground italic select-none">{TRUNCATED_NOTE}</span>
           )}
           {cell.noNewline && (
-            <span className="pl-2 text-muted-foreground italic">(no newline at end of file)</span>
+            <span className="pl-2 text-muted-foreground italic select-none">
+              (no newline at end of file)
+            </span>
           )}
         </span>
       </span>
@@ -69,8 +82,8 @@ export function SplitRow({ line, digits }: SplitRowProps) {
   }
   return (
     <div className="grid h-full grid-cols-2">
-      <Half cell={line.left} digits={digits} className="border-r border-border" />
-      <Half cell={line.right} digits={digits} />
+      <Half cell={line.left} side="left" digits={digits} className="border-r border-border" />
+      <Half cell={line.right} side="right" digits={digits} />
     </div>
   );
 }

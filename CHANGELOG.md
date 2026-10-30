@@ -95,6 +95,13 @@ All notable changes to NoBlame are documented here. The format follows
 - Syntax colours for many more languages: the 213 grammars `bat` ships (via two-face), including
   TypeScript, TSX, TOML, Kotlin, Swift, Dockerfile, Vue, Svelte, SCSS, Terraform and Nix.
 - The sidebar keeps its width in pixels when the window is resized.
+- Diff tab keeps its place: changing the context, the whitespace option or the layout keeps the
+  line in the middle of the view where it was; the old diff stays under a light blur until the
+  new one is ready, instead of the tab going blank.
+- Copy code from the diff: lines can be selected, and copying leaves out line numbers, `+` and
+  `-` and hunk headers; side by side copies the side the selection started in.
+- A loading bird: a flat songbird singing notes replaces the spinner everywhere, and covers the
+  window at start with the app blurred behind it, until everything has loaded (at most 5 s).
 - Find commits (Ctrl+F):
   - matches ids, branch and tag names, authors and messages;
   - Enter and Shift+Enter step through the matches ("3 of 120").

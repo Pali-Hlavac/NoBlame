@@ -39,6 +39,7 @@
     "allow-get-file-diff",
     "allow-get-diff-lines",
     "allow-get-split-diff-lines",
+    "allow-find-diff-row",
     "allow-get-file-contents",
     "allow-list-refs",
     "allow-list-stashes",

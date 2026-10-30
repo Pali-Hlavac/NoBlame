@@ -1,4 +1,4 @@
-import { useState, type RefObject, type UIEvent } from "react";
+import { useLayoutEffect, useState, type RefObject, type UIEvent } from "react";
 
 import { useElementSize } from "@/shared/hooks/useElementSize";
 import { pagesFor } from "@/shared/lib/paging";
@@ -7,11 +7,19 @@ import { DIFF_PAGE_ROWS, OVERSCAN_ROWS, PREFETCH_PAGES, ROW_HEIGHT_PX } from "..
 
 /**
  * The rows of a fixed-height virtual list that are on screen (plus overscan), and the pages of
- * {@link DIFF_PAGE_ROWS} rows to fetch for them. Attach `onScroll` to the scrolling element.
+ * {@link DIFF_PAGE_ROWS} rows to fetch for them. Attach `onScroll` to the scrolling element; it
+ * starts scrolled to `initialTop`.
  */
-export function useVirtualRows(scrollRef: RefObject<HTMLDivElement | null>, count: number) {
+export function useVirtualRows(
+  scrollRef: RefObject<HTMLDivElement | null>,
+  count: number,
+  initialTop = 0,
+) {
   const size = useElementSize(scrollRef);
-  const [scrollTop, setScrollTop] = useState(0);
+  const [scrollTop, setScrollTop] = useState(initialTop);
+  useLayoutEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = initialTop;
+  }, [scrollRef, initialTop]);
   const first = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT_PX) - OVERSCAN_ROWS);
   const last = Math.min(
     count - 1,

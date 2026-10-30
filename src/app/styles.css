@@ -186,3 +186,51 @@
     @apply select-text;
   }
 }
+
+/* Loading: overlays fade in after a moment, so quick loads do not flash. */
+@theme {
+  --animate-fade-in: fade-in 160ms ease-out 120ms both;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+/* The loading bird's notes leave its beak, rise and fade (`BirdLoader`). */
+@keyframes bird-note {
+  0% {
+    opacity: 0;
+    transform: translate(-6px, 6px) scale(0.5);
+  }
+  25%,
+  65% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(3px, -4px) scale(1);
+  }
+}
+
+@layer components {
+  .bird-note {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: bird-note 1.8s ease-out infinite both;
+  }
+
+  .bird-note-late {
+    animation-delay: 0.9s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bird-note {
+      animation: none;
+    }
+  }
+}

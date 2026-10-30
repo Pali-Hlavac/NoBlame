@@ -32,6 +32,7 @@ const APP_COMMANDS: &[&str] = &[
     "get_file_diff",
     "get_diff_lines",
     "get_split_diff_lines",
+    "find_diff_row",
     "get_file_contents",
     "list_refs",
     "list_stashes",

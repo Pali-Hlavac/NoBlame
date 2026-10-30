@@ -1,7 +1,14 @@
 import type { DiffLineDto } from "@/shared/ipc/bindings";
 import { cn } from "@/shared/lib/cn";
 
-import { GUTTER_CLASSES, LINE_CLASSES, MARKERS, SPOKEN, TRUNCATED_NOTE } from "../lib/rowStyles";
+import {
+  GUTTER_CLASSES,
+  LINE_CLASSES,
+  MARKERS,
+  SELECTABLE,
+  SPOKEN,
+  TRUNCATED_NOTE,
+} from "../lib/rowStyles";
 import { LineText } from "./LineText";
 
 interface DiffRowProps {
@@ -27,11 +34,12 @@ export function DiffRow({ line, digits }: DiffRowProps) {
         <span style={number}>{line.oldLine ?? ""}</span>
         <span style={number}>{line.newLine ?? ""}</span>
       </span>
-      <span aria-hidden className="w-5 shrink-0 text-center select-none">
-        {MARKERS[line.kind]}
-      </span>
-      <span className="pr-4 whitespace-pre">
+      {/* Not selectable, so copied text has no + and - (screen readers hear "added:"). */}
+      <span className="w-5 shrink-0 text-center select-none">
+        <span aria-hidden>{MARKERS[line.kind]}</span>
         <span className="sr-only">{SPOKEN[line.kind]}</span>
+      </span>
+      <span className={cn("pr-4 whitespace-pre", SELECTABLE[line.kind] && "select-text")}>
         {line.kind === "noNewline" ? (
           "No newline at end of file"
         ) : (
@@ -43,7 +51,7 @@ export function DiffRow({ line, digits }: DiffRowProps) {
           />
         )}
         {line.truncated && (
-          <span className="pl-2 text-muted-foreground italic">{TRUNCATED_NOTE}</span>
+          <span className="pl-2 text-muted-foreground italic select-none">{TRUNCATED_NOTE}</span>
         )}
       </span>
     </div>

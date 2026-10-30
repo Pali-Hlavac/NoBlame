@@ -36,5 +36,14 @@ export const SPOKEN: Readonly<Record<DiffLineKindDto, string>> = {
   noNewline: "",
 };
 
+/** Rows whose text can be selected and copied: lines of the file, not hunk headers or notes. */
+export const SELECTABLE: Readonly<Record<DiffLineKindDto, boolean>> = {
+  hunk: false,
+  context: true,
+  added: true,
+  removed: true,
+  noNewline: false,
+};
+
 /** Shown after a line cut by the backend. */
 export const TRUNCATED_NOTE = "… line cut at 4,096 bytes";

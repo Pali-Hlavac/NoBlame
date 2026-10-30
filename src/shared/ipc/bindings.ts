@@ -76,6 +76,11 @@ export const commands = {
 	getDiffLines: (id: number, request: DiffRequestDto, start: number, count: number) => typedError<DiffLineDto[], AppError>(__TAURI_INVOKE("get_diff_lines", { id, request, start, count })),
 	/**  Up to `count` side-by-side rows (at most 2,000) of that diff, from row `start`. */
 	getSplitDiffLines: (id: number, request: DiffRequestDto, start: number, count: number) => typedError<SplitLineDto[], AppError>(__TAURI_INVOKE("get_split_diff_lines", { id, request, start, count })),
+	/**
+	 *  The row of `layout` that shows line `line` (1-based) of `side`, or the row of the nearest
+	 *  line shown, so the diff tab keeps its place when the options change.
+	 */
+	findDiffRow: (id: number, request: DiffRequestDto, layout: DiffLayout, side: LineSideDto, line: number) => typedError<number | null, AppError>(__TAURI_INVOKE("find_diff_row", { id, request, layout, side, line })),
 	/**  The raw contents of blob `blob_id` (at most 32 MB), for previews such as images. */
 	getFileContents: (id: number, blobId: string) => typedError<unknown, AppError>(__TAURI_INVOKE("get_file_contents", { id, blobId })),
 	/**  Every branch, remote branch and tag with the row of its commit. */
@@ -450,6 +455,13 @@ name: string } |
 { kind: "detached"; 
 /**  Full commit id. */
 id: string };
+
+/**  A version of the file, for finding the row of one of its lines. */
+export type LineSideDto = 
+/**  Before the change. */
+"old" | 
+/**  After the change. */
+"new";
 
 /**  A parent commit and its row, so the UI can jump to it. */
 export type ParentDto = {

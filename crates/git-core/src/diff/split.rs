@@ -11,7 +11,7 @@ use super::text::{display_text, hunk_range, to_u32};
 /// One side of a side-by-side row: a 0-based line on that side.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) struct Half {
-    line: u32,
+    pub(super) line: u32,
     kind: LineKind,
     no_newline: bool,
     /// The unified row this line comes from.

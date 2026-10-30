@@ -42,6 +42,15 @@ slice 3c (syntax highlighting) and slice 3d (images, `.gitattributes`): slice 3 
   - context: **−** and **+** step the unchanged lines around each change through 0–10, 15,
     20, 25, 30, 40, 50, 75 and 100; **Whole file** shows everything, and switching it off goes
     back to the number of lines.
+- **Keeping its place**: changing the context, the whitespace option or the layout keeps the
+  line in the middle of the view where it is on screen, like zooming in at that line. If the new
+  context hides that line, the nearest line shown takes its place. Until the new diff is ready,
+  the old one stays under a light blur with the loading bird (shown only if it takes over
+  120 ms), instead of the tab going blank.
+- **Selecting and copying**: drag over lines to select them and copy with Ctrl+C. Only the text
+  of the lines is copied: no line numbers, no `+` or `-`, no hunk headers or notes. Side by side,
+  a selection stays in the half it started in. Only rows on screen exist, so a selection reaches
+  as far as you can drag without scrolling far away.
 - The header shows the file name, its folder (or the old name of a rename), the status and the
   added and removed line counts.
 - **Images** (PNG, JPEG, GIF, WebP, BMP, ICO, AVIF) are shown before and after, side by side
@@ -119,6 +128,16 @@ slice 3c (syntax highlighting) and slice 3d (images, `.gitattributes`): slice 3 
   - The request asks for 4294967295 context lines for the whole file (`requestedContext`).
   - Settings saved by earlier versions with that number become `wholeFile` when read.
   - `ContextStepper` is the shared − / + / Whole file control.
+- **Keeping the place** (`hooks/useShownDiff.ts`, `lib/anchor.ts`): the tab keeps showing the
+  last ready diff of the same file while a new summary loads. It reads the line in the middle
+  of the view from the cached rows, asks `find_diff_row` for the row showing that line in the
+  new diff (`FileDiff::row_of_line` / `split_row_of_line`, nearest line when hidden, one pass
+  over the rows), fetches the pages around it, and only then swaps the diffs, scrolled so the
+  line keeps its offset.
+- **Copying**: the body is `select-none` (desktop chrome); the text of each line is
+  `select-text`, while the line numbers, the markers (with the screen-reader words "added:" and
+  "removed:") and notes stay `select-none`. Side by side, a mouse down marks its half on the
+  scrolling element (`data-selecting`), which makes the other half's text unselectable.
 - The chosen path and the compared parent live in `features/selection` (`selectFile`,
   `compareWithParent`); `showDiffTab` in `features/workspace` opens the tab.
 

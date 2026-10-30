@@ -17,11 +17,12 @@ use git_core::submodule::list_submodules;
 use tokio_util::sync::CancellationToken;
 
 use super::{
-    ChangedFilesDto, CommitDetailsDto, DiffLineDto, DiffRequestDto, FileDiffDto, RefEntry,
-    SplitLineDto, StashDto, StatusSummaryDto, SubmoduleDto,
+    ChangedFilesDto, CommitDetailsDto, DiffLineDto, DiffRequestDto, FileDiffDto, LineSideDto,
+    RefEntry, SplitLineDto, StashDto, StatusSummaryDto, SubmoduleDto,
 };
 use crate::git_env::GitEnvError;
 use crate::repository::{DiffKey, RawBytes, RepoId, RepoSessions, RepositoryError, blocking};
+use crate::settings::DiffLayout;
 
 /// Details of the commit on `row`, including the references containing it.
 pub async fn details(
@@ -108,6 +109,23 @@ pub async fn split_diff_lines(
     let diff = computed(sessions, id, request).await?;
     let lines = diff.split_lines(start, count.min(MAX_DIFF_PAGE_ROWS));
     Ok(lines.into_iter().map(SplitLineDto::from).collect())
+}
+
+/// The row (of `layout`) showing line `line` of `side`, or the row of the nearest line shown;
+/// `None` when the diff has no rows.
+pub async fn diff_row_of_line(
+    sessions: &RepoSessions,
+    id: RepoId,
+    request: DiffRequestDto,
+    layout: DiffLayout,
+    side: LineSideDto,
+    line: u32,
+) -> Result<Option<u32>, RepositoryError> {
+    let diff = computed(sessions, id, request).await?;
+    Ok(match layout {
+        DiffLayout::Unified => diff.row_of_line(side.into(), line),
+        DiffLayout::Split => diff.split_row_of_line(side.into(), line),
+    })
 }
 
 /// Largest file sent for a preview (images).

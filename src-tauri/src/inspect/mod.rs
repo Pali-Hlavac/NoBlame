@@ -12,7 +12,7 @@ mod syntax;
 mod types;
 
 pub use changes::ChangedFilesDto;
-pub use diff::{DiffLineDto, DiffRequestDto, FileDiffDto};
+pub use diff::{DiffLineDto, DiffRequestDto, FileDiffDto, LineSideDto};
 pub use split::SplitLineDto;
 pub use status::StatusSummaryDto;
 pub use types::{CommitDetailsDto, RefEntry, StashDto, SubmoduleDto};

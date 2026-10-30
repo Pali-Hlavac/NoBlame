@@ -2,7 +2,7 @@
 //! by page (side-by-side rows are in `split.rs`).
 
 use git_core::diff::{
-    DiffAttribute, DiffContent, DiffLine, DiffOptions, FileDiff, LineKind, Whitespace,
+    DiffAttribute, DiffContent, DiffLine, DiffOptions, FileDiff, LineKind, LineSide, Whitespace,
 };
 use serde::{Deserialize, Serialize};
 use specta::Type;
@@ -48,6 +48,25 @@ impl From<DiffOptionsDto> for DiffOptions {
             context: options.context,
             // Read from `.gitattributes` when the diff is computed.
             attribute: DiffAttribute::Unspecified,
+        }
+    }
+}
+
+/// A version of the file, for finding the row of one of its lines.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub enum LineSideDto {
+    /// Before the change.
+    Old,
+    /// After the change.
+    New,
+}
+
+impl From<LineSideDto> for LineSide {
+    fn from(side: LineSideDto) -> Self {
+        match side {
+            LineSideDto::Old => Self::Old,
+            LineSideDto::New => Self::New,
         }
     }
 }

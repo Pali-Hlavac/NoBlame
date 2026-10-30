@@ -7,6 +7,7 @@ mod file;
 mod highlight;
 mod lines;
 mod load;
+mod locate;
 mod options;
 mod rows;
 mod split;
@@ -20,6 +21,7 @@ pub use changes::{ChangeStatus, ChangedFile, CommitChanges, MAX_CHANGED_FILES, c
 pub use file::FileDiff;
 pub use lines::{DiffContent, DiffLine, LineKind, SplitCell, SplitLine};
 pub use load::{MAX_DIFF_BLOB_BYTES, blob_contents, file_diff};
+pub use locate::LineSide;
 pub use options::{DiffOptions, WHOLE_FILE_CONTEXT, Whitespace};
 pub use rows::CONTEXT_LINES;
 pub use syntax::{MAX_HIGHLIGHT_BYTES, SyntaxClass, SyntaxSpan};

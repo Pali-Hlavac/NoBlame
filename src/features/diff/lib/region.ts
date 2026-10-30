@@ -1,4 +1,6 @@
 /** What the unified and side-by-side views share. */
+import type { RefObject } from "react";
+
 import type { FileDiffDto } from "@/shared/ipc/bindings";
 
 import type { DiffRequest } from "../api/diff";
@@ -14,4 +16,8 @@ export interface LinesProps {
   count: number;
   /** Accessible name of the scrolling region, e.g. "Diff of src/main.rs". */
   label: string;
+  /** The scrolling element (the diff tab reads its position to keep its place). */
+  viewport: RefObject<HTMLDivElement | null>;
+  /** Where the rows start scrolled, in pixels. */
+  scrollTop: number;
 }

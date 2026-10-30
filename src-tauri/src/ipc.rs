@@ -57,6 +57,7 @@ pub fn builder() -> Builder<tauri::Wry> {
             inspect::commands::get_file_diff,
             inspect::commands::get_diff_lines,
             inspect::commands::get_split_diff_lines,
+            inspect::commands::find_diff_row,
             inspect::commands::get_file_contents,
             inspect::commands::list_refs,
             inspect::commands::list_stashes,

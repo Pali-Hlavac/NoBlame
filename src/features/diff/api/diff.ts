@@ -1,7 +1,7 @@
 /** The line diff of one file: a summary, then rows page by page, unified or side by side. */
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { queryOptions, useQueries, useQuery } from "@tanstack/react-query";
 
-import type { DiffRequestDto } from "@/shared/ipc/bindings";
+import type { DiffLayout, DiffRequestDto, LineSideDto } from "@/shared/ipc/bindings";
 import { commands, unwrap } from "@/shared/ipc/client";
 
 import { DIFF_PAGE_ROWS } from "../lib/constants";
@@ -33,7 +33,7 @@ export const diffKeys = {
       options.context,
       options.syntax,
     ] as const,
-  page: (request: DiffRequest, layout: "unified" | "split", page: number) =>
+  page: (request: DiffRequest, layout: DiffLayout, page: number) =>
     [...diffKeys.summary(request), layout, page] as const,
 };
 
@@ -52,42 +52,56 @@ export function useFileDiff(request: DiffRequest, enabled = true) {
   });
 }
 
+/** The query of one page of {@link DIFF_PAGE_ROWS} unified rows. */
+export function unifiedPageQuery(request: DiffRequest, page: number) {
+  return queryOptions({
+    queryKey: diffKeys.page(request, "unified", page),
+    queryFn: () =>
+      unwrap(
+        commands.getDiffLines(request.repoId, dto(request), page * DIFF_PAGE_ROWS, DIFF_PAGE_ROWS),
+      ),
+    staleTime: Infinity,
+    gcTime: PAGE_GC_TIME_MS,
+  });
+}
+
+/** The query of one page of {@link DIFF_PAGE_ROWS} side-by-side rows. */
+export function splitPageQuery(request: DiffRequest, page: number) {
+  return queryOptions({
+    queryKey: diffKeys.page(request, "split", page),
+    queryFn: () =>
+      unwrap(
+        commands.getSplitDiffLines(
+          request.repoId,
+          dto(request),
+          page * DIFF_PAGE_ROWS,
+          DIFF_PAGE_ROWS,
+        ),
+      ),
+    staleTime: Infinity,
+    gcTime: PAGE_GC_TIME_MS,
+  });
+}
+
 /** Unified rows on the given pages of {@link DIFF_PAGE_ROWS} rows. */
 export function useDiffPages(request: DiffRequest, pages: readonly number[]) {
-  return useQueries({
-    queries: pages.map((page) => ({
-      queryKey: diffKeys.page(request, "unified", page),
-      queryFn: () =>
-        unwrap(
-          commands.getDiffLines(
-            request.repoId,
-            dto(request),
-            page * DIFF_PAGE_ROWS,
-            DIFF_PAGE_ROWS,
-          ),
-        ),
-      staleTime: Infinity,
-      gcTime: PAGE_GC_TIME_MS,
-    })),
-  });
+  return useQueries({ queries: pages.map((page) => unifiedPageQuery(request, page)) });
 }
 
 /** Side-by-side rows on the given pages of {@link DIFF_PAGE_ROWS} rows. */
 export function useSplitDiffPages(request: DiffRequest, pages: readonly number[]) {
-  return useQueries({
-    queries: pages.map((page) => ({
-      queryKey: diffKeys.page(request, "split", page),
-      queryFn: () =>
-        unwrap(
-          commands.getSplitDiffLines(
-            request.repoId,
-            dto(request),
-            page * DIFF_PAGE_ROWS,
-            DIFF_PAGE_ROWS,
-          ),
-        ),
-      staleTime: Infinity,
-      gcTime: PAGE_GC_TIME_MS,
-    })),
-  });
+  return useQueries({ queries: pages.map((page) => splitPageQuery(request, page)) });
+}
+
+/**
+ * The row of `layout` showing line `line` of `side` (or the nearest line shown); `null` when
+ * the diff has no rows.
+ */
+export function findDiffRow(
+  request: DiffRequest,
+  layout: DiffLayout,
+  side: LineSideDto,
+  line: number,
+): Promise<number | null> {
+  return unwrap(commands.findDiffRow(request.repoId, dto(request), layout, side, line));
 }

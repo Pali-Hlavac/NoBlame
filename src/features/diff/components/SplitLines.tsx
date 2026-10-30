@@ -18,10 +18,9 @@ const HALF_CHROME_CH = 6;
  * The side-by-side diff. Each half clips its text; one scroll bar below moves both halves
  * sideways together (shift + wheel, a trackpad or the arrow keys work too).
  */
-export function SplitLines({ request, diff, count, label }: LinesProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
+export function SplitLines({ request, diff, count, label, viewport, scrollTop }: LinesProps) {
   const barRef = useRef<HTMLDivElement>(null);
-  const { first, last, pages, onScroll } = useVirtualRows(scrollRef, count);
+  const { first, last, pages, onScroll } = useVirtualRows(viewport, count, scrollTop);
   const results = useSplitDiffPages(request, pages);
   const failed = results.find((result) => result.error)?.error;
   const digits = gutterDigits(diff.oldLines, diff.newLines);
@@ -65,7 +64,7 @@ export function SplitLines({ request, diff, count, label }: LinesProps) {
       {/* The keys and the wheel scroll the region sideways; it is focusable for that reason. */}
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <div
-        ref={scrollRef}
+        ref={viewport}
         role="region"
         aria-label={label}
         // A scrolling region must take focus so the keyboard can scroll it (WCAG 2.1.1).
@@ -75,6 +74,10 @@ export function SplitLines({ request, diff, count, label }: LinesProps) {
         onScroll={onScroll}
         onWheel={onWheel}
         onKeyDown={onKeyDown}
+        onMouseDown={(event) => {
+          const half = event.target instanceof Element ? event.target.closest("[data-side]") : null;
+          event.currentTarget.dataset.selecting = half?.getAttribute("data-side") ?? "";
+        }}
       >
         <div style={{ height: count * ROW_HEIGHT_PX }}>{rows}</div>
       </div>
@@ -83,7 +86,7 @@ export function SplitLines({ request, diff, count, label }: LinesProps) {
         aria-hidden
         className="shrink-0 overflow-x-auto overflow-y-hidden font-mono text-xs"
         onScroll={(event) => {
-          scrollRef.current?.style.setProperty(
+          viewport.current?.style.setProperty(
             "--diff-scroll-x",
             `${event.currentTarget.scrollLeft}px`,
           );

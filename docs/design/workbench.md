@@ -180,3 +180,15 @@ Ideas from the owner, newest last, with where each one is planned.
 - 2026-10-30: during pull, push, fetch and other long git operations, optionally see git's
   output live in a console-like popup window (off by default; the operations also run in the
   background) → M5 (job registry and output window).
+- 2026-10-30 (second round): more or less context in the diff keeps the line in the middle of
+  the view in place, like zooming in at that row → done.
+- 2026-10-30: the diff blinked while loading after a context change; show the loading as an
+  overlay instead → done (the old diff stays under a light blur with the loading bird).
+- 2026-10-30: select text in the diff to copy it, without the `+` and `-` at the start of the
+  rows → done (line numbers, markers and hunk headers are not copied; side by side copies one
+  side).
+- 2026-10-30: sort branches by the date of their last commit too → next (Branches module).
+- 2026-10-30: at start, a loading element over the blurred window while everything loads, then
+  the blur clears and the loading element fades out → done (startup curtain).
+- 2026-10-30: the loading element is a small flat bird, white on the dark theme and black on the
+  light one, singing music notes → done (drawn as an SVG; used by every loading state).
