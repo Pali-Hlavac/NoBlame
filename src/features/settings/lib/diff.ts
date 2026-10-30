@@ -29,25 +29,25 @@ export const WHITESPACE_OPTIONS: readonly {
   { value: "ignoreAll", label: "Ignore all whitespace", short: "Ignore whitespace" },
 ];
 
-/** Context choices; `value` is a string so the same controls can show them. */
-export const CONTEXT_OPTIONS: readonly {
-  value: string;
-  label: string;
-  short: string;
-  lines: number;
-}[] = [
-  { value: "3", label: "3 lines", short: "Context 3", lines: 3 },
-  { value: "10", label: "10 lines", short: "Context 10", lines: 10 },
-  { value: "25", label: "25 lines", short: "Context 25", lines: 25 },
-  { value: "whole", label: "Whole file", short: "Whole file", lines: WHOLE_FILE_CONTEXT },
+/** Context lines the − and + buttons step through. */
+export const CONTEXT_STEPS: readonly number[] = [
+  0, 1, 2, 3, 4, 5, 6, 8, 10, 15, 20, 25, 30, 40, 50, 75, 100,
 ];
 
-/** The choice for a number of context lines (a custom number shows as itself). */
-export function contextValue(lines: number): string {
-  return CONTEXT_OPTIONS.find((option) => option.lines === lines)?.value ?? String(lines);
+/** The next step above (`1`) or below (`-1`) `lines`; stays at the ends. */
+export function stepContext(lines: number, direction: 1 | -1): number {
+  if (direction === 1) {
+    return CONTEXT_STEPS.find((step) => step > lines) ?? lines;
+  }
+  return CONTEXT_STEPS.findLast((step) => step < lines) ?? lines;
 }
 
-/** The number of context lines of a choice. */
-export function contextLines(value: string): number {
-  return CONTEXT_OPTIONS.find((option) => option.value === value)?.lines ?? Number(value);
+/** "3 lines", "1 line". */
+export function contextLabel(lines: number): string {
+  return lines === 1 ? "1 line" : `${lines} lines`;
+}
+
+/** The context to ask the backend for. */
+export function requestedContext(settings: { contextLines: number; wholeFile: boolean }): number {
+  return settings.wholeFile ? WHOLE_FILE_CONTEXT : settings.contextLines;
 }

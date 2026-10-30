@@ -1,4 +1,4 @@
-//! Syntax highlighting of diff lines with syntect and the Sublime Text grammars it bundles.
+//! Syntax highlighting of diff lines with syntect and the grammars `bat` ships (via two-face).
 //! Each side is parsed along the lines the diff shows; the parser state is saved every
 //! [`CHECKPOINT_LINES`] of them, so a page far down a diff costs its own lines (plus the shown
 //! lines before it, once). Scopes are reduced to a few classes the UI colours.
@@ -65,7 +65,7 @@ const SCOPE_CLASSES: &[(&str, Option<SyntaxClass>)] = &[
 
 fn syntaxes() -> &'static SyntaxSet {
     static SET: OnceLock<SyntaxSet> = OnceLock::new();
-    SET.get_or_init(SyntaxSet::load_defaults_newlines)
+    SET.get_or_init(two_face::syntax::extra_newlines)
 }
 
 fn scope_classes() -> &'static [(Scope, Option<SyntaxClass>)] {

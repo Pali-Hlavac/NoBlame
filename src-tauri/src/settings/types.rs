@@ -113,8 +113,11 @@ pub struct DiffSettings {
     pub layout: DiffLayout,
     /// Which whitespace changes are shown.
     pub whitespace: WhitespaceMode,
-    /// Unchanged lines around each change; 4294967295 shows the whole file.
+    /// Unchanged lines around each change, unless `whole_file` is set (4294967295, written by
+    /// earlier versions, also means the whole file).
     pub context_lines: u32,
+    /// Show the whole file instead of the context lines.
+    pub whole_file: bool,
     /// Colour the code by its language.
     pub syntax_highlighting: bool,
 }
@@ -128,6 +131,7 @@ impl Default for DiffSettings {
             layout: DiffLayout::default(),
             whitespace: WhitespaceMode::default(),
             context_lines: DEFAULT_CONTEXT_LINES,
+            whole_file: false,
             syntax_highlighting: true,
         }
     }

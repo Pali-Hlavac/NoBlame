@@ -26,15 +26,22 @@ slice 3c (syntax highlighting) and slice 3d (images, `.gitattributes`): slice 3 
   side shows) mark the words that differ in a stronger red or green. Lines longer than
   1,000 bytes and pairs with less than 30% in common are not marked, since nearly everything
   would be. Whitespace that the whitespace option ignores is not marked either.
-- **Syntax colours**: code is coloured by its language (found by extension, file name or first
-  line, from the grammars Sublime Text ships: Rust, TypeScript, Python, C, Java, Markdown, JSON,
-  HTML and many more). Removed lines are coloured as the old version, the others as the new
-  one. Files over 4 MB per side are not coloured. Settings → Diff can switch it off.
+- **Syntax colours**: code is coloured by its language, found by extension, file name or first
+  line. The grammars are the 213 that `bat` ships, for example:
+  - Rust, TypeScript and TSX, JavaScript, Python, C, C++ and C#;
+  - Java, Kotlin, Swift, Go, Dart and Zig;
+  - Vue, Svelte, HTML, CSS, SCSS and Less;
+  - Markdown, JSON, YAML, TOML and INI;
+  - Dockerfile, Terraform, Nix, GraphQL, Protobuf and SQL;
+  - shell scripts, and git's own files (`.gitignore`, `.gitattributes`). Removed lines are coloured as the old version, the others as the new
+    one. Files over 4 MB per side are not coloured. Settings → Diff can switch it off.
 - **Options** in the header, saved in the settings (Settings → Diff) and used for every diff:
   - layout: Unified or Side by side (switching does not compute the diff again);
   - whitespace: show all changes, ignore at line ends (`--ignore-space-at-eol`), ignore changes
     in amount (`-b`) or ignore all whitespace (`-w`);
-  - context: 3, 10 or 25 unchanged lines around each change, or the whole file.
+  - context: **−** and **+** step the unchanged lines around each change through 0–10, 15,
+    20, 25, 30, 40, 50, 75 and 100; **Whole file** shows everything, and switching it off goes
+    back to the number of lines.
 - The header shows the file name, its folder (or the old name of a rename), the status and the
   added and removed line counts.
 - **Images** (PNG, JPEG, GIF, WebP, BMP, ICO, AVIF) are shown before and after, side by side
@@ -75,7 +82,8 @@ slice 3c (syntax highlighting) and slice 3d (images, `.gitattributes`): slice 3 
   - **Tests:** every option is compared with `git diff --ignore-space-at-eol`, `-b`, `-w` and
     `-U` output.
 - **Syntax highlighting** (`diff/syntax.rs`, `diff/highlight.rs`): syntect 5.3 (MIT) with its
-  bundled Sublime Text grammars and pure-Rust regexes (`fancy-regex`). Each side is parsed along
+  grammars `bat` ships, from two-face 0.5.2 (MIT OR Apache-2.0; the grammars are under MIT,
+  Apache-2.0 or Sublime HQ's licence), and pure-Rust regexes (`fancy-regex`). Each side is parsed along
   the lines the diff shows, carrying the parser state across the unchanged lines between hunks
   (as `delta` does). The state is saved every 256 shown lines, so a page costs its own lines.
   Scopes are reduced to eight classes (comment, string, keyword, constant, type, function, tag,
@@ -106,8 +114,11 @@ slice 3c (syntax highlighting) and slice 3d (images, `.gitattributes`): slice 3 
   - `ImageDiff` shows images. `objectUrlFor` makes one `blob:` URL per buffer and revokes it
     after the buffer is garbage-collected (no effect, so StrictMode cannot revoke a shown
     image).
-- The settings are `diff.layout`, `diff.whitespace` and `diff.contextLines` (`useDiffSettings`
-  in `features/settings`; 4294967295 lines means the whole file).
+- The settings are `diff.layout`, `diff.whitespace`, `diff.contextLines` and `diff.wholeFile`
+  (`useDiffSettings` in `features/settings`).
+  - The request asks for 4294967295 context lines for the whole file (`requestedContext`).
+  - Settings saved by earlier versions with that number become `wholeFile` when read.
+  - `ContextStepper` is the shared − / + / Whole file control.
 - The chosen path and the compared parent live in `features/selection` (`selectFile`,
   `compareWithParent`); `showDiffTab` in `features/workspace` opens the tab.
 

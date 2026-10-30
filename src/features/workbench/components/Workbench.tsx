@@ -87,6 +87,9 @@ export function Workbench(props: WorkbenchProps) {
           panelRef={sidebar}
           collapsible
           collapsedSize={0}
+          // The sidebar keeps its width in pixels when the window is resized; the documents
+          // take the difference.
+          groupResizeBehavior="preserve-pixel-size"
           defaultSize={initialSidebar}
           minSize={SIDEBAR_MIN}
           maxSize={SIDEBAR_MAX}

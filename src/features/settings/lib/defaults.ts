@@ -6,6 +6,8 @@ import type {
   ThemePreference,
 } from "@/shared/ipc/bindings";
 
+import { WHOLE_FILE_CONTEXT } from "./diff";
+
 /**
  * Settings with every field present. The generated `Settings` has optional fields (the backend
  * fills missing ones from defaults), so the UI works on this shape instead.
@@ -22,7 +24,13 @@ export const DEFAULT_SETTINGS: AppSettings = {
   theme: "system",
   graph: { highlightSelection: true, workingTree: "rows" },
   repositories: { showActionsMenu: true },
-  diff: { layout: "unified", whitespace: "show", contextLines: 3, syntaxHighlighting: true },
+  diff: {
+    layout: "unified",
+    whitespace: "show",
+    contextLines: 3,
+    wholeFile: false,
+    syntaxHighlighting: true,
+  },
 };
 
 /** Fills fields missing from `settings` with their defaults. */
@@ -31,6 +39,13 @@ export function withDefaults(settings: Settings | undefined): AppSettings {
     theme: settings?.theme ?? DEFAULT_SETTINGS.theme,
     graph: { ...DEFAULT_SETTINGS.graph, ...settings?.graph },
     repositories: { ...DEFAULT_SETTINGS.repositories, ...settings?.repositories },
-    diff: { ...DEFAULT_SETTINGS.diff, ...settings?.diff },
+    diff: migrateDiff({ ...DEFAULT_SETTINGS.diff, ...settings?.diff }),
   };
+}
+
+/** Earlier versions stored "whole file" as a huge number of context lines. */
+function migrateDiff(diff: Required<DiffSettings>): Required<DiffSettings> {
+  return diff.contextLines === WHOLE_FILE_CONTEXT
+    ? { ...diff, contextLines: DEFAULT_SETTINGS.diff.contextLines, wholeFile: true }
+    : diff;
 }

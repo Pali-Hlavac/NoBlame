@@ -37,8 +37,9 @@ choice, and **Settings → Diff** has the same options.
 - **Whitespace**: show every change, or ignore spaces at the end of lines, changes in the amount
   of spaces, or all spaces. Handy when someone re-indented a file. If only whitespace changed,
   the tab says so.
-- **Context**: how many unchanged lines appear around each change (3, 10 or 25), or the
-  **whole file**.
+- **Context**: **−** and **+** show fewer or more unchanged lines around each change, and
+  **Whole file** shows the whole file. Click **Whole file** again to go back to the number of
+  lines you had.
 
 Images (PNG, JPEG, GIF, WebP, BMP, ICO, AVIF) are shown as pictures: before on the left, after
 on the right, with their size in pixels and bytes. A checkerboard shows through transparent

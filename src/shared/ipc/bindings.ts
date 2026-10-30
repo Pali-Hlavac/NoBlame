@@ -275,8 +275,13 @@ export type DiffSettings = {
 	layout?: DiffLayout,
 	/**  Which whitespace changes are shown. */
 	whitespace?: WhitespaceMode,
-	/**  Unchanged lines around each change; 4294967295 shows the whole file. */
+	/**
+	 *  Unchanged lines around each change, unless `whole_file` is set (4294967295, written by
+	 *  earlier versions, also means the whole file).
+	 */
 	contextLines?: number,
+	/**  Show the whole file instead of the context lines. */
+	wholeFile?: boolean,
 	/**  Colour the code by its language. */
 	syntaxHighlighting?: boolean,
 };

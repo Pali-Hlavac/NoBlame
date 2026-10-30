@@ -73,8 +73,7 @@ All notable changes to NoBlame are documented here. The format follows
 - Image previews in the Diff tab (M3): PNG, JPEG, GIF, WebP, BMP, ICO and AVIF files are shown
   before and after, with pixel and byte sizes. Files that `.gitattributes` mark `binary` or
   `-diff` are shown as binary; `diff` forces a text diff.
-- Syntax colours in the Diff tab (M3): code is coloured by its language, using the grammars
-  Sublime Text ships (via syntect). Files over 4 MB are not coloured; Settings → Diff can switch
+- Syntax colours in the Diff tab (M3): code is coloured by its language (via syntect). Files over 4 MB are not coloured; Settings → Diff can switch
   it off.
 - Filter bar in the repository tab (M3, ADR 0021):
   - show the history of all branches, the current branch, or one branch or tag;
@@ -91,6 +90,11 @@ All notable changes to NoBlame are documented here. The format follows
   - commits are read on several threads: 1–2 s on the Linux kernel, against 13 s for
     `git log --author`.
 
+- The diff tab's context is set with **−** and **+** buttons (0 to 100 lines) and a separate
+  **Whole file** switch; switching it off restores the number of lines.
+- Syntax colours for many more languages: the 213 grammars `bat` ships (via two-face), including
+  TypeScript, TSX, TOML, Kotlin, Swift, Dockerfile, Vue, Svelte, SCSS, Terraform and Nix.
+- The sidebar keeps its width in pixels when the window is resized.
 - Path filter in the filter bar (M3): shows only the commits that change a file or folder (a
   git pathspec such as `src/` or `*.rs`), as `git log -- <path>` lists them. Pasted absolute
   paths inside the repository are accepted.

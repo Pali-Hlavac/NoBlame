@@ -88,3 +88,10 @@ Option 2.
       hunks was parsed.
     - Highlighting in the webview (Shiki, highlight.js) was not chosen: it would need the whole
       file in the webview for correct multi-line state.
+    - 2026-10-30: the grammars now come from two-face 0.5.2 (MIT OR Apache-2.0).
+      - It ships the 213 grammars of `bat`, prebuilt for fancy-regex, instead of syntect's
+        built-in ones, which lacked TypeScript, TOML, Kotlin, Swift, Dockerfile and Vue.
+      - Their licences are MIT, Apache-2.0 or Sublime HQ's licence, with no copyleft; the list
+        is in `two_face::acknowledgement`.
+      - Loading takes 1.5 ms, and the 3.7 MB Rust benchmark is unchanged (874 ms cold, 121 ms
+        warm).

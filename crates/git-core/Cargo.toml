@@ -14,11 +14,15 @@ tokio = { workspace = true, features = ["process", "io-util", "macros", "rt"] }
 # Pinned: 8.2.1 was days old when added (2026-10-28). CC0-1.0 / MIT OR Apache-2.0.
 notify = "=8.2.0"
 notify-debouncer-mini = "=0.7.0"
-# MIT; bundled Sublime Text grammars under Sublime HQ's permissive licence. Pure-Rust regexes:
-# with Oniguruma the parser state is not `Send`, so it could not be cached across threads.
-syntect = { version = "5.3", default-features = false, features = ["default-syntaxes", "parsing", "regex-fancy"] }
+# MIT. Pure-Rust regexes: with Oniguruma the parser state is not `Send`, so it could not be
+# cached across threads. The grammars come from two-face.
+syntect = { version = "5.3", default-features = false, features = ["parsing", "regex-fancy"] }
 tokio-util.workspace = true
 tracing.workspace = true
+# MIT OR Apache-2.0: bat's 213 grammars for syntect (TypeScript, TOML, Kotlin, Swift, Vue, ...).
+# Their own licences are MIT, Apache-2.0 and Sublime HQ's (`two_face::acknowledgement`); none
+# is copyleft. Pinned: released 2026-08-07.
+two-face = { version = "=0.5.2", default-features = false, features = ["syntect-fancy"] }
 
 [dev-dependencies]
 criterion = { version = "0.8", default-features = false, features = ["cargo_bench_support"] }

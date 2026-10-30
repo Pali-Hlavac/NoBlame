@@ -46,6 +46,24 @@ fn keeps_state_across_lines_and_checkpoints() {
 }
 
 #[test]
+fn colours_languages_beyond_sublimes_defaults() {
+    for (path, line, keyword) in [
+        ("web/app.ts", "const total: number = 1;", "const"),
+        ("web/App.tsx", "export function App() {}", "function"),
+        ("Cargo.toml", "name = \"noblame\"", "\"noblame\""),
+        ("build.gradle.kts", "val x = 1", "val"),
+        ("Dockerfile", "FROM rust:1", "FROM"),
+    ] {
+        let found = highlight(path, &format!("{line}\n"));
+        let classes = classes_of(found.first().map_or(&[][..], |row| &row.1), line);
+        assert!(
+            classes.iter().any(|(part, _)| part == keyword),
+            "{path}: {classes:?}"
+        );
+    }
+}
+
+#[test]
 fn skips_unknown_languages() {
     assert!(highlight("notes.unknown-extension", "plain words\n").is_empty());
 }

@@ -161,4 +161,22 @@ Ideas from the owner, newest last, with where each one is planned.
 - 2026-10-28 (review 2): configurable keyboard shortcuts in Settings → M7 (needs one keybinding
   registry first; today each feature registers its own).
 - 2026-10-28 (review 2): filters for the commit graph (one branch, one author, changes to a file,
-  search in messages) → M3.
+  search in messages) → done (M3 slice 4).
+- 2026-10-30: the left dock keeps its width in pixels when the window is resized (the panels on
+  the right may scale) → done.
+- 2026-10-30: the diff's context set with − and + buttons, plus a button for the whole file,
+  instead of a list of fixed values → done.
+- 2026-10-30: a context menu on commits in the graph, with useful actions such as:
+  - merge into the current branch;
+  - check out a branch, or a commit;
+  - create a branch here.
+
+  The proposed full list is in the roadmap. → M3 (the menu, copy and inspect actions), M5
+  (branch and tag actions), M6 (merge, rebase, cherry-pick, revert, reset).
+
+- 2026-10-30: external merge tools, for example opening a conflict in VS Code → M6 (merge tools,
+  with presets), and an external diff tool for the diff tab earlier, in M4.
+- 2026-10-30: syntax highlighting for more languages → done (bat's 213 grammars via two-face).
+- 2026-10-30: during pull, push, fetch and other long git operations, optionally see git's
+  output live in a console-like popup window (off by default; the operations also run in the
+  background) → M5 (job registry and output window).

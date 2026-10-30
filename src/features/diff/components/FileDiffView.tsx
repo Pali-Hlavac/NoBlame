@@ -1,7 +1,7 @@
 import { BinaryIcon, EqualIcon, FileWarningIcon, PackageIcon } from "lucide-react";
 
 import { shortId } from "@/features/graph";
-import { useDiffSettings } from "@/features/settings";
+import { requestedContext, useDiffSettings } from "@/features/settings";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { LoadingState } from "@/shared/components/LoadingState";
@@ -77,7 +77,7 @@ export function FileDiffView({ repoId, file }: { repoId: number; file: ChangedFi
     path: file.path,
     options: {
       whitespace: settings.whitespace,
-      context: settings.contextLines,
+      context: requestedContext(settings),
       syntax: settings.syntaxHighlighting,
     },
   };

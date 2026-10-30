@@ -191,6 +191,9 @@ Syntax highlighting (slice 3c), 3.7 MB Rust file, 58,000 lines, 549 hunks (4,862
 
 Oniguruma's parser state is not `Send`, so the session could not cache it (ADR 0013).
 
+With the grammars of two-face (bat's, 2026-10-30) the same file takes 874 ms cold and 121 ms per
+warm page, unchanged.
+
 Not measured yet: frame times while scrolling, a real large repository (Linux kernel), a cold
 disk cache, macOS and Linux.
 

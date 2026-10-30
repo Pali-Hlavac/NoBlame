@@ -267,6 +267,11 @@ Slice 4c done: a Path field.
 
 Slice 4 is complete. Next: slice 5, find in the graph and "go to commit".
 
+2026-10-30, the owner's ideas: the sidebar width, diff context buttons and more languages are
+done (see "M3 follow-ups"). The commit context menu is proposed as the new slice 5 (find moves
+to 6); its entries are listed under "Commit context menu". External merge tools are in M6, and
+the git output window in M5.
+
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
 highlighted after a slow first load and names both costs (done). Option 2 later: show rows while
@@ -362,6 +367,7 @@ Not verified in the running app (they need someone at the keyboard; the logic is
       general search in messages). Done (ADR 0021): one branch or HEAD, first parent, no merges,
       message, author and path (slices 4a–4c)
 - [ ] Filters, later: committer, date range, several branches at once, regular expressions
+- [ ] Context menu on commits in the graph (owner request 2026-10-30), see the list below
 - [ ] Find in the graph (hash, message, ref) with jump-to; "go to commit"
 - [ ] Compare any two commits/branches
 
@@ -374,11 +380,54 @@ Slices, in order (planned 2026-10-28):
 3. Side-by-side view, whitespace options, word diff, syntax highlighting, images and binaries.
 4. **Filters** in the repository tab (owner request): one branch, one author, changes to a path,
    search in messages; first-parent and hide merges.
-5. Find in the graph and "go to commit".
-6. File tree of a revision; open or save a file at a revision.
-7. File history (following renames) and blame.
-8. Compare two commits or branches.
-9. Commit details: children and signature status.
+5. **Context menu on commits** (owner request 2026-10-30, proposed first so the later slices add
+   their entries to it). Copy and highlight entries work at once; every other entry is shown
+   disabled with the milestone that delivers it, like the toolbar.
+6. Find in the graph and "go to commit".
+7. File tree of a revision; open or save a file at a revision.
+8. File history (following renames) and blame.
+9. Compare two commits or branches.
+10. Commit details: children and signature status.
+
+#### Commit context menu (proposed 2026-10-30, to be confirmed by the owner)
+
+On any commit row:
+
+| Entry                                                                  | Arrives      |
+| ---------------------------------------------------------------------- | ------------ |
+| Copy full id / short id / subject / whole message                      | M3           |
+| Highlight this commit's history (and clear the highlight)              | M3           |
+| Compare with HEAD / with the working tree / with the selected commit   | M3 (slice 9) |
+| Browse files at this commit; save a file from it                       | M3 (slice 7) |
+| Check out this commit (detached HEAD, explained in the dialog)         | M5           |
+| Create branch here… / Create tag here…                                 | M5           |
+| Merge into the current branch                                          | M6           |
+| Rebase the current branch onto this commit                             | M6           |
+| Interactive rebase from here                                           | M6           |
+| Cherry-pick / Revert this commit                                       | M6           |
+| Reset the current branch to here (soft, mixed, hard with confirmation) | M6           |
+| Mark as good / bad (bisect)                                            | M7           |
+| Create a patch; save an archive (zip, tar) of this commit              | M7           |
+| Run a user script with this commit                                     | M7           |
+
+When branches or tags point at the commit, a submenu for each one offers:
+
+- check out (M5);
+- merge into the current branch (M6);
+- rebase onto it (M6);
+- rename, delete, push, set upstream (M5);
+- delete or push a tag (M5).
+
+The Branches module gets the same entries for its rows.
+
+#### M3 follow-ups (owner, 2026-10-30)
+
+- [x] The left dock keeps its width in pixels when the window is resized
+      (`groupResizeBehavior: "preserve-pixel-size"`)
+- [x] Diff context with − and + buttons (0–100 lines in steps) and a separate Whole file switch
+      (`diff.wholeFile`; older settings are migrated)
+- [x] Syntax highlighting for many more languages: two-face 0.5.2 (bat's 213 grammars, MIT OR
+      Apache-2.0; grammars MIT, Apache-2.0 or Sublime licence), speed unchanged
 
 ### M4: Working copy and committing
 
@@ -392,6 +441,8 @@ Slices, in order (planned 2026-10-28):
       list (Stashes module), show (files and diffs in the dock), apply/pop a whole stash or only
       selected files, drop with confirmation; stash label in the graph
 - [ ] `.gitignore` helper: ignore file/extension/folder from the status list
+- [ ] Open a file's diff in an external diff tool from the diff tab (`git difftool` settings, or
+      a preset such as VS Code `code --wait --diff`)
 
 ### M5: Branches, tags and remotes
 
@@ -407,6 +458,11 @@ Slices, in order (planned 2026-10-28):
 - [ ] Credentials: git credential helpers; `GIT_ASKPASS`/`SSH_ASKPASS` helper that asks in the app — ADR 0012
 - [ ] Manage remotes; clone dialog (shallow, single branch, partial clone, recursive submodules)
 - [ ] Background job registry: progress, cancel, logs, "equivalent command" shown — ADR 0011
+- [ ] Git output window (owner request 2026-10-30):
+  - a console-like popup that streams the output of pull, push, fetch, clone and other long
+    operations while they run;
+  - a setting, off by default; the operations then run in the background, with their output
+    kept in the job log.
 
 ### M6: Changing history and resolving conflicts
 
@@ -415,6 +471,8 @@ Slices, in order (planned 2026-10-28):
 - [ ] In-progress operation banner (merge/rebase/cherry-pick/bisect) with continue/skip/abort
 - [ ] Conflict resolution: list, ours/theirs, built-in three-way merge view — ADR 0014
 - [ ] External diff and merge tools (configured like Git Extensions, honoring `diff.tool`/`merge.tool`)
+      with presets (VS Code `code --wait --merge`, Beyond Compare, KDiff3, Meld, P4Merge);
+      "Open in merge tool" on each conflicted file (owner request 2026-10-30)
 - [ ] Reflog browser with "restore this state"
 
 ### M7: Advanced Git
@@ -440,7 +498,8 @@ Slices, in order (planned 2026-10-28):
 ### M9: Polish and release
 
 - [ ] Third-party licence notices shipped with the installers (for example generated with
-      `cargo-about` and a JS equivalent): the bundled Sublime Text grammars ask for theirs
+      `cargo-about` and a JS equivalent). The grammars ask for theirs: two-face lists them
+      (`two_face::acknowledgement::listing()`)
 - [~] Final logo: the owner's painted finch and songbird are in (2026-10-29). Still to do: refined finch-on-a-branch artwork, small-size variants (16/24/32 px), monochrome version for the macOS menu bar and Linux symbolic icons, installer and website artwork
 - [ ] Keyboard shortcuts everywhere; accessibility pass (focus, ARIA, contrast)
 - [ ] Remember window sizes and filters (open tabs and layout are restored from M2.5)

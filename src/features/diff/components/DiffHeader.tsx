@@ -1,10 +1,8 @@
 import { STATUS_LABELS, splitPath } from "@/features/changed-files";
 import {
-  CONTEXT_OPTIONS,
+  ContextStepper,
   DIFF_LAYOUT_OPTIONS,
   WHITESPACE_OPTIONS,
-  contextLines,
-  contextValue,
   useDiffSettings,
 } from "@/features/settings";
 import type { ChangedFileDto, FileDiffDto, WhitespaceMode } from "@/shared/ipc/bindings";
@@ -61,20 +59,7 @@ function DiffOptionsBar() {
           </option>
         ))}
       </select>
-      <select
-        aria-label="Unchanged lines around each change"
-        className={SELECT_CLASSES}
-        value={contextValue(settings.contextLines)}
-        onChange={(event) => {
-          change({ contextLines: contextLines(event.target.value) });
-        }}
-      >
-        {CONTEXT_OPTIONS.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.short}
-          </option>
-        ))}
-      </select>
+      <ContextStepper />
     </div>
   );
 }

@@ -5,13 +5,12 @@ export { ThemeController } from "./components/ThemeController";
 export { ThemeMenu } from "./components/ThemeMenu";
 export { useAppSettings } from "./hooks/useAppSettings";
 export { useDiffSettings } from "./hooks/useDiffSettings";
+export { ContextStepper } from "./components/ContextStepper";
 export {
-  CONTEXT_OPTIONS,
   DIFF_LAYOUT_OPTIONS,
   WHITESPACE_OPTIONS,
   WHOLE_FILE_CONTEXT,
-  contextLines,
-  contextValue,
+  requestedContext,
 } from "./lib/diff";
 export { useThemePreference } from "./hooks/useThemePreference";
 export { THEME_OPTIONS } from "./lib/theme";

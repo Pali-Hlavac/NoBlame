@@ -3,14 +3,9 @@ import type { WorkingTreeDisplay } from "@/shared/ipc/bindings";
 import { useAppSettings, useChangeSettings } from "../hooks/useAppSettings";
 import { useDiffSettings } from "../hooks/useDiffSettings";
 import { useThemePreference } from "../hooks/useThemePreference";
-import {
-  CONTEXT_OPTIONS,
-  DIFF_LAYOUT_OPTIONS,
-  WHITESPACE_OPTIONS,
-  contextLines,
-  contextValue,
-} from "../lib/diff";
+import { DIFF_LAYOUT_OPTIONS, WHITESPACE_OPTIONS } from "../lib/diff";
 import { THEME_OPTIONS } from "../lib/theme";
+import { ContextStepper } from "./ContextStepper";
 import { Choice, Section, Toggle } from "./SettingControls";
 
 /** Milestone that makes keyboard shortcuts configurable (shown in the UI as planned). */
@@ -56,15 +51,10 @@ function DiffSection() {
           changeDiff({ whitespace });
         }}
       />
-      <Choice
-        legend="Unchanged lines around each change"
-        options={CONTEXT_OPTIONS}
-        value={contextValue(diff.contextLines)}
-        onChange={(value) => {
-          changeDiff({ contextLines: contextLines(value) });
-        }}
-        inline
-      />
+      <fieldset className="space-y-2">
+        <legend className="text-sm font-medium">Unchanged lines around each change</legend>
+        <ContextStepper />
+      </fieldset>
       <Toggle
         label="Colour code by its language"
         description="Syntax highlighting for the languages Sublime Text knows. Files over 4 MB are not coloured."

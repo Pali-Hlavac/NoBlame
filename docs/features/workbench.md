@@ -27,7 +27,9 @@ Stashes and the toolbar arrive in M4 and M5.
   as in VS Code.
 - **Module dock** (sidebar): modules as tabs in groups. Groups can be split, resized and
   rearranged by dragging tabs. The sidebar can be resized (180 px up to 60 % of the window) and
-  collapsed by dragging it closed or with the activity bar.
+  collapsed by dragging it closed or with the activity bar. It keeps its width in pixels when the
+  window is resized; the document dock takes the difference (`groupResizeBehavior:
+"preserve-pixel-size"`, owner request 2026-10-30).
 - **Document dock**: Welcome and repository tabs. Drag a tab to an edge to split the dock left,
   right, above or below. New tabs open in the focused group.
 - **Title bar** (custom, `features/window-frame`):
