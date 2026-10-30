@@ -15,6 +15,8 @@ export function useSelectionHighlight(repoId: number, repoPath: string, selected
   return {
     /** The highlighted row, or undefined when nothing is highlighted. */
     row,
+    /** Highlighting is switched on in Settings. */
+    enabled,
     cache,
     version,
     dismiss: () => {

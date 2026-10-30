@@ -1,23 +1,15 @@
 import { CopyIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { toast } from "sonner";
 
 import { RefBadge, shortId } from "@/features/graph";
 import { selectRow } from "@/features/selection";
 import type { CommitDetailsDto, SignatureDto } from "@/shared/ipc/bindings";
+import { copyToClipboard } from "@/shared/lib/clipboard";
 import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/button";
 
 import { formatSignatureDate, splitMessage } from "../lib/format";
 import { ContainedIn } from "./ContainedIn";
-
-function copy(text: string, what: string): void {
-  navigator.clipboard.writeText(text).then(
-    () => toast.success(`${what} copied`),
-    (error: unknown) =>
-      toast.error(`Could not copy the ${what.toLowerCase()}`, { description: String(error) }),
-  );
-}
 
 function Person({ signature }: { signature: SignatureDto }) {
   return (
@@ -85,7 +77,7 @@ export function CommitDetailsView({ details, repoPath }: CommitDetailsViewProps)
             className="size-6"
             aria-label="Copy commit id"
             onClick={() => {
-              copy(details.id, "Commit id");
+              copyToClipboard(details.id, "Commit id");
             }}
           >
             <CopyIcon aria-hidden />

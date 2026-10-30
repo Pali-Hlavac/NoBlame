@@ -23,6 +23,7 @@ import { layoutColumns } from "../lib/columns";
 import { displayRows, indexOfSelection, selectionAt } from "../lib/displayRows";
 import { computeViewport, scrollTopToReveal } from "../lib/viewport";
 import { useGraphViewStore } from "../store/graphView";
+import { CommitContextMenu } from "./CommitContextMenu";
 import { GraphCanvas } from "./GraphCanvas";
 import { GraphHeader } from "./GraphHeader";
 import { GraphRows } from "./GraphRows";
@@ -158,54 +159,65 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
   return (
     <div className="flex h-full min-h-0 flex-col">
       <GraphHeader columns={columns} />
-      <div
-        ref={scrollRef}
-        role="listbox"
-        aria-label={`Commit history, ${rowCount} commits`}
-        aria-activedescendant={visible ? `${idPrefix}-${selectedIndex}` : undefined}
-        tabIndex={0}
-        className="relative min-h-0 flex-1 overflow-x-hidden overflow-y-auto outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
-        onScroll={(event) => {
-          const top = event.currentTarget.scrollTop;
-          setScrollTop(top);
-          useGraphViewStore.getState().rememberScroll(repoPath, top);
+      <CommitContextMenu
+        repoId={repoId}
+        row={selectedRow}
+        commit={selectedRow === undefined ? undefined : rowText(selectedRow)}
+        highlighted={highlight.enabled ? highlight.row === selectedRow : undefined}
+        onToggleHighlight={() => {
+          if (highlight.row === selectedRow) highlight.dismiss();
+          else highlight.restore();
         }}
-        onKeyDown={onKeyDown}
       >
-        <div style={{ height: viewport.spacerHeight }}>
-          {/* No taller than the spacer: while the pane shrinks, `size` is a frame late, and a
+        <div
+          ref={scrollRef}
+          role="listbox"
+          aria-label={`Commit history, ${rowCount} commits`}
+          aria-activedescendant={visible ? `${idPrefix}-${selectedIndex}` : undefined}
+          tabIndex={0}
+          className="relative min-h-0 flex-1 overflow-x-hidden overflow-y-auto outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+          onScroll={(event) => {
+            const top = event.currentTarget.scrollTop;
+            setScrollTop(top);
+            useGraphViewStore.getState().rememberScroll(repoPath, top);
+          }}
+          onKeyDown={onKeyDown}
+        >
+          <div style={{ height: viewport.spacerHeight }}>
+            {/* No taller than the spacer: while the pane shrinks, `size` is a frame late, and a
               taller layer would flash a scrollbar on short histories. */}
-          <div
-            className="sticky top-0 overflow-hidden"
-            style={{ height: Math.min(size.height, viewport.spacerHeight) }}
-          >
-            <GraphRows
-              firstIndex={viewport.firstRow}
-              lastIndex={viewport.lastRow}
-              virtualTop={viewport.virtualTop}
-              rows={rows}
-              columns={columns}
-              rowText={rowText}
-              selectedIndex={selectedIndex}
-              highlightAuthor={highlightAuthor}
-              onSelect={choose}
-              idPrefix={idPrefix}
-            />
-            <GraphCanvas
-              width={graphWidth}
-              height={size.height}
-              viewport={graphViewport}
-              rowCount={rowCount}
-              blockRows={summary.blockRows}
-              cache={cache}
-              version={version}
-              palette={palette}
-              highlight={highlight}
-              workingTree={{ count: rows.offset, headRow: summary.headRow }}
-            />
+            <div
+              className="sticky top-0 overflow-hidden"
+              style={{ height: Math.min(size.height, viewport.spacerHeight) }}
+            >
+              <GraphRows
+                firstIndex={viewport.firstRow}
+                lastIndex={viewport.lastRow}
+                virtualTop={viewport.virtualTop}
+                rows={rows}
+                columns={columns}
+                rowText={rowText}
+                selectedIndex={selectedIndex}
+                highlightAuthor={highlightAuthor}
+                onSelect={choose}
+                idPrefix={idPrefix}
+              />
+              <GraphCanvas
+                width={graphWidth}
+                height={size.height}
+                viewport={graphViewport}
+                rowCount={rowCount}
+                blockRows={summary.blockRows}
+                cache={cache}
+                version={version}
+                palette={palette}
+                highlight={highlight}
+                workingTree={{ count: rows.offset, headRow: summary.headRow }}
+              />
+            </div>
           </div>
         </div>
-      </div>
+      </CommitContextMenu>
     </div>
   );
 }

@@ -272,6 +272,16 @@ done (see "M3 follow-ups"). The commit context menu is proposed as the new slice
 to 6); its entries are listed under "Commit context menu". External merge tools are in M6, and
 the git output window in M5.
 
+Slice 5 done: the commit context menu.
+
+- Copy, highlight and Copy name work.
+- The other entries are disabled and name their milestone.
+- Right click selects the row first; Shift+F10 and the Menu key open the menu too.
+- New dependency: `@radix-ui/react-context-menu` 2.4.1 (MIT; it shares the menu core with the
+  dropdown menu).
+- Covered by unit and component tests. Not clicked through in the running app (owner's instance
+  in use).
+
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
 highlighted after a slow first load and names both costs (done). Option 2 later: show rows while
@@ -367,7 +377,8 @@ Not verified in the running app (they need someone at the keyboard; the logic is
       general search in messages). Done (ADR 0021): one branch or HEAD, first parent, no merges,
       message, author and path (slices 4a–4c)
 - [ ] Filters, later: committer, date range, several branches at once, regular expressions
-- [ ] Context menu on commits in the graph (owner request 2026-10-30), see the list below
+- [x] Context menu on commits in the graph (owner request 2026-10-30), see the list below;
+      the same entries in the Branches module follow with M5
 - [ ] Find in the graph (hash, message, ref) with jump-to; "go to commit"
 - [ ] Compare any two commits/branches
 

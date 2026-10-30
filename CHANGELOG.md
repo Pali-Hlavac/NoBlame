@@ -95,6 +95,12 @@ All notable changes to NoBlame are documented here. The format follows
 - Syntax colours for many more languages: the 213 grammars `bat` ships (via two-face), including
   TypeScript, TSX, TOML, Kotlin, Swift, Dockerfile, Vue, Svelte, SCSS, Terraform and Nix.
 - The sidebar keeps its width in pixels when the window is resized.
+- Context menu on commits in the graph (right click, Shift+F10):
+  - copy the id, short id, subject or whole message;
+  - highlight the commit's history;
+  - a submenu per branch and tag, with Copy name;
+  - check out, branches, merge, rebase, cherry-pick, revert, reset, bisect, patches and scripts
+    are listed disabled, with the milestone that brings them.
 - Path filter in the filter bar (M3): shows only the commits that change a file or folder (a
   git pathspec such as `src/` or `*.rs`), as `git log -- <path>` lists them. Pasted absolute
   paths inside the repository are accepted.

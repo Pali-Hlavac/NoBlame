@@ -40,6 +40,39 @@ truncated when the column is narrow.
 - The HEAD commit has a yellow ring.
 - Colours follow the theme (light and dark palettes).
 
+## Context menu
+
+Right-clicking a commit selects it and opens its menu; **Shift+F10** or the **Menu** key opens
+the menu of the selected commit (owner request 2026-10-30). The menu starts with the short id and
+subject.
+
+| Entry                                                          | Status                          |
+| -------------------------------------------------------------- | ------------------------------- |
+| Copy ▸ Commit id, Short commit id, Subject, Whole message      | Works                           |
+| Highlight its history / Clear the highlight                    | Works (when highlighting is on) |
+| Compare with HEAD, Compare with the working tree, Browse files | Disabled, **M3** (later slices) |
+| Check out this commit, Create a branch here, Create a tag here | Disabled, **M5**                |
+| Merge, Rebase, Interactive rebase, Cherry-pick, Revert, Reset  | Disabled, **M6**                |
+| A submenu per branch or tag on the commit                      | Copy name works; the rest M5/M6 |
+| More ▸ Bisect, Create a patch, Save an archive, Run a script   | Disabled, **M7**                |
+
+Each disabled entry names the milestone that delivers it. A branch's submenu offers:
+
+- Check out, Merge into the current branch, Rebase onto it (not for the current branch);
+- Rename, Delete, Push;
+- Copy name.
+
+Remote branches offer:
+
+- Check out as a new local branch;
+- Merge, Rebase;
+- Delete on the remote.
+
+Tags offer Push, Delete and Copy name.
+
+Working tree rows have no menu yet (M4). The entries are data (`lib/commitMenu.ts`); the menu
+is Radix's context menu (`@radix-ui/react-context-menu` 2.4.1, MIT, `shared/ui/context-menu.tsx`).
+
 ## Selection and navigation
 
 - Click a row to select it.

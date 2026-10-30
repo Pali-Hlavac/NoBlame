@@ -27,6 +27,10 @@ Very wide histories are cut at 16 lines; the commits are all still there.
   - **Up / Down**: previous or next commit;
   - **Page Up / Page Down**: one screen up or down;
   - **Home / End**: newest or oldest commit.
+- Right-click a commit (or press **Shift+F10**) for its menu: copy its id, subject or message,
+  highlight its history, or copy a branch or tag name. The menu also lists what is coming, such
+  as creating a branch or cherry-picking; those entries are greyed out and say in which version
+  they arrive.
 - When you open a repository, the commit you have checked out is selected.
 - NoBlame remembers the selected commit and where you scrolled when you switch tabs.
 
