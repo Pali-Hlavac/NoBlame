@@ -129,6 +129,19 @@ export type AppInfo = {
 	arch: string,
 };
 
+/**  How the Branches module orders the refs of a section. */
+export type BranchSort = 
+/**  Alphabetically. */
+"name" | 
+/**  Newest commit first. */
+"lastCommit";
+
+/**  Branches module preferences. */
+export type BranchesSettings = {
+	/**  Order of the branches and tags in each section. */
+	sort?: BranchSort,
+};
+
 /**  How a file changed. */
 export type ChangeStatusDto = 
 /**  New file. */
@@ -483,7 +496,7 @@ export type RecentRepository = {
 	exists: boolean,
 };
 
-/**  One branch, remote branch or tag, with the row of its commit. */
+/**  One branch, remote branch or tag, with the row and time of its commit. */
 export type RefEntry = {
 	/**  Name, category and HEAD marker. */
 	label: RefLabel,
@@ -491,6 +504,11 @@ export type RefEntry = {
 	target: string,
 	/**  Row of that commit, if it is in the graph. */
 	row: number | null,
+	/**
+	 *  Committer time of that commit in seconds since the epoch, for sorting by date; `null`
+	 *  when the target is not a commit of the history.
+	 */
+	commitTime: number | null,
 };
 
 /**  Category of a reference label. */
@@ -603,6 +621,8 @@ export type Settings = {
 	repositories?: RepositoriesSettings,
 	/**  The diff tab. */
 	diff?: DiffSettings,
+	/**  Branches module. */
+	branches?: BranchesSettings,
 };
 
 /**  Author or committer. */

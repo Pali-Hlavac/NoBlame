@@ -55,7 +55,9 @@ it from the list. The buttons at the top open or create a repository.
 ### Branches
 
 Type in the box at the top to filter. Click a section title to fold it. Click a branch or a tag
-to select its commit in the graph. The branch you are on is marked **HEAD**. You cannot switch,
+to select its commit in the graph. The branch you are on is marked **HEAD**. The button next
+to the filter sorts by name or by last commit (newest first, with the date of each); NoBlame
+remembers your choice, also in **Settings → Branches**. You cannot switch,
 create or delete branches here yet.
 
 ### Commit details

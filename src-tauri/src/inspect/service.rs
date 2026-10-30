@@ -147,15 +147,25 @@ fn parse(id: Option<String>) -> Result<Option<ObjectId>, DiffError> {
     id.as_deref().map(parse_object_id).transpose()
 }
 
-/// Local branches, remote branches and tags (not a detached HEAD), sorted by kind and name.
+/// Local branches, remote branches and tags (not a detached HEAD), sorted by kind and name,
+/// with the time of their commit (from the whole history, also when a filter hides it).
 pub async fn refs(sessions: &RepoSessions, id: RepoId) -> Result<Vec<RefEntry>, RepositoryError> {
     let graph = sessions.get(id)?.graph(false).await?;
-    Ok(graph
-        .refs_with_rows()
-        .into_iter()
-        .filter(|(reference, _)| reference.kind != RefKind::DetachedHead)
-        .map(|(reference, row)| RefEntry::new(reference, row))
-        .collect())
+    blocking(move || {
+        let index = graph.full().index();
+        graph
+            .refs_with_rows()
+            .into_iter()
+            .filter(|(reference, _)| reference.kind != RefKind::DetachedHead)
+            .map(|(reference, row)| {
+                let time = index
+                    .lookup(&reference.target)
+                    .map(|commit| index.time(commit));
+                RefEntry::new(reference, row, time)
+            })
+            .collect()
+    })
+    .await
 }
 
 /// The stash list, newest first. Read from disk every time (stashes change outside the app).

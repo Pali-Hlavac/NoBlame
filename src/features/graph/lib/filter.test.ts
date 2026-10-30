@@ -5,7 +5,7 @@ import type { RefEntry, RefKindDto, TipsDto } from "@/shared/ipc/bindings";
 import { headNameOf, isChosen, pickerSections, tipsLabel } from "./filter";
 
 function ref(kind: RefKindDto, name: string, isHead = false): RefEntry {
-  return { label: { kind, name, isHead }, target: "0".repeat(40), row: 0 };
+  return { label: { kind, name, isHead }, target: "0".repeat(40), row: 0, commitTime: null };
 }
 
 const REFS = [

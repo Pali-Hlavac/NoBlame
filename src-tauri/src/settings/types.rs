@@ -29,6 +29,27 @@ pub struct Settings {
     pub repositories: RepositoriesSettings,
     /// The diff tab.
     pub diff: DiffSettings,
+    /// Branches module.
+    pub branches: BranchesSettings,
+}
+
+/// Branches module preferences.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase", default)]
+pub struct BranchesSettings {
+    /// Order of the branches and tags in each section.
+    pub sort: BranchSort,
+}
+
+/// How the Branches module orders the refs of a section.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub enum BranchSort {
+    /// Alphabetically.
+    #[default]
+    Name,
+    /// Newest commit first.
+    LastCommit,
 }
 
 /// Commit graph preferences.
@@ -151,6 +172,7 @@ mod tests {
         assert!(settings.repositories.show_actions_menu);
         assert_eq!(settings.diff, DiffSettings::default());
         assert_eq!(settings.diff.context_lines, 3);
+        assert_eq!(settings.branches.sort, BranchSort::Name);
     }
 
     #[test]

@@ -2,7 +2,7 @@
  * Turns the flat list of refs into the rows of the Branches module: a header per section
  * (local branches, one per remote, tags) followed by its refs, filtered and collapsible.
  */
-import type { RefEntry } from "@/shared/ipc/bindings";
+import type { BranchSort, RefEntry } from "@/shared/ipc/bindings";
 
 export interface SectionRow {
   type: "section";
@@ -59,21 +59,29 @@ function sectionsOf(entries: readonly RefEntry[]): Section[] {
   return [local, ...sortedRemotes, tags];
 }
 
+/** Newest commit first; refs without a commit last. The sort is stable, so ties keep names in order. */
+function byLastCommit(a: RefRow, b: RefRow): number {
+  return (b.entry.commitTime ?? -Infinity) - (a.entry.commitTime ?? -Infinity);
+}
+
 /**
  * Rows for the list. `filter` matches names case-insensitively; sections without matches are
- * hidden while filtering, and collapsed sections show only their header.
+ * hidden while filtering, and collapsed sections show only their header. Each section is in
+ * name order (as the backend sends it) or, with `sort` "lastCommit", newest commit first.
  */
 export function buildRows(
   entries: readonly RefEntry[],
   filter: string,
   collapsed: ReadonlySet<string>,
+  sort: BranchSort = "name",
 ): BranchRow[] {
   const needle = filter.trim().toLowerCase();
   const rows: BranchRow[] = [];
   for (const section of sectionsOf(entries)) {
-    const refs = needle
+    const matching = needle
       ? section.refs.filter((row) => row.entry.label.name.toLowerCase().includes(needle))
       : section.refs;
+    const refs = sort === "lastCommit" ? matching.toSorted(byLastCommit) : matching;
     if (needle && refs.length === 0) continue;
     const isCollapsed = collapsed.has(section.id);
     rows.push({

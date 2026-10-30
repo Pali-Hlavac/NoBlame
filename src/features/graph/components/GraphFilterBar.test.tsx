@@ -13,7 +13,7 @@ import { GraphFilterBar } from "./GraphFilterBar";
 const ipc = vi.hoisted(() => ({ setGraphFilter: vi.fn() }));
 
 function ref(kind: RefEntry["label"]["kind"], name: string, isHead = false): RefEntry {
-  return { label: { kind, name, isHead }, target: "0".repeat(40), row: 0 };
+  return { label: { kind, name, isHead }, target: "0".repeat(40), row: 0, commitTime: null };
 }
 
 vi.mock("@/shared/ipc/bindings", () => ({

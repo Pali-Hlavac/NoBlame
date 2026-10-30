@@ -1,4 +1,5 @@
 import type {
+  BranchesSettings,
   DiffSettings,
   GraphSettings,
   RepositoriesSettings,
@@ -17,6 +18,7 @@ export interface AppSettings {
   graph: Required<GraphSettings>;
   repositories: Required<RepositoriesSettings>;
   diff: Required<DiffSettings>;
+  branches: Required<BranchesSettings>;
 }
 
 /** What the backend uses for missing settings (`src-tauri/src/settings/types.rs`). */
@@ -31,6 +33,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     wholeFile: false,
     syntaxHighlighting: true,
   },
+  branches: { sort: "name" },
 };
 
 /** Fills fields missing from `settings` with their defaults. */
@@ -40,6 +43,7 @@ export function withDefaults(settings: Settings | undefined): AppSettings {
     graph: { ...DEFAULT_SETTINGS.graph, ...settings?.graph },
     repositories: { ...DEFAULT_SETTINGS.repositories, ...settings?.repositories },
     diff: migrateDiff({ ...DEFAULT_SETTINGS.diff, ...settings?.diff }),
+    branches: { ...DEFAULT_SETTINGS.branches, ...settings?.branches },
   };
 }
 

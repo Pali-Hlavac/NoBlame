@@ -95,6 +95,8 @@ All notable changes to NoBlame are documented here. The format follows
 - Syntax colours for many more languages: the 213 grammars `bat` ships (via two-face), including
   TypeScript, TSX, TOML, Kotlin, Swift, Dockerfile, Vue, Svelte, SCSS, Terraform and Nix.
 - The sidebar keeps its width in pixels when the window is resized.
+- Branches can be sorted by last commit (newest first, with each commit's date) as well as by
+  name; the choice is saved (Settings → Branches).
 - Diff tab keeps its place: changing the context, the whitespace option or the layout keeps the
   line in the middle of the view where it was; the old diff stays under a light blur until the
   new one is ready, instead of the tab going blank.

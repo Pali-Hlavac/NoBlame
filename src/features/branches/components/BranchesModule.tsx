@@ -1,9 +1,10 @@
-import { SearchIcon } from "lucide-react";
+import { ArrowDownAZIcon, CalendarClockIcon, SearchIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { useRefs } from "@/features/graph";
 import { WithActiveRepository } from "@/features/repositories";
 import { selectRow } from "@/features/selection";
+import { useBranchSort } from "@/features/settings";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { VirtualList } from "@/shared/components/VirtualList";
@@ -19,10 +20,13 @@ function Branches({ repoId, repoPath }: { repoId: number; repoPath: string }) {
   const [filter, setFilter] = useState("");
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(() => new Set());
   const [active, setActive] = useState<number>();
+  const [sort, setSort] = useBranchSort();
   const rows = useMemo(
-    () => buildRows(refs.data ?? [], filter, collapsed),
-    [refs.data, filter, collapsed],
+    () => buildRows(refs.data ?? [], filter, collapsed, sort),
+    [refs.data, filter, collapsed, sort],
   );
+  const byDate = sort === "lastCommit";
+  const SortIcon = byDate ? CalendarClockIcon : ArrowDownAZIcon;
 
   if (refs.error) {
     return (
@@ -52,20 +56,38 @@ function Branches({ repoId, repoPath }: { repoId: number; repoPath: string }) {
 
   return (
     <div className="flex h-full flex-col">
-      <label className="flex shrink-0 items-center gap-2 border-b border-border px-2 py-1.5">
-        <SearchIcon className="size-3.5 text-muted-foreground" aria-hidden />
-        <span className="sr-only">Filter branches and tags</span>
-        <input
-          type="search"
-          value={filter}
-          placeholder="Filter branches and tags"
-          className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-          onChange={(event) => {
-            setFilter(event.target.value);
+      <div className="flex shrink-0 items-center gap-1 border-b border-border px-2 py-1">
+        <label className="flex min-w-0 flex-1 items-center gap-2 py-0.5">
+          <SearchIcon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+          <span className="sr-only">Filter branches and tags</span>
+          <input
+            type="search"
+            value={filter}
+            placeholder="Filter branches and tags"
+            className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            onChange={(event) => {
+              setFilter(event.target.value);
+              setActive(undefined);
+            }}
+          />
+        </label>
+        <button
+          type="button"
+          aria-label={
+            byDate ? "Sorted by last commit; sort by name" : "Sorted by name; sort by last commit"
+          }
+          title={
+            byDate ? "Newest commit first (click: by name)" : "By name (click: newest commit first)"
+          }
+          className="flex size-6 shrink-0 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          onClick={() => {
+            setSort(byDate ? "name" : "lastCommit");
             setActive(undefined);
           }}
-        />
-      </label>
+        >
+          <SortIcon className="size-3.5" aria-hidden />
+        </button>
+      </div>
       {rows.length === 0 ? (
         <p className="p-3 text-sm text-muted-foreground">No branch or tag matches.</p>
       ) : (
@@ -87,7 +109,7 @@ function Branches({ repoId, repoPath }: { repoId: number; repoPath: string }) {
           }}
           renderRow={(index, isActive) => {
             const row = rows[index];
-            return row ? <BranchRowView row={row} active={isActive} /> : null;
+            return row ? <BranchRowView row={row} active={isActive} showDate={byDate} /> : null;
           }}
         />
       )}

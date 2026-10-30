@@ -2,10 +2,15 @@ import type { RefEntry } from "@/shared/ipc/bindings";
 
 import { buildRows, type BranchRow } from "./rows";
 
-const ref = (name: string, kind: RefEntry["label"]["kind"]): RefEntry => ({
+const ref = (
+  name: string,
+  kind: RefEntry["label"]["kind"],
+  commitTime: number | null = null,
+): RefEntry => ({
   label: { name, kind, isHead: false },
   target: "0".repeat(40),
   row: 0,
+  commitTime,
 });
 
 const ENTRIES = [
@@ -50,5 +55,26 @@ describe("buildRows", () => {
     expect(rows[0]).toBe("# Local branches (2)");
     expect(rows[1]).toBe("# Remote: origin (2)");
     expect(rows.at(-1)).toBe("# Tags (1)");
+  });
+
+  it("sorts each section by the last commit, newest first, when asked", () => {
+    const entries = [
+      ref("alpha", "branch", 100),
+      ref("beta", "branch", 300),
+      ref("gamma", "branch", null),
+      ref("delta", "branch", 300),
+      ref("v1", "tag", 50),
+      ref("v2", "tag", 200),
+    ];
+    expect(describeRows(buildRows(entries, "", new Set(), "lastCommit"))).toEqual([
+      "# Local branches (4)",
+      "beta",
+      "delta",
+      "alpha",
+      "gamma",
+      "# Tags (2)",
+      "v2",
+      "v1",
+    ]);
   });
 });

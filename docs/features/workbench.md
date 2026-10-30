@@ -116,6 +116,10 @@ Details:
 - **Branches**:
   - The list is virtualized, so 10,000 refs (the 1M synthetic repository) scroll smoothly.
   - Refs whose target is not a commit in the graph (a tag of a tree) are dimmed.
+  - Sorting: by name, or by last commit (committer date, newest first; refs without a commit
+    last), with the button beside the filter or in Settings → Branches (`branches.sort`). By
+    last commit, each row shows its commit's day. The times come with `list_refs` from the
+    whole history's commit index, so a filter does not hide them.
   - Read-only: checkout, create, rename, delete and the rest are M5.
 - **Commit details**:
   - "Contained in" comes from the graph, not from `git branch --contains`. It is exact for every

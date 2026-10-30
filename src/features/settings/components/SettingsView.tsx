@@ -1,4 +1,4 @@
-import type { WorkingTreeDisplay } from "@/shared/ipc/bindings";
+import type { BranchSort, WorkingTreeDisplay } from "@/shared/ipc/bindings";
 
 import { useAppSettings, useChangeSettings } from "../hooks/useAppSettings";
 import { useDiffSettings } from "../hooks/useDiffSettings";
@@ -57,7 +57,7 @@ function DiffSection() {
       </fieldset>
       <Toggle
         label="Colour code by its language"
-        description="Syntax highlighting for the languages Sublime Text knows. Files over 4 MB are not coloured."
+        description="Syntax highlighting for over 200 languages. Files over 4 MB are not coloured."
         checked={diff.syntaxHighlighting}
         onChange={(syntaxHighlighting) => {
           changeDiff({ syntaxHighlighting });
@@ -66,6 +66,11 @@ function DiffSection() {
     </Section>
   );
 }
+
+const BRANCH_SORT_OPTIONS: readonly { value: BranchSort; label: string }[] = [
+  { value: "name", label: "By name" },
+  { value: "lastCommit", label: "By last commit, newest first" },
+];
 
 /** The Settings tab: every preference, saved as soon as it changes. */
 export function SettingsView() {
@@ -100,6 +105,16 @@ export function SettingsView() {
           />
         </Section>
         <DiffSection />
+        <Section title="Branches">
+          <Choice
+            legend="Order of the branches and tags"
+            options={BRANCH_SORT_OPTIONS}
+            value={settings.branches.sort}
+            onChange={(sort) => {
+              change((current) => ({ ...current, branches: { ...current.branches, sort } }));
+            }}
+          />
+        </Section>
         <Section title="Repositories">
           <Toggle
             label="Show the actions button (…) on repositories"

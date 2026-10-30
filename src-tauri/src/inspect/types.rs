@@ -94,8 +94,8 @@ impl From<CommitDetails> for CommitDetailsDto {
     }
 }
 
-/// One branch, remote branch or tag, with the row of its commit.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Type)]
+/// One branch, remote branch or tag, with the row and time of its commit.
+#[derive(Debug, Clone, PartialEq, Serialize, Type)]
 #[serde(rename_all = "camelCase")]
 pub struct RefEntry {
     /// Name, category and HEAD marker.
@@ -104,15 +104,21 @@ pub struct RefEntry {
     pub target: String,
     /// Row of that commit, if it is in the graph.
     pub row: Option<u32>,
+    /// Committer time of that commit in seconds since the epoch, for sorting by date; `null`
+    /// when the target is not a commit of the history.
+    pub commit_time: Option<f64>,
 }
 
 impl RefEntry {
-    /// Builds an entry from a graph reference and its row.
-    pub fn new(reference: &GraphRef, row: Option<u32>) -> Self {
+    /// Builds an entry from a graph reference, its row and its commit's time.
+    pub fn new(reference: &GraphRef, row: Option<u32>, commit_time: Option<i64>) -> Self {
         Self {
             label: RefLabel::from(reference),
             target: reference.target.to_string(),
             row,
+            // Exact to the second up to the year 287 million: f64 holds 53-bit integers.
+            #[allow(clippy::cast_precision_loss)]
+            commit_time: commit_time.map(|time| time as f64),
         }
     }
 }

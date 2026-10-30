@@ -187,7 +187,8 @@ Ideas from the owner, newest last, with where each one is planned.
 - 2026-10-30: select text in the diff to copy it, without the `+` and `-` at the start of the
   rows → done (line numbers, markers and hunk headers are not copied; side by side copies one
   side).
-- 2026-10-30: sort branches by the date of their last commit too → next (Branches module).
+- 2026-10-30: sort branches by the date of their last commit too → done (Branches module and
+  Settings → Branches).
 - 2026-10-30: at start, a loading element over the blurred window while everything loads, then
   the blur clears and the loading element fades out → done (startup curtain).
 - 2026-10-30: the loading element is a small flat bird, white on the dark theme and black on the
