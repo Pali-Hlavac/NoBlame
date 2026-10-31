@@ -333,7 +333,21 @@ ADR 0022).
 - Not clicked through in the running app: the owner's instance was running. Covered by
   integration tests against git and component tests.
 
-Next: slice 8, second half: blame with "blame previous revision".
+Slice 8, second half done (2026-10-31): blame ([features/blame.md](features/blame.md)).
+
+- **Blame** tab from the Files menu or the file tab's **Blame** button: each hunk's commit
+  (id, date, author, summary) beside the lines of the file tab, with a recency bar.
+- Clicking a commit selects it; its menu shows the change, **blames the previous revision**
+  (the parent and the old name from git's `previous` lines), or copies the id. **Back** returns.
+- `git blame --incremental` with `GIT_NO_LAZY_FETCH=1`, so partial clones never download for
+  it (checked by hand on the blobless Linux clone). git.git: 0.51–0.96 s for files of
+  2,858–7,860 lines.
+- The file view (`FileContents`) takes an optional gutter column; `VirtualList` reports its
+  rendered range for paging.
+- Not clicked through in the running app: the owner's instance was running for the whole slice.
+  Covered by integration tests against git (renames, previous revisions) and component tests.
+
+Next: slice 9, compare two commits or branches.
 
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
@@ -425,7 +439,8 @@ Not verified in the running app (they need someone at the keyboard; the logic is
       detection with `.gitattributes`
 - [x] Changed files list and file tree of any revision; open/save a file at a revision
       (slice 7: Files module and file tab; opening in an external program later)
-- [ ] File history (following renames) and blame with "blame previous revision"
+- [x] File history (following renames) and blame with "blame previous revision" (slice 8,
+      ADR 0022)
 - [x] Filters: branch(es), author, committer, message, path, date range, first-parent only, hide merges
       (owner request 2026-10-28: show only a branch, only an author, changes to a file, and a
       general search in messages). Done (ADR 0021): one branch or HEAD, first parent, no merges,

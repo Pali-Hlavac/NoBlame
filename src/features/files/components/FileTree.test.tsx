@@ -30,7 +30,13 @@ function renderTree() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(
     <QueryClientProvider client={client}>
-      <FileTree repoId={1} repoPath="/repo" rootId="root" label="Files at 01234567" />
+      <FileTree
+        repoId={1}
+        repoPath="/repo"
+        rootId="root"
+        commit="0123456789abcdef0123456789abcdef01234567"
+        label="Files at 01234567"
+      />
     </QueryClientProvider>,
   );
 }

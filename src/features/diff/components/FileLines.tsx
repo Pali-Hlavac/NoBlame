@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, type ReactNode } from "react";
 
 import { InlineError } from "@/shared/components/InlineError";
 import type { DiffLineDto, FileDiffDto } from "@/shared/ipc/bindings";
@@ -13,14 +13,36 @@ import { LineText } from "./LineText";
 
 const counts = new Intl.NumberFormat("en-US");
 
-/** One line of the file: its number and its text. */
-function FileRow({ line, digits }: { line: DiffLineDto | undefined; digits: number }) {
+/** A column before the line numbers, such as blame's commit of each line. */
+export interface LineGutter {
+  /** Its width, as a CSS length. */
+  width: string;
+  /** Its content beside line `line` (1-based). */
+  render: (line: number) => ReactNode;
+}
+
+interface FileRowProps {
+  line: DiffLineDto | undefined;
+  digits: number;
+  gutter: LineGutter | undefined;
+}
+
+/** One line of the file: its gutter, its number and its text. */
+function FileRow({ line, digits, gutter }: FileRowProps) {
   if (!line) return null;
+  const gutterCell = gutter && (
+    <span className="shrink-0 border-r border-border" style={{ width: gutter.width }}>
+      {line.newLine !== null && gutter.render(line.newLine)}
+    </span>
+  );
   if (line.kind === "noNewline") {
     return (
       <div className="flex h-full w-max min-w-full text-muted-foreground italic select-none">
-        <span className="sticky left-0 shrink-0 border-r border-border bg-background px-2">
-          <span className="inline-block" style={{ width: `${digits}ch` }} />
+        <span className="sticky left-0 flex shrink-0 bg-background">
+          {gutterCell}
+          <span className="border-r border-border px-2">
+            <span className="inline-block" style={{ width: `${digits}ch` }} />
+          </span>
         </span>
         <span className="pl-3">No newline at end of file</span>
       </div>
@@ -28,12 +50,15 @@ function FileRow({ line, digits }: { line: DiffLineDto | undefined; digits: numb
   }
   return (
     <div className="flex h-full w-max min-w-full">
-      <span
-        aria-hidden
-        className="sticky left-0 shrink-0 border-r border-border bg-background px-2 text-right text-muted-foreground select-none"
-      >
-        <span className="inline-block" style={{ width: `${digits}ch` }}>
-          {line.newLine ?? ""}
+      <span className="sticky left-0 flex shrink-0 bg-background">
+        {gutterCell}
+        <span
+          aria-hidden
+          className="border-r border-border px-2 text-right text-muted-foreground select-none"
+        >
+          <span className="inline-block" style={{ width: `${digits}ch` }}>
+            {line.newLine ?? ""}
+          </span>
         </span>
       </span>
       <span className="pr-4 pl-3 whitespace-pre select-text">
@@ -51,13 +76,14 @@ interface FileLinesProps {
   view: FileDiffDto;
   /** Accessible name of the scrolling region, e.g. "src/main.rs at 1a2b3c4d". */
   label: string;
+  gutter?: LineGutter;
 }
 
 /**
  * A file's lines, virtualized like the diff: only the rows on screen are rendered, and their
  * text is fetched in pages. Focus it to scroll with the keyboard.
  */
-export function FileLines({ request, view, label }: FileLinesProps) {
+export function FileLines({ request, view, label, gutter }: FileLinesProps) {
   const viewport = useRef<HTMLDivElement>(null);
   const count = Math.min(view.rows, MAX_SHOWN_ROWS);
   const { first, last, pages, onScroll } = useVirtualRows(viewport, count);
@@ -73,7 +99,7 @@ export function FileLines({ request, view, label }: FileLinesProps) {
         className="absolute left-0 min-w-full"
         style={{ top: index * ROW_HEIGHT_PX, height: ROW_HEIGHT_PX }}
       >
-        <FileRow line={rowAt(results, pages, index)} digits={digits} />
+        <FileRow line={rowAt(results, pages, index)} digits={digits} gutter={gutter} />
       </div>,
     );
   }

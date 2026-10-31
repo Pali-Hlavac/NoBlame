@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { BlameView } from "@/features/blame";
 import { DiffView } from "@/features/diff";
 import { FileView } from "@/features/files";
 import { HistoryView } from "@/features/history";
@@ -24,5 +25,7 @@ export function renderTab(tab: WorkspaceTab): ReactNode {
       return <FileView />;
     case "history":
       return <HistoryView />;
+    case "blame":
+      return <BlameView />;
   }
 }

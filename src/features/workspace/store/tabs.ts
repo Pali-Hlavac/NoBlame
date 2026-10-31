@@ -5,6 +5,7 @@
 import { create } from "zustand";
 
 import type {
+  BlameTab,
   DiffTab,
   FileTab,
   HistoryTab,
@@ -19,6 +20,7 @@ export const SETTINGS_TAB: SettingsTab = { id: "settings", kind: "settings", tit
 export const DIFF_TAB: DiffTab = { id: "diff", kind: "diff", title: "Diff" };
 export const FILE_TAB: FileTab = { id: "file", kind: "file", title: "File" };
 export const HISTORY_TAB: HistoryTab = { id: "history", kind: "history", title: "History" };
+export const BLAME_TAB: BlameTab = { id: "blame", kind: "blame", title: "Blame" };
 
 interface TabsState {
   tabs: WorkspaceTab[];
@@ -143,6 +145,11 @@ export function showFileTab(): void {
 /** Shows the history tab: opens it the first time, otherwise focuses it where it is docked. */
 export function showHistoryTab(): void {
   useTabsStore.getState().openTab(HISTORY_TAB);
+}
+
+/** Shows the blame tab: opens it the first time, otherwise focuses it where it is docked. */
+export function showBlameTab(): void {
+  useTabsStore.getState().openTab(BLAME_TAB);
 }
 
 /** The currently active tab, if any. */

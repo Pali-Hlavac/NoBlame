@@ -32,13 +32,18 @@ export interface FileTab extends TabBase {
   kind: "file";
 }
 
+/** Who last changed each line of a file at a commit (one tab at most). */
+export interface BlameTab extends TabBase {
+  kind: "blame";
+}
+
 /** The history of a file or folder chosen with "File history" (one tab at most). */
 export interface HistoryTab extends TabBase {
   kind: "history";
 }
 
 export type WorkspaceTab =
-  WelcomeTab | RepositoryTab | SettingsTab | DiffTab | FileTab | HistoryTab;
+  WelcomeTab | RepositoryTab | SettingsTab | DiffTab | FileTab | HistoryTab | BlameTab;
 
 /** Checks a tab read back from a saved layout (which may come from another app version). */
 export function isWorkspaceTab(value: unknown): value is WorkspaceTab {
@@ -51,6 +56,7 @@ export function isWorkspaceTab(value: unknown): value is WorkspaceTab {
     case "diff":
     case "file":
     case "history":
+    case "blame":
       return true;
     case "repository":
       return typeof tab.path === "string";

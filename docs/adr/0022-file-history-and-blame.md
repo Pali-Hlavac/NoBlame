@@ -133,7 +133,7 @@ Bad:
 
 ## Links
 
-- [features/history.md](../features/history.md)
+- [features/history.md](../features/history.md), [features/blame.md](../features/blame.md)
 - [architecture/git-engine.md](../architecture/git-engine.md)
 - ADR [0007](0007-git-engine.md) (gix for reads, the CLI for writes), [0021](0021-graph-filters.md)
   (path filter)

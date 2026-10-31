@@ -1,7 +1,8 @@
 //! Read-only views of an open repository for the workbench modules: commit details (with the
 //! refs containing the commit), changed files and their diffs, the files of a revision, a file's
-//! history, the list of references, the stash list and the submodule tree. See `docs/design/workbench.md`.
+//! history and blame, the list of references, the stash list and the submodule tree. See `docs/design/workbench.md`.
 
+mod blame;
 mod changes;
 pub mod commands;
 mod diff;
@@ -13,6 +14,7 @@ mod status;
 mod syntax;
 mod types;
 
+pub use blame::BlameDto;
 pub use changes::ChangedFilesDto;
 pub use diff::{DiffLineDto, DiffRequestDto, FileDiffDto, LineSideDto};
 pub use files::{FileViewRequestDto, TreeEntryDto, TreeListingDto};

@@ -106,6 +106,12 @@ All notable changes to NoBlame are documented here. The format follows
   window at start with the app blurred behind it, until everything has loaded (at most 5 s).
   The bird is a songbird chirping on a berry branch, drawn inline from one definition
   (`loadingBird.ts`), so it shows from the first frame.
+- Blame: right-click a file in Files (or **Blame** in the File tab) to see, beside each line,
+  the commit that last changed it (id, date, author, summary). Click a commit to select it;
+  right-click it to show its change or to **blame the previous revision**, and **Back** to
+  return. It runs the installed git (`git blame`), so `blame.ignoreRevsFile` and `.mailmap`
+  apply; on git.git it is 1.4–2 times faster than gix's blame (ADR 0022). Partial clones never
+  download missing contents for it.
 - File history: right-click a file or folder in Files (or **History** in the File tab) for the
   commits that change it, newest first, following renames. Unlike `git log --follow`, a file
   renamed on one branch and edited under its old name on another keeps both histories

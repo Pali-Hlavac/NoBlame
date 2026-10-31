@@ -38,6 +38,7 @@ const APP_COMMANDS: &[&str] = &[
     "list_tree",
     "get_file_history",
     "get_file_history_rows",
+    "get_blame",
     "get_file_view",
     "get_file_view_lines",
     "save_file_as",

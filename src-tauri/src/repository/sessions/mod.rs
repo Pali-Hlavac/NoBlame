@@ -48,12 +48,25 @@ pub struct Session {
     history: tokio::sync::Mutex<Option<Arc<PathHistory>>>,
     /// The path whose history is being read, and how to stop reading it.
     history_cancel: Mutex<(String, CancellationToken)>,
+    /// Stops a blame when a newer one is asked for.
+    blame_cancel: Mutex<CancellationToken>,
 }
 
 impl Session {
     /// How many graphs have been shown (builds and filter changes).
     pub fn generation(&self) -> u32 {
         self.generation.load(Ordering::Relaxed)
+    }
+
+    /// A token for a new blame, cancelling the one still running: the blame tab shows one file.
+    pub fn new_blame(&self) -> CancellationToken {
+        let mut current = self
+            .blame_cancel
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner);
+        current.cancel();
+        *current = CancellationToken::new();
+        current.clone()
     }
 
     /// Keeps `watcher` running for as long as the session lives.
@@ -167,6 +180,7 @@ impl RepoSessions {
             find_cancel: Mutex::default(),
             history: tokio::sync::Mutex::default(),
             history_cancel: Mutex::default(),
+            blame_cancel: Mutex::default(),
         });
         inner.sessions.insert(id, Arc::clone(&session));
         (id, session)

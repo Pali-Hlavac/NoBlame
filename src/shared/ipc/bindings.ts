@@ -102,6 +102,12 @@ export const commands = {
 	 */
 	getFileHistoryRows: (id: number, path: string, start: number, count: number) => typedError<FileHistoryRowDto[], AppError>(__TAURI_INVOKE("get_file_history_rows", { id, path, start, count })),
 	/**
+	 *  Who last changed each line of `path` as it is in `commit` (hex), through `git blame`: the
+	 *  hunks, their commits (with the version before each change) and the file's blob. A newer
+	 *  blame cancels one still running.
+	 */
+	getBlame: (id: number, commit: string, path: string) => typedError<BlameDto, AppError>(__TAURI_INVOKE("get_blame", { id, commit, path })),
+	/**
 	 *  A file shown whole (every line unchanged): its kind, size and row count. Rows come from
 	 *  `get_file_view_lines`.
 	 */
@@ -157,6 +163,56 @@ export type AppInfo = {
 	os: string,
 	/**  CPU architecture, e.g. `x86_64`, `aarch64`. */
 	arch: string,
+};
+
+/**  A commit some lines come from. */
+export type BlameCommitDto = {
+	/**  Full commit id. */
+	id: string,
+	/**  First line of the message. */
+	summary: string,
+	/**  Author name (after `.mailmap`). */
+	authorName: string,
+	/**  Author e-mail. */
+	authorEmail: string,
+	/**  Author time in seconds since the epoch. */
+	authorTime: number | null,
+	/**  What "blame the previous revision" opens; `null` when the commit added the file. */
+	previous: BlamePreviousDto | null,
+};
+
+/**  The blame of a file at a commit. */
+export type BlameDto = {
+	/**  The file's blob in the commit (hex), for its lines; `null` for a submodule. */
+	blobId: string | null,
+	/**  Ordered by line, covering every line. */
+	hunks: BlameHunkDto[],
+	/**  The commits the hunks name. */
+	commits: BlameCommitDto[],
+	/**  The paths the hunks name (lossy for non-UTF-8 bytes). */
+	paths: string[],
+};
+
+/**  Consecutive lines from one commit. */
+export type BlameHunkDto = {
+	/**  First line (1-based). */
+	line: number,
+	/**  Number of lines. */
+	count: number,
+	/**  Index into `commits`. */
+	commit: number,
+	/**  First line in that commit's version of the file (1-based). */
+	originalLine: number,
+	/**  Index into `paths`: the file's path in that commit. */
+	path: number,
+};
+
+/**  The version of the file before a commit changed it. */
+export type BlamePreviousDto = {
+	/**  The parent commit (hex). */
+	id: string,
+	/**  The file's path there (it differs after a rename). */
+	path: string,
 };
 
 /**  How the Branches module orders the refs of a section. */

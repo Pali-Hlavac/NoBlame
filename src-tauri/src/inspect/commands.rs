@@ -3,9 +3,10 @@
 use tauri::{State, WebviewWindow};
 
 use super::{
-    ChangedFilesDto, CommitDetailsDto, DiffLineDto, DiffRequestDto, FileDiffDto, FileHistoryDto,
-    FileHistoryRowDto, FileViewRequestDto, LineSideDto, RefEntry, SplitLineDto, StashDto,
-    StatusSummaryDto, SubmoduleDto, TreeEntryDto, TreeListingDto, files, history, service,
+    BlameDto, ChangedFilesDto, CommitDetailsDto, DiffLineDto, DiffRequestDto, FileDiffDto,
+    FileHistoryDto, FileHistoryRowDto, FileViewRequestDto, LineSideDto, RefEntry, SplitLineDto,
+    StashDto, StatusSummaryDto, SubmoduleDto, TreeEntryDto, TreeListingDto, blame, files, history,
+    service,
 };
 use crate::error::CommandResult;
 use crate::repository::{RawBytes, RepoId, RepoSessions};
@@ -186,6 +187,20 @@ pub async fn get_file_history_rows(
     count: u32,
 ) -> CommandResult<Vec<FileHistoryRowDto>> {
     Ok(history::file_history_rows(&sessions, id, path, start, count).await?)
+}
+
+/// Who last changed each line of `path` as it is in `commit` (hex), through `git blame`: the
+/// hunks, their commits (with the version before each change) and the file's blob. A newer
+/// blame cancels one still running.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_blame(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    commit: String,
+    path: String,
+) -> CommandResult<BlameDto> {
+    Ok(blame::file_blame(&sessions, id, commit, path).await?)
 }
 
 /// Every branch, remote branch and tag with the row of its commit.

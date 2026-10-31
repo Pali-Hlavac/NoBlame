@@ -1,5 +1,6 @@
 //! Repository errors and their mapping to [`AppError`].
 
+use git_core::blame::BlameError;
 use git_core::diff::DiffError;
 use git_core::graph::GraphError;
 use git_core::history::HistoryError;
@@ -34,6 +35,9 @@ pub enum RepositoryError {
     /// Reading the files of a revision, or saving one, failed.
     #[error(transparent)]
     Tree(#[from] TreeError),
+    /// Blaming a file failed.
+    #[error(transparent)]
+    Blame(#[from] BlameError),
     /// Reading a file's history failed.
     #[error(transparent)]
     History(#[from] HistoryError),
@@ -126,7 +130,12 @@ impl From<RepositoryError> for AppError {
                 "Partial clones (`git clone --filter=blob:none`) download old file contents only when Git needs them. NoBlame does not download them yet.",
             ),
             RepositoryError::Status(StatusError::Git(error))
-            | RepositoryError::History(HistoryError::Git(error)) => GitEnvError::from(error).into(),
+            | RepositoryError::History(HistoryError::Git(error))
+            | RepositoryError::Blame(BlameError::Git(error)) => GitEnvError::from(error).into(),
+            RepositoryError::Blame(error @ BlameError::Parse(_)) => {
+                tracing::error!(%error, "blame output not understood");
+                AppError::new(ErrorCode::GitFailed, format!("Reading the blame failed: {error}"))
+            }
             RepositoryError::Status(error @ StatusError::Parse(_)) => {
                 tracing::error!(%error, "status output not understood");
                 AppError::new(ErrorCode::GitFailed, format!("Reading the status failed: {error}"))

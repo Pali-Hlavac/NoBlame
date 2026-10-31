@@ -18,11 +18,12 @@ save it. NoBlame saves the file exactly as it is stored in the repository. For e
 endings are not converted, and a Git LFS file is saved as its small pointer file.
 
 Right-click a file or folder to copy its path or name, or to see its
-[history](file-history.md). The File tab's **History** button does the same for its file.
+[history](file-history.md). Right-click a file and choose **Blame** to see who last changed each
+line ([Blame](blame.md)). The File tab's **History** and **Blame** buttons do the same for its
+file.
 
 ## Limits
 
 - A folder with more than 50,000 entries lists the first 50,000.
 - Files over 64 MB, and binary files that are not pictures, are not shown; you can still save
   them.
-- Blame is coming next; it is shown greyed out in the menu.

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { showBlame } from "@/features/blame";
 import { showHistory } from "@/features/history";
 import { copyToClipboard } from "@/shared/lib/clipboard";
 import {
@@ -14,21 +15,11 @@ import {
 import { saveFileAs } from "../api/save";
 import type { TreeRow } from "../lib/rows";
 
-/** Blame arrives with the rest of slice 8 of M3 (docs/roadmap.md). */
-const BLAME_MILESTONE = "M3";
-
-function Planned({ label }: { label: string }) {
-  return (
-    <ContextMenuItem disabled>
-      <span className="flex-1">{label}</span>
-      <span className="text-xs text-muted-foreground">{BLAME_MILESTONE}</span>
-    </ContextMenuItem>
-  );
-}
-
 interface FileTreeMenuProps {
   repoId: number;
   repoPath: string;
+  /** The commit shown (full id), for Blame; undefined while it loads. */
+  commit: string | undefined;
   /** The row with the cursor; no menu on notes or while nothing is chosen. */
   row: TreeRow | undefined;
   onOpen: () => void;
@@ -37,7 +28,8 @@ interface FileTreeMenuProps {
 }
 
 /** The context menu of the tree's row with the cursor (right click, Shift+F10, Menu key). */
-export function FileTreeMenu({ repoId, repoPath, row, onOpen, children }: FileTreeMenuProps) {
+export function FileTreeMenu(props: FileTreeMenuProps) {
+  const { repoId, repoPath, commit, row, onOpen, children } = props;
   const entry = row?.type === "entry" ? row : undefined;
   const folder = entry?.entry.kind === "folder";
   const blob = entry && !folder && entry.entry.kind !== "submodule" ? entry.entry : undefined;
@@ -84,7 +76,16 @@ export function FileTreeMenu({ repoId, repoPath, row, onOpen, children }: FileTr
           >
             {folder ? "Folder history" : "File history"}
           </ContextMenuItem>
-          {!folder && <Planned label="Blame" />}
+          {!folder && (
+            <ContextMenuItem
+              disabled={!blob || commit === undefined}
+              onSelect={() => {
+                if (commit !== undefined) showBlame(repoPath, { commit, path: entry.path });
+              }}
+            >
+              Blame
+            </ContextMenuItem>
+          )}
         </ContextMenuContent>
       )}
     </ContextMenu>

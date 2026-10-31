@@ -98,6 +98,9 @@ impl GitCommand {
         if self.read_only {
             command.env("GIT_OPTIONAL_LOCKS", "0");
         }
+        if self.no_lazy_fetch {
+            command.env("GIT_NO_LAZY_FETCH", "1");
+        }
         if let Some(dir) = &self.cwd {
             command.current_dir(dir);
         }

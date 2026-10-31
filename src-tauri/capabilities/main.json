@@ -45,6 +45,7 @@
     "allow-list-tree",
     "allow-get-file-history",
     "allow-get-file-history-rows",
+    "allow-get-blame",
     "allow-get-file-view",
     "allow-get-file-view-lines",
     "allow-save-file-as",

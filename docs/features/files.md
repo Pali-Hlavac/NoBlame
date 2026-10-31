@@ -24,9 +24,10 @@ commit" in the commit context menu opens the module.
   empty files are named instead. A symbolic link shows its target; a submodule shows the
   commit it points at. **Save as…** writes the file.
 - **Context menu** on a row (right click, Shift+F10, Menu key): Show / Open / Close, Save as…,
-  Copy path, Copy name, File history (Folder history for a folder; [history.md](history.md)).
-  Blame is shown disabled (M3, slice 8).
-- The file tab's **History** button shows the file's history.
+  Copy path, Copy name, File history (Folder history for a folder; [history.md](history.md)),
+  Blame ([blame.md](blame.md)).
+- The file tab's **History** and **Blame** buttons show the file's history and its blame at
+  the commit shown.
 - **Save as…** asks where to save (the native dialog, proposing the file's name) and writes the
   file exactly as the repository stores it: no line-ending conversion, no other filters. A
   Git LFS file saves its pointer.
@@ -73,6 +74,6 @@ Measured in the debug build through IPC (2026-10-30):
 - Filtering the tree by name, and "find file".
 - Opening a file in an external program (writing a temporary copy and opening it with its
   default program), and saving through Git's filters (line endings, LFS contents).
-- Blame (M3 slice 8), and comparing two revisions of a file (slice 9).
+- Comparing two revisions of a file (M3 slice 9).
 - Non-UTF-8 file names are shown lossily, and looking such a file up at another commit by its
   path does not find it.

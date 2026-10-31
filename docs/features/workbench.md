@@ -86,14 +86,14 @@ Settings shown there (stored in `settings.json`, see `src-tauri/src/settings/typ
 
 ## Modules
 
-| Module         | Shortcut | Shows                                                                                                                                                                                          |
-| -------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Repositories   | Alt+1    | Open repositories with their submodules nested recursively, then recent repositories; open and create buttons                                                                                  |
-| Branches       | Alt+2    | Local branches, one section per remote, tags; filter; collapsible sections; current branch marked **HEAD**; a click selects the branch's commit                                                |
-| Commit details | Alt+3    | Message, commit id (copy), parents (click to select), author and committer with their time zones, refs, and the branches and tags containing the commit                                        |
-| Changed files  | Alt+5    | The files the selected commit changed (status, renames); a merge can be compared with any parent ([changed-files.md](changed-files.md))                                                        |
-| Stashes        | Alt+4    | Stash list (`stash@{n}`, message, branch, date); refreshed when the window regains focus                                                                                                       |
-| Files          | Alt+6    | The folders and files of the selected commit, read as they are opened; showing a file opens the file tab ([files.md](files.md)); File history opens the history tab ([history.md](history.md)) |
+| Module         | Shortcut | Shows                                                                                                                                                                                                                                      |
+| -------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Repositories   | Alt+1    | Open repositories with their submodules nested recursively, then recent repositories; open and create buttons                                                                                                                              |
+| Branches       | Alt+2    | Local branches, one section per remote, tags; filter; collapsible sections; current branch marked **HEAD**; a click selects the branch's commit                                                                                            |
+| Commit details | Alt+3    | Message, commit id (copy), parents (click to select), author and committer with their time zones, refs, and the branches and tags containing the commit                                                                                    |
+| Changed files  | Alt+5    | The files the selected commit changed (status, renames); a merge can be compared with any parent ([changed-files.md](changed-files.md))                                                                                                    |
+| Stashes        | Alt+4    | Stash list (`stash@{n}`, message, branch, date); refreshed when the window regains focus                                                                                                                                                   |
+| Files          | Alt+6    | The folders and files of the selected commit, read as they are opened; showing a file opens the file tab ([files.md](files.md)); File history opens the history tab ([history.md](history.md)), Blame the blame tab ([blame.md](blame.md)) |
 
 Default arrangement: Repositories and Branches as tabs on top, Commit details, Changed files and
 Stashes as tabs below (Files after Changed files). A layout saved before Changed files or Files

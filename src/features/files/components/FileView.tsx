@@ -1,5 +1,6 @@
 import {
   FileQuestionIcon,
+  FileUserIcon,
   FolderIcon,
   HistoryIcon,
   MousePointerClickIcon,
@@ -8,6 +9,7 @@ import {
 } from "lucide-react";
 import { useEffect } from "react";
 
+import { showBlame } from "@/features/blame";
 import { useCommitDetails } from "@/features/commit-details";
 import { FileContents } from "@/features/diff";
 import { shortId } from "@/features/graph";
@@ -128,6 +130,18 @@ function ChosenFile({ repoId, repoPath, row, path }: ChosenFileProps) {
         >
           <HistoryIcon aria-hidden />
           History
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-6 px-2 text-xs"
+          disabled={!saveable || !details.data}
+          onClick={() => {
+            if (details.data) showBlame(repoPath, { commit: details.data.id, path });
+          }}
+        >
+          <FileUserIcon aria-hidden />
+          Blame
         </Button>
         <Button
           variant="outline"

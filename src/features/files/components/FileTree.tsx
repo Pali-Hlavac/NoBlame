@@ -15,6 +15,8 @@ interface FileTreeProps {
   repoPath: string;
   /** The commit's root folder. */
   rootId: string;
+  /** The commit (full id) once known, for Blame. */
+  commit: string | undefined;
   /** Accessible name, e.g. "Files at 1a2b3c4d". */
   label: string;
 }
@@ -24,7 +26,7 @@ interface FileTreeProps {
  * Right opens a folder (or goes into it), Left closes it (or goes to its folder), Enter opens a
  * folder or shows a file in the file tab.
  */
-export function FileTree({ repoId, repoPath, rootId, label }: FileTreeProps) {
+export function FileTree({ repoId, repoPath, rootId, commit, label }: FileTreeProps) {
   const expanded = useExpanded(repoPath);
   const rows = useTreeRows(repoId, rootId, expanded);
   const cursor = useFilesStore((state) => state.cursor[repoPath]);
@@ -67,6 +69,7 @@ export function FileTree({ repoId, repoPath, rootId, label }: FileTreeProps) {
     <FileTreeMenu
       repoId={repoId}
       repoPath={repoPath}
+      commit={commit}
       row={current}
       onOpen={() => {
         activate(current);

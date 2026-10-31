@@ -42,6 +42,7 @@ One page per user-facing feature: behaviour, edge cases and status.
 - [diff.md](features/diff.md): the diff tab (unified diff of the chosen file)
 - [files.md](features/files.md): the Files module (tree of a commit), the file tab, saving a file
 - [history.md](features/history.md): the history tab (commits that change a file, following renames)
+- [blame.md](features/blame.md): the blame tab (who last changed each line; blame the previous revision)
 
 ## User guide
 

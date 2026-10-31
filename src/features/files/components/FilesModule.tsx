@@ -44,7 +44,13 @@ function CommitFiles({ repoId, repoPath, row }: CommitFilesProps) {
           "Files"
         )}
       </div>
-      <FileTree repoId={repoId} repoPath={repoPath} rootId={root.data.id} label={label} />
+      <FileTree
+        repoId={repoId}
+        repoPath={repoPath}
+        rootId={root.data.id}
+        commit={details.data?.id}
+        label={label}
+      />
     </div>
   );
 }

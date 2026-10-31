@@ -5,6 +5,7 @@
 //! network operation goes through the user's installed `git` via [`cli::GitCommand`].
 //! See `docs/architecture/git-engine.md`.
 
+pub mod blame;
 pub mod cli;
 pub mod diff;
 pub mod graph;

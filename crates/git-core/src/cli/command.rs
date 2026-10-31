@@ -36,6 +36,7 @@ pub struct GitCommand {
     pub(super) cwd: Option<PathBuf>,
     pub(super) args: Vec<OsString>,
     pub(super) read_only: bool,
+    pub(super) no_lazy_fetch: bool,
     pub(super) stdin: Option<Vec<u8>>,
     has_separator: bool,
 }
@@ -47,6 +48,7 @@ impl GitCommand {
             cwd: None,
             args: Vec::new(),
             read_only: false,
+            no_lazy_fetch: false,
             stdin: None,
             has_separator: false,
         }
@@ -64,6 +66,14 @@ impl GitCommand {
     #[must_use]
     pub fn read_only(mut self) -> Self {
         self.read_only = true;
+        self
+    }
+
+    /// Never downloads missing objects from a partial clone's remote (`GIT_NO_LAZY_FETCH`,
+    /// git 2.45 and later): a read that needs them fails instead of fetching them one by one.
+    #[must_use]
+    pub fn no_lazy_fetch(mut self) -> Self {
+        self.no_lazy_fetch = true;
         self
     }
 

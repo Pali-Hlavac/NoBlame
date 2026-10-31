@@ -212,7 +212,7 @@ File views use the diff pipeline (`file_view`), so their cost is a file diff's w
 comparison. They were not timed on the Linux clone: it is blobless and has no checkout, so its
 file contents are not local.
 
-### File history (M3 slice 8, ADR 0022, 2026-10-31)
+### File history and blame (M3 slice 8, ADR 0022, 2026-10-31)
 
 `history_spike` (release) times `file_history` from HEAD, following renames:
 `cargo run --release -p git-core --example history_spike -- <repo> <path>`.
@@ -227,8 +227,17 @@ file contents are not local.
 git.git was cloned with full contents into `.cache/repos/git` for this (no commit-graph file).
 `git log -- <path>` is almost all of the time; on the kernel it has no Bloom filters to use.
 `kernel/sched/core.c` stops at the move into `kernel/sched/`: the blobless clone lacks the
-contents rename detection needs. Not timed in the running app yet (the owner's instance was in
-use).
+contents rename detection needs.
+
+Blame of HEAD (`git blame --incremental`, parsed), same tool:
+
+| Repository | File            | Lines | Hunks | Commits | Time   | gix-blame (for ADR 0022) |
+| ---------- | --------------- | ----- | ----- | ------- | ------ | ------------------------ |
+| git.git    | `builtin/log.c` | 2,858 | 1,490 | 395     | 0.51 s | 0.93 s                   |
+| git.git    | `diff.c`        | 7,860 | 3,200 | 736     | 0.96 s | 2.09 s                   |
+| git.git    | `sequencer.c`   | 7,091 | 2,837 | 582     | 0.81 s | 1.32 s                   |
+
+Neither was timed in the running app (the owner's instance was in use).
 
 ### Graph filters (M3 slice 4a, ADR 0021, 2026-10-29)
 

@@ -8,7 +8,7 @@ import { LoadingState } from "@/shared/components/LoadingState";
 import { useFileView, type FileViewRequest } from "../api/view";
 import { formatBytes } from "../lib/format";
 import { imageType } from "../lib/images";
-import { FileLines } from "./FileLines";
+import { FileLines, type LineGutter } from "./FileLines";
 import { ImagePane } from "./ImageDiff";
 
 interface FileContentsProps {
@@ -19,13 +19,15 @@ interface FileContentsProps {
   path: string;
   /** Accessible name of the lines, e.g. "src/main.rs at 1a2b3c4d". */
   label: string;
+  /** A column before the line numbers (blame). */
+  gutter?: LineGutter;
 }
 
 /**
  * One version of a file, whole: its lines with numbers and syntax colours (virtualized and
  * paged like the diff), a picture for images, or why it is not shown.
  */
-export function FileContents({ repoId, blobId, path, label }: FileContentsProps) {
+export function FileContents({ repoId, blobId, path, label, gutter }: FileContentsProps) {
   const [settings] = useDiffSettings();
   const request: FileViewRequest = { repoId, blobId, path, syntax: settings.syntaxHighlighting };
   const view = useFileView(request);
@@ -82,7 +84,7 @@ export function FileContents({ repoId, blobId, path, label }: FileContentsProps)
           className="flex-1"
         />
       ) : (
-        <FileLines request={request} view={view.data} label={label} />
+        <FileLines request={request} view={view.data} label={label} gutter={gutter} />
       );
   }
 }
