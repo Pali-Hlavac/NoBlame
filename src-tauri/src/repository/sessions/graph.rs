@@ -65,6 +65,13 @@ impl Session {
         self.graph.lock().await.filter.clone()
     }
 
+    /// The full history (built if needed) and the tab's filter.
+    pub(super) async fn full_graph(&self) -> Result<(Arc<Graph>, GraphFilter), RepositoryError> {
+        let shown = self.graph(false).await?;
+        let slot = self.graph.lock().await;
+        Ok((slot.full.clone().unwrap_or(shown), slot.filter.clone()))
+    }
+
     /// Makes the view of `full` that `filter` asks for, and makes it the shown graph.
     async fn show(
         &self,

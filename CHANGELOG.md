@@ -106,6 +106,11 @@ All notable changes to NoBlame are documented here. The format follows
   window at start with the app blurred behind it, until everything has loaded (at most 5 s).
   The bird is a songbird chirping on a berry branch, drawn inline from one definition
   (`loadingBird.ts`), so it shows from the first frame.
+- File history: right-click a file or folder in Files (or **History** in the File tab) for the
+  commits that change it, newest first, following renames. Unlike `git log --follow`, a file
+  renamed on one branch and edited under its old name on another keeps both histories
+  (ADR 0022). Moving onto a commit selects it and shows the file's change in the Diff tab. On
+  git.git, `builtin/log.c` takes 1.3 s for 863 commits (`git log --follow`: 8.4 s, 589).
 - Files module (Alt+6): the folders and files of the selected commit, read as folders are
   opened (a 1,600-entry folder of the Linux kernel in a few milliseconds), with tree keys
   (Right/Left open, close and move) and a context menu. Showing a file opens the **File** tab:

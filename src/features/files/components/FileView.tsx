@@ -1,6 +1,7 @@
 import {
   FileQuestionIcon,
   FolderIcon,
+  HistoryIcon,
   MousePointerClickIcon,
   PackageIcon,
   SaveIcon,
@@ -10,6 +11,7 @@ import { useEffect } from "react";
 import { useCommitDetails } from "@/features/commit-details";
 import { FileContents } from "@/features/diff";
 import { shortId } from "@/features/graph";
+import { showHistory } from "@/features/history";
 import { WithActiveRepository } from "@/features/repositories";
 import { useSelection } from "@/features/selection";
 import { FILE_TAB, useTabsStore } from "@/features/workspace";
@@ -70,12 +72,13 @@ function EntryBody({ repoId, entry, path, commit }: EntryBodyProps) {
 
 interface ChosenFileProps {
   repoId: number;
+  repoPath: string;
   row: number;
   path: string;
 }
 
 /** The chosen path at the selected commit: its contents, or why there are none. */
-function ChosenFile({ repoId, row, path }: ChosenFileProps) {
+function ChosenFile({ repoId, repoPath, row, path }: ChosenFileProps) {
   const entry = useTreeEntry(repoId, row, path);
   const details = useCommitDetails(repoId, row);
   const commit = details.data ? shortId(details.data.id) : "this commit";
@@ -119,6 +122,17 @@ function ChosenFile({ repoId, row, path }: ChosenFileProps) {
           variant="outline"
           size="sm"
           className="ml-auto h-6 px-2 text-xs"
+          onClick={() => {
+            showHistory(repoPath, { path, folder: false });
+          }}
+        >
+          <HistoryIcon aria-hidden />
+          History
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-6 px-2 text-xs"
           disabled={!saveable}
           onClick={() => {
             if (entry.data) void saveFileAs(repoId, entry.data.id, name);
@@ -151,7 +165,7 @@ function SelectedFile({ repoId, repoPath }: { repoId: number; repoPath: string }
       />
     );
   }
-  return <ChosenFile repoId={repoId} row={selection.row} path={path} />;
+  return <ChosenFile repoId={repoId} repoPath={repoPath} row={selection.row} path={path} />;
 }
 
 /**

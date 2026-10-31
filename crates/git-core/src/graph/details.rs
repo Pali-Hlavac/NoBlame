@@ -1,6 +1,8 @@
 //! Text columns for visible rows: id, summary, author, date and ref labels. Read lazily, one
 //! page at a time, because decoding a million commit objects up front would be far too slow.
 
+use gix::ObjectId;
+
 use super::{Graph, GraphError, GraphRef};
 
 /// Largest page [`commit_rows`] returns; the UI asks for a screenful plus some margin.
@@ -75,5 +77,31 @@ fn read_row(
         author_time: author.seconds(),
         parent_count: u32::try_from(graph.parent_count(commit)).unwrap_or(u32::MAX),
         refs,
+    })
+}
+
+/// Summary and author of one commit, for lists that are not graph rows (a file's history).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CommitText {
+    /// First line of the message (lossy if not UTF-8).
+    pub summary: String,
+    /// Author name (lossy if not UTF-8).
+    pub author_name: String,
+    /// Author e-mail (lossy if not UTF-8).
+    pub author_email: String,
+    /// Author time, seconds since the epoch.
+    pub author_time: i64,
+}
+
+/// Reads the summary and author of commit `id`.
+pub fn commit_text(repo: &gix::Repository, id: ObjectId) -> Result<CommitText, GraphError> {
+    let object = repo.find_commit(id).map_err(GraphError::gix)?;
+    let author = object.author().map_err(GraphError::gix)?.trim();
+    let summary = object.message().map_err(GraphError::gix)?.summary();
+    Ok(CommitText {
+        summary: summary.to_string(),
+        author_name: author.name.to_string(),
+        author_email: author.email.to_string(),
+        author_time: author.seconds(),
     })
 }

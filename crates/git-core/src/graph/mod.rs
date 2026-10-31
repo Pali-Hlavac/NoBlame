@@ -24,7 +24,7 @@ pub use ancestry::Ancestry;
 pub use commit_details::{
     CommitDetails, MAX_CONTAINING_REFS, ParentInfo, Signature, commit_details,
 };
-pub use details::{CommitRow, MAX_ROWS_PER_PAGE, commit_rows};
+pub use details::{CommitRow, CommitText, MAX_ROWS_PER_PAGE, commit_rows, commit_text};
 pub use encode::{
     ANCESTRY_FORMAT_VERSION, BLOCK_FORMAT_VERSION, FLAG_HEAD, FLAG_MERGE, encode_ancestry_block,
     encode_block,
@@ -166,6 +166,14 @@ impl Graph {
                     == id
             })
             .and_then(|commit| self.rows_of.get(commit).copied())
+    }
+
+    /// The row of commit `id`, by binary search. The index sorts its ids on the first call
+    /// (about 0.1 s per million commits), so this suits many lookups, unlike [`Self::row_of_id`].
+    pub fn lookup_row(&self, id: &gix::oid) -> Option<u32> {
+        self.index
+            .lookup(id)
+            .and_then(|commit| self.rows_of.get(commit as usize).copied())
     }
 
     /// The id of the commit on `row`.

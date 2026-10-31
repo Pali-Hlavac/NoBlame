@@ -4,13 +4,15 @@ export { TAB_HOTKEYS, useTabHotkeys } from "./hooks/useTabHotkeys";
 export {
   DIFF_TAB,
   FILE_TAB,
+  HISTORY_TAB,
   SETTINGS_TAB,
   WELCOME_TAB,
   showDiffTab,
   showFileTab,
+  showHistoryTab,
   useActiveRepositoryTab,
   useActiveTab,
   useTabsStore,
 } from "./store/tabs";
 export { isWorkspaceTab } from "./types";
-export type { DiffTab, FileTab, RepositoryTab, WorkspaceTab } from "./types";
+export type { DiffTab, FileTab, HistoryTab, RepositoryTab, WorkspaceTab } from "./types";

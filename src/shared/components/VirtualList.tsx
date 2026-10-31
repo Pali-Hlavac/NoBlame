@@ -30,6 +30,8 @@ interface VirtualListProps {
   tree?: { level: (index: number) => number; expanded: (index: number) => boolean | undefined };
   /** Keys the list does not handle itself (a tree's Left and Right); true when handled. */
   onKey?: (key: string, activeIndex: number | undefined) => boolean;
+  /** The rows rendered (on screen plus overscan) changed: fetch their pages. */
+  onRangeChange?: (first: number, last: number) => void;
   className?: string;
 }
 
@@ -51,6 +53,11 @@ export function VirtualList(props: VirtualListProps) {
     count - 1,
     Math.ceil((scrollTop + size.height) / rowHeight) + OVERSCAN_ROWS,
   );
+
+  const { onRangeChange } = props;
+  useEffect(() => {
+    onRangeChange?.(first, last);
+  }, [first, last, onRangeChange]);
 
   // Keep the active row visible when it changes.
   useEffect(() => {

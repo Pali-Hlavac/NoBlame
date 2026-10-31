@@ -66,6 +66,7 @@ export function FileTree({ repoId, repoPath, rootId, label }: FileTreeProps) {
   return (
     <FileTreeMenu
       repoId={repoId}
+      repoPath={repoPath}
       row={current}
       onOpen={() => {
         activate(current);

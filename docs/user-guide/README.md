@@ -15,6 +15,7 @@ buttons and the task windows are labelled placeholders.
 | [The commit graph](commit-graph.md)             | Reading and moving through the history       |
 | [Viewing changes](viewing-changes.md)           | Changed files of a commit and their diffs    |
 | [Browsing files](browsing-files.md)             | Every file of a commit; saving one           |
+| [File history](file-history.md)                 | Every commit that changed a file             |
 | [Command palette](command-palette.md)           | Running any command by typing its name       |
 | [Command line](command-line.md)                 | Starting NoBlame from a terminal or a script |
 | [Keyboard shortcuts](keyboard-shortcuts.md)     | All shortcuts in one table                   |

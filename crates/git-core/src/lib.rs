@@ -8,6 +8,7 @@
 pub mod cli;
 pub mod diff;
 pub mod graph;
+pub mod history;
 pub mod repo;
 pub mod stash;
 pub mod status;

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import { DiffView } from "@/features/diff";
 import { FileView } from "@/features/files";
+import { HistoryView } from "@/features/history";
 import { RepositoryView } from "@/features/repositories";
 import { SettingsView } from "@/features/settings";
 import type { WorkspaceTab } from "@/features/workspace";
@@ -21,5 +22,7 @@ export function renderTab(tab: WorkspaceTab): ReactNode {
       return <DiffView />;
     case "file":
       return <FileView />;
+    case "history":
+      return <HistoryView />;
   }
 }

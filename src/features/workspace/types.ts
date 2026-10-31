@@ -32,7 +32,13 @@ export interface FileTab extends TabBase {
   kind: "file";
 }
 
-export type WorkspaceTab = WelcomeTab | RepositoryTab | SettingsTab | DiffTab | FileTab;
+/** The history of a file or folder chosen with "File history" (one tab at most). */
+export interface HistoryTab extends TabBase {
+  kind: "history";
+}
+
+export type WorkspaceTab =
+  WelcomeTab | RepositoryTab | SettingsTab | DiffTab | FileTab | HistoryTab;
 
 /** Checks a tab read back from a saved layout (which may come from another app version). */
 export function isWorkspaceTab(value: unknown): value is WorkspaceTab {
@@ -44,6 +50,7 @@ export function isWorkspaceTab(value: unknown): value is WorkspaceTab {
     case "settings":
     case "diff":
     case "file":
+    case "history":
       return true;
     case "repository":
       return typeof tab.path === "string";

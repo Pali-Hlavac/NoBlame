@@ -7,6 +7,7 @@ import { create } from "zustand";
 import type {
   DiffTab,
   FileTab,
+  HistoryTab,
   RepositoryTab,
   SettingsTab,
   WelcomeTab,
@@ -17,6 +18,7 @@ export const WELCOME_TAB: WelcomeTab = { id: "welcome", kind: "welcome", title: 
 export const SETTINGS_TAB: SettingsTab = { id: "settings", kind: "settings", title: "Settings" };
 export const DIFF_TAB: DiffTab = { id: "diff", kind: "diff", title: "Diff" };
 export const FILE_TAB: FileTab = { id: "file", kind: "file", title: "File" };
+export const HISTORY_TAB: HistoryTab = { id: "history", kind: "history", title: "History" };
 
 interface TabsState {
   tabs: WorkspaceTab[];
@@ -136,6 +138,11 @@ export function showDiffTab(): void {
 /** Shows the file tab: opens it the first time, otherwise focuses it where it is docked. */
 export function showFileTab(): void {
   useTabsStore.getState().openTab(FILE_TAB);
+}
+
+/** Shows the history tab: opens it the first time, otherwise focuses it where it is docked. */
+export function showHistoryTab(): void {
+  useTabsStore.getState().openTab(HISTORY_TAB);
 }
 
 /** The currently active tab, if any. */

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { showHistory } from "@/features/history";
 import { copyToClipboard } from "@/shared/lib/clipboard";
 import {
   ContextMenu,
@@ -13,20 +14,21 @@ import {
 import { saveFileAs } from "../api/save";
 import type { TreeRow } from "../lib/rows";
 
-/** File history and blame arrive with the next slice of M3 (docs/roadmap.md). */
-const HISTORY_MILESTONE = "M3";
+/** Blame arrives with the rest of slice 8 of M3 (docs/roadmap.md). */
+const BLAME_MILESTONE = "M3";
 
 function Planned({ label }: { label: string }) {
   return (
     <ContextMenuItem disabled>
       <span className="flex-1">{label}</span>
-      <span className="text-xs text-muted-foreground">{HISTORY_MILESTONE}</span>
+      <span className="text-xs text-muted-foreground">{BLAME_MILESTONE}</span>
     </ContextMenuItem>
   );
 }
 
 interface FileTreeMenuProps {
   repoId: number;
+  repoPath: string;
   /** The row with the cursor; no menu on notes or while nothing is chosen. */
   row: TreeRow | undefined;
   onOpen: () => void;
@@ -35,7 +37,7 @@ interface FileTreeMenuProps {
 }
 
 /** The context menu of the tree's row with the cursor (right click, Shift+F10, Menu key). */
-export function FileTreeMenu({ repoId, row, onOpen, children }: FileTreeMenuProps) {
+export function FileTreeMenu({ repoId, repoPath, row, onOpen, children }: FileTreeMenuProps) {
   const entry = row?.type === "entry" ? row : undefined;
   const folder = entry?.entry.kind === "folder";
   const blob = entry && !folder && entry.entry.kind !== "submodule" ? entry.entry : undefined;
@@ -74,13 +76,15 @@ export function FileTreeMenu({ repoId, row, onOpen, children }: FileTreeMenuProp
           >
             Copy name
           </ContextMenuItem>
-          {!folder && (
-            <>
-              <ContextMenuSeparator />
-              <Planned label="File history" />
-              <Planned label="Blame" />
-            </>
-          )}
+          <ContextMenuSeparator />
+          <ContextMenuItem
+            onSelect={() => {
+              showHistory(repoPath, { path: entry.path, folder });
+            }}
+          >
+            {folder ? "Folder history" : "File history"}
+          </ContextMenuItem>
+          {!folder && <Planned label="Blame" />}
         </ContextMenuContent>
       )}
     </ContextMenu>

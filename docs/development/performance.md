@@ -212,6 +212,24 @@ File views use the diff pipeline (`file_view`), so their cost is a file diff's w
 comparison. They were not timed on the Linux clone: it is blobless and has no checkout, so its
 file contents are not local.
 
+### File history (M3 slice 8, ADR 0022, 2026-10-31)
+
+`history_spike` (release) times `file_history` from HEAD, following renames:
+`cargo run --release -p git-core --example history_spike -- <repo> <path>`.
+
+| Repository                    | Path                  | Commits | Names | Time   | `git log --follow` |
+| ----------------------------- | --------------------- | ------- | ----- | ------ | ------------------ |
+| git.git (82,634 commits)      | `builtin/log.c`       | 863     | 2     | 1.3 s  | 8.4 s, 589 commits |
+| git.git                       | `diff.c`              | 1,702   | 1     | 0.72 s | 2.7 s, 1,199       |
+| Linux kernel (1.5M, blobless) | `MAINTAINERS`         | 22,019  | 1     | 9.2 s  | not run            |
+| Linux kernel                  | `kernel/sched/core.c` | 1,992   | 1     | 1.7 s  | not run            |
+
+git.git was cloned with full contents into `.cache/repos/git` for this (no commit-graph file).
+`git log -- <path>` is almost all of the time; on the kernel it has no Bloom filters to use.
+`kernel/sched/core.c` stops at the move into `kernel/sched/`: the blobless clone lacks the
+contents rename detection needs. Not timed in the running app yet (the owner's instance was in
+use).
+
 ### Graph filters (M3 slice 4a, ADR 0021, 2026-10-29)
 
 Measured with `graph_spike` (release), from the loaded full graph. The view's time is choosing

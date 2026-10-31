@@ -17,11 +17,12 @@ Click **Save as…** in the File tab, or right-click a file and choose **Save as
 save it. NoBlame saves the file exactly as it is stored in the repository. For example, line
 endings are not converted, and a Git LFS file is saved as its small pointer file.
 
-Right-click a file or folder to copy its path or name.
+Right-click a file or folder to copy its path or name, or to see its
+[history](file-history.md). The File tab's **History** button does the same for its file.
 
 ## Limits
 
 - A folder with more than 50,000 entries lists the first 50,000.
 - Files over 64 MB, and binary files that are not pictures, are not shown; you can still save
   them.
-- File history and blame are coming next; they are shown greyed out in the menu.
+- Blame is coming next; it is shown greyed out in the menu.

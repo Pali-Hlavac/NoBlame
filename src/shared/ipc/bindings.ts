@@ -91,6 +91,17 @@ export const commands = {
 	/**  The entries of folder `tree_id` (at most 50,000), folders first. */
 	listTree: (id: number, treeId: string) => typedError<TreeListingDto, AppError>(__TAURI_INVOKE("list_tree", { id, treeId })),
 	/**
+	 *  The history of file or folder `path` on the branches the graph's filter shows, following
+	 *  renames: how many commits and the file's earlier names. Commits come from
+	 *  `get_file_history_rows`. A request for another path cancels one still being read.
+	 */
+	getFileHistory: (id: number, path: string) => typedError<FileHistoryDto, AppError>(__TAURI_INVOKE("get_file_history", { id, path })),
+	/**
+	 *  Up to `count` commits (at most 500) of that history from position `start`, newest first,
+	 *  with their graph rows.
+	 */
+	getFileHistoryRows: (id: number, path: string, start: number, count: number) => typedError<FileHistoryRowDto[], AppError>(__TAURI_INVOKE("get_file_history_rows", { id, path, start, count })),
+	/**
 	 *  A file shown whole (every line unchanged): its kind, size and row count. Rows come from
 	 *  `get_file_view_lines`.
 	 */
@@ -380,6 +391,38 @@ export type FileDiffDto = {
 	newSize: string,
 };
 
+/**  A path's history: how many commits, its earlier names, and whether it is complete. */
+export type FileHistoryDto = {
+	/**  Commits in the history. */
+	total: number,
+	/**  The names the file had before, as found (lossy for non-UTF-8 bytes). */
+	previousNames: string[],
+	/**  Set when renames were not followed to the file's first commit. */
+	stopped: HistoryStopDto | null,
+};
+
+/**  One commit of a history. */
+export type FileHistoryRowDto = {
+	/**  Full commit id (hex). */
+	id: string,
+	/**  Its row in the graph the tab shows; `null` when the filter hides it. */
+	row: number | null,
+	/**  The file's path in this commit. */
+	path: string,
+	/**  What the commit did to it. */
+	change: PathChangeDto,
+	/**  For a rename, the name before. */
+	previousPath: string | null,
+	/**  First line of the message. */
+	summary: string,
+	/**  Author name. */
+	authorName: string,
+	/**  Author e-mail. */
+	authorEmail: string,
+	/**  Author time in seconds since the epoch. */
+	authorTime: number | null,
+};
+
 /**  Which file a file view shows. */
 export type FileViewRequestDto = {
 	/**  The file's blob (hex). */
@@ -498,6 +541,15 @@ name: string } |
 /**  Full commit id. */
 id: string };
 
+/**  Why the history ends before the file's first commit. */
+export type HistoryStopDto = 
+/**  64 renames were followed. */
+{ kind: "tooManyRenames" } | 
+/**  Following a rename needs file contents a partial clone does not have. */
+{ kind: "missingContents"; 
+/**  The commit (hex) where following stopped. */
+commit: string };
+
 /**  A version of the file, for finding the row of one of its lines. */
 export type LineSideDto = 
 /**  Before the change. */
@@ -512,6 +564,19 @@ export type ParentDto = {
 	/**  Row in the graph; `None` when the tab's filter hides it. */
 	row: number | null,
 };
+
+/**  What a commit did to the path. */
+export type PathChangeDto = 
+/**  Created it. */
+"added" | 
+/**  Changed it. */
+"modified" | 
+/**  Removed it. */
+"deleted" | 
+/**  Renamed the file to this path (`previousPath` is the old name). */
+"renamed" | 
+/**  A merge that differs from every parent at the path. */
+"merge";
 
 /**  One entry of the list as the UI sees it. */
 export type RecentRepository = {

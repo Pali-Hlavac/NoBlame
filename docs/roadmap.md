@@ -318,7 +318,22 @@ Slice 7 done (2026-10-30): the files of a revision ([features/files.md](features
 - A hot-module update during testing left dockview's document groups inconsistent, so opening a
   tab threw "invalid location" and blanked the window. It did not happen after a reload.
 
-Next: slice 8, file history (following renames) and blame.
+Slice 8, first half done (2026-10-31): file history ([features/history.md](features/history.md),
+ADR 0022).
+
+- **History** tab: the commits that change a file or folder, from the Files menu or the file
+  tab's **History** button. Moving onto a commit selects it and shows the file's change.
+- Renames are followed per branch: `git log -- <path>` for each name, gix rename detection where
+  the file appears (also on the side of a merge).
+  - git.git `builtin/log.c`: 1.3 s, 863 commits; `git log --follow`: 8.4 s, 589 commits.
+  - Linux `MAINTAINERS`: 9.2 s (no Bloom filters in that clone).
+- Blame is measured and decided (ADR 0022: `git blame --incremental`, 1.4–2 times faster than
+  gix-blame on git.git), and comes in the second half.
+- git.git is cloned into `.cache/repos/git` (full contents) as a benchmark for both.
+- Not clicked through in the running app: the owner's instance was running. Covered by
+  integration tests against git and component tests.
+
+Next: slice 8, second half: blame with "blame previous revision".
 
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is

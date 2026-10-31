@@ -61,6 +61,8 @@ pub fn builder() -> Builder<tauri::Wry> {
             inspect::commands::get_file_contents,
             inspect::commands::get_tree_entry,
             inspect::commands::list_tree,
+            inspect::commands::get_file_history,
+            inspect::commands::get_file_history_rows,
             inspect::commands::get_file_view,
             inspect::commands::get_file_view_lines,
             inspect::commands::save_file_as,

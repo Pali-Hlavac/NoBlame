@@ -1,7 +1,9 @@
-//! Open repositories ("sessions") and their lazily built graphs (`graph.rs`).
+//! Open repositories ("sessions"), their lazily built graphs (`graph.rs`) and the history
+//! of the path the history tab shows (`history.rs`).
 
 mod find;
 mod graph;
+mod history;
 
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicU32, Ordering};
@@ -19,6 +21,7 @@ use super::service::blocking;
 use super::{RepoId, RepositoryError};
 use find::FoundRows;
 use graph::GraphSlot;
+pub use history::PathHistory;
 
 /// One open repository. The graph is built on first use and kept until reloaded.
 pub struct Session {
@@ -41,6 +44,10 @@ pub struct Session {
     found: Mutex<Option<FoundRows>>,
     /// Stops a search when a newer one is asked for.
     find_cancel: Mutex<CancellationToken>,
+    /// The history the history tab shows.
+    history: tokio::sync::Mutex<Option<Arc<PathHistory>>>,
+    /// The path whose history is being read, and how to stop reading it.
+    history_cancel: Mutex<(String, CancellationToken)>,
 }
 
 impl Session {
@@ -158,6 +165,8 @@ impl RepoSessions {
             diffs: DiffCache::default(),
             found: Mutex::new(None),
             find_cancel: Mutex::default(),
+            history: tokio::sync::Mutex::default(),
+            history_cancel: Mutex::default(),
         });
         inner.sessions.insert(id, Arc::clone(&session));
         (id, session)

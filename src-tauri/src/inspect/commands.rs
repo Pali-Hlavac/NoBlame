@@ -3,9 +3,9 @@
 use tauri::{State, WebviewWindow};
 
 use super::{
-    ChangedFilesDto, CommitDetailsDto, DiffLineDto, DiffRequestDto, FileDiffDto,
-    FileViewRequestDto, LineSideDto, RefEntry, SplitLineDto, StashDto, StatusSummaryDto,
-    SubmoduleDto, TreeEntryDto, TreeListingDto, files, service,
+    ChangedFilesDto, CommitDetailsDto, DiffLineDto, DiffRequestDto, FileDiffDto, FileHistoryDto,
+    FileHistoryRowDto, FileViewRequestDto, LineSideDto, RefEntry, SplitLineDto, StashDto,
+    StatusSummaryDto, SubmoduleDto, TreeEntryDto, TreeListingDto, files, history, service,
 };
 use crate::error::CommandResult;
 use crate::repository::{RawBytes, RepoId, RepoSessions};
@@ -159,6 +159,33 @@ pub async fn save_file_as(
     file_name: String,
 ) -> CommandResult<Option<String>> {
     Ok(files::save_file_as(&window, &sessions, id, blob_id, file_name).await?)
+}
+
+/// The history of file or folder `path` on the branches the graph's filter shows, following
+/// renames: how many commits and the file's earlier names. Commits come from
+/// `get_file_history_rows`. A request for another path cancels one still being read.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_file_history(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    path: String,
+) -> CommandResult<FileHistoryDto> {
+    Ok(history::file_history(&sessions, id, path).await?)
+}
+
+/// Up to `count` commits (at most 500) of that history from position `start`, newest first,
+/// with their graph rows.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_file_history_rows(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    path: String,
+    start: u32,
+    count: u32,
+) -> CommandResult<Vec<FileHistoryRowDto>> {
+    Ok(history::file_history_rows(&sessions, id, path, start, count).await?)
 }
 
 /// Every branch, remote branch and tag with the row of its commit.

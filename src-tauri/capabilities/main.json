@@ -43,6 +43,8 @@
     "allow-get-file-contents",
     "allow-get-tree-entry",
     "allow-list-tree",
+    "allow-get-file-history",
+    "allow-get-file-history-rows",
     "allow-get-file-view",
     "allow-get-file-view-lines",
     "allow-save-file-as",

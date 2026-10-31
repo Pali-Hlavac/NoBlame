@@ -2,6 +2,7 @@
 
 use git_core::diff::DiffError;
 use git_core::graph::GraphError;
+use git_core::history::HistoryError;
 use git_core::repo::RepoError;
 use git_core::stash::StashError;
 use git_core::status::StatusError;
@@ -33,6 +34,9 @@ pub enum RepositoryError {
     /// Reading the files of a revision, or saving one, failed.
     #[error(transparent)]
     Tree(#[from] TreeError),
+    /// Reading a file's history failed.
+    #[error(transparent)]
+    History(#[from] HistoryError),
     /// Reading the working tree status failed.
     #[error(transparent)]
     Status(#[from] StatusError),
@@ -74,7 +78,8 @@ impl From<RepositoryError> for AppError {
             | RepositoryError::Stash(StashError::Gix(message))
             | RepositoryError::Submodule(SubmoduleError::Gix(message))
             | RepositoryError::Diff(DiffError::Gix(message))
-            | RepositoryError::Tree(TreeError::Gix(message)) => {
+            | RepositoryError::Tree(TreeError::Gix(message))
+            | RepositoryError::History(HistoryError::Gix(message)) => {
                 tracing::error!(%message, "repository read failed");
                 AppError::new(ErrorCode::GitFailed, format!("Reading the repository failed: {message}"))
             }
@@ -120,7 +125,8 @@ impl From<RepositoryError> for AppError {
             .with_hint(
                 "Partial clones (`git clone --filter=blob:none`) download old file contents only when Git needs them. NoBlame does not download them yet.",
             ),
-            RepositoryError::Status(StatusError::Git(error)) => GitEnvError::from(error).into(),
+            RepositoryError::Status(StatusError::Git(error))
+            | RepositoryError::History(HistoryError::Git(error)) => GitEnvError::from(error).into(),
             RepositoryError::Status(error @ StatusError::Parse(_)) => {
                 tracing::error!(%error, "status output not understood");
                 AppError::new(ErrorCode::GitFailed, format!("Reading the status failed: {error}"))
@@ -132,7 +138,7 @@ impl From<RepositoryError> for AppError {
                 "This repository is no longer open.",
             )
             .with_hint("Open it again."),
-            RepositoryError::Task(message) => {
+            RepositoryError::Task(message) | RepositoryError::History(HistoryError::Task(message)) => {
                 tracing::error!(%message, "background task failed");
                 AppError::new(ErrorCode::Internal, "An internal task failed.")
             }
