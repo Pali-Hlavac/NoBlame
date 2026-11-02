@@ -185,6 +185,40 @@
   code {
     @apply select-text;
   }
+
+  /*
+   * Scrollbars drawn by the app, the same on every system (WebView2, WebKitGTK and WKWebView
+   * all support these pseudo-elements). The standard `scrollbar-width`/`scrollbar-color` must
+   * not be set anywhere: in Chromium they switch these styles off.
+   */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* The transparent border keeps the thumb clear of the edges. */
+  ::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 9999px;
+    background: color-mix(in oklch, var(--muted-foreground) 40%, transparent) padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(in oklch, var(--muted-foreground) 65%, transparent);
+  }
+
+  ::-webkit-scrollbar-thumb:active {
+    background-color: var(--muted-foreground);
+  }
+
+  ::-webkit-scrollbar-button {
+    display: none;
+  }
 }
 
 /* Loading: overlays fade in after a moment, so quick loads do not flash. */
