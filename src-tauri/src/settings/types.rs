@@ -90,14 +90,36 @@ impl Default for GraphSettings {
 pub struct RepositoriesSettings {
     /// Each repository row has a "…" button with its actions.
     pub show_actions_menu: bool,
+    /// Order of the module's sections, top to bottom (the UI adds any that are missing).
+    pub sections: Vec<RepositoriesSection>,
+    /// Sections shown folded.
+    pub collapsed_sections: Vec<RepositoriesSection>,
 }
 
 impl Default for RepositoriesSettings {
     fn default() -> Self {
         Self {
             show_actions_menu: true,
+            sections: vec![
+                RepositoriesSection::Open,
+                RepositoriesSection::Groups,
+                RepositoriesSection::Recent,
+            ],
+            collapsed_sections: Vec::new(),
         }
     }
+}
+
+/// A section of the Repositories module.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub enum RepositoriesSection {
+    /// Open repositories with their submodules.
+    Open,
+    /// The user's repository groups.
+    Groups,
+    /// Recently opened repositories that are not open.
+    Recent,
 }
 
 /// How the diff tab lays out a diff.
@@ -183,5 +205,10 @@ mod tests {
         .unwrap();
         assert!(settings.graph.highlight_selection);
         assert!(!settings.repositories.show_actions_menu);
+        assert_eq!(
+            settings.repositories.sections,
+            RepositoriesSettings::default().sections
+        );
+        assert!(settings.repositories.collapsed_sections.is_empty());
     }
 }

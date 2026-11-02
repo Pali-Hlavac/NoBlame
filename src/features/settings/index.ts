@@ -6,6 +6,7 @@ export { ThemeMenu } from "./components/ThemeMenu";
 export { useAppSettings } from "./hooks/useAppSettings";
 export { useBranchSort } from "./hooks/useBranchSort";
 export { useDiffSettings } from "./hooks/useDiffSettings";
+export { useRepositorySections } from "./hooks/useRepositorySections";
 export { ContextStepper } from "./components/ContextStepper";
 export {
   DIFF_LAYOUT_OPTIONS,

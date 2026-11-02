@@ -91,6 +91,15 @@ cached. Deleting the folder is always safe.
 - Stored in `recent-repositories.json` in the platform config directory. If the file cannot be
   written, the repository still opens and a warning is logged.
 
+## Sections
+
+The module has three sections: **Open**, **Groups** and **Recent** (Recent only when a recent
+repository is not open). Clicking a section's title folds it; dragging the title onto another
+section moves it there (before it, or after it on its lower half), and Alt+Up / Alt+Down on the
+title moves it by one. The order and the folded sections are settings
+(`repositories.sections`, `repositories.collapsedSections`); the UI ignores repeats and adds
+missing sections at the end (`lib/sections.ts`).
+
 ## Groups
 
 Folders of repositories, like bookmarks, under **Groups** in the Repositories module (between

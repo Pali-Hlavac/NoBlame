@@ -111,6 +111,8 @@ All notable changes to NoBlame are documented here. The format follows
   right-click → Add to group), reorder repositories and groups by dragging, fold them, open a
   whole group at once. Saved in `repository-groups.json`. **Placeholders:** Pull all and Push
   all on a group are listed disabled (M5).
+- The Repositories module's sections (Open, Groups, Recent) fold when their title is clicked
+  and can be reordered by dragging the title (or Alt+Up / Alt+Down); both are kept in Settings.
 - Owner feedback (2026-11-02):
   - holding Ctrl (Cmd) over another commit shows "Click to compare with <the selected commit>"
     at the pointer;

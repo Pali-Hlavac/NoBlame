@@ -802,10 +802,23 @@ export type RepoSummary = {
  */
 export type RepositoriesRequested = null;
 
+/**  A section of the Repositories module. */
+export type RepositoriesSection = 
+/**  Open repositories with their submodules. */
+"open" | 
+/**  The user's repository groups. */
+"groups" | 
+/**  Recently opened repositories that are not open. */
+"recent";
+
 /**  Repositories module preferences. */
 export type RepositoriesSettings = {
 	/**  Each repository row has a "…" button with its actions. */
 	showActionsMenu?: boolean,
+	/**  Order of the module's sections, top to bottom (the UI adds any that are missing). */
+	sections?: RepositoriesSection[],
+	/**  Sections shown folded. */
+	collapsedSections?: RepositoriesSection[],
 };
 
 /**

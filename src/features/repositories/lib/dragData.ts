@@ -1,9 +1,13 @@
 /**
  * Drag and drop in the Repositories module: repositories (open, recent or grouped) dragged onto
- * groups, and groups dragged to reorder them. Custom types keep other drops (dock tabs, files)
+ * groups, and groups and the module's sections dragged to reorder them. Custom types keep other drops (dock tabs, files)
  * out; while dragging, only the types can be read, the data only on drop.
  */
 import type { DragEvent } from "react";
+
+import type { RepositoriesSection } from "@/shared/ipc/bindings";
+
+import { ALL_SECTIONS } from "./sections";
 
 const REPOSITORY_TYPE = "application/x-noblame-repository";
 const GROUP_TYPE = "application/x-noblame-group";
@@ -46,6 +50,22 @@ export function droppedRepository(event: DragEvent): DraggedRepository | undefin
     // Not ours.
   }
   return undefined;
+}
+
+const SECTION_TYPE = "application/x-noblame-section";
+
+export function startSectionDrag(event: DragEvent, section: RepositoriesSection): void {
+  event.dataTransfer.setData(SECTION_TYPE, section);
+  event.dataTransfer.effectAllowed = "move";
+}
+
+export const isSectionDrag = (event: DragEvent): boolean =>
+  event.dataTransfer.types.includes(SECTION_TYPE);
+
+/** The dropped section, if the drop carries one. */
+export function droppedSection(event: DragEvent): RepositoriesSection | undefined {
+  const value = event.dataTransfer.getData(SECTION_TYPE);
+  return ALL_SECTIONS.find((section) => section === value);
 }
 
 /** Whether the drop is on the lower half of the row it lands on (then it goes after it). */

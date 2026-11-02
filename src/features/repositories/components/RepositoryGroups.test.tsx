@@ -13,6 +13,7 @@ const ipc = vi.hoisted(() => ({
   listRecentRepositories: vi.fn(),
   getRepositoryGroups: vi.fn(),
   saveRepositoryGroups: vi.fn(),
+  getSettings: vi.fn(() => Promise.resolve({ status: "ok", data: {} })),
 }));
 
 vi.mock("@/shared/ipc/bindings", () => ({ commands: ipc }));

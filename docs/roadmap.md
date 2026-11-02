@@ -550,6 +550,8 @@ The Branches module gets the same entries for its rows.
 - [x] Repository groups, brought forward from M5 at the owner's request: created, renamed,
       folded, filled and ordered by drag and drop or right-click, saved in
       `repository-groups.json`; clicked through in the dev app (drags with real mouse input)
+- [x] The module's sections fold and can be reordered by dragging their titles (saved in
+      Settings). Not clicked through: the owner's app was running; component tests cover it
 - [ ] Graph columns and relative dates: slice 11 above
 - [ ] The mouse pointer stayed hidden after using the palette with the keyboard and opening the
       native folder dialog ("Open repository…"); moving the mouse did not bring it back. To

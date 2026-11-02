@@ -1,7 +1,9 @@
 import { FolderOpenIcon, FolderPlusIcon, ListPlusIcon, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
+import { useRepositorySections } from "@/features/settings";
 import { useTabsStore, type RepositoryTab } from "@/features/workspace";
+import type { RepositoriesSection } from "@/shared/ipc/bindings";
 import { Button } from "@/shared/ui/button";
 import { Tooltip } from "@/shared/ui/tooltip";
 
@@ -11,19 +13,59 @@ import { useSubmoduleTrees } from "../api/submodules";
 import { useCreateRepository, useOpenRepository } from "../hooks/useOpenRepository";
 import { addGroup, freeGroupName } from "../lib/groups";
 import { repositoryTab } from "../lib/path";
+import { moveSection, sectionDropIndex, sectionOrder } from "../lib/sections";
 import { submoduleTabIds } from "../lib/submodules";
 import { useGroupsUiStore } from "../store/groups";
+import { ModuleSection } from "./ModuleSection";
 import { OpenTabsContext } from "./openTabsContext";
 import { RepositoryGroups } from "./RepositoryGroups";
 import { OpenRepository, RecentItem } from "./RepositoryRows";
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <section aria-label={title} className="space-y-0.5">
-      <h3 className="px-2 pt-2 text-xs font-semibold text-muted-foreground uppercase">{title}</h3>
-      {children}
-    </section>
-  );
+const SECTION_TITLES: Record<RepositoriesSection, string> = {
+  open: "Open",
+  groups: "Groups",
+  recent: "Recent",
+};
+
+/**
+ * The module's sections in the saved order (Settings), each foldable and movable. A section
+ * whose content is `false` (Recent with nothing closed) is left out.
+ */
+function ModuleSections(contents: Record<RepositoriesSection, ReactNode>) {
+  const sections = useRepositorySections();
+  const order = sectionOrder(sections.order);
+  const shown = order.filter((id) => contents[id] !== false);
+  return shown.map((id) => {
+    const collapsed = sections.collapsed.includes(id);
+    return (
+      <ModuleSection
+        key={id}
+        id={id}
+        title={SECTION_TITLES[id]}
+        collapsed={collapsed}
+        onToggle={() => {
+          sections.setCollapsed(
+            collapsed
+              ? sections.collapsed.filter((section) => section !== id)
+              : [...sections.collapsed, id],
+          );
+        }}
+        onDropSection={(moved, after) => {
+          sections.setOrder(moveSection(order, moved, sectionDropIndex(order, id, moved, after)));
+        }}
+        onMove={(offset) => {
+          // Past the neighbour that is shown, also when a hidden section lies between them.
+          const neighbour = shown[shown.indexOf(id) + offset];
+          if (!neighbour) return;
+          sections.setOrder(
+            moveSection(order, id, sectionDropIndex(order, neighbour, id, offset > 0)),
+          );
+        }}
+      >
+        {contents[id]}
+      </ModuleSection>
+    );
+  });
 }
 
 interface ToolbarButtonProps {
@@ -50,7 +92,10 @@ function ToolbarButton({ label, icon: Icon, disabled, onClick }: ToolbarButtonPr
   );
 }
 
-/** Repositories module: open repositories with nested submodules, groups, then recent ones. */
+/**
+ * Repositories module: open repositories with nested submodules, groups, and recent ones, in
+ * the order the user arranged.
+ */
 export function RepositoriesModule() {
   const tabs = useTabsStore((state) => state.tabs);
   const activeRepositoryTabId = useTabsStore((state) => state.activeRepositoryTabId);
@@ -100,34 +145,34 @@ export function RepositoriesModule() {
       </div>
       <OpenTabsContext.Provider value={{ ids: openIds, activeId: activeRepositoryTabId }}>
         <div className="min-h-0 flex-1 space-y-2 overflow-auto p-1">
-          <Section title="Open">
-            {roots.length === 0 ? (
-              <p className="px-2 text-sm text-muted-foreground">No repository open.</p>
-            ) : (
-              <ul>
-                {roots.map(({ tab, submodules }) => (
-                  <OpenRepository
-                    key={tab.id}
-                    tab={tab}
-                    active={tab.id === activeRepositoryTabId}
-                    submodules={submodules}
-                  />
-                ))}
-              </ul>
-            )}
-          </Section>
-          <Section title="Groups">
-            <RepositoryGroups />
-          </Section>
-          {closedRecent.length > 0 && (
-            <Section title="Recent">
-              <ul>
-                {closedRecent.map((entry) => (
-                  <RecentItem key={entry.path} entry={entry} />
-                ))}
-              </ul>
-            </Section>
-          )}
+          <ModuleSections
+            open={
+              roots.length === 0 ? (
+                <p className="px-2 text-sm text-muted-foreground">No repository open.</p>
+              ) : (
+                <ul>
+                  {roots.map(({ tab, submodules }) => (
+                    <OpenRepository
+                      key={tab.id}
+                      tab={tab}
+                      active={tab.id === activeRepositoryTabId}
+                      submodules={submodules}
+                    />
+                  ))}
+                </ul>
+              )
+            }
+            groups={<RepositoryGroups />}
+            recent={
+              closedRecent.length > 0 && (
+                <ul>
+                  {closedRecent.map((entry) => (
+                    <RecentItem key={entry.path} entry={entry} />
+                  ))}
+                </ul>
+              )
+            }
+          />
         </div>
       </OpenTabsContext.Provider>
     </nav>

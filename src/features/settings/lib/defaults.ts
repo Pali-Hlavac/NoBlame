@@ -25,7 +25,11 @@ export interface AppSettings {
 export const DEFAULT_SETTINGS: AppSettings = {
   theme: "system",
   graph: { highlightSelection: true, workingTree: "rows" },
-  repositories: { showActionsMenu: true },
+  repositories: {
+    showActionsMenu: true,
+    sections: ["open", "groups", "recent"],
+    collapsedSections: [],
+  },
   diff: {
     layout: "unified",
     whitespace: "show",

@@ -120,6 +120,9 @@ Use `target\debug\noblame.exe` while the dev app runs.
   - Notes:
 - [ ] Settings → switch off the **…** button: it disappears.
   - Notes:
+- [ ] **(new)** Click a section title (Open, Groups, Recent): it folds. Drag a title onto
+      another section to reorder; Alt+Up / Alt+Down on a title does the same. Restart: kept.
+  - Notes:
 - [ ] **(new)** Groups: the **New group** button at the top → type a name, Enter. F2 on a group
       renames it; Escape cancels.
   - Notes:
