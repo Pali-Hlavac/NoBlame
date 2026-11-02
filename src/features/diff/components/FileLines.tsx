@@ -61,7 +61,8 @@ function FileRow({ line, digits, gutter }: FileRowProps) {
           </span>
         </span>
       </span>
-      <span className="pr-4 pl-3 whitespace-pre select-text">
+      {/* Fills the row, so a selection can also start after the end of the line. */}
+      <span className="flex-1 pr-4 pl-3 whitespace-pre select-text">
         <LineText text={line.text} kind="context" highlights={[]} syntax={line.syntax} />
         {line.truncated && (
           <span className="pl-2 text-muted-foreground italic select-none">{TRUNCATED_NOTE}</span>

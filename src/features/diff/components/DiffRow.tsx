@@ -39,7 +39,8 @@ export function DiffRow({ line, digits }: DiffRowProps) {
         <span aria-hidden>{MARKERS[line.kind]}</span>
         <span className="sr-only">{SPOKEN[line.kind]}</span>
       </span>
-      <span className={cn("pr-4 whitespace-pre", SELECTABLE[line.kind] && "select-text")}>
+      {/* Fills the row, so a selection can also start after the end of the line. */}
+      <span className={cn("flex-1 pr-4 whitespace-pre", SELECTABLE[line.kind] && "select-text")}>
         {line.kind === "noNewline" ? (
           "No newline at end of file"
         ) : (
