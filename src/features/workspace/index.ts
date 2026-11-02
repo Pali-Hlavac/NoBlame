@@ -13,6 +13,7 @@ export {
   showCompareTab,
   showDiffTab,
   showFileTab,
+  setCloseFallback,
   showHistoryTab,
   useActiveRepositoryTab,
   useActiveTab,

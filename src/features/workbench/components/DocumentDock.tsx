@@ -8,12 +8,18 @@ import {
 import { LayoutGridIcon } from "lucide-react";
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 
-import { WELCOME_TAB, useTabsStore, type WorkspaceTab } from "@/features/workspace";
+import {
+  WELCOME_TAB,
+  setCloseFallback,
+  useTabsStore,
+  type WorkspaceTab,
+} from "@/features/workspace";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { Button } from "@/shared/ui/button";
 
 import { docks, scheduleLayoutSave } from "../lib/docks";
 import type { DocumentParams } from "../lib/layout";
+import { nextActiveAfterClose } from "../lib/nextActive";
 import { DOCUMENT_COMPONENT, reconcileDocuments } from "../lib/reconcile";
 import { DOCK_THEME } from "../lib/theme";
 
@@ -86,6 +92,9 @@ function connect(api: DockviewApi): () => void {
   };
   sync();
   const unsubscribe = useTabsStore.subscribe(sync);
+  setCloseFallback((closedId) =>
+    nextActiveAfterClose(api, closedId, useTabsStore.getState().activeRepositoryTabId),
+  );
   const subscriptions = [
     api.onDidActivePanelChange((event) => {
       const store = useTabsStore.getState();
@@ -94,12 +103,13 @@ function connect(api: DockviewApi): () => void {
       }
     }),
     api.onDidRemovePanel((panel) => {
-      if (!reconciling) useTabsStore.getState().closeTab(panel.id, api.activePanel?.id ?? null);
+      if (!reconciling) useTabsStore.getState().closeTab(panel.id);
     }),
     api.onDidLayoutChange(scheduleLayoutSave),
   ];
   return () => {
     unsubscribe();
+    setCloseFallback(null);
     subscriptions.forEach((subscription) => {
       subscription.dispose();
     });

@@ -1,6 +1,6 @@
 import type { WorkspaceTab } from "../types";
 
-import { WELCOME_TAB, useTabsStore } from "./tabs";
+import { WELCOME_TAB, setCloseFallback, useTabsStore } from "./tabs";
 
 const tab = (id: string): WorkspaceTab => ({ id, kind: "welcome", title: id });
 const repo = (id: string): WorkspaceTab => ({
@@ -79,6 +79,19 @@ describe("tabs store", () => {
     state().openTab(tab("b"));
     state().activateTab("a");
     state().closeTab("a", "welcome");
+    expect(state().activeTabId).toBe("welcome");
+  });
+
+  it("asks the registered fallback when the caller names no next tab", () => {
+    state().openTab(tab("a"));
+    state().openTab(tab("b"));
+    state().activateTab("a");
+    setCloseFallback(() => "welcome");
+    try {
+      state().closeTab("a");
+    } finally {
+      setCloseFallback(null);
+    }
     expect(state().activeTabId).toBe("welcome");
   });
 

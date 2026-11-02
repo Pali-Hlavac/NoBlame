@@ -35,8 +35,8 @@ interface TabsState {
   /** Opens the tab, or focuses it if a tab with the same id is already open. */
   openTab: (tab: WorkspaceTab) => void;
   /**
-   * Closes the tab. When it was active, `nextActiveId` (what the dock focused instead) or else
-   * its right neighbor (or the new last tab) becomes active.
+   * Closes the tab. When it was active, `nextActiveId`, else the registered fallback's choice
+   * ({@link setCloseFallback}), else its right neighbor (or the new last tab) becomes active.
    */
   closeTab: (id: string, nextActiveId?: string | null) => void;
   activateTab: (id: string) => void;
@@ -58,6 +58,18 @@ function nextRepositoryTab(
   if (active?.kind === "repository") return active.id;
   if (previous && tabs.some((tab) => tab.id === previous)) return previous;
   return tabs.find((tab) => tab.kind === "repository")?.id ?? null;
+}
+
+/**
+ * Chooses the tab to focus when the active tab closes and the caller named none. The document
+ * dock registers one that picks a tab already on screen, so closing a tab in one half of a split
+ * never switches what the other half shows.
+ */
+let closeFallback: ((closedId: string) => string | null) | null = null;
+
+/** Registers (or with `null` removes) the chooser used when the active tab closes. */
+export function setCloseFallback(choose: ((closedId: string) => string | null) | null): void {
+  closeFallback = choose;
 }
 
 export const useTabsStore = create<TabsState>()((set) => ({
@@ -85,7 +97,8 @@ export const useTabsStore = create<TabsState>()((set) => ({
       const tabs = state.tabs.filter((tab) => tab.id !== id);
       let activeTabId = state.activeTabId;
       if (activeTabId === id) {
-        const preferred = tabs.find((tab) => tab.id === nextActiveId);
+        const preferredId = nextActiveId ?? closeFallback?.(id);
+        const preferred = tabs.find((tab) => tab.id === preferredId);
         activeTabId = (preferred ?? tabs[Math.min(index, tabs.length - 1)])?.id ?? null;
       }
       return {
