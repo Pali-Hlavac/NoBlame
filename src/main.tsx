@@ -7,8 +7,8 @@ import { Providers } from "./app/providers";
 import { installNativeFeel } from "./shared/lib/native-feel";
 import "./app/styles.css";
 
-// Dev builds keep the webview context menu so "Inspect" stays available.
-if (import.meta.env.PROD) installNativeFeel();
+// Dev builds keep the webview context menu ("Inspect") and reloading; print is blocked in both.
+installNativeFeel({ development: import.meta.env.DEV });
 
 const rootElement = document.getElementById("root");
 if (!rootElement) throw new Error("Missing #root element in index.html");
