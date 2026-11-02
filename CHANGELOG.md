@@ -122,6 +122,11 @@ All notable changes to NoBlame are documented here. The format follows
   - the window can be moved by dragging the start screen, before the title bar is there;
   - Ctrl+P and Ctrl+Shift+P (print) are blocked in development builds too; reloading and the
     browser's context menu stay available there.
+- Commit graph columns (M3, slice 11, owner request 2026-11-02): show or hide columns, move them
+  by dragging their titles, resize them by dragging their edges (or with the arrow keys), and
+  show dates as "3 h ago" instead of the date and time. From the column header's right-click
+  menu or columns button, or Settings → Commit graph. The column titles now line up with the
+  rows when the list has a scrollbar.
 - Commit details (M3, slice 10): the commit's children (click to select; from the graph, 5.6 ms
   for the oldest of the Linux kernel's 1.5M commits), and for a signed commit whether the
   signature is good, who signed it, the key and what gpg, ssh-keygen or gpgsm said. Checked with

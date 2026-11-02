@@ -376,7 +376,15 @@ trusted, expired, revoked, bad, could not be checked; who signed it, the key and
 program's output). Checked in the running dev app on a scripted repository with SSH signatures
 and on git.git's GPG-signed commits.
 
-Next: slice 11, graph columns (choose, order, width; relative dates).
+Then slice 11 (2026-11-02): graph columns. Show or hide, move and resize the columns from the
+column header (right-click menu, a columns button, dragging titles and edges) or Settings; dates
+as "3 h ago". The titles now line up with the rows when there is a scrollbar. Clicked through in
+the dev app on git.git with real mouse input: resizing the graph, the menu, relative dates,
+moving Date before Message, Reset columns.
+
+M3's planned slices are done. Left in M3: the later filters (committer, date range, several
+branches, regular expressions) and the hidden mouse pointer to investigate. Next: M4 (working
+copy and committing), unless the owner picks one of those first.
 
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
@@ -560,7 +568,9 @@ The Branches module gets the same entries for its rows.
       `repository-groups.json`; clicked through in the dev app (drags with real mouse input)
 - [x] The module's sections fold and can be reordered by dragging their titles (saved in
       Settings). Not clicked through: the owner's app was running; component tests cover it
-- [ ] Graph columns and relative dates: slice 11 above
+- [x] Graph columns and relative dates (slice 11): show or hide, order and width of the columns,
+      dates as date and time or "3 h ago"; from the column header (right-click, a columns
+      button, dragging titles and edges) or Settings → Commit graph
 - [ ] The mouse pointer stayed hidden after using the palette with the keyboard and opening the
       native folder dialog ("Open repository…"); moving the mouse did not bring it back. To
       investigate (Windows hides the pointer while typing; WebView2 may not show it again)

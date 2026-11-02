@@ -3,12 +3,14 @@ import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 
 import { select as selectAny, useSelection, type Selection } from "@/features/selection";
 import type { CommitRowDto, GraphSummary } from "@/shared/ipc/bindings";
 import { useElementSize } from "@/shared/hooks/useElementSize";
+import { useNow } from "@/shared/hooks/useNow";
 import { nextRow } from "@/shared/lib/listNavigation";
 import { pagesFor } from "@/shared/lib/paging";
 
 import { compareRows } from "../api/compare";
 import { useCommitPages } from "../api/graph";
 import { useBlockCache } from "../hooks/useBlockCache";
+import { useColumnLayout } from "../hooks/useColumnLayout";
 import { usePalette } from "../hooks/usePalette";
 import { useSelectionHighlight } from "../hooks/useSelectionHighlight";
 import { useWorkingTreeRows } from "../hooks/useWorkingTreeRows";
@@ -20,7 +22,6 @@ import {
   PREFETCH_MARGIN,
   ROW_HEIGHT_PX,
 } from "../lib/constants";
-import { layoutColumns } from "../lib/columns";
 import { displayRows, indexOfSelection, selectionAt } from "../lib/displayRows";
 import { computeViewport, scrollTopToReveal } from "../lib/viewport";
 import { useGraphViewStore } from "../store/graphView";
@@ -29,6 +30,9 @@ import { CompareHint } from "./CompareHint";
 import { GraphCanvas } from "./GraphCanvas";
 import { GraphHeader } from "./GraphHeader";
 import { GraphRows } from "./GraphRows";
+
+/** Relative dates ("5 min ago") are refreshed this often. */
+const RELATIVE_DATE_REFRESH_MS = 60_000;
 
 interface GraphTableProps {
   repoId: number;
@@ -71,10 +75,11 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
     [viewport, offsetPx, rows.offset],
   );
   const selectedIndex = indexOfSelection(rows, selection);
-  const graphWidth =
+  const autoGraphWidth =
     GRAPH_PADDING_PX * 2 +
     Math.min(Math.max(summary.maxLanes, 1), MAX_VISIBLE_LANES) * LANE_WIDTH_PX;
-  const columns = layoutColumns(size.width, graphWidth);
+  const { layout: columns, dateDisplay, actions } = useColumnLayout(size.width, autoGraphWidth);
+  const nowMs = useNow(RELATIVE_DATE_REFRESH_MS, dateDisplay === "relative");
 
   const pages = pagesFor(
     graphViewport.firstRow,
@@ -173,7 +178,7 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
     selectedIndex <= viewport.lastRow;
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <GraphHeader columns={columns} />
+      <GraphHeader columns={columns} actions={actions} />
       <CommitContextMenu
         repoId={repoId}
         repoPath={repoPath}
@@ -191,7 +196,7 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
           aria-label={`Commit history, ${rowCount} commits`}
           aria-activedescendant={visible ? `${idPrefix}-${selectedIndex}` : undefined}
           tabIndex={0}
-          className="relative min-h-0 flex-1 overflow-x-hidden overflow-y-auto outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+          className="relative min-h-0 flex-1 [scrollbar-gutter:stable] overflow-x-hidden overflow-y-auto outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
           onScroll={(event) => {
             const top = event.currentTarget.scrollTop;
             setScrollTop(top);
@@ -212,6 +217,8 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
                 virtualTop={viewport.virtualTop}
                 rows={rows}
                 columns={columns}
+                dateDisplay={dateDisplay}
+                nowMs={nowMs}
                 rowText={rowText}
                 selectedIndex={selectedIndex}
                 highlightAuthor={highlightAuthor}
@@ -219,18 +226,20 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
                 onCompare={compareWith}
                 idPrefix={idPrefix}
               />
-              <GraphCanvas
-                width={graphWidth}
-                height={size.height}
-                viewport={graphViewport}
-                rowCount={rowCount}
-                blockRows={summary.blockRows}
-                cache={cache}
-                version={version}
-                palette={palette}
-                highlight={highlight}
-                workingTree={{ count: rows.offset, headRow: summary.headRow }}
-              />
+              {columns.graphWidthPx > 0 && (
+                <GraphCanvas
+                  width={columns.graphWidthPx}
+                  height={size.height}
+                  viewport={graphViewport}
+                  rowCount={rowCount}
+                  blockRows={summary.blockRows}
+                  cache={cache}
+                  version={version}
+                  palette={palette}
+                  highlight={highlight}
+                  workingTree={{ count: rows.offset, headRow: summary.headRow }}
+                />
+              )}
             </div>
           </div>
         </div>

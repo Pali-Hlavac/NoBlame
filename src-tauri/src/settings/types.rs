@@ -3,6 +3,8 @@
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
+pub use super::graph::GraphSettings;
+
 /// Which color scheme the UI uses.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
@@ -50,38 +52,6 @@ pub enum BranchSort {
     Name,
     /// Newest commit first.
     LastCommit,
-}
-
-/// Commit graph preferences.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Type)]
-#[serde(rename_all = "camelCase", default)]
-pub struct GraphSettings {
-    /// Selecting a commit highlights its history and the commits by the same author.
-    pub highlight_selection: bool,
-    /// Where staged and unstaged changes are shown.
-    pub working_tree: WorkingTreeDisplay,
-}
-
-/// Where the working tree changes (staged, unstaged, untracked, conflicted) are shown.
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize, Type)]
-#[serde(rename_all = "camelCase")]
-pub enum WorkingTreeDisplay {
-    /// Rows at the top of the commit graph, as Git Extensions does.
-    #[default]
-    Rows,
-    /// A summary in the repository header.
-    Header,
-    /// Not shown.
-    Hidden,
-}
-
-impl Default for GraphSettings {
-    fn default() -> Self {
-        Self {
-            highlight_selection: true,
-            working_tree: WorkingTreeDisplay::default(),
-        }
-    }
 }
 
 /// Repositories module preferences.
@@ -189,8 +159,7 @@ mod tests {
     fn older_files_get_the_new_defaults() {
         let settings: Settings = serde_json::from_str(r#"{ "theme": "dark" }"#).unwrap();
         assert_eq!(settings.theme, ThemePreference::Dark);
-        assert!(settings.graph.highlight_selection);
-        assert_eq!(settings.graph.working_tree, WorkingTreeDisplay::Rows);
+        assert_eq!(settings.graph, GraphSettings::default());
         assert!(settings.repositories.show_actions_menu);
         assert_eq!(settings.diff, DiffSettings::default());
         assert_eq!(settings.diff.context_lines, 3);

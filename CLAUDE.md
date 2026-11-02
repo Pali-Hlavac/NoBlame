@@ -15,7 +15,8 @@ Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 > message, author, path; views of the graph, ADR 0021), commit context menu, find and go to
 > commit, the Files module (tree of a commit, file tab, save as), file history following
 > renames and blame (ADR 0022), comparing two revisions (ADR 0023), commit details with
-> children and signature status. Next: graph columns (slice 11).
+> children and signature status, graph columns (choose, order, width, relative dates). Next:
+> M4, working copy and committing.
 > Parts marked _(later)_ below are planned and do not exist yet.
 
 ## Architecture

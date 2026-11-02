@@ -1,12 +1,12 @@
 import type { CSSProperties, MouseEvent } from "react";
 
-import type { CommitRowDto } from "@/shared/ipc/bindings";
+import type { CommitRowDto, DateDisplay, GraphColumnId } from "@/shared/ipc/bindings";
 import { cn } from "@/shared/lib/cn";
 
 import type { ColumnLayout } from "../lib/columns";
 import { ROW_HEIGHT_PX } from "../lib/constants";
 import type { DisplayRows } from "../lib/displayRows";
-import { formatCommitDate, shortId } from "../lib/format";
+import { formatCommitDate, formatRelativeDate, shortId } from "../lib/format";
 import { RefBadge } from "./RefBadge";
 
 interface GraphRowsProps {
@@ -18,6 +18,9 @@ interface GraphRowsProps {
   rows: DisplayRows;
   /** Columns shared with the column header. */
   columns: ColumnLayout;
+  /** How the date column shows dates, and the time relative dates count from. */
+  dateDisplay: DateDisplay;
+  nowMs: number;
   /** Text of a commit, by graph row. */
   rowText: (row: number) => CommitRowDto | undefined;
   /** Display index of the selection. */
@@ -28,6 +31,59 @@ interface GraphRowsProps {
   /** Ctrl+click (Cmd+click on macOS): compare the selected commit with this row's. */
   onCompare: (index: number) => void;
   idPrefix: string;
+}
+
+interface CommitCellProps {
+  id: GraphColumnId;
+  text: CommitRowDto;
+  /** By the highlighted commit's author. */
+  byAuthor: boolean;
+  dateDisplay: DateDisplay;
+  nowMs: number;
+}
+
+/** One column of a commit row. */
+function CommitCell({ id, text, byAuthor, dateDisplay, nowMs }: CommitCellProps) {
+  switch (id) {
+    case "graph":
+      // The canvas draws the graph below this empty cell.
+      return <span aria-hidden />;
+    case "message":
+      return (
+        <span className="flex min-w-0 items-center gap-1.5 overflow-hidden">
+          {text.refs.map((label) => (
+            <RefBadge key={`${label.kind}:${label.name}`} label={label} />
+          ))}
+          <span className="truncate">{text.summary}</span>
+        </span>
+      );
+    case "author":
+      return (
+        <span
+          className={cn(
+            "truncate",
+            byAuthor ? "font-medium text-foreground" : "text-muted-foreground",
+          )}
+          title={text.authorEmail}
+        >
+          {text.authorName}
+        </span>
+      );
+    case "date": {
+      const absolute = formatCommitDate(text.authorTime);
+      return dateDisplay === "relative" ? (
+        <span className="truncate text-muted-foreground tabular-nums" title={absolute}>
+          {formatRelativeDate(text.authorTime, nowMs)}
+        </span>
+      ) : (
+        <span className="truncate text-muted-foreground tabular-nums">{absolute}</span>
+      );
+    }
+    case "commit":
+      return (
+        <span className="truncate font-mono text-xs text-muted-foreground">{shortId(text.id)}</span>
+      );
+  }
 }
 
 const ROW_CLASS = "absolute right-0 left-0 grid items-center gap-3 pr-3 text-sm";
@@ -95,37 +151,22 @@ export function GraphRows(props: GraphRowsProps) {
             : cn("hover:bg-muted/60", byAuthor && "bg-primary/10"),
         )}
       >
-        <span aria-hidden />
         {text ? (
-          <>
-            <span className="flex min-w-0 items-center gap-1.5 overflow-hidden">
-              {text.refs.map((label) => (
-                <RefBadge key={`${label.kind}:${label.name}`} label={label} />
-              ))}
-              <span className="truncate">{text.summary}</span>
-            </span>
-            {columns.visible.has("author") && (
-              <span
-                className={cn(
-                  "truncate",
-                  byAuthor ? "font-medium text-foreground" : "text-muted-foreground",
-                )}
-                title={text.authorEmail}
-              >
-                {text.authorName}
-              </span>
-            )}
-            {columns.visible.has("date") && (
-              <span className="truncate text-muted-foreground tabular-nums">
-                {formatCommitDate(text.authorTime)}
-              </span>
-            )}
-            {columns.visible.has("commit") && (
-              <span className="font-mono text-xs text-muted-foreground">{shortId(text.id)}</span>
-            )}
-          </>
+          columns.cells.map(({ id }) => (
+            <CommitCell
+              key={id}
+              id={id}
+              text={text}
+              byAuthor={byAuthor}
+              dateDisplay={props.dateDisplay}
+              nowMs={props.nowMs}
+            />
+          ))
         ) : (
-          <span className="col-[2/-1] h-2 w-48 max-w-full rounded bg-muted" />
+          <>
+            <span aria-hidden />
+            <span className="col-[2/-1] h-2 w-48 max-w-full rounded bg-muted" />
+          </>
         )}
       </div>
     );

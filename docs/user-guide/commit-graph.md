@@ -10,6 +10,20 @@ is never shown below the commits it came from.
 - **Author** (hover to see the e-mail address), **Date** and **Commit** (the start of the commit
   id).
 
+You choose the columns:
+
+- Right-click the column titles, or click the columns button at the right end of them, to show
+  or hide columns, show dates as **Date and time** or **Time since** ("3 h ago"; hover to see
+  the date), or **Reset columns**. The message is always shown.
+- Drag a column title onto another one to move it. The graph stays first.
+- Drag the line at the right edge of a title to make the column wider or narrower. Double-click
+  the line to go back to the usual width. With the keyboard: Tab to the line, then Left or Right
+  arrow; Delete for the usual width.
+- The same choices are in Settings → Commit graph, with buttons to move columns up and down.
+
+In a narrow pane the Commit, Author and Date columns drop out, in that order, so the message
+stays readable.
+
 ## Reading the graph
 
 - Each branch line keeps its colour along its whole length.

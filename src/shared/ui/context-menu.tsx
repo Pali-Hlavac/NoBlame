@@ -1,5 +1,5 @@
 import * as ContextMenuPrimitive from "@radix-ui/react-context-menu";
-import { ChevronRightIcon } from "lucide-react";
+import { CheckIcon, ChevronRightIcon } from "lucide-react";
 import type { ComponentProps } from "react";
 
 import { cn } from "@/shared/lib/cn";
@@ -8,6 +8,7 @@ import { cn } from "@/shared/lib/cn";
 export const ContextMenu = ContextMenuPrimitive.Root;
 export const ContextMenuTrigger = ContextMenuPrimitive.Trigger;
 export const ContextMenuSub = ContextMenuPrimitive.Sub;
+export const ContextMenuRadioGroup = ContextMenuPrimitive.RadioGroup;
 
 const CONTENT_CLASSES =
   "z-50 max-h-[var(--radix-context-menu-content-available-height)] min-w-48 overflow-y-auto rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md";
@@ -30,6 +31,40 @@ export function ContextMenuItem({
   ...props
 }: ComponentProps<typeof ContextMenuPrimitive.Item>) {
   return <ContextMenuPrimitive.Item className={cn(ITEM_CLASSES, className)} {...props} />;
+}
+
+export function ContextMenuCheckboxItem({
+  className,
+  children,
+  ...props
+}: ComponentProps<typeof ContextMenuPrimitive.CheckboxItem>) {
+  return (
+    <ContextMenuPrimitive.CheckboxItem className={cn(ITEM_CLASSES, "pl-8", className)} {...props}>
+      <span className="absolute left-2 flex size-4 items-center justify-center">
+        <ContextMenuPrimitive.ItemIndicator>
+          <CheckIcon />
+        </ContextMenuPrimitive.ItemIndicator>
+      </span>
+      {children}
+    </ContextMenuPrimitive.CheckboxItem>
+  );
+}
+
+export function ContextMenuRadioItem({
+  className,
+  children,
+  ...props
+}: ComponentProps<typeof ContextMenuPrimitive.RadioItem>) {
+  return (
+    <ContextMenuPrimitive.RadioItem className={cn(ITEM_CLASSES, "pl-8", className)} {...props}>
+      <span className="absolute left-2 flex size-4 items-center justify-center">
+        <ContextMenuPrimitive.ItemIndicator>
+          <CheckIcon />
+        </ContextMenuPrimitive.ItemIndicator>
+      </span>
+      {children}
+    </ContextMenuPrimitive.RadioItem>
+  );
 }
 
 export function ContextMenuSubTrigger({

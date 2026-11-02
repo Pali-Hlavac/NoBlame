@@ -6,6 +6,8 @@
 /* Brand: teal from the logo background as primary, goldfinch yellow for focus rings. */
 :root {
   --radius: 0.5rem;
+  /* Width of the custom scrollbars; the commit graph's header leaves the same room. */
+  --scrollbar-size: 10px;
   --background: oklch(0.995 0 0);
   --foreground: oklch(0.21 0.01 220);
   --muted: oklch(0.965 0.004 200);
@@ -195,8 +197,8 @@
    * not be set anywhere: in Chromium they switch these styles off.
    */
   ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: var(--scrollbar-size);
+    height: var(--scrollbar-size);
   }
 
   ::-webkit-scrollbar-track,

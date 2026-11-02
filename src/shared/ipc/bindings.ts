@@ -396,6 +396,13 @@ export type ComparisonDto = {
 	exactRenamesOnly: boolean,
 };
 
+/**  How dates are shown in the commit list. */
+export type DateDisplay = 
+/**  Date and time. */
+"absolute" | 
+/**  Time since, like "3 h ago" (the date and time in the tooltip). */
+"relative";
+
 /**  How a file was compared. */
 export type DiffContentDto = 
 /**  Line by line. */
@@ -614,6 +621,32 @@ export type GoToStatus =
 /**  Not reachable from any branch, tag or HEAD (a stash, a dangling commit). */
 "notInGraph";
 
+/**  One column's place, visibility and width. */
+export type GraphColumn = {
+	/**  Which column. */
+	id: GraphColumnId,
+	/**  Shown (the message is always shown). */
+	visible: boolean,
+	/**
+	 *  Width in pixels; unset (`null`) for the default: the graph fits its lanes, the message
+	 *  always takes the rest.
+	 */
+	width: number | null,
+};
+
+/**  A column of the commit list. */
+export type GraphColumnId = 
+/**  Lanes and commit nodes. */
+"graph" | 
+/**  Ref labels and the first line of the message. */
+"message" | 
+/**  Author name. */
+"author" | 
+/**  Author date. */
+"date" | 
+/**  Short commit id. */
+"commit";
+
 /**  What a repository tab shows. */
 export type GraphFilterDto = {
 	/**  Whose history. */
@@ -639,6 +672,13 @@ export type GraphSettings = {
 	highlightSelection?: boolean,
 	/**  Where staged and unstaged changes are shown. */
 	workingTree?: WorkingTreeDisplay,
+	/**
+	 *  The columns in display order, shown or not, with their widths. The UI keeps the graph
+	 *  first and the message shown, ignores repeats and adds missing columns at the end.
+	 */
+	columns?: GraphColumn[],
+	/**  Dates as a date and time, or as the time since ("3 h ago"). */
+	dateDisplay?: DateDisplay,
 };
 
 /**  Size and shape of a loaded graph. */

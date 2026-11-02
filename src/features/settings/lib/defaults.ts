@@ -8,6 +8,7 @@ import type {
 } from "@/shared/ipc/bindings";
 
 import { WHOLE_FILE_CONTEXT } from "./diff";
+import { DEFAULT_GRAPH_COLUMNS } from "./graphColumns";
 
 /**
  * Settings with every field present. The generated `Settings` has optional fields (the backend
@@ -24,7 +25,12 @@ export interface AppSettings {
 /** What the backend uses for missing settings (`src-tauri/src/settings/types.rs`). */
 export const DEFAULT_SETTINGS: AppSettings = {
   theme: "system",
-  graph: { highlightSelection: true, workingTree: "rows" },
+  graph: {
+    highlightSelection: true,
+    workingTree: "rows",
+    columns: [...DEFAULT_GRAPH_COLUMNS],
+    dateDisplay: "absolute",
+  },
   repositories: {
     showActionsMenu: true,
     sections: ["open", "groups", "recent"],

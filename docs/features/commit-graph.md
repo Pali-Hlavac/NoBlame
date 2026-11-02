@@ -18,6 +18,28 @@ merges, message, author and path are done. Stash labels are not done.
 | Date    | Author date, local time, medium date and short time                                      |
 | Commit  | The first 8 characters of the commit id                                                  |
 
+Columns are chosen in Settings (`graph.columns`: order, `visible`, `width`; `graph.dateDisplay`:
+`absolute` or `relative`), from the column header or Settings → Commit graph:
+
+- The header's right-click menu and its columns button (same items): show or hide columns, the
+  date display, **Reset columns**. The message cannot be hidden.
+- Dragging a title moves its column (HTML drag and drop, `application/x-noblame-graph-column`);
+  the graph stays first. Settings lists the columns with move up / down buttons for the
+  keyboard.
+- Each column but the message has a resize handle at its right edge (a focusable separator:
+  arrows ±8 px, Delete for the default, double-click for the default). Widths are 48 to 600 px;
+  the drag shows the width live and saves it on release. The graph's default fits its lanes (at
+  most 16); a narrower graph is cut at its edge. Hiding the graph keeps an empty first cell and
+  skips the canvas.
+- Relative dates: "just now", "5 min ago", "3 h ago", "2 d ago", "4 mo ago", "6 y ago"
+  (`formatRelativeDate`), refreshed every minute; the tooltip has the date and time. Only the
+  commit graph uses this setting.
+- In narrow panes the Commit, Author and Date columns still drop out in that order
+  (`layoutColumns`).
+- The list always reserves its scrollbar's width (`scrollbar-gutter: stable`) and the header
+  leaves the same room (`--scrollbar-size`), so the titles line up with the rows; the columns
+  button sits in that room.
+
 Rows whose text is still loading show a grey placeholder bar.
 
 ## Reference labels
@@ -237,4 +259,5 @@ Not yet: committer and date range, regular expressions, following renames.
 
 ## Not yet
 
-Stash labels, the working tree file lists (M4), resizable columns, committer and date filters.
+Stash labels, the working tree file lists (M4), committer and date filters, more columns
+(committer, committer date, e-mail).

@@ -170,6 +170,13 @@ Use `target\debug\noblame.exe` while the dev app runs.
 
 ## 9. Commit graph
 
+- [ ] **(new)** Right-click the column titles (or the columns button at their right end): hide
+      Author, show dates as "Time since"; hover a date for the full date. Reset columns.
+  - Notes:
+- [ ] **(new)** Drag the Date title before Message; drag the edge of the Author title wider;
+      double-click the edge: back to the usual width. Restart: the columns are kept.
+  - Notes:
+
 - [ ] Columns: graph, message with branch and tag labels, author (hover for e-mail), date, id.
       Merges are hollow dots; the checked-out commit has a yellow ring.
   - Notes:
