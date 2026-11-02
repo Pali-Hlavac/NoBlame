@@ -63,6 +63,13 @@ export const commands = {
 	listRecentRepositories: () => typedError<RecentRepository[], AppError>(__TAURI_INVOKE("list_recent_repositories")),
 	/**  Removes a repository from the recent list and returns the rest. */
 	removeRecentRepository: (path: string) => typedError<RecentRepository[], AppError>(__TAURI_INVOKE("remove_recent_repository", { path })),
+	/**  The repository groups of the Repositories module, with missing folders marked. */
+	getRepositoryGroups: () => typedError<RepositoryGroupsDto, AppError>(__TAURI_INVOKE("get_repository_groups")),
+	/**
+	 *  Replaces the repository groups (cleaned up: repeated ids and paths dropped, names trimmed)
+	 *  and returns what was saved.
+	 */
+	saveRepositoryGroups: (groups: RepositoryGroup[]) => typedError<RepositoryGroupsDto, AppError>(__TAURI_INVOKE("save_repository_groups", { groups })),
 	/**  Details of the commit on `row`: message, people, parents, refs and refs containing it. */
 	getCommitDetails: (id: number, row: number) => typedError<CommitDetailsDto, AppError>(__TAURI_INVOKE("get_commit_details", { id, row })),
 	/**  The files the commit on `row` changed against its parent number `parent` (0 = first). */
@@ -813,6 +820,26 @@ export type RepositoryChanged = {
 	refs: boolean,
 	/**  A file in the working tree or the index changed. */
 	workTree: boolean,
+};
+
+/**  One group, in the order the user arranged. */
+export type RepositoryGroup = {
+	/**  Stable id chosen by the UI. */
+	id: string,
+	/**  Name shown in the module. */
+	name: string,
+	/**  Whether the group is shown folded. */
+	collapsed: boolean,
+	/**  Work tree (or bare repository) paths, in the user's order. */
+	repositories: string[],
+};
+
+/**  The groups as the UI sees them. */
+export type RepositoryGroupsDto = {
+	/**  The groups, in order. */
+	groups: RepositoryGroup[],
+	/**  Grouped paths whose folder no longer exists (checked when the list is read). */
+	missing: string[],
 };
 
 /**

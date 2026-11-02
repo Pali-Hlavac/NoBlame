@@ -1,24 +1,21 @@
-import { FolderGitIcon, FolderOpenIcon, FolderPlusIcon, XIcon } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { FolderOpenIcon, FolderPlusIcon, ListPlusIcon, type LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 
 import { useTabsStore, type RepositoryTab } from "@/features/workspace";
-import type { RecentRepository, SubmoduleDto } from "@/shared/ipc/bindings";
 import { Button } from "@/shared/ui/button";
 import { Tooltip } from "@/shared/ui/tooltip";
 
-import { useRecentRepositories, useRemoveRecentRepository } from "../api/recent";
+import { useEditGroups, useRepositoryGroups } from "../api/groups";
+import { useRecentRepositories } from "../api/recent";
 import { useSubmoduleTrees } from "../api/submodules";
-import {
-  openRepositories,
-  useCreateRepository,
-  useOpenRepository,
-} from "../hooks/useOpenRepository";
+import { useCreateRepository, useOpenRepository } from "../hooks/useOpenRepository";
+import { addGroup, freeGroupName } from "../lib/groups";
 import { repositoryTab } from "../lib/path";
 import { submoduleTabIds } from "../lib/submodules";
+import { useGroupsUiStore } from "../store/groups";
 import { OpenTabsContext } from "./openTabsContext";
-import { OpenRepositoryActions } from "./RepositoryActionsMenu";
-import { RepositoryTreeRow } from "./RepositoryTreeRow";
-import { SubmoduleList } from "./SubmoduleTree";
+import { RepositoryGroups } from "./RepositoryGroups";
+import { OpenRepository, RecentItem } from "./RepositoryRows";
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -29,76 +26,37 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-interface OpenRepositoryProps {
-  tab: RepositoryTab;
-  active: boolean;
-  submodules: readonly SubmoduleDto[];
+interface ToolbarButtonProps {
+  label: string;
+  icon: LucideIcon;
+  disabled?: boolean;
+  onClick: () => void;
 }
 
-/** An open repository with its submodules nested below it. */
-function OpenRepository({ tab, active, submodules }: OpenRepositoryProps) {
-  const [expanded, setExpanded] = useState(true);
+function ToolbarButton({ label, icon: Icon, disabled, onClick }: ToolbarButtonProps) {
   return (
-    <li>
-      <RepositoryTreeRow
-        icon={FolderGitIcon}
-        label={tab.title}
-        title={tab.path}
-        depth={0}
-        expanded={submodules.length > 0 ? expanded : undefined}
-        onToggle={() => {
-          setExpanded(!expanded);
-        }}
-        onOpen={() => {
-          useTabsStore.getState().activateTab(tab.id);
-        }}
-        current={active}
-        actions={
-          <OpenRepositoryActions repository={{ path: tab.path, tabId: tab.id, title: tab.title }} />
-        }
-      />
-      {expanded && submodules.length > 0 && <SubmoduleList submodules={submodules} depth={1} />}
-    </li>
+    <Tooltip content={label}>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="size-7"
+        aria-label={label.replace("…", "")}
+        disabled={disabled}
+        onClick={onClick}
+      >
+        <Icon aria-hidden />
+      </Button>
+    </Tooltip>
   );
 }
 
-function RecentItem({ entry }: { entry: RecentRepository }) {
-  const remove = useRemoveRecentRepository();
-  return (
-    <li>
-      <RepositoryTreeRow
-        icon={FolderGitIcon}
-        label={entry.name}
-        title={entry.exists ? entry.path : `${entry.path} (folder not found)`}
-        depth={0}
-        expanded={undefined}
-        onOpen={() => {
-          openRepositories([entry.path]);
-        }}
-        dimmed={!entry.exists}
-        actions={
-          <Button
-            variant="ghost"
-            size="icon"
-            className="mr-1 size-6 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
-            aria-label={`Remove ${entry.name} from recent repositories`}
-            onClick={() => {
-              remove.mutate(entry.path);
-            }}
-          >
-            <XIcon aria-hidden />
-          </Button>
-        }
-      />
-    </li>
-  );
-}
-
-/** Repositories module: open repositories with nested submodules, then recent ones. */
+/** Repositories module: open repositories with nested submodules, groups, then recent ones. */
 export function RepositoriesModule() {
   const tabs = useTabsStore((state) => state.tabs);
   const activeRepositoryTabId = useTabsStore((state) => state.activeRepositoryTabId);
   const recent = useRecentRepositories();
+  const groupsLoaded = useRepositoryGroups().isSuccess;
+  const editGroups = useEditGroups();
   const openRepository = useOpenRepository();
   const createRepository = useCreateRepository();
   const open = tabs.filter((tab): tab is RepositoryTab => tab.kind === "repository");
@@ -113,39 +71,39 @@ export function RepositoriesModule() {
     (entry) => !openIds.has(repositoryTab(entry.path).id),
   );
 
+  const newGroup = (): void => {
+    const id = crypto.randomUUID();
+    editGroups((groups) => addGroup(groups, id, freeGroupName(groups)));
+    useGroupsUiStore.getState().setEditing(id);
+  };
+
   return (
     <nav aria-label="Repositories" className="flex h-full flex-col">
       <div className="flex shrink-0 items-center justify-end gap-1 border-b border-border px-2 py-1">
-        <Tooltip content="Open repository…">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-7"
-            aria-label="Open repository"
-            onClick={() => void openRepository()}
-          >
-            <FolderOpenIcon aria-hidden />
-          </Button>
-        </Tooltip>
-        <Tooltip content="Create repository…">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-7"
-            aria-label="Create repository"
-            disabled={createRepository.pending}
-            onClick={() => void createRepository.create()}
-          >
-            <FolderPlusIcon aria-hidden />
-          </Button>
-        </Tooltip>
+        <ToolbarButton
+          label="New group"
+          icon={ListPlusIcon}
+          disabled={!groupsLoaded}
+          onClick={newGroup}
+        />
+        <ToolbarButton
+          label="Open repository…"
+          icon={FolderOpenIcon}
+          onClick={() => void openRepository()}
+        />
+        <ToolbarButton
+          label="Create repository…"
+          icon={FolderPlusIcon}
+          disabled={createRepository.pending}
+          onClick={() => void createRepository.create()}
+        />
       </div>
-      <div className="min-h-0 flex-1 space-y-2 overflow-auto p-1">
-        <Section title="Open">
-          {roots.length === 0 ? (
-            <p className="px-2 text-sm text-muted-foreground">No repository open.</p>
-          ) : (
-            <OpenTabsContext.Provider value={{ ids: openIds, activeId: activeRepositoryTabId }}>
+      <OpenTabsContext.Provider value={{ ids: openIds, activeId: activeRepositoryTabId }}>
+        <div className="min-h-0 flex-1 space-y-2 overflow-auto p-1">
+          <Section title="Open">
+            {roots.length === 0 ? (
+              <p className="px-2 text-sm text-muted-foreground">No repository open.</p>
+            ) : (
               <ul>
                 {roots.map(({ tab, submodules }) => (
                   <OpenRepository
@@ -156,19 +114,22 @@ export function RepositoriesModule() {
                   />
                 ))}
               </ul>
-            </OpenTabsContext.Provider>
-          )}
-        </Section>
-        {closedRecent.length > 0 && (
-          <Section title="Recent">
-            <ul>
-              {closedRecent.map((entry) => (
-                <RecentItem key={entry.path} entry={entry} />
-              ))}
-            </ul>
+            )}
           </Section>
-        )}
-      </div>
+          <Section title="Groups">
+            <RepositoryGroups />
+          </Section>
+          {closedRecent.length > 0 && (
+            <Section title="Recent">
+              <ul>
+                {closedRecent.map((entry) => (
+                  <RecentItem key={entry.path} entry={entry} />
+                ))}
+              </ul>
+            </Section>
+          )}
+        </div>
+      </OpenTabsContext.Provider>
     </nav>
   );
 }

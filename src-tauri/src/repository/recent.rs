@@ -88,13 +88,15 @@ pub fn remove(store: &RecentStore, path: &str) -> Result<Vec<RecentRepository>, 
     list(store)
 }
 
+/// Whether two saved paths name the same folder (case-insensitive on Windows).
 #[cfg(windows)]
-fn same_path(a: &str, b: &str) -> bool {
+pub(super) fn same_path(a: &str, b: &str) -> bool {
     a.eq_ignore_ascii_case(b)
 }
 
+/// Whether two saved paths name the same folder.
 #[cfg(not(windows))]
-fn same_path(a: &str, b: &str) -> bool {
+pub(super) fn same_path(a: &str, b: &str) -> bool {
     a == b
 }
 

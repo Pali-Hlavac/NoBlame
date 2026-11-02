@@ -3,6 +3,7 @@
 use tauri::State;
 
 use super::find;
+use super::groups::{self, GroupsStore, RepositoryGroup, RepositoryGroupsDto};
 use super::recent::{self, RecentRepository, RecentStore};
 use super::{
     CommitRowDto, FoundCommit, GoToCommit, GraphFilterDto, GraphSummary, RawBytes, ReloadedGraph,
@@ -171,4 +172,24 @@ pub async fn remove_recent_repository(
     path: String,
 ) -> CommandResult<Vec<RecentRepository>> {
     Ok(recent::remove(&recent, &path)?)
+}
+
+/// The repository groups of the Repositories module, with missing folders marked.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_repository_groups(
+    store: State<'_, GroupsStore>,
+) -> CommandResult<RepositoryGroupsDto> {
+    Ok(groups::list(&store)?)
+}
+
+/// Replaces the repository groups (cleaned up: repeated ids and paths dropped, names trimmed)
+/// and returns what was saved.
+#[tauri::command]
+#[specta::specta]
+pub async fn save_repository_groups(
+    store: State<'_, GroupsStore>,
+    groups: Vec<RepositoryGroup>,
+) -> CommandResult<RepositoryGroupsDto> {
+    Ok(groups::save(&store, groups)?)
 }

@@ -91,6 +91,33 @@ cached. Deleting the folder is always safe.
 - Stored in `recent-repositories.json` in the platform config directory. If the file cannot be
   written, the repository still opens and a warning is logged.
 
+## Groups
+
+Folders of repositories, like bookmarks, under **Groups** in the Repositories module (between
+Open and Recent). Owner request 2026-11-02.
+
+- **New group** (the list-plus button at the top of the module) adds "New group" (numbered when
+  taken) with its name as a text field: type and press Enter. F2, the group's **…** menu or its
+  right-click menu rename it later; Escape cancels.
+- **Adding repositories:** drag any repository row (open, recent or in another group) onto a
+  group, or right-click it → **Add to group** → a group or **New group…**. A repository is
+  listed once per group; it may be in several groups.
+- **Order:** drag a repository onto another one in a group to put it before it (after it on the
+  row's lower half); drag a group onto another to reorder groups, or use **Move up / Move down**.
+- **Folding:** click a group (or its arrow); the state is saved.
+- A grouped repository opens (or shows) its tab on click, is bold while open, and dimmed when
+  its folder is gone. Right-click → **Move to group** or **Remove from group**.
+- The group's menu: **Open all**, **Pull all** and **Push all** (shown disabled, M5), Rename,
+  Move up/down, **Delete group…** (asks first when it holds repositories; the repositories
+  themselves are not touched).
+- Stored in `repository-groups.json` in the platform config directory:
+  `get_repository_groups` and `save_repository_groups` (the whole list; small). Saving cleans the
+  list up (repeated ids and paths dropped, names trimmed to 100 characters, an empty name becomes
+  "Group"). The UI edits its query cache at once (`lib/groups.ts`, pure functions) and sends the
+  saves one after another, so quick edits never overwrite each other.
+- Drag and drop uses custom data types (`lib/dragData.ts`), so dock tabs and files dropped on the
+  module are ignored.
+
 ## Commit-graph offer
 
 When a repository has no commit-graph file, a notice above the graph explains that history loads

@@ -52,6 +52,8 @@ pub fn builder() -> Builder<tauri::Wry> {
             repository::commands::write_commit_graph,
             repository::commands::list_recent_repositories,
             repository::commands::remove_recent_repository,
+            repository::commands::get_repository_groups,
+            repository::commands::save_repository_groups,
             inspect::commands::get_commit_details,
             inspect::commands::get_changed_files,
             inspect::commands::get_comparison,

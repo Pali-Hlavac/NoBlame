@@ -1,12 +1,16 @@
 import { ChevronDownIcon, ChevronRightIcon, type LucideIcon } from "lucide-react";
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 
 import { cn } from "@/shared/lib/cn";
 
 /** Indentation per tree level, in CSS pixels. */
 const INDENT_PX = 14;
 
-interface RepositoryTreeRowProps {
+/**
+ * Other `div` props (drag and drop, a context menu trigger's handlers and ref) go to the row
+ * itself.
+ */
+interface RepositoryTreeRowProps extends Omit<ComponentProps<"div">, "title" | "children"> {
   icon: LucideIcon;
   label: string;
   title: string;
@@ -22,19 +26,39 @@ interface RepositoryTreeRowProps {
   dimmed?: boolean;
   /** Shown at the right end, e.g. a remove button. */
   actions?: ReactNode;
+  /** Replaces the name, e.g. with a field to rename it. */
+  labelSlot?: ReactNode;
 }
 
 /** One row of the repository tree: expander, icon and name. */
 export function RepositoryTreeRow(props: RepositoryTreeRowProps) {
-  const { icon: Icon, label, depth, expanded, onToggle, onOpen } = props;
+  const {
+    icon: Icon,
+    label,
+    title,
+    depth,
+    expanded,
+    onToggle,
+    onOpen,
+    current,
+    emphasized,
+    dimmed,
+    actions,
+    labelSlot,
+    className,
+    style,
+    ...rowProps
+  } = props;
   const Chevron = expanded ? ChevronDownIcon : ChevronRightIcon;
   return (
     <div
+      {...rowProps}
       className={cn(
         "group flex items-center rounded-md hover:bg-accent",
-        props.current && "bg-accent text-accent-foreground",
+        current && "bg-accent text-accent-foreground",
+        className,
       )}
-      style={{ paddingLeft: depth * INDENT_PX }}
+      style={{ paddingLeft: depth * INDENT_PX, ...style }}
     >
       {expanded === undefined ? (
         <span className="size-5 shrink-0" />
@@ -48,20 +72,27 @@ export function RepositoryTreeRow(props: RepositoryTreeRowProps) {
           <Chevron className="size-3.5" aria-hidden />
         </button>
       )}
-      <button
-        title={props.title}
-        aria-current={props.current ? "page" : undefined}
-        disabled={!onOpen}
-        className={cn(
-          "flex min-w-0 flex-1 items-center gap-2 rounded-md px-1 py-1 text-left text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-default",
-          props.dimmed && "opacity-50",
-        )}
-        onClick={onOpen}
-      >
-        <Icon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-        <span className={cn("truncate", props.emphasized && "font-medium")}>{label}</span>
-      </button>
-      {props.actions}
+      {labelSlot ? (
+        <span className="flex min-w-0 flex-1 items-center gap-2 px-1 py-0.5">
+          <Icon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+          {labelSlot}
+        </span>
+      ) : (
+        <button
+          title={title}
+          aria-current={current ? "page" : undefined}
+          disabled={!onOpen}
+          className={cn(
+            "flex min-w-0 flex-1 items-center gap-2 rounded-md px-1 py-1 text-left text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-default",
+            dimmed && "opacity-50",
+          )}
+          onClick={onOpen}
+        >
+          <Icon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+          <span className={cn("truncate", emphasized && "font-medium")}>{label}</span>
+        </button>
+      )}
+      {actions}
     </div>
   );
 }

@@ -197,8 +197,8 @@ Ideas from the owner, newest last, with where each one is planned.
   - "Open in NoBlame" in the file manager's menu on folders, only when they hold a `.git` →
     phase 2 (T1–T3).
   - Select diff text by dragging from the empty space after the end of a line → done.
-  - Repository groups, like bookmark folders, that collapse and expand → M5 (or earlier: they
-    need no git work).
+  - Repository groups, like bookmark folders, that collapse and expand → done (brought
+    forward from M5).
   - Pull all (merge) and Push all on a group; settings for showing those buttons, and Pull and
     Push on single repositories → M5.
   - Choose the graph's columns, for example a relative date ("1 h ago", "3 d ago") instead of

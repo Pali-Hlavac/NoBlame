@@ -34,6 +34,8 @@
     "allow-write-commit-graph",
     "allow-list-recent-repositories",
     "allow-remove-recent-repository",
+    "allow-get-repository-groups",
+    "allow-save-repository-groups",
     "allow-get-commit-details",
     "allow-get-changed-files",
     "allow-get-comparison",

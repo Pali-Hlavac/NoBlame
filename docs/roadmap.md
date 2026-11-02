@@ -547,6 +547,9 @@ The Branches module gets the same entries for its rows.
 - [x] Scrollbars drawn by the app (thin, theme colours), the same on every system
 - [x] The window can be moved by dragging the start screen while the app loads
 - [x] Ctrl+P (print) blocked in development builds too
+- [x] Repository groups, brought forward from M5 at the owner's request: created, renamed,
+      folded, filled and ordered by drag and drop or right-click, saved in
+      `repository-groups.json`; clicked through in the dev app (drags with real mouse input)
 - [ ] Graph columns and relative dates: slice 11 above
 - [ ] The mouse pointer stayed hidden after using the palette with the keyboard and opening the
       native folder dialog ("Open repository…"); moving the mouse did not bring it back. To
@@ -582,10 +585,11 @@ The Branches module gets the same entries for its rows.
       request 2026-10-28; quick Merge follows with merging in M6); the "…" menu's Pull, Fetch and
       Push become real. Settings choose which buttons show: Pull and Push on each repository,
       Pull all and Push all on each group (owner request 2026-11-02)
-- [ ] Repository groups in the Repositories module (owner request 2026-11-02): folders like
-      bookmarks, to sort repositories into, collapse and expand. **Pull all** (merge) and **Push
-      all** on a group run as one job per repository. The groups need no git work and can come
-      earlier, before M5, if wanted
+- [x] Repository groups in the Repositories module (owner request 2026-11-02): folders like
+      bookmarks, to sort repositories into, collapse and expand. Done early, on 2026-11-02
+      ([features/repositories.md](features/repositories.md#groups)).
+- [ ] **Pull all** (merge) and **Push all** on a group, one job per repository (listed disabled
+      in the group's menu today)
 - [ ] Credentials: git credential helpers; `GIT_ASKPASS`/`SSH_ASKPASS` helper that asks in the app — ADR 0012
 - [ ] Manage remotes; clone dialog (shallow, single branch, partial clone, recursive submodules)
 - [ ] Background job registry: progress, cancel, logs, "equivalent command" shown — ADR 0011

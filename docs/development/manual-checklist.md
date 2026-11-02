@@ -120,6 +120,19 @@ Use `target\debug\noblame.exe` while the dev app runs.
   - Notes:
 - [ ] Settings → switch off the **…** button: it disappears.
   - Notes:
+- [ ] **(new)** Groups: the **New group** button at the top → type a name, Enter. F2 on a group
+      renames it; Escape cancels.
+  - Notes:
+- [ ] **(new)** Drag an open or recent repository onto a group; right-click a repository →
+      **Add to group** → a group, or **New group…**.
+  - Notes:
+- [ ] **(new)** Drag repositories within a group and between groups; drag a group onto another
+      to reorder (or **…** → Move up / Move down). Click a group to fold it; restart: everything
+      is kept.
+  - Notes:
+- [ ] **(new)** A group's **…** → **Open all**; **Pull all** / **Push all** are greyed out (M5);
+      **Delete group…** asks first and leaves the repositories alone.
+  - Notes:
 
 ## 7. Branches module (Alt+2)
 

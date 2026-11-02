@@ -52,6 +52,15 @@ Point at an open repository to see its **…** button: **Copy path** and **Close
 Pull, Fetch, Push and Commit are listed but come in later versions. A grey submodule has not been downloaded yet ("initialized"); NoBlame cannot
 initialize submodules in this version.
 
+Under **Groups** you can sort repositories into folders of your own, like bookmarks:
+
+- Click the **New group** button at the top, type a name and press Enter.
+- Drag any repository onto a group to add it, or right-click it and choose **Add to group**.
+- Drag repositories within a group, or groups among themselves, to change their order.
+- Click a group to fold or unfold it. Press F2 or use its **…** menu to rename it.
+- The **…** menu also opens every repository of the group at once, or deletes the group (your
+  repositories stay where they are). Pulling or pushing a whole group comes in a later version.
+
 Under **Recent** are the repositories you opened before. Hover over one and click **×** to remove
 it from the list. The buttons at the top open or create a repository.
 

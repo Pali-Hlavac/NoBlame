@@ -106,6 +106,11 @@ All notable changes to NoBlame are documented here. The format follows
   window at start with the app blurred behind it, until everything has loaded (at most 5 s).
   The bird is a songbird chirping on a berry branch, drawn inline from one definition
   (`loadingBird.ts`), so it shows from the first frame.
+- Repository groups in the Repositories module (owner request 2026-11-02): folders of
+  repositories like bookmarks. Create and rename them in place, drag repositories onto them (or
+  right-click → Add to group), reorder repositories and groups by dragging, fold them, open a
+  whole group at once. Saved in `repository-groups.json`. **Placeholders:** Pull all and Push
+  all on a group are listed disabled (M5).
 - Owner feedback (2026-11-02):
   - holding Ctrl (Cmd) over another commit shows "Click to compare with <the selected commit>"
     at the pointer;

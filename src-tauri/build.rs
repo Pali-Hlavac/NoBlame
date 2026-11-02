@@ -27,6 +27,8 @@ const APP_COMMANDS: &[&str] = &[
     "write_commit_graph",
     "list_recent_repositories",
     "remove_recent_repository",
+    "get_repository_groups",
+    "save_repository_groups",
     "get_commit_details",
     "get_changed_files",
     "get_comparison",

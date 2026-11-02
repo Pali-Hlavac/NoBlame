@@ -9,6 +9,7 @@ mod filter_types;
 mod find;
 mod graph_cache;
 mod graph_types;
+mod groups;
 mod recent;
 mod service;
 mod sessions;
@@ -29,12 +30,14 @@ pub use watch::RepositoryChanged;
 
 use tauri::{App, Manager};
 
+use groups::{GROUPS_FILE_NAME, GroupsStore};
 use recent::{RECENT_FILE_NAME, RecentStore};
 
-/// Registers the session registry and the recent-repositories store.
+/// Registers the session registry, the recent-repositories store and the groups store.
 pub fn init(app: &App) -> tauri::Result<()> {
-    let path = app.path().app_config_dir()?.join(RECENT_FILE_NAME);
-    app.manage(RecentStore::new(path));
+    let config = app.path().app_config_dir()?;
+    app.manage(RecentStore::new(config.join(RECENT_FILE_NAME)));
+    app.manage(GroupsStore::new(config.join(GROUPS_FILE_NAME)));
     let cache = graph_cache::GraphCache::new(app.path().app_cache_dir().ok());
     cache.prune(graph_cache::MAX_AGE);
     app.manage(RepoSessions::new(cache));
