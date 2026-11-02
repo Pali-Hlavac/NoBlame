@@ -2,14 +2,15 @@ import { CopyIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { RefBadge, shortId } from "@/features/graph";
-import { selectRow } from "@/features/selection";
 import type { CommitDetailsDto, SignatureDto } from "@/shared/ipc/bindings";
 import { copyToClipboard } from "@/shared/lib/clipboard";
 import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/button";
 
 import { formatSignatureDate, splitMessage } from "../lib/format";
+import { CommitLinks } from "./CommitLinks";
 import { ContainedIn } from "./ContainedIn";
+import { SignatureStatus } from "./SignatureStatus";
 
 function Person({ signature }: { signature: SignatureDto }) {
   return (
@@ -47,11 +48,12 @@ function Field({
 
 interface CommitDetailsViewProps {
   details: CommitDetailsDto;
+  repoId: number;
   repoPath: string;
 }
 
-/** Message, ids, people, refs and "contained in" of one commit. */
-export function CommitDetailsView({ details, repoPath }: CommitDetailsViewProps) {
+/** Message, ids, parents and children, people, signature, refs and "contained in" of a commit. */
+export function CommitDetailsView({ details, repoId, repoPath }: CommitDetailsViewProps) {
   const { summary, body } = splitMessage(details.message);
   return (
     <article aria-label={`Commit ${shortId(details.id)}`} className="space-y-3 p-3 text-sm">
@@ -85,28 +87,12 @@ export function CommitDetailsView({ details, repoPath }: CommitDetailsViewProps)
         </Field>
         {details.parents.length > 0 && (
           <Field label={details.parents.length > 1 ? "Parents" : "Parent"}>
-            {details.parents.map(({ id, row }) =>
-              row === null ? (
-                <span
-                  key={id}
-                  className="font-mono text-xs text-muted-foreground"
-                  title={`${id} (hidden by the filter)`}
-                >
-                  {shortId(id)}
-                </span>
-              ) : (
-                <button
-                  key={id}
-                  className="rounded font-mono text-xs text-primary underline-offset-2 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
-                  title={`Select parent ${id}`}
-                  onClick={() => {
-                    selectRow(repoPath, row);
-                  }}
-                >
-                  {shortId(id)}
-                </button>
-              ),
-            )}
+            <CommitLinks links={details.parents} relation="parent" repoPath={repoPath} />
+          </Field>
+        )}
+        {details.children.length > 0 && (
+          <Field label={details.children.length > 1 ? "Children" : "Child"}>
+            <CommitLinks links={details.children} relation="child" repoPath={repoPath} />
           </Field>
         )}
         <Field label="Author">
@@ -115,6 +101,11 @@ export function CommitDetailsView({ details, repoPath }: CommitDetailsViewProps)
         {!sameSignature(details.author, details.committer) && (
           <Field label="Committer">
             <Person signature={details.committer} />
+          </Field>
+        )}
+        {details.signature && (
+          <Field label="Signature">
+            <SignatureStatus repoId={repoId} commitId={details.id} format={details.signature} />
           </Field>
         )}
         {details.refs.length > 0 && (

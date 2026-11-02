@@ -55,6 +55,7 @@ pub fn builder() -> Builder<tauri::Wry> {
             repository::commands::get_repository_groups,
             repository::commands::save_repository_groups,
             inspect::commands::get_commit_details,
+            inspect::commands::verify_commit_signature,
             inspect::commands::get_changed_files,
             inspect::commands::get_comparison,
             inspect::commands::count_ahead_behind,

@@ -371,7 +371,12 @@ slice 11), M4, M5 and phase 2. Checked in the running dev app on git.git and a s
 closing the diff in a split keeps the other half's tab, the Ctrl hint, selecting from after a
 line's end, the scrollbars, print blocked in dev, clicking the oldest of 85,936 commits.
 
-Next: slice 10, commit details: children and signature status.
+Then slice 10 (2026-11-02): commit details show children and the signature status (good, not
+trusted, expired, revoked, bad, could not be checked; who signed it, the key and the verifying
+program's output). Checked in the running dev app on a scripted repository with SSH signatures
+and on git.git's GPG-signed commits.
+
+Next: slice 11, graph columns (choose, order, width; relative dates).
 
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
@@ -454,7 +459,10 @@ Not verified in the running app (they need someone at the keyboard; the logic is
 
 ### M3: Inspecting history
 
-- [ ] Commit details module, complete: children, signature status (the basics are in M2.5)
+- [x] Commit details module, complete: children, signature status (the basics are in M2.5).
+      Children from the graph (5.6 ms for the oldest Linux commit); signatures checked with the
+      user's git once the selection rests. Mergetag signatures (signed tags merged into a
+      commit, as in the Linux kernel) are not shown yet
 - [x] Changed files module for the selected commit (list, renames, merge parents); selecting
       a file shows it in the single diff tab, which switches files in place and stays where it is
       docked (several diff tabs: later)

@@ -72,6 +72,11 @@ export const commands = {
 	saveRepositoryGroups: (groups: RepositoryGroup[]) => typedError<RepositoryGroupsDto, AppError>(__TAURI_INVOKE("save_repository_groups", { groups })),
 	/**  Details of the commit on `row`: message, people, parents, refs and refs containing it. */
 	getCommitDetails: (id: number, row: number) => typedError<CommitDetailsDto, AppError>(__TAURI_INVOKE("get_commit_details", { id, row })),
+	/**
+	 *  Checks the signature of commit `commit` (hex id) with the user's gpg, ssh-keygen or gpgsm;
+	 *  `null` when the commit is not signed.
+	 */
+	verifyCommitSignature: (id: number, commit: string) => typedError<SignatureCheckDto | null, AppError>(__TAURI_INVOKE("verify_commit_signature", { id, commit })),
 	/**  The files the commit on `row` changed against its parent number `parent` (0 = first). */
 	getChangedFiles: (id: number, row: number, parent: number) => typedError<ChangedFilesDto, AppError>(__TAURI_INVOKE("get_changed_files", { id, row, parent })),
 	/**
@@ -300,19 +305,34 @@ export type CommitDetailsDto = {
 	/**  Full commit id. */
 	id: string,
 	/**  Parents, first parent first. */
-	parents: ParentDto[],
+	parents: CommitLinkDto[],
+	/**  Commits that have this one as a parent, newest first. */
+	children: CommitLinkDto[],
 	/**  Who wrote the change. */
 	author: SignatureDto,
 	/**  Who created the commit. */
 	committer: SignatureDto,
 	/**  Whole message. */
 	message: string,
+	/**
+	 *  What the commit is signed with; `null` when it is not signed
+	 *  (`verify_commit_signature` checks it).
+	 */
+	signature: SignatureFormatDto | null,
 	/**  References pointing at the commit. */
 	refs: RefLabel[],
 	/**  References containing the commit (at most 500). */
 	containedIn: RefLabel[],
 	/**  How many references contain the commit in total. */
 	containedInTotal: number,
+};
+
+/**  A parent or child commit and its row, so the UI can jump to it. */
+export type CommitLinkDto = {
+	/**  Full commit id. */
+	id: string,
+	/**  Row in the graph; `None` when the tab's filter hides it. */
+	row: number | null,
 };
 
 /**  Text columns of one graph row. */
@@ -677,14 +697,6 @@ export type LineSideDto =
 /**  After the change. */
 "new";
 
-/**  A parent commit and its row, so the UI can jump to it. */
-export type ParentDto = {
-	/**  Full commit id. */
-	id: string,
-	/**  Row in the graph; `None` when the tab's filter hides it. */
-	row: number | null,
-};
-
 /**  What a commit did to the path. */
 export type PathChangeDto = 
 /**  Created it. */
@@ -872,6 +884,26 @@ export type Settings = {
 	branches?: BranchesSettings,
 };
 
+/**  The result of checking a commit's signature. */
+export type SignatureCheckDto = {
+	/**  What the commit is signed with. */
+	format: SignatureFormatDto,
+	/**  Whether it verifies. */
+	verdict: SignatureVerdictDto,
+	/**  Who signed it, when known. */
+	signer: string | null,
+	/**  The signing key. */
+	key: string | null,
+	/**  The key's fingerprint. */
+	fingerprint: string | null,
+	/**  The primary key's fingerprint when a subkey signed. */
+	primaryFingerprint: string | null,
+	/**  gpg's trust level of the key. */
+	trust: string | null,
+	/**  What the verifying program (or git) said. */
+	message: string,
+};
+
 /**  Author or committer. */
 export type SignatureDto = {
 	/**  Name. */
@@ -883,6 +915,34 @@ export type SignatureDto = {
 	/**  Time-zone offset in minutes east of UTC. */
 	offsetMinutes: number,
 };
+
+/**  What a commit is signed with. */
+export type SignatureFormatDto = 
+/**  PGP (`gpg`). */
+"openPgp" | 
+/**  SSH (`ssh-keygen`). */
+"ssh" | 
+/**  X.509 (`gpgsm`). */
+"x509" | 
+/**  Not recognised. */
+"unknown";
+
+/**  Whether the signature verifies (git's `%G?`). */
+export type SignatureVerdictDto = 
+/**  Good, from a trusted key. */
+"good" | 
+/**  Good, but the key is not trusted or not an allowed signer. */
+"unknownValidity" | 
+/**  Good, but the signature has expired. */
+"expired" | 
+/**  Good, made by a key that has expired. */
+"expiredKey" | 
+/**  Good, made by a key that has been revoked. */
+"revokedKey" | 
+/**  Does not match the commit. */
+"bad" | 
+/**  Could not be checked (missing key, no allowed signers, missing program). */
+"cannotCheck";
 
 /**  One side of a side-by-side row. */
 export type SplitCellDto = {

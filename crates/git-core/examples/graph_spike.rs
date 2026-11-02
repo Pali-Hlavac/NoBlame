@@ -35,6 +35,28 @@ fn main() -> ExitCode {
     }
 }
 
+/// Worst case for "contained in" and children: the oldest commit, below every other row.
+fn oldest_details(
+    local: &gix::Repository,
+    graph: &Graph,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let last = graph.row_count().saturating_sub(1);
+    let details = Instant::now();
+    let oldest = commit_details(local, graph, last)?;
+    println!(
+        "details, oldest {:.1?} (contained in {} refs, {} children)",
+        details.elapsed(),
+        oldest.contained_in_total,
+        oldest.children.len()
+    );
+    let children = Instant::now();
+    let found = graph
+        .commit_at(last)
+        .map_or(0, |commit| graph.children(commit).len());
+    println!("children, oldest {:.1?} ({found})", children.elapsed());
+    Ok(())
+}
+
 fn run(path: &std::path::Path) -> Result<(), Box<dyn std::error::Error>> {
     let started = Instant::now();
     let repo = Repository::discover(path)?;
@@ -75,15 +97,7 @@ fn run(path: &std::path::Path) -> Result<(), Box<dyn std::error::Error>> {
         replay.elapsed() / sampled.max(1),
         bytes / sampled.max(1) as usize
     );
-    // Worst case for "contained in": the oldest commit, below every other row.
-    let last = graph.row_count().saturating_sub(1);
-    let details = Instant::now();
-    let oldest = commit_details(&local, &graph, last)?;
-    println!(
-        "details, oldest {:.1?} (contained in {} refs)",
-        details.elapsed(),
-        oldest.contained_in_total
-    );
+    oldest_details(&local, &graph)?;
     // Worst case for the highlighted history: the newest commit, every block below it lit.
     let highlight = Instant::now();
     if let Some(mut ancestry) = graph.ancestry(0) {

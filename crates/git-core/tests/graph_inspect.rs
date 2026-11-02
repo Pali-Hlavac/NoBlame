@@ -73,6 +73,30 @@ fn contained_in_matches_git_for_each_ref_contains() {
 }
 
 #[test]
+fn children_match_git_rev_list_children() {
+    let dir = tempfile::tempdir().unwrap();
+    generate(&Preset::Tiny.spec(), dir.path()).unwrap();
+    let (repo, graph) = build(dir.path());
+    let listing = git(dir.path(), &["rev-list", "--all", "--children"]);
+    let rows = graph.row_count();
+    for row in [0, 1, rows / 7, rows / 3, rows / 2, rows - 2, rows - 1] {
+        let details = commit_details(&repo, &graph, row).unwrap();
+        let expected: BTreeSet<&str> = listing
+            .lines()
+            .find_map(|line| {
+                let mut ids = line.split(' ');
+                (ids.next() == Some(details.id.as_str())).then(|| ids.collect())
+            })
+            .unwrap();
+        let ours: BTreeSet<&str> = details.children.iter().map(|c| c.id.as_str()).collect();
+        assert_eq!(ours, expected, "row {row} ({})", details.id);
+        // Newest first, each on a row above the commit.
+        let child_rows: Vec<u32> = details.children.iter().map(|c| c.row.unwrap()).collect();
+        assert!(child_rows.is_sorted() && child_rows.iter().all(|&r| r < row));
+    }
+}
+
+#[test]
 fn details_carry_message_people_and_parents() {
     let fixture = Fixture::new();
     fixture.commit("base");
@@ -89,6 +113,8 @@ fn details_carry_message_people_and_parents() {
     assert_eq!(details.message.trim_end(), "Merge topic\n\nWith a body.");
     let parents: Vec<&str> = details.parents.iter().map(|p| p.id.as_str()).collect();
     assert_eq!(parents, [main.as_str(), topic.as_str()]);
+    assert!(details.children.is_empty());
+    assert_eq!(details.signature, None);
     for parent in &details.parents {
         let row = &commit_rows(&repo, &graph, parent.row.unwrap(), 1).unwrap()[0];
         assert_eq!(row.id, parent.id);

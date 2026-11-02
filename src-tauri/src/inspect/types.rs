@@ -1,11 +1,12 @@
 //! Data shared with the frontend by the inspect commands.
 
-use git_core::graph::{CommitDetails, GraphRef, ParentInfo, Signature};
+use git_core::graph::{CommitDetails, CommitLink, GraphRef, Signature};
 use git_core::stash::StashEntry;
 use git_core::submodule::SubmoduleEntry;
 use serde::Serialize;
 use specta::Type;
 
+use super::SignatureFormatDto;
 use crate::repository::RefLabel;
 
 /// Author or committer.
@@ -35,21 +36,21 @@ impl From<Signature> for SignatureDto {
     }
 }
 
-/// A parent commit and its row, so the UI can jump to it.
+/// A parent or child commit and its row, so the UI can jump to it.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Type)]
 #[serde(rename_all = "camelCase")]
-pub struct ParentDto {
+pub struct CommitLinkDto {
     /// Full commit id.
     pub id: String,
     /// Row in the graph; `None` when the tab's filter hides it.
     pub row: Option<u32>,
 }
 
-impl From<ParentInfo> for ParentDto {
-    fn from(parent: ParentInfo) -> Self {
+impl From<CommitLink> for CommitLinkDto {
+    fn from(link: CommitLink) -> Self {
         Self {
-            id: parent.id,
-            row: parent.row,
+            id: link.id,
+            row: link.row,
         }
     }
 }
@@ -63,13 +64,18 @@ pub struct CommitDetailsDto {
     /// Full commit id.
     pub id: String,
     /// Parents, first parent first.
-    pub parents: Vec<ParentDto>,
+    pub parents: Vec<CommitLinkDto>,
+    /// Commits that have this one as a parent, newest first.
+    pub children: Vec<CommitLinkDto>,
     /// Who wrote the change.
     pub author: SignatureDto,
     /// Who created the commit.
     pub committer: SignatureDto,
     /// Whole message.
     pub message: String,
+    /// What the commit is signed with; `null` when it is not signed
+    /// (`verify_commit_signature` checks it).
+    pub signature: Option<SignatureFormatDto>,
     /// References pointing at the commit.
     pub refs: Vec<RefLabel>,
     /// References containing the commit (at most 500).
@@ -83,10 +89,20 @@ impl From<CommitDetails> for CommitDetailsDto {
         Self {
             row: details.row,
             id: details.id,
-            parents: details.parents.into_iter().map(ParentDto::from).collect(),
+            parents: details
+                .parents
+                .into_iter()
+                .map(CommitLinkDto::from)
+                .collect(),
+            children: details
+                .children
+                .into_iter()
+                .map(CommitLinkDto::from)
+                .collect(),
             author: details.author.into(),
             committer: details.committer.into(),
             message: details.message,
+            signature: details.signature.map(SignatureFormatDto::from),
             refs: details.refs.iter().map(RefLabel::from).collect(),
             contained_in: details.contained_in.iter().map(RefLabel::from).collect(),
             contained_in_total: details.contained_in_total,

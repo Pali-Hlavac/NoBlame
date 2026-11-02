@@ -157,6 +157,13 @@ Use `target\debug\noblame.exe` while the dev app runs.
 - [ ] Select a commit: message, id with a copy button, parents (click one to select it), author
       and committer with their time zones, labels, **Contained in**.
   - Notes:
+- [ ] **(new)** A commit with a branch made from it: **Children** lists the commits on top of it;
+      click one to select it.
+  - Notes:
+- [ ] **(new)** A signed commit (git.git has GPG-signed ones; your own if you sign): the
+      **Signature** row says whether it is good, who signed it and the key; without the
+      signer's key it says it could not be checked, with gpg's message.
+  - Notes:
 - [ ] In a terminal: `git stash` in a test repository, switch back to NoBlame: the Stashes list
       updates.
   - Notes:

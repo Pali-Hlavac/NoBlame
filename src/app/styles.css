@@ -22,6 +22,7 @@
   --destructive: oklch(0.577 0.245 27.3);
   --destructive-foreground: oklch(0.985 0 0);
   --warning: oklch(0.62 0.15 65);
+  --success: oklch(0.5 0.14 150);
   --ring: oklch(0.72 0.16 75);
   /* Commit graph lanes (cycled) and ref labels. */
   --lane-0: oklch(0.55 0.15 250);
@@ -78,6 +79,7 @@
   --destructive: oklch(0.637 0.237 25.3);
   --destructive-foreground: oklch(0.985 0 0);
   --warning: oklch(0.8 0.14 80);
+  --success: oklch(0.75 0.14 150);
   --ring: oklch(0.82 0.15 85);
   --lane-0: oklch(0.72 0.13 250);
   --lane-1: oklch(0.74 0.14 30);
@@ -130,6 +132,7 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-warning: var(--warning);
+  --color-success: var(--success);
   --color-ring: var(--ring);
   --color-status-added: var(--status-added);
   --color-status-modified: var(--status-modified);

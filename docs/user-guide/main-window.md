@@ -82,8 +82,13 @@ create or delete branches here yet.
 Shows the selected commit:
 
 - its full message and commit id, with a button to copy the id;
-- its parent commits (click one to select it);
+- its parent commits and its children, the commits made on top of it (click one to select it);
 - who wrote it and when, in their own time zone;
+- for a signed commit, whether the signature is good, who signed it and with which key. NoBlame
+  asks Git, which uses your own GPG keyring or, for SSH signatures, the file named in Git's
+  `gpg.ssh.allowedSignersFile` setting. "Could not be checked" usually means the signer's public
+  key is missing, or that no allowed signers file is set up. Open **Verification output** to
+  see the exact message. After importing a key, switch back to NoBlame to check again;
 - its labels;
 - under **Contained in**, every branch, remote branch and tag that includes the commit.
 

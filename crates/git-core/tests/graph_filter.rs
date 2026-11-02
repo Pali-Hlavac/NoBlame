@@ -122,9 +122,9 @@ fn filters_show_the_commits_git_log_shows() {
         // Details come from the full history.
         let details = commit_details(&repo, &view, 0).unwrap();
         assert_eq!(details.id, shown[0]);
-        for parent in &details.parents {
-            let row = parent.row.map(|row| shown[row as usize].clone());
-            assert!(row.is_none() || row.as_deref() == Some(parent.id.as_str()));
+        for link in details.parents.iter().chain(&details.children) {
+            let row = link.row.map(|row| shown[row as usize].clone());
+            assert!(row.is_none() || row.as_deref() == Some(link.id.as_str()));
         }
     }
 }

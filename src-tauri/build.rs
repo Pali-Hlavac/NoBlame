@@ -30,6 +30,7 @@ const APP_COMMANDS: &[&str] = &[
     "get_repository_groups",
     "save_repository_groups",
     "get_commit_details",
+    "verify_commit_signature",
     "get_changed_files",
     "get_comparison",
     "count_ahead_behind",

@@ -2,6 +2,7 @@
 //! See `docs/architecture/commit-graph.md`.
 
 mod ancestry;
+mod children;
 mod commit_details;
 mod contains;
 mod details;
@@ -22,7 +23,7 @@ use std::time::{Duration, Instant};
 
 pub use ancestry::Ancestry;
 pub use commit_details::{
-    CommitDetails, MAX_CONTAINING_REFS, ParentInfo, Signature, commit_details,
+    CommitDetails, CommitLink, MAX_CONTAINING_REFS, Signature, commit_details,
 };
 pub use details::{CommitRow, CommitText, MAX_ROWS_PER_PAGE, commit_rows, commit_text};
 pub use encode::{

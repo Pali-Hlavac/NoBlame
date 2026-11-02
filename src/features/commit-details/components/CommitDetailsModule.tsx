@@ -40,7 +40,7 @@ function SelectedCommit({ repoId, repoPath }: { repoId: number; repoPath: string
   if (!details.data) return <LoadingState label="Reading commit…" className="h-full" />;
   return (
     <div className="h-full overflow-auto">
-      <CommitDetailsView details={details.data} repoPath={repoPath} />
+      <CommitDetailsView details={details.data} repoId={repoId} repoPath={repoPath} />
     </div>
   );
 }

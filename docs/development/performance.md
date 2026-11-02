@@ -109,6 +109,14 @@ from the commit's row up to row 0 and checks each parent row, using the graph's 
 Measured with `graph_spike` (release build), while the dev app was running, so the same run
 showed refs at 828 ms instead of the usual 260 ms.
 
+### Children and signatures (slice 10, 2026-11-02)
+
+Children are found like "contained in": one pass over the rows above the commit. On the Linux
+kernel (1,503,174 commits, release `graph_spike`) the oldest commit's children take **5.6 ms** and
+its whole details 15.5 ms (contained in 954 refs). Checking a signature runs one
+`git log -1 --format=%G?…`: about 75 ms with gpg on a GPG-signed git.git commit (public key
+missing). It runs only for signed commits and only after the selection rests for 300 ms.
+
 ### Highlighted history (2026-10-28)
 
 `graph_spike` on synthetic-1m (release build, dev app running): selecting the newest commit (the

@@ -6,6 +6,7 @@ use git_core::diff::DiffError;
 use git_core::graph::GraphError;
 use git_core::history::HistoryError;
 use git_core::repo::RepoError;
+use git_core::signing::SigningError;
 use git_core::stash::StashError;
 use git_core::status::StatusError;
 use git_core::submodule::SubmoduleError;
@@ -48,6 +49,9 @@ pub enum RepositoryError {
     /// Reading the working tree status failed.
     #[error(transparent)]
     Status(#[from] StatusError),
+    /// Checking a commit's signature failed.
+    #[error(transparent)]
+    Signing(#[from] SigningError),
     /// Running git failed.
     #[error(transparent)]
     Git(#[from] GitEnvError),
@@ -87,7 +91,8 @@ impl From<RepositoryError> for AppError {
             | RepositoryError::Submodule(SubmoduleError::Gix(message))
             | RepositoryError::Diff(DiffError::Gix(message))
             | RepositoryError::Tree(TreeError::Gix(message))
-            | RepositoryError::History(HistoryError::Gix(message)) => {
+            | RepositoryError::History(HistoryError::Gix(message))
+            | RepositoryError::Signing(SigningError::Gix(message)) => {
                 tracing::error!(%message, "repository read failed");
                 AppError::new(ErrorCode::GitFailed, format!("Reading the repository failed: {message}"))
             }
@@ -135,7 +140,8 @@ impl From<RepositoryError> for AppError {
             ),
             RepositoryError::Status(StatusError::Git(error))
             | RepositoryError::History(HistoryError::Git(error))
-            | RepositoryError::Blame(BlameError::Git(error)) => GitEnvError::from(error).into(),
+            | RepositoryError::Blame(BlameError::Git(error))
+            | RepositoryError::Signing(SigningError::Git(error)) => GitEnvError::from(error).into(),
             RepositoryError::Compare(error) => compare_error(error),
             RepositoryError::Blame(error @ BlameError::Parse(_)) => {
                 tracing::error!(%error, "blame output not understood");

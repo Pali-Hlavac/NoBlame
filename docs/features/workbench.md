@@ -127,7 +127,17 @@ Details:
     ref the graph knows (branches, remote branches, tags) and takes 5.5 ms for the oldest of a
     million commits.
   - At most 500 refs are listed, followed by "and N more".
-  - Children and signature status are M3.
+  - Children come from the graph (one pass over the rows above the commit, like "contained in":
+    5.6 ms for the oldest of the Linux kernel's 1.5M commits), in the full history even when a
+    filter is on; a child the filter hides is shown greyed, not as a link.
+  - Signatures: `get_commit_details` says what a commit is signed with (`gpgsig` header via gix:
+    PGP, SSH, X.509), so unsigned commits cost nothing. For a signed one the module calls
+    `verify_commit_signature` once the selection has rested for 300 ms
+    (`SIGNATURE_CHECK_DELAY_MS`, so arrow-key browsing runs no gpg) and again when the window
+    regains focus. It runs `git log -1 --no-show-signature --format=%G?…`, about 75 ms with
+    gpg on git.git. Git reports an SSH signature as unsigned (`N`) when
+    `gpg.ssh.allowedSignersFile` is not set; NoBlame shows it as "could not be checked" with
+    git's message.
 - **Stashes**: read-only. Creating with file selection, apply, pop, drop and applying single
   files are M4.
 

@@ -5,8 +5,9 @@ use tauri::{State, WebviewWindow};
 use super::{
     AheadBehindDto, BlameDto, ChangedFilesDto, CommitDetailsDto, CompareRequestDto, ComparisonDto,
     DiffLineDto, DiffRequestDto, FileDiffDto, FileHistoryDto, FileHistoryRowDto,
-    FileViewRequestDto, LineSideDto, RefEntry, SplitLineDto, StashDto, StatusSummaryDto,
-    SubmoduleDto, TreeEntryDto, TreeListingDto, blame, compare, files, history, service,
+    FileViewRequestDto, LineSideDto, RefEntry, SignatureCheckDto, SplitLineDto, StashDto,
+    StatusSummaryDto, SubmoduleDto, TreeEntryDto, TreeListingDto, blame, compare, files, history,
+    service, signing,
 };
 use crate::error::CommandResult;
 use crate::repository::{RawBytes, RepoId, RepoSessions};
@@ -21,6 +22,18 @@ pub async fn get_commit_details(
     row: u32,
 ) -> CommandResult<CommitDetailsDto> {
     Ok(service::details(&sessions, id, row).await?)
+}
+
+/// Checks the signature of commit `commit` (hex id) with the user's gpg, ssh-keygen or gpgsm;
+/// `null` when the commit is not signed.
+#[tauri::command]
+#[specta::specta]
+pub async fn verify_commit_signature(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    commit: String,
+) -> CommandResult<Option<SignatureCheckDto>> {
+    Ok(signing::verify(&sessions, id, commit).await?)
 }
 
 /// The files the commit on `row` changed against its parent number `parent` (0 = first).

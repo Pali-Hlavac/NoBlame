@@ -1,7 +1,9 @@
 //! Everything the Commit details module shows about one row: full message, author and
-//! committer, parents, the refs pointing at it and the refs containing it.
+//! committer, parents and children, what it is signed with, the refs pointing at it and the
+//! refs containing it.
 
 use super::{Graph, GraphError, GraphRef};
+use crate::signing::{SignatureFormat, signature_format};
 
 /// How many containing refs are returned at most; the total is reported separately, because
 /// an old commit of a big repository is contained in thousands of branches and tags.
@@ -20,9 +22,9 @@ pub struct Signature {
     pub offset_seconds: i32,
 }
 
-/// One parent of the commit.
+/// A parent or child of the commit.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ParentInfo {
+pub struct CommitLink {
     /// Full hex object id.
     pub id: String,
     /// Its row in the graph; `None` when a filter hides it.
@@ -37,13 +39,18 @@ pub struct CommitDetails {
     /// Full hex object id.
     pub id: String,
     /// Parents in order (first parent first).
-    pub parents: Vec<ParentInfo>,
+    pub parents: Vec<CommitLink>,
+    /// Commits that have this one as a parent, newest first.
+    pub children: Vec<CommitLink>,
     /// Who wrote the change.
     pub author: Signature,
     /// Who created the commit.
     pub committer: Signature,
     /// The whole message (lossy if not UTF-8).
     pub message: String,
+    /// What the commit is signed with; `None` when it is not signed. Checking the signature is
+    /// [`crate::signing::verify_commit`].
+    pub signature: Option<SignatureFormat>,
     /// References pointing at the commit.
     pub refs: Vec<GraphRef>,
     /// Up to [`MAX_CONTAINING_REFS`] references whose history includes the commit.
@@ -52,8 +59,8 @@ pub struct CommitDetails {
     pub contained_in_total: u32,
 }
 
-/// Reads the details of the commit on `row`. Parents and containing refs come from the full
-/// history, also when `graph` is a filtered view.
+/// Reads the details of the commit on `row`. Parents, children and containing refs come from
+/// the full history, also when `graph` is a filtered view.
 pub fn commit_details(
     repo: &gix::Repository,
     graph: &Graph,
@@ -72,15 +79,14 @@ pub fn commit_details(
     let message = object.message_raw().map_err(GraphError::gix)?.to_string();
     let author = signature(object.author().map_err(GraphError::gix)?);
     let committer = signature(object.committer().map_err(GraphError::gix)?);
+    let signed = signature_format(&object).map_err(GraphError::gix)?;
 
-    let parents = index
-        .parents(commit)
-        .iter()
-        .map(|&parent| ParentInfo {
-            id: index.id(parent).to_string(),
-            row: graph.shown_row(full.rows_of[parent as usize]),
-        })
-        .collect();
+    let link = |linked: u32| CommitLink {
+        id: index.id(linked).to_string(),
+        row: graph.shown_row(full.rows_of[linked as usize]),
+    };
+    let parents = index.parents(commit).iter().copied().map(link).collect();
+    let children = full.children(commit).into_iter().map(link).collect();
     let mut refs: Vec<GraphRef> = full.refs_of(commit).cloned().collect();
     refs.sort_by(|a, b| (a.kind, &a.name).cmp(&(b.kind, &b.name)));
     let containing = full.refs_containing(commit);
@@ -88,9 +94,11 @@ pub fn commit_details(
         row,
         id: id.to_string(),
         parents,
+        children,
         author,
         committer,
         message,
+        signature: signed,
         refs,
         contained_in_total: u32::try_from(containing.len()).unwrap_or(u32::MAX),
         contained_in: containing

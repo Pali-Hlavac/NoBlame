@@ -37,6 +37,7 @@
     "allow-get-repository-groups",
     "allow-save-repository-groups",
     "allow-get-commit-details",
+    "allow-verify-commit-signature",
     "allow-get-changed-files",
     "allow-get-comparison",
     "allow-count-ahead-behind",

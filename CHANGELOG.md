@@ -122,6 +122,11 @@ All notable changes to NoBlame are documented here. The format follows
   - the window can be moved by dragging the start screen, before the title bar is there;
   - Ctrl+P and Ctrl+Shift+P (print) are blocked in development builds too; reloading and the
     browser's context menu stay available there.
+- Commit details (M3, slice 10): the commit's children (click to select; from the graph, 5.6 ms
+  for the oldest of the Linux kernel's 1.5M commits), and for a signed commit whether the
+  signature is good, who signed it, the key and what gpg, ssh-keygen or gpgsm said. Checked with
+  the user's git (`git log --format=%G?`) once the selection rests for 0.3 s, and again when the
+  window regains focus.
 - Compare tab: the files that differ between two branches, tags or commits, with the diff of
   the chosen one. Open it with **Compare with HEAD** in a commit's menu, **Compare with the
   current branch** in a branch's or tag's submenu, Ctrl+click on a second commit, or the palette.
