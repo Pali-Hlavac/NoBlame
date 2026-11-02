@@ -42,8 +42,13 @@ export interface HistoryTab extends TabBase {
   kind: "history";
 }
 
+/** Two revisions compared: the files that differ and their diffs (one tab at most). */
+export interface CompareTab extends TabBase {
+  kind: "compare";
+}
+
 export type WorkspaceTab =
-  WelcomeTab | RepositoryTab | SettingsTab | DiffTab | FileTab | HistoryTab | BlameTab;
+  WelcomeTab | RepositoryTab | SettingsTab | DiffTab | FileTab | HistoryTab | BlameTab | CompareTab;
 
 /** Checks a tab read back from a saved layout (which may come from another app version). */
 export function isWorkspaceTab(value: unknown): value is WorkspaceTab {
@@ -57,6 +62,7 @@ export function isWorkspaceTab(value: unknown): value is WorkspaceTab {
     case "file":
     case "history":
     case "blame":
+    case "compare":
       return true;
     case "repository":
       return typeof tab.path === "string";

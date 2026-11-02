@@ -18,6 +18,7 @@ mod unified;
 mod words;
 
 pub use attributes::{DiffAttribute, diff_attribute};
+pub(crate) use changes::tree_changes;
 pub use changes::{ChangeStatus, ChangedFile, CommitChanges, MAX_CHANGED_FILES, commit_changes};
 pub use file::FileDiff;
 pub use lines::{DiffContent, DiffLine, LineKind, SplitCell, SplitLine};

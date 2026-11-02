@@ -347,7 +347,24 @@ Slice 8, second half done (2026-10-31): blame ([features/blame.md](features/blam
 - Not clicked through in the running app: the owner's instance was running for the whole slice.
   Covered by integration tests against git (renames, previous revisions) and component tests.
 
-Next: slice 9, compare two commits or branches.
+Slice 9 done (2026-11-02): the compare tab ([features/compare.md](features/compare.md), ADR
+0023).
+
+- Two revisions (references or anything typed), swap, and **only changes since they split**
+  (merge base); the files that differ beside the chosen file's diff; commits only each side has.
+- Opened from a commit's menu (**Compare with HEAD**), a branch's or tag's submenu (**Compare
+  with the current branch**), Ctrl+click on a second commit, or the palette. "With the selected
+  commit" became Ctrl+click: right click already selects.
+- `git diff --raw` for the list: 0.21 s on git.git v2.40.0 → v2.50.0, where gix's rename
+  detection took 4.0 s. Partial clones use gix with exact renames (git would spend 70 s trying
+  to download, then fail). Under a second for 116,665 files on the Linux kernel.
+- Changed files also falls back to exact renames when a partial clone lacks contents.
+- Clicked through in the running app on git.git (the owner's instance was not running): Compare
+  with HEAD, choosing a file, merge base mode, swap, a typed tag, Ctrl+click. Fixed there: the tab
+  opened over the graph (it now opens with the diff and file tabs) and the empty state's wording
+  in merge base mode.
+
+Next: slice 10, commit details: children and signature status.
 
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
@@ -449,7 +466,7 @@ Not verified in the running app (they need someone at the keyboard; the logic is
 - [x] Context menu on commits in the graph (owner request 2026-10-30), see the list below;
       the same entries in the Branches module follow with M5
 - [x] Find in the graph (hash, message, ref) with jump-to; "go to commit"
-- [ ] Compare any two commits/branches
+- [x] Compare any two commits/branches (slice 9, ADR 0023; with the working tree in M4)
 
 Slices, in order (planned 2026-10-28):
 
@@ -473,22 +490,22 @@ Slices, in order (planned 2026-10-28):
 
 On any commit row:
 
-| Entry                                                                  | Arrives        |
-| ---------------------------------------------------------------------- | -------------- |
-| Copy full id / short id / subject / whole message                      | M3             |
-| Highlight this commit's history (and clear the highlight)              | M3             |
-| Compare with HEAD / with the working tree / with the selected commit   | M3 (slice 9)   |
-| Browse files at this commit; save a file from it                       | Done (slice 7) |
-| Check out this commit (detached HEAD, explained in the dialog)         | M5             |
-| Create branch here… / Create tag here…                                 | M5             |
-| Merge into the current branch                                          | M6             |
-| Rebase the current branch onto this commit                             | M6             |
-| Interactive rebase from here                                           | M6             |
-| Cherry-pick / Revert this commit                                       | M6             |
-| Reset the current branch to here (soft, mixed, hard with confirmation) | M6             |
-| Mark as good / bad (bisect)                                            | M7             |
-| Create a patch; save an archive (zip, tar) of this commit              | M7             |
-| Run a user script with this commit                                     | M7             |
+| Entry                                                                  | Arrives                         |
+| ---------------------------------------------------------------------- | ------------------------------- |
+| Copy full id / short id / subject / whole message                      | M3                              |
+| Highlight this commit's history (and clear the highlight)              | M3                              |
+| Compare with HEAD / with the working tree / with the selected commit   | Done (slice 9; working tree M4) |
+| Browse files at this commit; save a file from it                       | Done (slice 7)                  |
+| Check out this commit (detached HEAD, explained in the dialog)         | M5                              |
+| Create branch here… / Create tag here…                                 | M5                              |
+| Merge into the current branch                                          | M6                              |
+| Rebase the current branch onto this commit                             | M6                              |
+| Interactive rebase from here                                           | M6                              |
+| Cherry-pick / Revert this commit                                       | M6                              |
+| Reset the current branch to here (soft, mixed, hard with confirmation) | M6                              |
+| Mark as good / bad (bisect)                                            | M7                              |
+| Create a patch; save an archive (zip, tar) of this commit              | M7                              |
+| Run a user script with this commit                                     | M7                              |
 
 When branches or tags point at the commit, a submenu for each one offers:
 

@@ -3,10 +3,10 @@
 use tauri::{State, WebviewWindow};
 
 use super::{
-    BlameDto, ChangedFilesDto, CommitDetailsDto, DiffLineDto, DiffRequestDto, FileDiffDto,
-    FileHistoryDto, FileHistoryRowDto, FileViewRequestDto, LineSideDto, RefEntry, SplitLineDto,
-    StashDto, StatusSummaryDto, SubmoduleDto, TreeEntryDto, TreeListingDto, blame, files, history,
-    service,
+    AheadBehindDto, BlameDto, ChangedFilesDto, CommitDetailsDto, CompareRequestDto, ComparisonDto,
+    DiffLineDto, DiffRequestDto, FileDiffDto, FileHistoryDto, FileHistoryRowDto,
+    FileViewRequestDto, LineSideDto, RefEntry, SplitLineDto, StashDto, StatusSummaryDto,
+    SubmoduleDto, TreeEntryDto, TreeListingDto, blame, compare, files, history, service,
 };
 use crate::error::CommandResult;
 use crate::repository::{RawBytes, RepoId, RepoSessions};
@@ -33,6 +33,31 @@ pub async fn get_changed_files(
     parent: u32,
 ) -> CommandResult<ChangedFilesDto> {
     Ok(service::changed_files(&sessions, id, row, parent).await?)
+}
+
+/// The files that differ between two revisions (typed or picked: branch, tag, id, `HEAD~2`),
+/// directly or since their merge base, with the commits they name. A newer comparison cancels
+/// one still running.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_comparison(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    request: CompareRequestDto,
+) -> CommandResult<ComparisonDto> {
+    Ok(compare::comparison(&sessions, id, request).await?)
+}
+
+/// How many commits `target` has that `base` lacks, and the other way round (hex ids).
+#[tauri::command]
+#[specta::specta]
+pub async fn count_ahead_behind(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    base: String,
+    target: String,
+) -> CommandResult<AheadBehindDto> {
+    Ok(compare::ahead_behind(&sessions, id, base, target).await?)
 }
 
 /// The line diff a request names (two blobs, the file's path, the options): its kind, sizes

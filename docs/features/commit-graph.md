@@ -75,7 +75,8 @@ subject.
 | Copy ▸ Commit id, Short commit id, Subject, Whole message      | Works                           |
 | Highlight its history / Clear the highlight                    | Works (when highlighting is on) |
 | Browse files at this commit                                    | Works (opens the Files module)  |
-| Compare with HEAD, Compare with the working tree               | Disabled, **M3** (slice 9)      |
+| Compare with HEAD                                              | Works (the compare tab)         |
+| Compare with the working tree                                  | Disabled, **M4**                |
 | Check out this commit, Create a branch here, Create a tag here | Disabled, **M5**                |
 | Merge, Rebase, Interactive rebase, Cherry-pick, Revert, Reset  | Disabled, **M6**                |
 | A submenu per branch or tag on the commit                      | Copy name works; the rest M5/M6 |
@@ -85,6 +86,7 @@ Each disabled entry names the milestone that delivers it. A branch's submenu off
 
 - Check out, Merge into the current branch, Rebase onto it (not for the current branch);
 - Rename, Delete, Push;
+- Compare with the current branch (works);
 - Copy name.
 
 Remote branches offer:
@@ -100,7 +102,8 @@ is Radix's context menu (`@radix-ui/react-context-menu` 2.4.1, MIT, `shared/ui/c
 
 ## Selection and navigation
 
-- Click a row to select it.
+- Click a row to select it. **Ctrl+click** (Cmd+click on macOS) another commit to compare
+  the two in the compare tab; the selection stays ([compare.md](compare.md)).
 - With the list focused: **Up/Down** move one row, **Page Up/Page Down** one screen, **Home/End**
   go to the first or last commit. The selection scrolls into view.
 - On first open the HEAD commit is selected and scrolled into view.

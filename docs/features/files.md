@@ -74,6 +74,7 @@ Measured in the debug build through IPC (2026-10-30):
 - Filtering the tree by name, and "find file".
 - Opening a file in an external program (writing a temporary copy and opening it with its
   default program), and saving through Git's filters (line endings, LFS contents).
-- Comparing two revisions of a file (M3 slice 9).
+- Comparing two revisions of one file from the history tab (the compare tab compares whole
+  revisions, [compare.md](compare.md)).
 - Non-UTF-8 file names are shown lossily, and looking such a file up at another commit by its
   path does not find it.

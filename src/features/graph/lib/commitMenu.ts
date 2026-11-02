@@ -5,9 +5,11 @@
  */
 import type { CommitRowDto, RefLabel } from "@/shared/ipc/bindings";
 
+import { refRevision } from "./revision";
+
 /** Milestones of the stubbed entries (docs/roadmap.md). */
 export const MENU_MILESTONES = {
-  inspect: "M3",
+  workingTree: "M4",
   branches: "M5",
   history: "M6",
   advanced: "M7",
@@ -35,9 +37,13 @@ export interface CommitMenuActions {
   toggleHighlight: () => void;
   /** Shows the commit's files (the Files module). */
   browseFiles: () => void;
+  /** Compares the commit with HEAD; `undefined` when it is HEAD. */
+  compareWithHead: (() => void) | undefined;
+  /** Compares the current branch with a reference (its full name) on the commit. */
+  compareWithCurrent: (revision: string) => void;
 }
 
-const { inspect, branches, history, advanced } = MENU_MILESTONES;
+const { workingTree, branches, history, advanced } = MENU_MILESTONES;
 
 function item(id: string, label: string, milestone?: string, run?: () => void): MenuEntry {
   return { type: "item", id, label, milestone, run };
@@ -48,9 +54,12 @@ function separator(id: string): MenuEntry {
 }
 
 /** Entries for one reference on the commit. */
-function refEntries(ref: RefLabel, copy: CommitMenuActions["copy"]): MenuEntry[] {
+function refEntries(ref: RefLabel, actions: CommitMenuActions): MenuEntry[] {
   const copyName = item("copy-name", "Copy name", undefined, () => {
-    copy(ref.name, "Name");
+    actions.copy(ref.name, "Name");
+  });
+  const compare = item("compare", "Compare with the current branch", undefined, () => {
+    actions.compareWithCurrent(refRevision(ref));
   });
   switch (ref.kind) {
     case "branch":
@@ -61,6 +70,7 @@ function refEntries(ref: RefLabel, copy: CommitMenuActions["copy"]): MenuEntry[]
               item("checkout", "Check out", branches),
               item("merge", "Merge into the current branch…", history),
               item("rebase", "Rebase the current branch onto it…", history),
+              compare,
               separator("sep-ref"),
             ]),
         item("rename", "Rename…", branches),
@@ -74,12 +84,14 @@ function refEntries(ref: RefLabel, copy: CommitMenuActions["copy"]): MenuEntry[]
         item("checkout", "Check out as a new local branch…", branches),
         item("merge", "Merge into the current branch…", history),
         item("rebase", "Rebase the current branch onto it…", history),
+        compare,
         item("delete", "Delete on the remote…", branches),
         separator("sep-copy"),
         copyName,
       ];
     case "tag":
       return [
+        compare,
         item("push", "Push", branches),
         item("delete", "Delete…", branches),
         separator("sep-copy"),
@@ -132,8 +144,8 @@ export function commitMenu(commit: CommitRowDto, actions: CommitMenuActions): Me
   }
   entries.push(
     separator("sep-inspect"),
-    item("compare-head", "Compare with HEAD", inspect),
-    item("compare-worktree", "Compare with the working tree", inspect),
+    item("compare-head", "Compare with HEAD", undefined, actions.compareWithHead),
+    item("compare-worktree", "Compare with the working tree", workingTree),
     item("browse", "Browse files at this commit", undefined, actions.browseFiles),
     separator("sep-branches"),
     item("checkout", "Check out this commit…", branches),
@@ -154,7 +166,7 @@ export function commitMenu(commit: CommitRowDto, actions: CommitMenuActions): Me
         type: "submenu",
         id: `ref:${ref.kind}:${ref.name}`,
         label: `${REF_KIND_WORDS[ref.kind]} ${ref.name}`,
-        entries: refEntries(ref, copy),
+        entries: refEntries(ref, actions),
       });
     }
   }

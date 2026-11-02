@@ -30,14 +30,15 @@ On macOS, use **⌘** where this page says **Ctrl**, except for switching tabs, 
 Click the list (the commits, or the branches in the Branches module) or move to it with **Tab**
 first. **Enter** in the Branches list selects the branch's commit or folds a section.
 
-| Shortcut                       | Action                                     |
-| ------------------------------ | ------------------------------------------ |
-| Up / Down                      | Previous / next entry                      |
-| Page Up / Page Down            | One screen up / down                       |
-| Home / End                     | First / last entry                         |
-| Esc (commit list)              | Clear the highlight of the selected commit |
-| Shift+F10 / Menu key           | Open the selected commit's context menu    |
-| Enter / Shift+Enter (find bar) | Next (older) / previous (newer) match      |
+| Shortcut                        | Action                                     |
+| ------------------------------- | ------------------------------------------ |
+| Up / Down                       | Previous / next entry                      |
+| Page Up / Page Down             | One screen up / down                       |
+| Home / End                      | First / last entry                         |
+| Esc (commit list)               | Clear the highlight of the selected commit |
+| Shift+F10 / Menu key            | Open the selected commit's context menu    |
+| Ctrl+click (Cmd+click) a commit | Compare it with the selected commit        |
+| Enter / Shift+Enter (find bar)  | Next (older) / previous (newer) match      |
 
 Tab shortcuts do nothing while a dialog is open, so they never act on a tab you cannot see.
 

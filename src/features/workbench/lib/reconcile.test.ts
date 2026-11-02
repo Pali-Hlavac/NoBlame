@@ -143,6 +143,23 @@ describe("reconcileDocuments", () => {
     expect(added).toEqual([{ referenceGroup: "g2", direction: "within" }]);
   });
 
+  it("opens the compare tab beside the graph, with the diff tab", () => {
+    const dock = fakeDock(["repo", "diff"], "repo");
+    for (const panel of dock.panels) panel.group = { id: panel.id === "diff" ? "g2" : "g1" };
+    const added: unknown[] = [];
+    const api: DockApiLike = {
+      ...dock,
+      activeGroup: { id: "g1" },
+      addPanel: (options) => {
+        added.push(options.position);
+      },
+    };
+    const diff: WorkspaceTab = { id: "diff", kind: "diff", title: "Diff" };
+    const compare: WorkspaceTab = { id: "compare", kind: "compare", title: "Compare" };
+    reconcileDocuments(api, [tab("repo"), diff, compare], "compare", "repo");
+    expect(added).toEqual([{ referenceGroup: "g2", direction: "within" }]);
+  });
+
   it("uses the first group when none has focus yet", () => {
     const dock = fakeDock();
     const added: unknown[] = [];

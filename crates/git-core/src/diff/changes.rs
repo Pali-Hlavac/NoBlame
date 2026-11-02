@@ -72,17 +72,58 @@ pub fn commit_changes(
         None if parents.is_empty() => None,
         None => return Err(DiffError::NoSuchParent(parent)),
     };
-    let changes = repo
-        .diff_tree_to_tree(old_tree.as_ref(), Some(&new_tree), None)
-        .map_err(DiffError::gix)?;
+    let changes = tree_changes(repo, old_tree.as_ref(), &new_tree, MAX_CHANGED_FILES)?;
+    Ok(CommitChanges {
+        files: changes.files,
+        total: changes.total,
+        parent_count: parents.len(),
+    })
+}
+
+/// The files that differ between two trees.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct TreeChanges {
+    /// Sorted by path, at most the limit asked for.
+    pub files: Vec<ChangedFile>,
+    /// All files that differ.
+    pub total: usize,
+    /// Renames were found only between identical files: comparing contents needs files that
+    /// this partial clone does not have. An edited, moved file is then deleted and added.
+    pub exact_renames_only: bool,
+}
+
+/// The files that differ from `old` (the empty tree when `None`) to `new`, sorted by path, at
+/// most `limit` of them. Renames follow the repository's config (`diff.renames`); when their
+/// contents are missing (a partial clone), only exact renames are found.
+pub(crate) fn tree_changes(
+    repo: &gix::Repository,
+    old: Option<&gix::Tree<'_>>,
+    new: &gix::Tree<'_>,
+    limit: usize,
+) -> Result<TreeChanges, DiffError> {
+    let (changes, exact_renames_only) = match repo.diff_tree_to_tree(old, Some(new), None) {
+        Ok(changes) => (changes, false),
+        Err(error) if error.classify().is_not_found() => {
+            let exact = gix::diff::Rewrites {
+                percentage: None,
+                ..gix::diff::Rewrites::default()
+            };
+            let options = gix::diff::Options::default().with_rewrites(Some(exact));
+            let changes = repo
+                .diff_tree_to_tree(old, Some(new), options)
+                .map_err(DiffError::gix)?;
+            (changes, true)
+        }
+        Err(error) => return Err(DiffError::gix(error)),
+    };
     let mut files: Vec<ChangedFile> = changes.into_iter().filter_map(changed_file).collect();
     files.sort_by(|a, b| a.path.cmp(&b.path));
     let total = files.len();
-    files.truncate(MAX_CHANGED_FILES);
-    Ok(CommitChanges {
+    files.truncate(limit);
+    Ok(TreeChanges {
         files,
         total,
-        parent_count: parents.len(),
+        exact_renames_only,
     })
 }
 

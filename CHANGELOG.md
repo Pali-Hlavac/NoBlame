@@ -106,6 +106,14 @@ All notable changes to NoBlame are documented here. The format follows
   window at start with the app blurred behind it, until everything has loaded (at most 5 s).
   The bird is a songbird chirping on a berry branch, drawn inline from one definition
   (`loadingBird.ts`), so it shows from the first frame.
+- Compare tab: the files that differ between two branches, tags or commits, with the diff of
+  the chosen one. Open it with **Compare with HEAD** in a commit's menu, **Compare with the
+  current branch** in a branch's or tag's submenu, Ctrl+click on a second commit, or the palette.
+  Each side is picked from the references or typed (`HEAD~3`); a swap button and **Only changes
+  since they split** (`git diff A...B`); the line below counts the files and the commits only
+  each side has. It runs `git diff --raw`, about 20 times faster than gix's rename detection on
+  git.git, and gix in partial clones (ADR 0023). Under a second for 116,665 files on the Linux
+  kernel. Comparing with the working tree is shown disabled until M4.
 - Blame: right-click a file in Files (or **Blame** in the File tab) to see, beside each line,
   the commit that last changed it (id, date, author, summary). Click a commit to select it;
   right-click it to show its change or to **blame the previous revision**, and **Back** to

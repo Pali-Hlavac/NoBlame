@@ -5,4 +5,6 @@ export { useRefs } from "./api/refs";
 export { reloadGraph } from "./api/reload";
 export { GraphView } from "./components/GraphView";
 export { RefBadge } from "./components/RefBadge";
+export { headNameOf, pickerSections } from "./lib/filter";
+export { refRevision } from "./lib/revision";
 export { formatCommitDate, shortId } from "./lib/format";

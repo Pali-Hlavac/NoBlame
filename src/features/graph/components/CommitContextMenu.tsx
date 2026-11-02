@@ -17,6 +17,7 @@ import {
   ContextMenuTrigger,
 } from "@/shared/ui/context-menu";
 
+import { openComparison } from "../api/compare";
 import { commitMenu, type MenuEntry } from "../lib/commitMenu";
 import { shortId } from "../lib/format";
 
@@ -62,6 +63,7 @@ const FILES_MODULE_ID = "files";
 
 interface CommitContextMenuProps {
   repoId: number;
+  repoPath: string;
   /** The selected commit's row and text; no menu without them (working tree rows, loading). */
   row: number | undefined;
   commit: CommitRowDto | undefined;
@@ -74,7 +76,8 @@ interface CommitContextMenuProps {
 
 /** The context menu of the selected commit (right click, Shift+F10 or the Menu key). */
 export function CommitContextMenu(props: CommitContextMenuProps) {
-  const { repoId, row, commit } = props;
+  const { repoId, repoPath, row, commit } = props;
+  const isHead = commit?.refs.some((ref) => ref.kind === "head" || ref.isHead) ?? false;
   const entries =
     commit && row !== undefined
       ? commitMenu(commit, {
@@ -92,6 +95,18 @@ export function CommitContextMenu(props: CommitContextMenuProps) {
           // The commit is already selected (right click selects first); the module follows it.
           browseFiles: () => {
             openModuleById(FILES_MODULE_ID);
+          },
+          compareWithHead: isHead
+            ? undefined
+            : () => {
+                openComparison(repoPath, {
+                  base: commit.id,
+                  target: "HEAD",
+                  sinceMergeBase: false,
+                });
+              },
+          compareWithCurrent: (revision) => {
+            openComparison(repoPath, { base: "HEAD", target: revision, sinceMergeBase: false });
           },
         })
       : null;

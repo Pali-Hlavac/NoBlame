@@ -17,6 +17,7 @@ buttons and the task windows are labelled placeholders.
 | [Browsing files](browsing-files.md)             | Every file of a commit; saving one           |
 | [File history](file-history.md)                 | Every commit that changed a file             |
 | [Blame](blame.md)                               | Who last changed each line of a file         |
+| [Comparing](compare.md)                         | Files that differ between two branches       |
 | [Command palette](command-palette.md)           | Running any command by typing its name       |
 | [Command line](command-line.md)                 | Starting NoBlame from a terminal or a script |
 | [Keyboard shortcuts](keyboard-shortcuts.md)     | All shortcuts in one table                   |

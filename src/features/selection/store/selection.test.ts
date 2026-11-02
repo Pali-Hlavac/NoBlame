@@ -1,8 +1,8 @@
-import { compareWithParent, selectFile, select, useSelectionStore } from "./selection";
+import { compare, compareWithParent, selectFile, select, useSelectionStore } from "./selection";
 
 describe("selection store", () => {
   beforeEach(() => {
-    useSelectionStore.setState({ selections: {}, files: {}, parents: {} });
+    useSelectionStore.setState({ selections: {}, files: {}, parents: {}, comparisons: {} });
   });
 
   it("keeps the chosen file when another commit is selected", () => {
@@ -27,12 +27,27 @@ describe("selection store", () => {
     expect(useSelectionStore.getState().files["/a"]).toBe("a.txt");
   });
 
+  it("keeps the comparison when another commit is selected", () => {
+    const comparison = { base: "main", target: "feature", sinceMergeBase: false };
+    compare("/r", comparison);
+    select("/r", { kind: "commit", row: 3 });
+    expect(useSelectionStore.getState().comparisons["/r"]).toEqual(comparison);
+  });
+
   it("forgets everything about a closed repository", () => {
     select("/r", { kind: "commit", row: 1 });
     selectFile("/r", "a.txt");
+    compare("/r", { base: "HEAD", target: "v1", sinceMergeBase: true });
     useSelectionStore.getState().clear("/r");
     const state = useSelectionStore.getState();
     expect(state.selections["/r"]).toBeUndefined();
     expect(state.files["/r"]).toBeUndefined();
+    expect(state.comparisons["/r"]).toBeUndefined();
+  });
+
+  it("forgets a comparison even with nothing selected", () => {
+    compare("/r", { base: "HEAD", target: "v1", sinceMergeBase: false });
+    useSelectionStore.getState().clear("/r");
+    expect(useSelectionStore.getState().comparisons["/r"]).toBeUndefined();
   });
 });

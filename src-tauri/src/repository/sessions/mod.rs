@@ -50,6 +50,8 @@ pub struct Session {
     history_cancel: Mutex<(String, CancellationToken)>,
     /// Stops a blame when a newer one is asked for.
     blame_cancel: Mutex<CancellationToken>,
+    /// Stops a comparison when a newer one is asked for.
+    compare_cancel: Mutex<CancellationToken>,
 }
 
 impl Session {
@@ -60,13 +62,13 @@ impl Session {
 
     /// A token for a new blame, cancelling the one still running: the blame tab shows one file.
     pub fn new_blame(&self) -> CancellationToken {
-        let mut current = self
-            .blame_cancel
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner);
-        current.cancel();
-        *current = CancellationToken::new();
-        current.clone()
+        renew(&self.blame_cancel)
+    }
+
+    /// A token for a new comparison, cancelling the one still running: the compare tab shows
+    /// one.
+    pub fn new_comparison(&self) -> CancellationToken {
+        renew(&self.compare_cancel)
     }
 
     /// Keeps `watcher` running for as long as the session lives.
@@ -181,6 +183,7 @@ impl RepoSessions {
             history: tokio::sync::Mutex::default(),
             history_cancel: Mutex::default(),
             blame_cancel: Mutex::default(),
+            compare_cancel: Mutex::default(),
         });
         inner.sessions.insert(id, Arc::clone(&session));
         (id, session)
@@ -204,4 +207,12 @@ impl RepoSessions {
         // Every update is a single statement, so a poisoned lock still holds consistent data.
         self.inner.lock().unwrap_or_else(PoisonError::into_inner)
     }
+}
+
+/// Cancels the work `slot` holds a token for and puts a new token there.
+fn renew(slot: &Mutex<CancellationToken>) -> CancellationToken {
+    let mut current = slot.lock().unwrap_or_else(PoisonError::into_inner);
+    current.cancel();
+    *current = CancellationToken::new();
+    current.clone()
 }

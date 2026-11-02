@@ -6,6 +6,7 @@ import { useElementSize } from "@/shared/hooks/useElementSize";
 import { nextRow } from "@/shared/lib/listNavigation";
 import { pagesFor } from "@/shared/lib/paging";
 
+import { compareRows } from "../api/compare";
 import { useCommitPages } from "../api/graph";
 import { useBlockCache } from "../hooks/useBlockCache";
 import { usePalette } from "../hooks/usePalette";
@@ -139,6 +140,13 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
     selectAny(repoPath, next);
   };
 
+  // Ctrl+click: the selection stays, the compare tab compares it with the clicked commit.
+  const compareWith = (index: number) => {
+    const other = selectionAt(rows, index);
+    if (selectedRow === undefined || other?.kind !== "commit") choose(index);
+    else if (other.row !== selectedRow) void compareRows(repoId, repoPath, selectedRow, other.row);
+  };
+
   const onKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Escape" && highlight.row !== undefined) {
       event.preventDefault();
@@ -161,6 +169,7 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
       <GraphHeader columns={columns} />
       <CommitContextMenu
         repoId={repoId}
+        repoPath={repoPath}
         row={selectedRow}
         commit={selectedRow === undefined ? undefined : rowText(selectedRow)}
         highlighted={highlight.enabled ? highlight.row === selectedRow : undefined}
@@ -200,6 +209,7 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
                 selectedIndex={selectedIndex}
                 highlightAuthor={highlightAuthor}
                 onSelect={choose}
+                onCompare={compareWith}
                 idPrefix={idPrefix}
               />
               <GraphCanvas

@@ -24,6 +24,8 @@ function actions() {
     highlighted: false as boolean | undefined,
     toggleHighlight: vi.fn(),
     browseFiles: vi.fn(),
+    compareWithHead: vi.fn() as (() => void) | undefined,
+    compareWithCurrent: vi.fn(),
   };
 }
 
@@ -61,7 +63,38 @@ describe("commitMenu", () => {
     const entries = commitMenu(commit(), actions());
     expect(find(entries, "create-branch")).toMatchObject({ milestone: "M5" });
     expect(find(entries, "cherry-pick")).toMatchObject({ milestone: "M6" });
-    expect(find(entries, "compare-head")).toMatchObject({ milestone: "M3" });
+    expect(find(entries, "compare-worktree")).toMatchObject({ milestone: "M4" });
+  });
+
+  it("compares with HEAD, except HEAD itself", () => {
+    const handlers = actions();
+    const entry = find(commitMenu(commit(), handlers), "compare-head");
+    if (entry?.type !== "item") throw new Error("missing");
+    expect(entry.milestone).toBeUndefined();
+    entry.run?.();
+    expect(handlers.compareWithHead).toHaveBeenCalled();
+    handlers.compareWithHead = undefined;
+    expect(find(commitMenu(commit(), handlers), "compare-head")).toMatchObject({ run: undefined });
+  });
+
+  it("compares a branch or tag with the current branch by its full name", () => {
+    const handlers = actions();
+    const entries = commitMenu(
+      commit([
+        { name: "feature", kind: "branch", isHead: false },
+        { name: "v1.0", kind: "tag", isHead: false },
+      ]),
+      handlers,
+    );
+    const feature = find(entries, "ref:branch:feature");
+    if (feature?.type !== "submenu") throw new Error("missing");
+    const compare = feature.entries.find((entry) => entry.id === "compare");
+    if (compare?.type !== "item") throw new Error("missing");
+    compare.run?.();
+    expect(handlers.compareWithCurrent).toHaveBeenCalledWith("refs/heads/feature");
+    const tag = find(entries, "ref:tag:v1.0");
+    if (tag?.type !== "submenu") throw new Error("missing");
+    expect(tag.entries.some((entry) => entry.id === "compare")).toBe(true);
   });
 
   it("offers highlighting only when it is switched on", () => {

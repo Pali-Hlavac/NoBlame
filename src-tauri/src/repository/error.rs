@@ -1,6 +1,7 @@
 //! Repository errors and their mapping to [`AppError`].
 
 use git_core::blame::BlameError;
+use git_core::compare::CompareError;
 use git_core::diff::DiffError;
 use git_core::graph::GraphError;
 use git_core::history::HistoryError;
@@ -41,6 +42,9 @@ pub enum RepositoryError {
     /// Reading a file's history failed.
     #[error(transparent)]
     History(#[from] HistoryError),
+    /// Comparing two revisions failed.
+    #[error(transparent)]
+    Compare(#[from] CompareError),
     /// Reading the working tree status failed.
     #[error(transparent)]
     Status(#[from] StatusError),
@@ -132,6 +136,7 @@ impl From<RepositoryError> for AppError {
             RepositoryError::Status(StatusError::Git(error))
             | RepositoryError::History(HistoryError::Git(error))
             | RepositoryError::Blame(BlameError::Git(error)) => GitEnvError::from(error).into(),
+            RepositoryError::Compare(error) => compare_error(error),
             RepositoryError::Blame(error @ BlameError::Parse(_)) => {
                 tracing::error!(%error, "blame output not understood");
                 AppError::new(ErrorCode::GitFailed, format!("Reading the blame failed: {error}"))
@@ -151,6 +156,33 @@ impl From<RepositoryError> for AppError {
                 tracing::error!(%message, "background task failed");
                 AppError::new(ErrorCode::Internal, "An internal task failed.")
             }
+        }
+    }
+}
+
+/// What a failed comparison tells the user.
+fn compare_error(error: CompareError) -> AppError {
+    match error {
+        CompareError::Diff(error) => RepositoryError::Diff(error).into(),
+        CompareError::Git(error) => GitEnvError::from(error).into(),
+        CompareError::Gix(message) => {
+            tracing::error!(%message, "repository read failed");
+            AppError::new(
+                ErrorCode::GitFailed,
+                format!("Reading the repository failed: {message}"),
+            )
+        }
+        CompareError::NoMergeBase => AppError::new(
+            ErrorCode::InvalidInput,
+            "These commits share no history, so there is no point where they split.",
+        )
+        .with_hint("Compare them directly instead."),
+        error @ CompareError::Parse(_) => {
+            tracing::error!(%error, "rev-list output not understood");
+            AppError::new(
+                ErrorCode::GitFailed,
+                format!("Counting the commits failed: {error}"),
+            )
         }
     }
 }

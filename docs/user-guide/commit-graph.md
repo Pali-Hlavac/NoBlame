@@ -28,9 +28,11 @@ Very wide histories are cut at 16 lines; the commits are all still there.
   - **Page Up / Page Down**: one screen up or down;
   - **Home / End**: newest or oldest commit.
 - Right-click a commit (or press **Shift+F10**) for its menu: copy its id, subject or message,
-  highlight its history, or copy a branch or tag name. The menu also lists what is coming, such
+  highlight its history, [compare it with HEAD](compare.md), or copy a branch or tag name. The menu also lists what is coming, such
   as creating a branch or cherry-picking; those entries are greyed out and say in which version
   they arrive.
+- Hold **Ctrl** (**Cmd** on macOS) and click a second commit to [compare](compare.md) it with
+  the selected one.
 - When you open a repository, the commit you have checked out is selected.
 - NoBlame remembers the selected commit and where you scrolled when you switch tabs.
 
@@ -89,7 +91,8 @@ filter stays while the tab is open, and is reset when you close the tab.
 
 In very large repositories, searching messages or authors takes a second or two.
 
-Coming later: the full history of one file, following renames, and blame.
+To see every commit that changed one file, even across renames, see
+[File history](file-history.md); to see who changed each line, see [Blame](blame.md).
 
 ## Large repositories
 

@@ -68,6 +68,14 @@ export const commands = {
 	/**  The files the commit on `row` changed against its parent number `parent` (0 = first). */
 	getChangedFiles: (id: number, row: number, parent: number) => typedError<ChangedFilesDto, AppError>(__TAURI_INVOKE("get_changed_files", { id, row, parent })),
 	/**
+	 *  The files that differ between two revisions (typed or picked: branch, tag, id, `HEAD~2`),
+	 *  directly or since their merge base, with the commits they name. A newer comparison cancels
+	 *  one still running.
+	 */
+	getComparison: (id: number, request: CompareRequestDto) => typedError<ComparisonDto, AppError>(__TAURI_INVOKE("get_comparison", { id, request })),
+	/**  How many commits `target` has that `base` lacks, and the other way round (hex ids). */
+	countAheadBehind: (id: number, base: string, target: string) => typedError<AheadBehindDto, AppError>(__TAURI_INVOKE("count_ahead_behind", { id, base, target })),
+	/**
 	 *  The line diff a request names (two blobs, the file's path, the options): its kind, sizes
 	 *  and row counts. Rows come from `get_diff_lines` or `get_split_diff_lines`.
 	 */
@@ -143,6 +151,14 @@ export const events = {
 };
 
 /* Types */
+/**  Commits one side has that the other lacks. */
+export type AheadBehindDto = {
+	/**  Commits of the target that the base lacks. */
+	ahead: number,
+	/**  Commits of the base that the target lacks. */
+	behind: number,
+};
+
 /**  Serializable error returned by every fallible Tauri command. */
 export type AppError = {
 	/**  Category used by the UI to pick an icon, retry policy, etc. */
@@ -310,6 +326,47 @@ export type CommitRowDto = {
 	parentCount: number,
 	/**  References pointing here. */
 	refs: RefLabel[],
+};
+
+/**  What to compare: two revisions as typed or picked (a branch, tag, commit id, `HEAD~2`). */
+export type CompareRequestDto = {
+	/**  The revision compared from. */
+	base: string,
+	/**  The revision compared to. */
+	target: string,
+	/**
+	 *  Compare from the commits' merge base instead of from `base` (`git diff base...target`):
+	 *  only what `target` changed since the two split.
+	 */
+	sinceMergeBase: boolean,
+};
+
+/**  One of the compared commits. */
+export type ComparedCommitDto = {
+	/**  Full commit id. */
+	id: string,
+	/**  First line of the message. */
+	summary: string,
+	/**  Author name. */
+	authorName: string,
+	/**  Author time in seconds since the epoch. */
+	authorTime: number | null,
+};
+
+/**  The files that differ between two revisions. */
+export type ComparisonDto = {
+	/**  The commit `base` names. */
+	base: ComparedCommitDto,
+	/**  The commit `target` names. */
+	target: ComparedCommitDto,
+	/**  The merge base the files are compared from; `null` when compared directly. */
+	mergeBase: ComparedCommitDto | null,
+	/**  Sorted by path, at most 100,000. */
+	files: ChangedFileDto[],
+	/**  All files that differ, including those not listed. */
+	total: number,
+	/**  Renames were found only between identical files (a partial clone lacks the contents). */
+	exactRenamesOnly: boolean,
 };
 
 /**  How a file was compared. */

@@ -5,6 +5,7 @@ import {
   FolderOpenIcon,
   FolderPlusIcon,
   GitBranchIcon,
+  GitCompareArrowsIcon,
   InfoIcon,
   LayoutGridIcon,
   LayoutTemplateIcon,
@@ -29,7 +30,13 @@ import {
 import { THEME_OPTIONS, useThemePreference } from "@/features/settings";
 import { TASKS, TASK_WINDOWS_MILESTONE, useOpenTaskWindow } from "@/features/windows";
 import { openModule, resetLayout, type WorkbenchModule } from "@/features/workbench";
-import { TAB_HOTKEYS, WELCOME_TAB, useActiveTab, useTabsStore } from "@/features/workspace";
+import {
+  TAB_HOTKEYS,
+  WELCOME_TAB,
+  showCompareTab,
+  useActiveTab,
+  useTabsStore,
+} from "@/features/workspace";
 import type { TaskKind } from "@/shared/ipc/bindings";
 
 import { SETTINGS_HOTKEY, openSettings } from "../layout/settingsTab";
@@ -96,6 +103,15 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
           run: () => {
             openGoTo(historyPath);
           },
+        },
+        {
+          id: "history.compare",
+          group: "History",
+          label: "Compare branches or commits…",
+          icon: GitCompareArrowsIcon,
+          keywords: ["diff", "two", "revisions", "branch", "tag"],
+          // The tab keeps what it compared last, or asks for both sides.
+          run: showCompareTab,
         },
       ]
     : [];

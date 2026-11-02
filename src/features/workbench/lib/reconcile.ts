@@ -41,14 +41,17 @@ export interface DockApiLike {
 type Position =
   { referenceGroup: string; direction: "within" } | { referencePanel: string; direction: "right" };
 
-/** Tabs that show what a module chose (the diff, a file): they open beside the graph. */
+/**
+ * Tabs that show what a module or the graph chose (the diff, a file, a comparison): they open
+ * beside the graph, so it stays visible (Ctrl+click compares another commit).
+ */
 function isViewer(tab: WorkspaceTab): boolean {
-  return tab.kind === "diff" || tab.kind === "file";
+  return tab.kind === "diff" || tab.kind === "file" || tab.kind === "compare";
 }
 
 /**
- * Where a new tab opens. The diff and file tabs open together: in the group of the other one
- * if it is open, else to the right of the active repository's tab, so the graph stays visible
+ * Where a new tab opens. The diff, file and compare tabs open together: in the group of another
+ * one if it is open, else to the right of the active repository's tab, so the graph stays visible
  * beside them. Other tabs open in the group the user is working in, but not in that viewer
  * group: they would hide the diff. (Without a position dockview opens a new group.)
  */

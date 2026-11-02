@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import type { CSSProperties, MouseEvent } from "react";
 
 import type { CommitRowDto } from "@/shared/ipc/bindings";
 import { cn } from "@/shared/lib/cn";
@@ -25,6 +25,8 @@ interface GraphRowsProps {
   /** Author email (lower case) whose commits are marked, from the highlighted commit. */
   highlightAuthor?: string;
   onSelect: (index: number) => void;
+  /** Ctrl+click (Cmd+click on macOS): compare the selected commit with this row's. */
+  onCompare: (index: number) => void;
   idPrefix: string;
 }
 
@@ -50,8 +52,9 @@ export function GraphRows(props: GraphRowsProps) {
       "aria-selected": isSelected,
       tabIndex: -1,
       style,
-      onMouseDown: () => {
-        props.onSelect(index);
+      onMouseDown: (event: MouseEvent) => {
+        if (event.button === 0 && (event.ctrlKey || event.metaKey)) props.onCompare(index);
+        else props.onSelect(index);
       },
     } as const;
     const artificial = rows.artificial[index];

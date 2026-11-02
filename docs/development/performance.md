@@ -239,6 +239,23 @@ Blame of HEAD (`git blame --incremental`, parsed), same tool:
 
 Neither was timed in the running app (the owner's instance was in use).
 
+### Comparing two revisions (M3 slice 9, ADR 0023, 2026-11-02)
+
+`compare_spike` (release): `cargo run --release -p git-core --example compare_spike -- <repo>
+<base> <target>`.
+
+| Repository       | Revisions         | Files   | Directly | Since the merge base | Ahead/behind |
+| ---------------- | ----------------- | ------- | -------- | -------------------- | ------------ |
+| git.git          | v2.40.0 → v2.50.0 | 3,197   | 0.21 s   | 0.21 s               | 0.03 s       |
+| git.git          | v1.0.0 → HEAD     | 5,131   | 0.04 s   | 0.07 s               | 0.06 s       |
+| Linux (blobless) | v7.2 → v7.3       | 14,901  | 0.23 s   | 0.19 s               | 0.08 s       |
+| Linux (blobless) | v6.0 → v7.3       | 84,842  | 0.20 s   | 0.39 s               | 0.32 s       |
+| Linux (blobless) | v4.0 → HEAD       | 116,665 | 0.24 s   | 0.83 s               | 0.73 s       |
+
+git.git goes through `git diff --raw`; gix's tree diff with rename detection took 4.0 s for the
+first row. The blobless Linux clone uses gix with exact renames only: `git diff` there spent
+70 s trying to fetch contents, then failed. Clicked through in the running app on git.git.
+
 ### Graph filters (M3 slice 4a, ADR 0021, 2026-10-29)
 
 Measured with `graph_spike` (release), from the loaded full graph. The view's time is choosing

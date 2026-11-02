@@ -93,7 +93,9 @@ Every open repository has its own tab, and there is a **Welcome** tab. Choosing 
 Changed files opens the **Diff** tab, which shows that file's changes
 ([Viewing changes](viewing-changes.md)). Choosing a file in Files opens the **File** tab, which
 shows the whole file at that commit ([Browsing files](browsing-files.md)). The two open next to
-each other, beside the commit graph.
+each other, beside the commit graph. **History** ([File history](file-history.md)) and **Blame**
+([Blame](blame.md)) open beside the repository tab, so the Diff tab stays visible next to them.
+**Compare** ([Comparing](compare.md)) opens with the Diff and File tabs, beside the graph.
 
 - Click a tab to show it. Click the **×** on a tab to close it.
 - Opening a repository that is already open switches to its tab instead of opening a second one.

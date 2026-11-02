@@ -29,6 +29,8 @@ const APP_COMMANDS: &[&str] = &[
     "remove_recent_repository",
     "get_commit_details",
     "get_changed_files",
+    "get_comparison",
+    "count_ahead_behind",
     "get_file_diff",
     "get_diff_lines",
     "get_split_diff_lines",

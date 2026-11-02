@@ -20,6 +20,7 @@ function renderMenu(commit: CommitRowDto | undefined, onToggleHighlight = vi.fn(
   render(
     <CommitContextMenu
       repoId={1}
+      repoPath="/repo"
       row={commit ? 3 : undefined}
       commit={commit}
       highlighted={false}
