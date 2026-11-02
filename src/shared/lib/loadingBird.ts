@@ -74,7 +74,8 @@ export function startScreenHtml(): string {
       `<g transform="${noteTransform(note)}"><path class="${noteClass(note)}" d="${note.d}" /></g>`,
   ).join("");
   return [
-    `<div class="boot-screen" role="status" aria-live="polite">`,
+    // "deep": a press anywhere on it moves the window (the title bar is not there yet).
+    `<div class="boot-screen" role="status" aria-live="polite" data-tauri-drag-region="deep">`,
     `<svg class="bird" viewBox="${BIRD_VIEWBOX}" fill="currentColor" aria-hidden="true" style="aspect-ratio: ${BIRD_ASPECT_RATIO}">`,
     `<path transform="${BIRD.transform}" d="${BIRD.d}" />`,
     notes,

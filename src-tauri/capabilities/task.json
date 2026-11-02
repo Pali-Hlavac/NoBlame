@@ -5,6 +5,8 @@
   "windows": ["task-*"],
   "permissions": [
     "core:event:default",
+    "core:window:allow-start-dragging",
+    "core:window:allow-internal-toggle-maximize",
     "allow-get-app-info",
     "allow-get-settings",
     "allow-update-settings",

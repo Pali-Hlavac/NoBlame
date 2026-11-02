@@ -17,6 +17,10 @@ describe("the loading bird", () => {
     expect(markup).not.toContain("url(");
   });
 
+  it("lets the start screen move the window", () => {
+    expect(startScreenHtml()).toContain('data-tauri-drag-region="deep"');
+  });
+
   it("has a place for the start screen in index.html", () => {
     expect(html).toContain("<!-- start-screen -->");
   });

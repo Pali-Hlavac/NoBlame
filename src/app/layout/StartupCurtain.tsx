@@ -65,6 +65,8 @@ export function StartupCurtain({ rendered }: { rendered: boolean }) {
     <div
       role="status"
       aria-live="polite"
+      // A press anywhere on the curtain moves the window: it covers the title bar.
+      data-tauri-drag-region="deep"
       className={cn(
         "fixed inset-0 z-100 flex flex-col items-center justify-center gap-3 backdrop-blur-xl transition-[opacity,backdrop-filter] duration-500 ease-out motion-reduce:transition-none",
         rendered ? "bg-background/50" : "bg-background",
