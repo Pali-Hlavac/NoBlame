@@ -1,5 +1,7 @@
 /** Text shown around a diff: sizes, counts, the tab title and why a diff is empty. */
-import type { ChangedFileDto, WhitespaceMode } from "@/shared/ipc/bindings";
+import type { WhitespaceMode } from "@/shared/ipc/bindings";
+
+import type { DiffFile } from "./diffFile";
 
 const BYTES_PER_UNIT = 1024;
 const UNITS = ["KB", "MB", "GB"] as const;
@@ -37,7 +39,7 @@ export function gutterDigits(oldLines: number, newLines: number): number {
 }
 
 /** Why a changed file has no rows. */
-export function unchangedText(file: ChangedFileDto, whitespace: WhitespaceMode): string {
+export function unchangedText(file: DiffFile, whitespace: WhitespaceMode): string {
   if (file.oldId === file.newId) {
     return file.previousPath
       ? "The file was moved; its contents did not change."
@@ -46,5 +48,7 @@ export function unchangedText(file: ChangedFileDto, whitespace: WhitespaceMode):
   if (file.oldId && file.newId && whitespace !== "show") {
     return "Only whitespace changed, and the whitespace option above hides it.";
   }
-  return file.status === "added" ? "The new file is empty." : "The removed file was empty.";
+  return file.status === "added" || file.status === "untracked"
+    ? "The new file is empty."
+    : "The removed file was empty.";
 }

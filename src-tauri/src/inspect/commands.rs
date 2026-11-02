@@ -6,8 +6,7 @@ use super::{
     AheadBehindDto, BlameDto, ChangedFilesDto, CommitDetailsDto, CompareRequestDto, ComparisonDto,
     DiffLineDto, DiffRequestDto, FileDiffDto, FileHistoryDto, FileHistoryRowDto,
     FileViewRequestDto, LineSideDto, RefEntry, SignatureCheckDto, SplitLineDto, StashDto,
-    StatusSummaryDto, SubmoduleDto, TreeEntryDto, TreeListingDto, blame, compare, files, history,
-    service, signing,
+    SubmoduleDto, TreeEntryDto, TreeListingDto, blame, compare, files, history, service, signing,
 };
 use crate::error::CommandResult;
 use crate::repository::{RawBytes, RepoId, RepoSessions};
@@ -249,16 +248,6 @@ pub async fn list_refs(
     id: RepoId,
 ) -> CommandResult<Vec<RefEntry>> {
     Ok(service::refs(&sessions, id).await?)
-}
-
-/// The working tree status summary (`null` for a bare repository).
-#[tauri::command]
-#[specta::specta]
-pub async fn get_status_summary(
-    sessions: State<'_, RepoSessions>,
-    id: RepoId,
-) -> CommandResult<Option<StatusSummaryDto>> {
-    Ok(service::status(&sessions, id).await?)
 }
 
 /// The stash list, newest first.

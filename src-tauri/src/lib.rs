@@ -13,6 +13,7 @@ mod settings;
 pub mod storage;
 mod windows;
 mod workbench;
+mod worktree;
 
 use cli::LaunchRequest;
 

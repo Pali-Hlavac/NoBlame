@@ -2,9 +2,10 @@ import { useState } from "react";
 
 import { InlineError } from "@/shared/components/InlineError";
 import { LoadingState } from "@/shared/components/LoadingState";
-import type { ChangedFileDto, FileDiffDto } from "@/shared/ipc/bindings";
+import type { FileDiffDto } from "@/shared/ipc/bindings";
 
 import { useFileContents } from "../api/contents";
+import type { DiffFile } from "../lib/diffFile";
 import { formatBytes } from "../lib/format";
 import { objectUrlFor } from "../lib/objectUrls";
 
@@ -15,6 +16,8 @@ const CHECKERBOARD =
 interface ImagePaneProps {
   repoId: number;
   blobId: string | null;
+  /** Set when the image is the working tree file at this path. */
+  worktreePath?: string;
   type: string;
   /** "Before" or "After". */
   label: string;
@@ -25,8 +28,17 @@ interface ImagePaneProps {
 }
 
 /** One image with its size and pixel dimensions, on a checkerboard. */
-export function ImagePane({ repoId, blobId, type, label, absent, path, size }: ImagePaneProps) {
-  const contents = useFileContents(repoId, blobId);
+export function ImagePane({
+  repoId,
+  blobId,
+  worktreePath,
+  type,
+  label,
+  absent,
+  path,
+  size,
+}: ImagePaneProps) {
+  const contents = useFileContents(repoId, blobId, worktreePath);
   const url = contents.data && objectUrlFor(contents.data, type);
   const [pixels, setPixels] = useState<string>();
   let body;
@@ -67,7 +79,7 @@ export function ImagePane({ repoId, blobId, type, label, absent, path, size }: I
 
 interface ImageDiffProps {
   repoId: number;
-  file: ChangedFileDto;
+  file: DiffFile;
   diff: FileDiffDto;
   /** MIME type from the file name. */
   type: string;
@@ -82,16 +94,17 @@ export function ImageDiff({ repoId, file, diff, type }: ImageDiffProps) {
         blobId={file.oldId}
         type={type}
         label="Before"
-        absent="The image did not exist before this commit."
+        absent="The image did not exist before."
         path={file.previousPath ?? file.path}
         size={Number(diff.oldSize)}
       />
       <ImagePane
         repoId={repoId}
         blobId={file.newId}
+        worktreePath={file.worktree ? file.path : undefined}
         type={type}
         label="After"
-        absent="The image was removed in this commit."
+        absent="The image was removed."
         path={file.path}
         size={Number(diff.newSize)}
       />

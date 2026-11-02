@@ -122,6 +122,13 @@ All notable changes to NoBlame are documented here. The format follows
   - the window can be moved by dragging the start screen, before the title bar is there;
   - Ctrl+P and Ctrl+Shift+P (print) are blocked in development builds too; reloading and the
     browser's context menu stay available there.
+- Uncommitted changes (M4, slice 1): selecting **Working tree changes** or **Staged changes**
+  above the commits lists their files in Changed files (changed, new `?` and conflicted `U`
+  files, or the staged ones), and choosing one shows its diff: staged files against the last
+  commit, the others against the staged version, read from disk as Git would store them (line
+  endings, filters). One `git status` run gives the counts and both lists (about 260 ms for the
+  97,000 entries of the Linux kernel clone, 40 ms for the 40,000 files of synthetic-1m). New
+  files are counted and listed one by one unless `status.showUntrackedFiles` is `no`.
 - Commit graph columns (M3, slice 11, owner request 2026-11-02): show or hide columns, move them
   by dragging their titles, resize them by dragging their edges (or with the arrow keys), and
   show dates as "3 h ago" instead of the date and time. From the column header's right-click

@@ -63,4 +63,24 @@ Some files have no line diff. The tab then says why:
 In a partial clone (made with `git clone --filter=blob:none`), older versions of files may not be
 on your computer yet. NoBlame says so; it does not download them.
 
-Coming later: the changes in your working tree (with staging).
+## Changes you have not committed
+
+Select **Working tree changes** or **Staged changes** above the newest commit (see
+[The commit graph](commit-graph.md)). **Changed files** then lists:
+
+- for **Working tree changes**: the files you changed (**M**, **D**), new files Git does not
+  track yet (**?**), and files with merge conflicts (**U**). Each new file is listed on its own,
+  also inside new folders. If your repository sets `status.showUntrackedFiles` to `no`, new files
+  are not listed.
+- for **Staged changes**: the files you staged, ready for the next commit.
+
+Choose a file to see its diff:
+
+- a staged file shows what you staged: the last commit's version against the staged one;
+- a changed file shows what you have not staged yet: the staged version (or the last commit's)
+  against the file on disk, with line endings as Git would store them;
+- a new file shows all its lines as added; a file with conflicts shows your side against the
+  file with its conflict markers.
+
+The list and the diff update when you save a file or come back to the window. Staging and
+committing come in a later version.

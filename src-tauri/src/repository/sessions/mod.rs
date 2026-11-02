@@ -9,13 +9,16 @@ use std::collections::HashMap;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
-use git_core::diff::{DiffAttribute, DiffOptions, FileDiff, diff_attribute, file_diff, file_view};
+use git_core::diff::{
+    DiffAttribute, DiffOptions, FileDiff, diff_attribute, file_diff, file_view, worktree_diff,
+    worktree_version,
+};
 use git_core::graph::{Ancestry, Graph, GraphError};
 use git_core::repo::Repository;
 use git_core::watch::RepoWatcher;
 use tokio_util::sync::CancellationToken;
 
-use super::diff_cache::{DiffCache, DiffKey};
+use super::diff_cache::{DiffCache, DiffKey, DiffKind};
 use super::graph_cache::GraphCache;
 use super::service::blocking;
 use super::{RepoId, RepositoryError};
@@ -90,7 +93,7 @@ impl Session {
             path,
             options,
             syntax,
-            whole,
+            kind,
         } = key.clone();
         let diff = blocking(move || {
             let repo = repo.local();
@@ -102,9 +105,13 @@ impl Session {
                 attribute,
                 ..options
             };
-            let mut diff = match new.filter(|_| whole) {
-                Some(new) => file_view(&repo, new, attribute)?,
-                None => file_diff(&repo, old, new, options)?,
+            let mut diff = match (kind, new, path.as_deref()) {
+                (DiffKind::FileView, Some(new), _) => file_view(&repo, new, attribute)?,
+                (DiffKind::Worktree, Some(new), Some(path)) => {
+                    let file = worktree_version(&repo, path.into(), new)?;
+                    worktree_diff(&repo, old, file, options)?
+                }
+                _ => file_diff(&repo, old, new, options)?,
             };
             if let Some(path) = path.as_deref().filter(|_| syntax) {
                 diff.highlight_as(path);

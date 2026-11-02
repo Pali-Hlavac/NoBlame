@@ -13,7 +13,6 @@ mod history;
 mod service;
 mod signing;
 mod split;
-mod status;
 mod syntax;
 mod types;
 
@@ -25,5 +24,4 @@ pub use files::{FileViewRequestDto, TreeEntryDto, TreeListingDto};
 pub use history::{FileHistoryDto, FileHistoryRowDto};
 pub use signing::{SignatureCheckDto, SignatureFormatDto};
 pub use split::SplitLineDto;
-pub use status::StatusSummaryDto;
 pub use types::{CommitDetailsDto, RefEntry, StashDto, SubmoduleDto};

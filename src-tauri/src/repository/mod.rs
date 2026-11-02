@@ -17,7 +17,7 @@ mod types;
 mod watch;
 
 pub use bytes::RawBytes;
-pub use diff_cache::DiffKey;
+pub use diff_cache::{DiffKey, DiffKind};
 pub use error::RepositoryError;
 pub use filter_types::GraphFilterDto;
 pub use graph_types::{

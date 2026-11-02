@@ -49,8 +49,10 @@ const APP_COMMANDS: &[&str] = &[
     "save_file_as",
     "list_refs",
     "list_stashes",
-    "get_status_summary",
     "list_submodules",
+    "get_status",
+    "get_worktree_file_id",
+    "get_worktree_file_contents",
     "get_workbench_layout",
     "save_workbench_layout",
 ];

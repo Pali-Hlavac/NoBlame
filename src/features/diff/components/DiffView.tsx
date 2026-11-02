@@ -1,10 +1,9 @@
-import { FileDiffIcon, FileQuestionIcon, MousePointerClickIcon } from "lucide-react";
+import { FileQuestionIcon, MousePointerClickIcon } from "lucide-react";
 import { useEffect } from "react";
 
 import { useChangedFiles } from "@/features/changed-files";
 import { WithActiveRepository } from "@/features/repositories";
 import { useComparedParent, useSelectedFile, useSelection } from "@/features/selection";
-import { WORKING_TREE_MILESTONE } from "@/features/working-tree";
 import { DIFF_TAB, useTabsStore } from "@/features/workspace";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { ErrorState } from "@/shared/components/ErrorState";
@@ -12,6 +11,7 @@ import { LoadingState } from "@/shared/components/LoadingState";
 
 import { diffTabTitle } from "../lib/format";
 import { FileDiffView } from "./FileDiffView";
+import { WorkingTreeDiff } from "./WorkingTreeDiff";
 
 interface CommitFileProps {
   repoId: number;
@@ -57,32 +57,25 @@ function SelectedDiff({ repoId, repoPath }: { repoId: number; repoPath: string }
     useTabsStore.getState().setTitle(DIFF_TAB.id, diffTabTitle(path));
   }, [path]);
 
-  if (selection && selection.kind !== "commit") {
-    return (
-      <EmptyState
-        icon={FileDiffIcon}
-        title="Uncommitted changes"
-        description={`Their diffs arrive with staging in ${WORKING_TREE_MILESTONE}.`}
-        className="h-full"
-      />
-    );
-  }
   if (!selection || path === undefined) {
     return (
       <EmptyState
         icon={MousePointerClickIcon}
         title="No file chosen"
-        description="Select a commit, then a file in Changed files (Alt+5)."
+        description="Select a commit (or the working tree changes), then a file in Changed files (Alt+5)."
         className="h-full"
       />
     );
+  }
+  if (selection.kind !== "commit") {
+    return <WorkingTreeDiff repoId={repoId} kind={selection.kind} path={path} />;
   }
   return <CommitFile repoId={repoId} repoPath={repoPath} row={selection.row} path={path} />;
 }
 
 /**
  * The diff tab: the diff of the file chosen in Changed files, for the active repository's
- * selected commit. There is one; choosing another file switches it in place.
+ * selected commit or working tree row. There is one; choosing another file switches it in place.
  */
 export function DiffView() {
   return (

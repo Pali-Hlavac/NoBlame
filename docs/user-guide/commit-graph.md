@@ -53,8 +53,9 @@ Very wide histories are cut at 16 lines; the commits are all still there.
 
 If you have changes you have not committed yet, one or two extra rows appear above the newest
 commit: **Working tree changes** (files you changed, new files, conflicts) and **Staged
-changes** (files ready to commit). Select one to see the counts in Commit details. Lists of the
-files and staging come in a later version. In **Settings → Commit graph** you can show a short
+changes** (files ready to commit). Select one to see its files in **Changed files** and the
+counts in Commit details; choose a file to see its diff. Staging and committing come in a later
+version. In **Settings → Commit graph** you can show a short
 summary in the repository header instead, or hide them. NoBlame checks again whenever you come
 back to the window.
 

@@ -5,9 +5,10 @@ import {
   WHITESPACE_OPTIONS,
   useDiffSettings,
 } from "@/features/settings";
-import type { ChangedFileDto, FileDiffDto, WhitespaceMode } from "@/shared/ipc/bindings";
+import type { FileDiffDto, WhitespaceMode } from "@/shared/ipc/bindings";
 import { cn } from "@/shared/lib/cn";
 
+import type { DiffFile } from "../lib/diffFile";
 import { formatChangeCounts } from "../lib/format";
 
 const SELECT_CLASSES =
@@ -65,13 +66,7 @@ function DiffOptionsBar() {
 }
 
 /** File name, folder (or old name), status, line counts and the diff options. */
-export function DiffHeader({
-  file,
-  diff,
-}: {
-  file: ChangedFileDto;
-  diff: FileDiffDto | undefined;
-}) {
+export function DiffHeader({ file, diff }: { file: DiffFile; diff: FileDiffDto | undefined }) {
   const { name, folder } = splitPath(file.path);
   return (
     <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 border-b border-border px-3 py-1.5 text-sm">

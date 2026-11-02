@@ -1,20 +1,22 @@
 import { PackageIcon } from "lucide-react";
 
-import type { ChangeStatusDto, ChangedFileDto } from "@/shared/ipc/bindings";
+import type { WorkingStatusDto } from "@/shared/ipc/bindings";
 import { cn } from "@/shared/lib/cn";
 
-import { STATUS_LABELS, splitPath } from "../lib/files";
+import { STATUS_LABELS, splitPath, type ListedFile } from "../lib/files";
 
-const STATUS_CLASSES: Readonly<Record<ChangeStatusDto, string>> = {
+const STATUS_CLASSES: Readonly<Record<WorkingStatusDto, string>> = {
   added: "text-status-added",
   modified: "text-status-modified",
   deleted: "text-status-deleted",
   renamed: "text-status-renamed",
   copied: "text-status-renamed",
+  untracked: "text-status-added",
+  conflicted: "text-destructive",
 };
 
 /** One file: status letter, name, folder, and the old name of a rename. */
-export function ChangedFileRow({ file, active }: { file: ChangedFileDto; active: boolean }) {
+export function ChangedFileRow({ file, active }: { file: ListedFile; active: boolean }) {
   const { name, folder } = splitPath(file.path);
   return (
     <div

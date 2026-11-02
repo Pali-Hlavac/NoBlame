@@ -68,7 +68,7 @@ slice 3c (syntax highlighting) and slice 3d (images, `.gitattributes`): slice 3 
   - empty added or removed files;
   - submodule pointers (old and new commit);
   - partial clones, where the old version of a file is not local;
-  - uncommitted changes, which come in M4.
+  - a working tree file that changed again while it was read (try again).
 - Huge diffs scroll smoothly: only visible rows exist, their text arrives in pages of 500.
   Lines longer than 4,096 bytes are cut and marked. Diffs over 1,000,000 rows show the first
   1,000,000 and say so.
@@ -140,6 +140,19 @@ slice 3c (syntax highlighting) and slice 3d (images, `.gitattributes`): slice 3 
   scrolling element (`data-selecting`), which makes the other half's text unselectable.
 - The chosen path and the compared parent live in `features/selection` (`selectFile`,
   `compareWithParent`); `showDiffTab` in `features/workspace` opens the tab.
+- **Working tree files** (M4 slice 1, `WorkingTreeDiff`): with a working tree row selected, the
+  tab finds the chosen path in that row's status list. A staged file compares its `HEAD` blob
+  with its index blob, like a commit's file. A changed, untracked or conflicted file still on
+  disk compares a blob with the file itself:
+  - `get_worktree_file_id` reads the file as git would store it (gix's filter pipeline:
+    `core.autocrlf`, `eol`, `ident`, clean filters; a symlink as its target; files over 64 MB
+    hashed as they are on disk) and returns the id it would have (`git hash-object`).
+  - The request carries that id as `newId` with `worktree: true`. The backend reads the file
+    again, checks it still has that id (`worktree_version`; otherwise "changed while it was
+    being read") and diffs it (`worktree_diff`). Keys stay content-addressed, so the diff
+    cache and the page queries need no other invalidation: a new version is a new id.
+  - The id query lives under `statusKeys.all(repoId)`, refetched with the status on focus and
+    on watcher changes. Images on disk come from `get_worktree_file_contents`.
 
 ## Performance
 
@@ -168,5 +181,5 @@ Linux kernel clone during slice 7).
 - Diff drivers and `textconv` from `.gitattributes` (by design, see ADR 0013); previews of
   other binary formats; an image overlay or slider mode.
 - Next/previous change shortcuts; search inside the diff.
-- Diffs of uncommitted changes and staging hunks or lines (M4).
+- Staging hunks or lines from the diff (M4).
 - Several diff tabs, or a diff in its own window (`noblame diff`); later.

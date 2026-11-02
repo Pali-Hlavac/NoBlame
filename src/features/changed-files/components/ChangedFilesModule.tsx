@@ -1,27 +1,15 @@
-import { FileDiffIcon, MousePointerClickIcon } from "lucide-react";
+import { MousePointerClickIcon } from "lucide-react";
 
 import { WithActiveRepository } from "@/features/repositories";
-import {
-  compareWithParent,
-  selectFile,
-  useComparedParent,
-  useSelectedFile,
-  useSelection,
-} from "@/features/selection";
-import { showDiffTab } from "@/features/workspace";
-import { WORKING_TREE_MILESTONE } from "@/features/working-tree";
-import type { ChangedFileDto } from "@/shared/ipc/bindings";
-import { EmptyState } from "@/shared/components/EmptyState";
+import { compareWithParent, useComparedParent, useSelection } from "@/features/selection";
 import { ErrorState } from "@/shared/components/ErrorState";
+import { EmptyState } from "@/shared/components/EmptyState";
 import { LoadingState } from "@/shared/components/LoadingState";
-import { VirtualList } from "@/shared/components/VirtualList";
 
 import { useChangedFiles } from "../api/changes";
-import { describeFile } from "../lib/files";
-import { ChangedFileRow } from "./ChangedFileRow";
-
-/** Height of one row, in CSS pixels. */
-const ROW_HEIGHT_PX = 26;
+import { fileCount } from "../lib/files";
+import { FileList } from "./FileList";
+import { WorkingTreeFiles } from "./WorkingTreeFiles";
 
 interface CommitFilesProps {
   repoId: number;
@@ -32,7 +20,6 @@ interface CommitFilesProps {
 function CommitFiles({ repoId, repoPath, row }: CommitFilesProps) {
   const parent = useComparedParent(repoPath);
   const changes = useChangedFiles(repoId, row, parent);
-  const chosen = useSelectedFile(repoPath);
   if (changes.error) {
     return (
       <ErrorState
@@ -45,66 +32,33 @@ function CommitFiles({ repoId, repoPath, row }: CommitFilesProps) {
   }
   if (!changes.data) return <LoadingState label="Comparing…" className="h-full" />;
   const { files, total, parentCount } = changes.data;
-  const activeIndex = chosen === undefined ? -1 : files.findIndex((file) => file.path === chosen);
-  const choose = (file: ChangedFileDto | undefined): void => {
-    if (!file) return;
-    selectFile(repoPath, file.path);
-    showDiffTab();
-  };
-
-  return (
-    <div className="flex h-full flex-col">
-      <div className="flex shrink-0 items-center gap-2 border-b border-border px-2 py-1 text-xs text-muted-foreground">
-        <span className="flex-1">
-          {total === 1 ? "1 file changed" : `${total} files changed`}
-          {total > files.length && ` (first ${files.length} shown)`}
-        </span>
-        {parentCount > 1 && (
-          <label className="flex items-center gap-1">
-            Compared with
-            <select
-              className="rounded border border-border bg-background px-1 py-0.5 text-xs focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-              value={parent}
-              onChange={(event) => {
-                compareWithParent(repoPath, Number(event.target.value));
-              }}
-            >
-              {Array.from({ length: parentCount }, (_, index) => (
-                <option key={index} value={index}>
-                  parent {index + 1}
-                </option>
-              ))}
-            </select>
-          </label>
-        )}
-      </div>
-      {files.length === 0 ? (
-        <p className="p-3 text-sm text-muted-foreground">No files changed.</p>
-      ) : (
-        <VirtualList
-          className="flex-1"
-          label="Changed files"
-          count={files.length}
-          rowHeight={ROW_HEIGHT_PX}
-          activeIndex={activeIndex < 0 ? undefined : activeIndex}
-          onActiveChange={(index) => {
-            choose(files[index]);
-          }}
-          onActivate={(index) => {
-            choose(files[index]);
-          }}
-          rowLabel={(index) => {
-            const file = files[index];
-            return file ? describeFile(file) : "";
-          }}
-          renderRow={(index, active) => {
-            const file = files[index];
-            return file ? <ChangedFileRow file={file} active={active} /> : null;
-          }}
-        />
+  const header = (
+    <>
+      <span className="flex-1">
+        {fileCount(total, "changed")}
+        {total > files.length && ` (first ${files.length.toLocaleString()} shown)`}
+      </span>
+      {parentCount > 1 && (
+        <label className="flex items-center gap-1">
+          Compared with
+          <select
+            className="rounded border border-border bg-background px-1 py-0.5 text-xs focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            value={parent}
+            onChange={(event) => {
+              compareWithParent(repoPath, Number(event.target.value));
+            }}
+          >
+            {Array.from({ length: parentCount }, (_, index) => (
+              <option key={index} value={index}>
+                parent {index + 1}
+              </option>
+            ))}
+          </select>
+        </label>
       )}
-    </div>
+    </>
   );
+  return <FileList repoPath={repoPath} files={files} header={header} empty="No files changed." />;
 }
 
 function SelectedChanges({ repoId, repoPath }: { repoId: number; repoPath: string }) {
@@ -113,26 +67,22 @@ function SelectedChanges({ repoId, repoPath }: { repoId: number; repoPath: strin
     return <CommitFiles repoId={repoId} repoPath={repoPath} row={selection.row} />;
   }
   if (selection) {
-    return (
-      <EmptyState
-        icon={FileDiffIcon}
-        title="Uncommitted changes"
-        description={`Their files and staging arrive in ${WORKING_TREE_MILESTONE}.`}
-        className="h-full"
-      />
-    );
+    return <WorkingTreeFiles repoId={repoId} repoPath={repoPath} kind={selection.kind} />;
   }
   return (
     <EmptyState
       icon={MousePointerClickIcon}
       title="No commit selected"
-      description="Select a commit to see the files it changed."
+      description="Select a commit, or the working tree changes above the commits, to see their files."
       className="h-full"
     />
   );
 }
 
-/** Changed files module: the files of the selected commit; choosing one shows its diff. */
+/**
+ * Changed files module: the files of the selected commit, or of the selected working tree row
+ * (changed or staged files); choosing one shows its diff.
+ */
 export function ChangedFilesModule() {
   return (
     <WithActiveRepository>

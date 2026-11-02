@@ -7,10 +7,10 @@ import { EmptyState } from "@/shared/components/EmptyState";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { LoadingOverlay } from "@/shared/components/LoadingOverlay";
 import { LoadingState } from "@/shared/components/LoadingState";
-import type { ChangedFileDto } from "@/shared/ipc/bindings";
 
 import type { DiffRequest } from "../api/diff";
 import { useShownDiff, viewKey, type ShownDiff } from "../hooks/useShownDiff";
+import type { DiffFile } from "../lib/diffFile";
 import { formatBytes, unchangedText } from "../lib/format";
 import { imageType } from "../lib/images";
 import { DiffHeader } from "./DiffHeader";
@@ -19,7 +19,7 @@ import { ImageDiff } from "./ImageDiff";
 
 interface DiffBodyProps {
   shown: ShownDiff;
-  file: ChangedFileDto;
+  file: DiffFile;
   viewport: RefObject<HTMLDivElement | null>;
 }
 
@@ -72,11 +72,22 @@ function DiffBody({ shown, file, viewport }: DiffBodyProps) {
   );
 }
 
+/** What a submodule entry's diff says: its commit changed, or its own working tree did. */
+function submoduleText(file: DiffFile): string {
+  if (file.worktree) {
+    return "Its checked-out commit or its own files changed. Open the submodule to see how.";
+  }
+  const from = file.oldId ? shortId(file.oldId) : "nothing";
+  const to = file.newId ? shortId(file.newId) : "nothing";
+  return `Its commit changed from ${from} to ${to}.`;
+}
+
 /**
- * The diff of one changed file of the selected commit. Changing the options or the layout keeps
- * the old diff under an overlay until the new one is ready, then opens it at the same line.
+ * The diff of one file: changed by a commit, or in the working tree. Changing the options or the
+ * layout keeps the old diff under an overlay until the new one is ready, then opens it at the
+ * same line.
  */
-export function FileDiffView({ repoId, file }: { repoId: number; file: ChangedFileDto }) {
+export function FileDiffView({ repoId, file }: { repoId: number; file: DiffFile }) {
   const [settings] = useDiffSettings();
   const request: DiffRequest = {
     repoId,
@@ -88,6 +99,7 @@ export function FileDiffView({ repoId, file }: { repoId: number; file: ChangedFi
       context: requestedContext(settings),
       syntax: settings.syntaxHighlighting,
     },
+    worktree: file.worktree ?? false,
   };
   const viewport = useRef<HTMLDivElement>(null);
   // A submodule entry points at a commit, not at file contents.
@@ -99,13 +111,11 @@ export function FileDiffView({ repoId, file }: { repoId: number; file: ChangedFi
   );
   let body;
   if (file.submodule) {
-    const from = file.oldId ? shortId(file.oldId) : "nothing";
-    const to = file.newId ? shortId(file.newId) : "nothing";
     body = (
       <EmptyState
         icon={PackageIcon}
         title="Submodule"
-        description={`Its commit changed from ${from} to ${to}.`}
+        description={submoduleText(file)}
         className="flex-1"
       />
     );

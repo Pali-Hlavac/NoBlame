@@ -56,7 +56,9 @@
     "allow-save-file-as",
     "allow-list-refs",
     "allow-list-stashes",
-    "allow-get-status-summary",
+    "allow-get-status",
+    "allow-get-worktree-file-id",
+    "allow-get-worktree-file-contents",
     "allow-list-submodules",
     "allow-get-workbench-layout",
     "allow-save-workbench-layout"

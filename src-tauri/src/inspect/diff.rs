@@ -34,6 +34,10 @@ pub struct DiffRequestDto {
     pub path: Option<String>,
     /// How to compare.
     pub options: DiffOptionsDto,
+    /// The new side is the working tree file at `path`, and `new_id` the id
+    /// `get_worktree_file_id` gave it.
+    #[serde(default)]
+    pub worktree: bool,
 }
 
 impl From<DiffOptionsDto> for DiffOptions {

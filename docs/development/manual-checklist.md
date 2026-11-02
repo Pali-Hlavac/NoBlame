@@ -268,6 +268,15 @@ Use `target\debug\noblame.exe` while the dev app runs.
   - Notes:
 - [ ] Linux: an old file's diff says the version is not in the local repository.
   - Notes:
+- [ ] **(new, M4)** In NoBlame itself, change a file, stage another (`git add` in a terminal)
+      and add a new file. Select **Working tree changes**: the changed (M) and new (?) files are
+      listed; select **Staged changes**: the staged one is.
+  - Notes:
+- [ ] **(new, M4)** Choose a changed file: its diff shows the edits you have not staged. Edit and
+      save it in your editor: the diff updates without clicking anything.
+  - Notes:
+- [ ] **(new, M4)** A new file shows all lines added; a changed image shows before and after.
+  - Notes:
 
 ## 14. Files (Alt+6) and the File tab
 

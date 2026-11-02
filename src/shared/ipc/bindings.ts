@@ -143,10 +143,23 @@ export const commands = {
 	listRefs: (id: number) => typedError<RefEntry[], AppError>(__TAURI_INVOKE("list_refs", { id })),
 	/**  The stash list, newest first. */
 	listStashes: (id: number) => typedError<StashDto[], AppError>(__TAURI_INVOKE("list_stashes", { id })),
-	/**  The working tree status summary (`null` for a bare repository). */
-	getStatusSummary: (id: number) => typedError<StatusSummaryDto | null, AppError>(__TAURI_INVOKE("get_status_summary", { id })),
 	/**  Submodules of the repository containing `path`, nested recursively. */
 	listSubmodules: (path: string) => typedError<SubmoduleDto[], AppError>(__TAURI_INVOKE("list_submodules", { path })),
+	/**
+	 *  The working tree status: counts, staged files and unstaged ones (`null` for a bare
+	 *  repository).
+	 */
+	getStatus: (id: number) => typedError<WorkingTreeStatusDto | null, AppError>(__TAURI_INVOKE("get_status", { id })),
+	/**
+	 *  The blob id the working tree file at `path` would have (`git hash-object`); `null` when
+	 *  nothing or a folder is there. Diffs and previews of the file name it by this id.
+	 */
+	getWorktreeFileId: (id: number, path: string) => typedError<string | null, AppError>(__TAURI_INVOKE("get_worktree_file_id", { id, path })),
+	/**
+	 *  The contents of the working tree file at `path` (at most 32 MB), for previews such as
+	 *  images, if it is still the version `blob_id` names.
+	 */
+	getWorktreeFileContents: (id: number, path: string, blobId: string) => typedError<unknown, AppError>(__TAURI_INVOKE("get_worktree_file_contents", { id, path, blobId })),
 	/**
 	 *  The saved layout, or `None` on first launch. A corrupted file is logged and treated as
 	 *  missing, so a bad layout can never stop the main window from opening.
@@ -470,6 +483,11 @@ export type DiffRequestDto = {
 	path: string | null,
 	/**  How to compare. */
 	options: DiffOptionsDto,
+	/**
+	 *  The new side is the working tree file at `path`, and `new_id` the id
+	 *  `get_worktree_file_id` gave it.
+	 */
+	worktree?: boolean,
 };
 
 /**  Diff tab preferences. */
@@ -1032,7 +1050,7 @@ export type StatusSummaryDto = {
 	staged: number,
 	/**  Tracked files changed in the working tree, not staged. */
 	unstaged: number,
-	/**  Untracked files (an untracked folder counts once). */
+	/**  Untracked files. */
 	untracked: number,
 	/**  Files with merge conflicts. */
 	conflicted: number,
@@ -1177,6 +1195,44 @@ task: TaskKind;
 /**  Repository, folder or file the task is about. */
 path: string };
 
+/**  One file of the status. Paths are for display (non-UTF-8 bytes are replaced). */
+export type WorkingFileDto = {
+	/**  Path in the working tree; ends in `/` for an untracked folder git does not look into. */
+	path: string,
+	/**  Old name of a rename or copy. */
+	previousPath: string | null,
+	/**  What happened to it. */
+	status: WorkingStatusDto,
+	/**
+	 *  The blob it is compared with (hex): `HEAD`'s for staged files, the index's for changed
+	 *  ones, "ours" for conflicts; `null` when absent there.
+	 */
+	oldId: string | null,
+	/**  The staged blob (hex), for staged files; `null` otherwise. */
+	newId: string | null,
+	/**  The new version is the file in the working tree (`get_worktree_file_id` names it). */
+	worktree: boolean,
+	/**  A submodule pointer, not a file. */
+	submodule: boolean,
+};
+
+/**  What happened to a file on one side of the status. */
+export type WorkingStatusDto = 
+/**  New file. */
+"added" | 
+/**  Removed. */
+"deleted" | 
+/**  Content, mode or type changed. */
+"modified" | 
+/**  Moved (`previousPath` is the old name). */
+"renamed" | 
+/**  Copied from `previousPath`. */
+"copied" | 
+/**  Not tracked by git. */
+"untracked" | 
+/**  Has merge conflicts. */
+"conflicted";
+
 /**  Where the working tree changes (staged, unstaged, untracked, conflicted) are shown. */
 export type WorkingTreeDisplay = 
 /**  Rows at the top of the commit graph, as Git Extensions does. */
@@ -1185,6 +1241,16 @@ export type WorkingTreeDisplay =
 "header" | 
 /**  Not shown. */
 "hidden";
+
+/**  The working tree status: counts of everything, and the files (at most 5,000 on each side). */
+export type WorkingTreeStatusDto = {
+	/**  How many files are in each state. */
+	summary: StatusSummaryDto,
+	/**  Staged changes, sorted by path. */
+	staged: WorkingFileDto[],
+	/**  Changed, untracked and conflicted files, sorted by path. */
+	unstaged: WorkingFileDto[],
+};
 
 /* Tauri Specta runtime */
 async function typedError<T, E>(result: Promise<T>): Promise<{ status: "ok"; data: T } | { status: "error"; error: E }> {

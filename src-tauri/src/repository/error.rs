@@ -130,6 +130,11 @@ impl From<RepositoryError> for AppError {
                 )
                 .with_hint("Choose a folder you can write to.")
             }
+            RepositoryError::Diff(DiffError::Changed(path)) => AppError::new(
+                ErrorCode::NotFound,
+                format!("{path} changed in the working tree while it was being read."),
+            )
+            .with_hint("Try again to show the new version."),
             RepositoryError::Diff(DiffError::Missing(_))
             | RepositoryError::Tree(TreeError::Missing(_)) => AppError::new(
                 ErrorCode::NotFound,

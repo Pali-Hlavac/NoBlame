@@ -1,5 +1,6 @@
 //! The file diffs shown last in a session, so paging through a diff does not compute it again
-//! and switching back to a file is instant. Blobs are content-addressed: entries never go stale.
+//! and switching back to a file is instant. Blobs are content-addressed: entries never go stale
+//! (a working tree file is named by the id it would have as a blob, so the same holds).
 
 use std::collections::VecDeque;
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
@@ -13,7 +14,7 @@ const MAX_BYTES: usize = 256 << 20;
 
 /// Which diff: the two versions it compares (`None`: the file is absent on that side), the
 /// file's path (its `.gitattributes` and language apply), the options and whether it is
-/// syntax-highlighted. With `whole`, it is the new version shown whole (a file view) instead.
+/// syntax-highlighted; `kind` says what `new` is.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DiffKey {
     pub old: Option<ObjectId>,
@@ -21,7 +22,18 @@ pub struct DiffKey {
     pub path: Option<String>,
     pub options: DiffOptions,
     pub syntax: bool,
-    pub whole: bool,
+    pub kind: DiffKind,
+}
+
+/// What a [`DiffKey`] compares.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DiffKind {
+    /// Two blobs.
+    Blobs,
+    /// A blob with the working tree file at `path`, whose id is `new`.
+    Worktree,
+    /// Not a diff: blob `new` shown whole (a file view).
+    FileView,
 }
 
 /// Most recently used first.

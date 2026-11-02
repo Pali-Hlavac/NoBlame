@@ -148,11 +148,13 @@ Git Extensions):
 
 Each row appears only when it has something to show. Their hollow nodes sit in HEAD's lane and
 are joined to the HEAD commit by a dashed line. They can be selected like commits (click,
-arrows); the Commit details module then shows the counts. **Placeholder:** the file lists,
-diffs and staging arrive in M4.
+arrows); Changed files then lists the row's files and the diff tab shows the chosen one
+([changed-files.md](changed-files.md#working-tree-files-m4-slice-1)), and Commit details shows
+the counts. **Placeholder:** staging and committing arrive in M4.
 
-The counts come from `get_status_summary` (`git status --porcelain=v2 -z`, read-only, so the
-user's fsmonitor, untracked cache and `status.showUntrackedFiles` apply). They are read when
+The counts come from `get_status` (`git status --porcelain=v2 -z`, read-only, so the user's
+fsmonitor, untracked cache and `status.showUntrackedFiles` apply; untracked files are counted
+one by one). They are read when
 the repository opens, whenever a file changes, and every time the window regains focus (watcher, see [repositories.md](repositories.md#live-updates)).
 
 **Settings → Commit graph → Show uncommitted changes as**: rows at the top of the commit graph
@@ -259,5 +261,5 @@ Not yet: committer and date range, regular expressions, following renames.
 
 ## Not yet
 
-Stash labels, the working tree file lists (M4), committer and date filters, more columns
+Stash labels, staging from the working tree rows (M4), committer and date filters, more columns
 (committer, committer date, e-mail).

@@ -1,6 +1,7 @@
 //! What a commit changed: the list of files ([`commit_changes`]) and the line diff of one file
-//! ([`file_diff`]); also one version of a file shown whole ([`file_view`]) with the same rows.
-//! All run in-process with gix; nothing here starts `git`.
+//! ([`file_diff`], or [`worktree_diff`] against a working tree file); also one version of a file
+//! shown whole ([`file_view`]) with the same rows. All run in-process with gix; nothing here
+//! starts `git`.
 
 mod attributes;
 mod changes;
@@ -16,6 +17,7 @@ mod syntax;
 mod text;
 mod unified;
 mod words;
+mod worktree;
 
 pub use attributes::{DiffAttribute, diff_attribute};
 pub(crate) use changes::tree_changes;
@@ -28,6 +30,7 @@ pub use options::{DiffOptions, WHOLE_FILE_CONTEXT, Whitespace};
 pub use rows::CONTEXT_LINES;
 pub use syntax::{MAX_HIGHLIGHT_BYTES, SyntaxClass, SyntaxSpan};
 pub use text::MAX_LINE_BYTES;
+pub use worktree::{WorktreeFile, read_worktree_file, worktree_diff, worktree_version};
 
 /// Blob and commit ids, re-exported so callers need no gix dependency.
 pub use gix::ObjectId;
@@ -58,6 +61,9 @@ pub enum DiffError {
     /// The object is a tree, commit or tag where a file's contents were expected.
     #[error("object {0} is not a file")]
     NotAFile(ObjectId),
+    /// A working tree file changed (or went away) since its id was read.
+    #[error("{0} changed in the working tree")]
+    Changed(String),
 }
 
 impl DiffError {

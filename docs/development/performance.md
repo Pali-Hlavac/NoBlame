@@ -171,6 +171,16 @@ synthetic-10k (2,000 files) 106 ms including the first run, synthetic-100k (10,0
 and the untracked cache on, synthetic-1m stays at about 173 ms (the tree is small enough that
 the scan is not the cost). A 100k+ file tree is still to be measured.
 
+With the file lists (M4 slice 1, 2026-11-02;
+`cargo run --release -p git-core --example status_spike -- <repo>`), every untracked file
+listed (`--untracked-files=all`), warm, parsing included: synthetic-1m with 3 changed and 200
+new files about 40 ms; the Linux kernel clone (no files checked out, so all 97,310 files are
+staged deletions; the list keeps 5,000) about 260 ms (780 ms cold). Reading a changed file as
+git would store it takes about 35 ms the first time (gix loads the index and `.gitattributes`
+for the filter pipeline) and under 1 ms after that; diffing small files is microseconds. A
+checked-out 100k+ file tree is still to be measured, and gix status to be benchmarked against
+git there.
+
 ### File diffs (M3, ADR 0013, 2026-10-28)
 
 `cargo run --release -p git-core --example diff_spike -- <repo> <old-blob> <new-blob>`, Windows 11,

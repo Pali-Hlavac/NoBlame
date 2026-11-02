@@ -70,7 +70,7 @@ pub fn blob_contents(
     read_blob(repo, Some(id))
 }
 
-fn blob_size(repo: &gix::Repository, id: Option<ObjectId>) -> Result<u64, DiffError> {
+pub(super) fn blob_size(repo: &gix::Repository, id: Option<ObjectId>) -> Result<u64, DiffError> {
     let Some(id) = id else { return Ok(0) };
     let header = repo.find_header(id).map_err(|error| {
         // Partial clones (`--filter=blob:none`) lack old file contents until git fetches them.
@@ -86,7 +86,10 @@ fn blob_size(repo: &gix::Repository, id: Option<ObjectId>) -> Result<u64, DiffEr
     Ok(header.size())
 }
 
-fn read_blob(repo: &gix::Repository, id: Option<ObjectId>) -> Result<Vec<u8>, DiffError> {
+pub(super) fn read_blob(
+    repo: &gix::Repository,
+    id: Option<ObjectId>,
+) -> Result<Vec<u8>, DiffError> {
     let Some(id) = id else { return Ok(Vec::new()) };
     Ok(repo.find_blob(id).map_err(DiffError::gix)?.take_data())
 }

@@ -27,8 +27,8 @@ export function WorkingTreeChip({ repoId }: { repoId: number }) {
 }
 
 /**
- * What the Commit details module shows while a working tree row is selected: its counts, and
- * that the file list arrives later (a labelled placeholder until M4).
+ * What the Commit details module shows while a working tree row is selected: its counts, where
+ * its files are, and that staging and committing arrive later (labelled until they do).
  */
 export function WorkingTreeDetails({ repoId, kind }: { repoId: number; kind: WorkingTreeKind }) {
   const status = useStatusSummary(repoId);
@@ -40,7 +40,8 @@ export function WorkingTreeDetails({ repoId, kind }: { repoId: number; kind: Wor
       </h2>
       <p>{row ? row.detail : "No changes left."}</p>
       <p className="text-xs text-muted-foreground">
-        The changed files, their diffs and staging arrive in {WORKING_TREE_MILESTONE}.
+        Changed files (Alt+5) lists them; choose one to see its diff. Staging and committing arrive
+        in {WORKING_TREE_MILESTONE}.
       </p>
     </div>
   );

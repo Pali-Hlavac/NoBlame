@@ -12,7 +12,7 @@ use tauri::WebviewWindow;
 use tauri_plugin_dialog::DialogExt;
 
 use super::{DiffLineDto, FileDiffDto};
-use crate::repository::{DiffKey, RepoId, RepoSessions, RepositoryError, blocking};
+use crate::repository::{DiffKey, DiffKind, RepoId, RepoSessions, RepositoryError, blocking};
 
 /// What a tree entry is.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Type)]
@@ -139,7 +139,7 @@ async fn viewed(
         path: Some(request.path),
         options: DiffOptions::default(),
         syntax: request.syntax,
-        whole: true,
+        kind: DiffKind::FileView,
     };
     session.file_diff(key).await
 }

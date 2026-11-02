@@ -22,7 +22,7 @@ async function applyChange(queryClient: QueryClient, change: RepositoryChanged):
   const path = sessionPath(queryClient, change.id);
   if (path === undefined) return;
   // A commit or checkout changes the index too, so refs changes re-read the status as well.
-  void queryClient.invalidateQueries({ queryKey: statusKeys.summary(change.id) });
+  void queryClient.invalidateQueries({ queryKey: statusKeys.all(change.id) });
   if (!change.refs) return;
   const summary = await unwrap(commands.refreshRepository(change.id));
   queryClient.setQueryData(sessionKeys.byPath(path), summary);

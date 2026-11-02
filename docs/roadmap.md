@@ -383,8 +383,14 @@ the dev app on git.git with real mouse input: resizing the graph, the menu, rela
 moving Date before Message, Reset columns.
 
 M3's planned slices are done. Left in M3: the later filters (committer, date range, several
-branches, regular expressions) and the hidden mouse pointer to investigate. Next: M4 (working
-copy and committing), unless the owner picks one of those first.
+branches, regular expressions) and the hidden mouse pointer to investigate.
+
+M4 started (2026-11-02), slices planned below. Slice 1: the working tree rows' files in Changed
+files and their diffs in the diff tab (staged: HEAD → index; changed: index → the file read as
+git would store it, named by its `git hash-object` id). Status lists in 260 ms for 97,310
+entries (Linux clone). Not clicked through: the owner's dev app was running; component and
+integration tests cover it (CRLF conversion matches `git hash-object`). Next: slice 2, the
+Commit module and dialog.
 
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
@@ -577,7 +583,9 @@ The Branches module gets the same entries for its rows.
 
 ### M4: Working copy and committing
 
-- [ ] Status: staged, unstaged, untracked, conflicted; fast on large trees (`--no-optional-locks`, fsmonitor, untracked cache)
+- [~] Status: staged, unstaged, untracked, conflicted; fast on large trees (`--no-optional-locks`, fsmonitor, untracked cache).
+  Lists and diffs done (slice 1); gix status still to be benchmarked on a checked-out 100k+
+  file tree
 - [ ] Stage/unstage files, hunks and single lines; discard changes (with confirmation)
 - [ ] Commit dialog: message editor with templates, amend, sign-off, GPG/SSH signing via git, author override, hooks output shown
 - [ ] Commit window as a modal dialog or as a module in the left dock; a setting picks one (owner
@@ -592,6 +600,24 @@ The Branches module gets the same entries for its rows.
 - [ ] Repositories module: the number of added, changed and deleted files beside each
       repository, behind a setting (owner request 2026-11-02). Open repositories have their
       status already; closed ones need a `git status` each, so that is measured first
+
+Slices, in order (planned 2026-11-02):
+
+1. **Working tree files** (done 2026-11-02): one `git status` run gives the counts and the file
+   lists (staged; changed, untracked, conflicted). Selecting "Working tree changes" or "Staged
+   changes" in the graph lists their files in Changed files, and the diff tab shows a file's
+   diff (staged: HEAD → index; unstaged: index → the file as git would store it).
+2. **Commit module and dialog** (a setting picks one): unstaged and staged lists, stage and
+   unstage files (or all), the message, Commit, Amend, Sign-off, hooks' output shown; the
+   toolbar's Commit button becomes real.
+3. Stage and unstage hunks and single lines from the diff; discard changes (files, hunks) with a
+   confirmation naming what is lost.
+4. The message: recent messages, `commit.template`, author override, summary length hints.
+5. Stash: create (selected files, message, keep index, untracked), show, apply or pop (whole or
+   selected files), drop; the stash label in the graph.
+6. `.gitignore` helper, external diff tool from the diff tab, compare with the working tree
+   (left from M3 slice 9).
+7. Repositories module counts (measured first).
 
 ### M5: Branches, tags and remotes
 

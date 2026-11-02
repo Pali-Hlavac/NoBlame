@@ -4,7 +4,7 @@
  */
 import type { StatusSummaryDto } from "@/shared/ipc/bindings";
 
-/** Milestone that lists the changed files and lets the user stage them. */
+/** Milestone that brings staging and committing. */
 export const WORKING_TREE_MILESTONE = "M4";
 
 /** Which part of the working tree a row stands for. */

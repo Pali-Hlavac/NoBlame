@@ -11,7 +11,8 @@ const PAGE_GC_TIME_MS = 60_000;
 
 /**
  * Which diff: two blobs (`null` when the file is absent on that side), the file's path (its
- * `.gitattributes` decide between text and binary) and the options.
+ * `.gitattributes` decide between text and binary) and the options. With `worktree`, the new
+ * side is the working tree file at the path, and `newId` the id it would have as a blob.
  */
 export interface DiffRequest extends DiffRequestDto {
   repoId: number;
@@ -19,7 +20,8 @@ export interface DiffRequest extends DiffRequestDto {
 
 /**
  * Keyed by blob ids, which name the contents, and the options: a diff never changes, so nothing
- * here goes stale and a graph reload does not touch it.
+ * here goes stale and a graph reload does not touch it. A working tree file is named by the id
+ * it would have as a blob, so a new version of it is another key.
  */
 export const diffKeys = {
   summary: ({ repoId, oldId, newId, path, options }: DiffRequest) =>
@@ -38,8 +40,8 @@ export const diffKeys = {
 };
 
 /** The request as the commands take it (without the repository). */
-function dto({ oldId, newId, path, options }: DiffRequest): DiffRequestDto {
-  return { oldId, newId, path, options };
+function dto({ oldId, newId, path, options, worktree }: DiffRequest): DiffRequestDto {
+  return { oldId, newId, path, options, worktree };
 }
 
 /** Kind, counts and row counts of a diff. */
