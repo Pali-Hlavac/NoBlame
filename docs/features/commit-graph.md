@@ -103,7 +103,9 @@ is Radix's context menu (`@radix-ui/react-context-menu` 2.4.1, MIT, `shared/ui/c
 ## Selection and navigation
 
 - Click a row to select it. **Ctrl+click** (Cmd+click on macOS) another commit to compare
-  the two in the compare tab; the selection stays ([compare.md](compare.md)).
+  the two in the compare tab; the selection stays ([compare.md](compare.md)). While the key is
+  held over another commit, `CompareHint` shows "Click to compare with <id> <subject>" at the
+  pointer (its own component and listeners, so moving the mouse does not re-render the list).
 - With the list focused: **Up/Down** move one row, **Page Up/Page Down** one screen, **Home/End**
   go to the first or last commit. The selection scrolls into view.
 - On first open the HEAD commit is selected and scrolled into view.

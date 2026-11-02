@@ -364,6 +364,13 @@ Slice 9 done (2026-11-02): the compare tab ([features/compare.md](features/compa
   opened over the graph (it now opens with the diff and file tabs) and the empty state's wording
   in merge base mode.
 
+2026-11-02, the owner's feedback after clicking through the checklist
+([development/manual-checklist.md](development/manual-checklist.md)): the small items are done
+(see "M3 follow-ups (owner, 2026-11-02)"); the larger ones are planned in M3 (graph columns,
+slice 11), M4, M5 and phase 2. Checked in the running dev app on git.git and a submodule:
+closing the diff in a split keeps the other half's tab, the Ctrl hint, selecting from after a
+line's end, the scrollbars, print blocked in dev, clicking the oldest of 85,936 commits.
+
 Next: slice 10, commit details: children and signature status.
 
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
@@ -485,6 +492,8 @@ Slices, in order (planned 2026-10-28):
 8. File history (following renames) and blame.
 9. Compare two commits or branches.
 10. Commit details: children and signature status.
+11. Graph columns (owner request 2026-11-02): choose which columns show, their order and
+    width; the date as absolute or relative ("1 h ago", "3 d ago").
 
 #### Commit context menu (proposed 2026-10-30, to be confirmed by the owner)
 
@@ -526,6 +535,23 @@ The Branches module gets the same entries for its rows.
 - [x] Syntax highlighting for many more languages: two-face 0.5.2 (bat's 213 grammars, MIT OR
       Apache-2.0; grammars MIT, Apache-2.0 or Sublime licence), speed unchanged
 
+#### M3 follow-ups (owner, 2026-11-02)
+
+- [x] Clicking the oldest commit of a long history (scrolled to the end) moved the list up a
+      row: fractional display scaling rounds the end of the list differently
+- [x] Closing the last tab in one half of a split switched the other half to another
+      repository: dockview reports no focused tab at that moment, and the store took the closed
+      tab's neighbour in its own list; a tab already on screen is chosen now
+- [x] Holding Ctrl (Cmd) over another commit shows "Click to compare with …" at the pointer
+- [x] Selecting text in the diff and file tabs can start after the end of a line
+- [x] Scrollbars drawn by the app (thin, theme colours), the same on every system
+- [x] The window can be moved by dragging the start screen while the app loads
+- [x] Ctrl+P (print) blocked in development builds too
+- [ ] Graph columns and relative dates: slice 11 above
+- [ ] The mouse pointer stayed hidden after using the palette with the keyboard and opening the
+      native folder dialog ("Open repository…"); moving the mouse did not bring it back. To
+      investigate (Windows hides the pointer while typing; WebView2 may not show it again)
+
 ### M4: Working copy and committing
 
 - [ ] Status: staged, unstaged, untracked, conflicted; fast on large trees (`--no-optional-locks`, fsmonitor, untracked cache)
@@ -540,6 +566,9 @@ The Branches module gets the same entries for its rows.
 - [ ] `.gitignore` helper: ignore file/extension/folder from the status list
 - [ ] Open a file's diff in an external diff tool from the diff tab (`git difftool` settings, or
       a preset such as VS Code `code --wait --diff`)
+- [ ] Repositories module: the number of added, changed and deleted files beside each
+      repository, behind a setting (owner request 2026-11-02). Open repositories have their
+      status already; closed ones need a `git status` each, so that is measured first
 
 ### M5: Branches, tags and remotes
 
@@ -551,7 +580,12 @@ The Branches module gets the same entries for its rows.
       jobs with progress
 - [ ] Quick Pull button on repository rows in the Repositories module, behind a setting (owner
       request 2026-10-28; quick Merge follows with merging in M6); the "…" menu's Pull, Fetch and
-      Push become real
+      Push become real. Settings choose which buttons show: Pull and Push on each repository,
+      Pull all and Push all on each group (owner request 2026-11-02)
+- [ ] Repository groups in the Repositories module (owner request 2026-11-02): folders like
+      bookmarks, to sort repositories into, collapse and expand. **Pull all** (merge) and **Push
+      all** on a group run as one job per repository. The groups need no git work and can come
+      earlier, before M5, if wanted
 - [ ] Credentials: git credential helpers; `GIT_ASKPASS`/`SSH_ASKPASS` helper that asks in the app — ADR 0012
 - [ ] Manage remotes; clone dialog (shallow, single branch, partial clone, recursive submodules)
 - [ ] Background job registry: progress, cancel, logs, "equivalent command" shown — ADR 0011
@@ -614,16 +648,20 @@ Thin native add-ons that only build a command line and launch `noblame`. ADR 001
 - [ ] `IExplorerCommand` COM extension (Rust `windows` crate or C++): submenu with Commit, Log, Diff, Blame, Pull, Push, Fetch, Switch, Merge, Rebase, Stash, Revert, Resolve, Add, Ignore, Clone, Create repository here
 - [ ] Windows 11 top-level menu through package identity (sparse package or MSIX); classic menu fallback
 - [ ] Entries depend on context (inside a repo or not, file vs. folder, conflicted file)
+- [ ] **Open in NoBlame** on folders (owner request 2026-11-02), shown only when the folder
+      holds a `.git` (the extension checks in `GetState`; a classic registry verb cannot)
 - [ ] Installer option "Explorer integration"
 
 ### T2: macOS Finder
 
-- [ ] Finder Sync extension (Swift) inside the app bundle: menu entries, signed and notarized
+- [ ] Finder Sync extension (Swift) inside the app bundle: menu entries, signed and notarized;
+      **Open in NoBlame** on repository folders
 - [ ] First-run guidance for enabling the extension in System Settings
 
 ### T3: Linux file managers
 
-- [ ] Nautilus (nautilus-python), Dolphin (service menus), Nemo (actions), Thunar (custom actions)
+- [ ] Nautilus (nautilus-python), Dolphin (service menus), Nemo (actions), Thunar (custom actions);
+      **Open in NoBlame** on folders, only on repositories where the file manager can check
 - [ ] Packaged with .deb/.rpm; AppImage documents a manual install
 
 ### T4: Status cache and overlays (optional)

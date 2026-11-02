@@ -46,7 +46,8 @@ zoom out around the line you are reading.
 
 To copy code from a diff, drag over the lines and press **Ctrl+C** (**⌘C** on a Mac). You get
 just the code: no line numbers and no `+` or `-`. In side by side, the selection stays on the
-side where you started it.
+side where you started it. You can also start dragging in the empty space after the end of a
+line.
 
 Images (PNG, JPEG, GIF, WebP, BMP, ICO, AVIF) are shown as pictures: before on the left, after
 on the right, with their size in pixels and bytes. A checkerboard shows through transparent

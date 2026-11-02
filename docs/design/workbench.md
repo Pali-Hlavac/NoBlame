@@ -193,3 +193,23 @@ Ideas from the owner, newest last, with where each one is planned.
   the blur clears and the loading element fades out → done (startup curtain).
 - 2026-10-30: the loading element is a small flat bird, white on the dark theme and black on the
   light one, singing music notes → done (drawn as an SVG; used by every loading state).
+- 2026-11-02 (after the manual checklist):
+  - "Open in NoBlame" in the file manager's menu on folders, only when they hold a `.git` →
+    phase 2 (T1–T3).
+  - Select diff text by dragging from the empty space after the end of a line → done.
+  - Repository groups, like bookmark folders, that collapse and expand → M5 (or earlier: they
+    need no git work).
+  - Pull all (merge) and Push all on a group; settings for showing those buttons, and Pull and
+    Push on single repositories → M5.
+  - Choose the graph's columns, for example a relative date ("1 h ago", "3 d ago") instead of
+    the date → M3 slice 11.
+  - The list jumped up a row when clicking the oldest commit of git.git → fixed.
+  - Scrollbars of the app's own, not the system's → done.
+  - Closing the right tab of a split switched the left half to another repository → fixed.
+  - While Ctrl is held over a commit, say at the pointer that a click compares → done.
+  - Ctrl+P opened the print dialog → blocked (it already was in release builds).
+  - Move the window while the app starts → done (the start screen drags the window).
+  - The number of added, changed and removed files beside each repository in the list, as a
+    setting → M4.
+  - The mouse pointer stayed hidden after the keyboard-only "Open repository…" → to
+    investigate (M3 follow-ups).

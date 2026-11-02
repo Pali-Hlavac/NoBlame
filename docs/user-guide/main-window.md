@@ -9,7 +9,8 @@ At the top is the **title bar** with the toolbar. Below it, from left to right:
 The status bar runs along the bottom.
 
 While NoBlame starts, a small singing bird shows right away, in your theme's colours. Once the
-window is ready, it shows blurred behind the bird.
+window is ready, it shows blurred behind the bird. You can already move the window by
+dragging anywhere on it.
 When everything has loaded (at most five seconds), the blur clears and the bird fades away. The
 same bird shows wherever something is still loading.
 

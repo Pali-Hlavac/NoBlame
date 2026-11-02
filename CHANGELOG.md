@@ -106,6 +106,14 @@ All notable changes to NoBlame are documented here. The format follows
   window at start with the app blurred behind it, until everything has loaded (at most 5 s).
   The bird is a songbird chirping on a berry branch, drawn inline from one definition
   (`loadingBird.ts`), so it shows from the first frame.
+- Owner feedback (2026-11-02):
+  - holding Ctrl (Cmd) over another commit shows "Click to compare with <the selected commit>"
+    at the pointer;
+  - text in the diff and file tabs can be selected by starting the drag after the end of a line;
+  - scrollbars are drawn by the app, thin and in the theme's colours, the same on every system;
+  - the window can be moved by dragging the start screen, before the title bar is there;
+  - Ctrl+P and Ctrl+Shift+P (print) are blocked in development builds too; reloading and the
+    browser's context menu stay available there.
 - Compare tab: the files that differ between two branches, tags or commits, with the diff of
   the chosen one. Open it with **Compare with HEAD** in a commit's menu, **Compare with the
   current branch** in a branch's or tag's submenu, Ctrl+click on a second commit, or the palette.
@@ -227,3 +235,9 @@ All notable changes to NoBlame are documented here. The format follows
   restored at start; a saved layout is now applied once.
 - The synthetic repository generator now packs refs like a clone does and keeps a million
   commits within about 15 years (it reached 2066 before).
+- Reported by the owner (2026-11-02):
+  - clicking the oldest commit of a long history, scrolled to the end, moved the list up by
+    most of a row and cut that row off (fractional display scaling rounds the end of the list
+    differently; revealing a row now puts it exactly on the bottom edge);
+  - closing the last tab in one half of a split could switch the other half to another
+    repository; the tab already on screen stays.

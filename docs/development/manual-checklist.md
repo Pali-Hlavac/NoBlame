@@ -4,7 +4,7 @@ Everything built so far (M1 to M3 slice 9), to click through in the running app.
 it works; write what you notice after `Notes:` under it (or paste the item into the chat).
 
 Items marked **(not checked yet)** were never tried in the running app by the agent; please look
-at those first.
+at those first. Items marked **(new)** come from your notes of 2026-11-02.
 
 ## Test repositories
 
@@ -21,6 +21,8 @@ at those first.
 
 - [ ] Start the app: a singing bird shows at once, then the window appears blurred behind it and
       clears.
+  - Notes:
+- [ ] **(new)** While the bird shows at start, drag anywhere on the window: it moves.
   - Notes:
 - [ ] Drag the empty part of the title bar to move the window; double-click it to maximize;
       minimize, maximize and close buttons at the right.
@@ -83,6 +85,9 @@ Use `target\debug\noblame.exe` while the dev app runs.
   - Notes:
 - [ ] Drag a document tab (the graph, Diff, File) to an edge of the tab area to split it.
   - Notes:
+- [ ] **(new)** Split: several repository tabs on the left (show one that is not the last),
+      Diff alone on the right. Close the Diff: the left keeps showing the same repository.
+  - Notes:
 - [ ] **(not checked yet)** On a real keyboard: Alt+1 … Alt+6 open Repositories, Branches,
       Commit details, Stashes, Changed files, Files. (Simulated key presses did not switch
       modules.)
@@ -143,6 +148,11 @@ Use `target\debug\noblame.exe` while the dev app runs.
       Merges are hollow dots; the checked-out commit has a yellow ring.
   - Notes:
 - [ ] Click a commit, then Up/Down, Page Up/Down, Home/End.
+  - Notes:
+- [ ] **(new)** git.git: scroll to the very end and click the oldest commit: the list does not
+      move.
+  - Notes:
+- [ ] **(new)** Scrollbars everywhere are thin and in the theme's colours (graph, lists, diff).
   - Notes:
 - [ ] Selecting a commit brightens its history and tints commits by the same author; Esc clears
       the highlight. Settings → Commit graph switches the highlight off.
@@ -215,6 +225,9 @@ Use `target\debug\noblame.exe` while the dev app runs.
       switches colours off).
   - Notes:
 - [ ] Drag over lines, Ctrl+C: only code, no line numbers or `+`/`-`.
+  - Notes:
+- [ ] **(new)** Start the drag in the empty space after the end of a line (also in the File
+      tab).
   - Notes:
 - [ ] NoBlame: a commit changing `assets/logo/*.png` shows before and after pictures.
   - Notes:
@@ -312,6 +325,7 @@ Use `target\debug\noblame.exe` while the dev app runs.
 - [~] Click a commit, then **Ctrl+click** another: the selection stays, the Compare tab
   compares them (the lower one in the graph on the left).
   - Notes: Add a tooltip on cursor while holding ctrl and hovering another commit that indicates "compare"
+  - Done: hold Ctrl over another commit: "Click to compare with <id> <subject>" at the pointer."
 - [x] A commit with a branch or tag → its submenu → **Compare with the current branch**.
   - Notes:
 - [x] **(not checked yet)** Type a name that does not exist (`no-such-branch`): an error with a
@@ -333,6 +347,9 @@ Use `target\debug\noblame.exe` while the dev app runs.
 - [ ] Settings: theme, commit highlight, working-tree rows, repository **…** button, Diff
       (layout, whitespace, context, colours), Branches sort. Each change applies at once and is
       kept after a restart.
+  - Notes:
+
+- [ ] **(new)** Ctrl+P does nothing (no print dialog), also in the dev app.
   - Notes:
 
 ## Known issues to watch for

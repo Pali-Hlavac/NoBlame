@@ -32,7 +32,8 @@ Very wide histories are cut at 16 lines; the commits are all still there.
   as creating a branch or cherry-picking; those entries are greyed out and say in which version
   they arrive.
 - Hold **Ctrl** (**Cmd** on macOS) and click a second commit to [compare](compare.md) it with
-  the selected one.
+  the selected one. While you hold the key over another commit, a label at the pointer names
+  the commit it will be compared with.
 - When you open a repository, the commit you have checked out is selected.
 - NoBlame remembers the selected commit and where you scrolled when you switch tabs.
 
