@@ -1,10 +1,11 @@
 import { FolderGitIcon } from "lucide-react";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 
 import type { RepositoryGroup } from "@/shared/ipc/bindings";
 import { cn } from "@/shared/lib/cn";
 
 import { useEditGroups } from "../api/groups";
+import { useSubmodules } from "../api/submodules";
 import { useDropTarget } from "../hooks/useDropTarget";
 import { openRepositories } from "../hooks/useOpenRepository";
 import {
@@ -18,6 +19,7 @@ import { repositoryName, repositoryTab } from "../lib/path";
 import { OpenTabsContext } from "./openTabsContext";
 import { RepositoryContextMenu } from "./RepositoryContextMenu";
 import { RepositoryTreeRow } from "./RepositoryTreeRow";
+import { SubmoduleList } from "./SubmoduleTree";
 
 /** Classes of a row while something is dragged over it. */
 export const DROP_TARGET_CLASSES = "bg-primary/15 ring-1 ring-primary/60 ring-inset";
@@ -30,14 +32,18 @@ interface GroupedRepositoryProps {
 }
 
 /**
- * A repository inside a group: opens (or shows) its tab on click, can be dragged to another
- * place or group, and takes repositories dropped on it (before it, or after on its lower half).
+ * A repository inside a group, with its submodules nested below it as in Open: opens (or shows)
+ * its tab on click, can be dragged to another place or group, and takes repositories dropped on
+ * it (before it, or after on its lower half).
  */
 export function GroupedRepository({ group, path, missing }: GroupedRepositoryProps) {
   const edit = useEditGroups();
   const { ids, activeId } = useContext(OpenTabsContext);
   const tabId = repositoryTab(path).id;
   const name = repositoryName(path);
+  // Read from the folder, so they show without opening the repository (as in Open).
+  const submodules = useSubmodules(path, !missing).data ?? [];
+  const [expanded, setExpanded] = useState(true);
   const drop = useDropTarget(isRepositoryDrag, (event) => {
     const dragged = droppedRepository(event);
     if (!dragged) return;
@@ -57,7 +63,10 @@ export function GroupedRepository({ group, path, missing }: GroupedRepositoryPro
           label={name}
           title={missing ? `${path} (folder not found)` : path}
           depth={1}
-          expanded={undefined}
+          expanded={submodules.length > 0 ? expanded : undefined}
+          onToggle={() => {
+            setExpanded(!expanded);
+          }}
           onOpen={() => {
             openRepositories([path]);
           }}
@@ -72,6 +81,7 @@ export function GroupedRepository({ group, path, missing }: GroupedRepositoryPro
           {...drop.props}
         />
       </RepositoryContextMenu>
+      {expanded && submodules.length > 0 && <SubmoduleList submodules={submodules} depth={2} />}
     </li>
   );
 }

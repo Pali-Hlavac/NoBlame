@@ -14,6 +14,7 @@ const ipc = vi.hoisted(() => ({
   getRepositoryGroups: vi.fn(),
   saveRepositoryGroups: vi.fn(),
   getSettings: vi.fn(() => Promise.resolve({ status: "ok", data: {} })),
+  listSubmodules: vi.fn(),
 }));
 
 vi.mock("@/shared/ipc/bindings", () => ({ commands: ipc }));
@@ -63,6 +64,7 @@ describe("repository groups", () => {
       status: "ok",
       data: [{ path: "/r/web", name: "web", lastOpened: 0, exists: true }],
     });
+    ipc.listSubmodules.mockResolvedValue({ status: "ok", data: [] });
     ipc.saveRepositoryGroups.mockImplementation((groups: RepositoryGroup[]) =>
       Promise.resolve({
         status: "ok",
@@ -103,6 +105,32 @@ describe("repository groups", () => {
       expect(lastSaved()[0]?.collapsed).toBe(true);
     });
     expect(screen.queryByRole("button", { name: "api" })).toBeNull();
+  });
+
+  it("nests a grouped repository's submodules below it", async () => {
+    const user = userEvent.setup();
+    ipc.listSubmodules.mockImplementation((path: string) =>
+      Promise.resolve({
+        status: "ok",
+        data:
+          path === "/r/api"
+            ? [
+                {
+                  name: "core",
+                  path: "core",
+                  workDir: "/r/api/core",
+                  url: null,
+                  initialized: true,
+                  children: [],
+                },
+              ]
+            : [],
+      }),
+    );
+    renderModule([WORK]);
+    expect(await screen.findByRole("button", { name: "core" })).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Collapse api" }));
+    expect(screen.queryByRole("button", { name: "core" })).toBeNull();
   });
 
   it("asks before deleting a group that holds repositories", async () => {

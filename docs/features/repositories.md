@@ -114,6 +114,8 @@ Open and Recent). Owner request 2026-11-02.
 - **Order:** drag a repository onto another one in a group to put it before it (after it on the
   row's lower half); drag a group onto another to reorder groups, or use **Move up / Move down**.
 - **Folding:** click a group (or its arrow); the state is saved.
+- A grouped repository shows its submodules nested below it, as in Open (read from the folder
+  with `list_submodules`, so the repository need not be open; foldable).
 - A grouped repository opens (or shows) its tab on click, is bold while open, and dimmed when
   its folder is gone. Right-click → **Move to group** or **Remove from group**.
 - The group's menu: **Open all**, **Pull all** and **Push all** (shown disabled, M5), Rename,

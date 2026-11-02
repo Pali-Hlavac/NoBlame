@@ -16,8 +16,9 @@ function submodulesQuery(path: string) {
   });
 }
 
-export function useSubmodules(path: string) {
-  return useQuery(submodulesQuery(path));
+/** `enabled: false` skips reading (a folder that no longer exists). */
+export function useSubmodules(path: string, enabled = true) {
+  return useQuery({ ...submodulesQuery(path), enabled });
 }
 
 /** Submodule trees of several repositories, in the same order as `paths`. */

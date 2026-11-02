@@ -60,6 +60,7 @@ Under **Groups** you can sort repositories into folders of your own, like bookma
 
 - Click the **New group** button at the top, type a name and press Enter.
 - Drag any repository onto a group to add it, or right-click it and choose **Add to group**.
+  Its submodules show below it in the group, as under Open.
 - Drag repositories within a group, or groups among themselves, to change their order.
 - Click a group to fold or unfold it. Press F2 or use its **…** menu to rename it.
 - The **…** menu also opens every repository of the group at once, or deletes the group (your

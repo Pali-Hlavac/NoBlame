@@ -126,6 +126,9 @@ Use `target\debug\noblame.exe` while the dev app runs.
 - [ ] **(new)** Groups: the **New group** button at the top → type a name, Enter. F2 on a group
       renames it; Escape cancels.
   - Notes:
+- [ ] **(new)** A repository with submodules in a group (for example `demo-submodules`): its
+      submodules show below it, also while it is not open.
+  - Notes:
 - [ ] **(new)** Drag an open or recent repository onto a group; right-click a repository →
       **Add to group** → a group, or **New group…**.
   - Notes:

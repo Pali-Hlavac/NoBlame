@@ -109,7 +109,8 @@ All notable changes to NoBlame are documented here. The format follows
 - Repository groups in the Repositories module (owner request 2026-11-02): folders of
   repositories like bookmarks. Create and rename them in place, drag repositories onto them (or
   right-click → Add to group), reorder repositories and groups by dragging, fold them, open a
-  whole group at once. Saved in `repository-groups.json`. **Placeholders:** Pull all and Push
+  whole group at once; a grouped repository shows its submodules below it. Saved in
+  `repository-groups.json`. **Placeholders:** Pull all and Push
   all on a group are listed disabled (M5).
 - The Repositories module's sections (Open, Groups, Recent) fold when their title is clicked
   and can be reordered by dragging the title (or Alt+Up / Alt+Down); both are kept in Settings.
