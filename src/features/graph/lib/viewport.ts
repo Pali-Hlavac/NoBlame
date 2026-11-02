@@ -39,6 +39,13 @@ export function scrollTopForRow(row: number, viewportHeight: number, rowCount: n
   return (row * ROW_HEIGHT_PX) / scale(contentHeight, spacerHeight, viewportHeight);
 }
 
+/**
+ * A row hidden by less than this still counts as visible. At fractional display scaling the
+ * browser's scroll position and `clientHeight` are rounded differently, so the last row can
+ * seem a fraction of a pixel short of the bottom even when scrolled to the end.
+ */
+const REVEAL_TOLERANCE_PX = 1;
+
 /** The scroll position that makes `row` fully visible, moving as little as possible. */
 export function scrollTopToReveal(
   row: number,
@@ -48,10 +55,15 @@ export function scrollTopToReveal(
 ): number {
   const { virtualTop } = computeViewport(scrollTop, viewportHeight, rowCount);
   const rowTop = row * ROW_HEIGHT_PX;
-  if (rowTop < virtualTop) return scrollTopForRow(row, viewportHeight, rowCount);
-  if (rowTop + ROW_HEIGHT_PX > virtualTop + viewportHeight) {
-    const rowsAbove = Math.ceil(viewportHeight / ROW_HEIGHT_PX) - 1;
-    return scrollTopForRow(Math.max(0, row - rowsAbove), viewportHeight, rowCount);
+  if (rowTop < virtualTop - REVEAL_TOLERANCE_PX) {
+    return scrollTopForRow(row, viewportHeight, rowCount);
+  }
+  const rowBottom = rowTop + ROW_HEIGHT_PX;
+  if (rowBottom > virtualTop + viewportHeight + REVEAL_TOLERANCE_PX) {
+    // The row's bottom edge on the window's bottom edge.
+    const contentHeight = rowCount * ROW_HEIGHT_PX;
+    const spacerHeight = Math.min(contentHeight, MAX_SCROLL_HEIGHT_PX);
+    return (rowBottom - viewportHeight) / scale(contentHeight, spacerHeight, viewportHeight);
   }
   return scrollTop;
 }

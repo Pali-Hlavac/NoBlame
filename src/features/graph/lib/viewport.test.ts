@@ -46,4 +46,21 @@ describe("scrolling to rows", () => {
   it("does not move when the row is already visible", () => {
     expect(scrollTopToReveal(5, 0, VIEWPORT, 1000)).toBe(0);
   });
+
+  it.each([1000, 1_000_000])(
+    "puts a row below the window exactly on the bottom edge (%i rows)",
+    (rows) => {
+      const height = VIEWPORT + ROW_HEIGHT_PX / 2;
+      const scrollTop = scrollTopToReveal(rows - 1, 0, height, rows);
+      const viewport = computeViewport(scrollTop, height, rows);
+      expect(viewport.virtualTop + height).toBeCloseTo(rows * ROW_HEIGHT_PX);
+    },
+  );
+
+  it("keeps the last row in place when scrolled to the end at fractional scaling", () => {
+    // The browser stops 0.4 px short of what the rounded clientHeight suggests.
+    const rows = 82_000;
+    const scrollTop = rows * ROW_HEIGHT_PX - VIEWPORT - 0.4;
+    expect(scrollTopToReveal(rows - 1, scrollTop, VIEWPORT, rows)).toBe(scrollTop);
+  });
 });
