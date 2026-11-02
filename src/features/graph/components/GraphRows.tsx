@@ -48,6 +48,7 @@ export function GraphRows(props: GraphRowsProps) {
     };
     const common = {
       id: `${idPrefix}-${index}`,
+      "data-index": index,
       role: "option",
       "aria-selected": isSelected,
       tabIndex: -1,

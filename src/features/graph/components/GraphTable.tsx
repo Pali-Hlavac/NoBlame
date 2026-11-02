@@ -25,6 +25,7 @@ import { displayRows, indexOfSelection, selectionAt } from "../lib/displayRows";
 import { computeViewport, scrollTopToReveal } from "../lib/viewport";
 import { useGraphViewStore } from "../store/graphView";
 import { CommitContextMenu } from "./CommitContextMenu";
+import { CompareHint } from "./CompareHint";
 import { GraphCanvas } from "./GraphCanvas";
 import { GraphHeader } from "./GraphHeader";
 import { GraphRows } from "./GraphRows";
@@ -160,6 +161,12 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
     choose(index);
   };
 
+  const selectedText = selectedRow === undefined ? undefined : rowText(selectedRow);
+  const compareFrom =
+    selectedRow === undefined || selectedIndex === undefined
+      ? undefined
+      : { index: selectedIndex, id: selectedText?.id, summary: selectedText?.summary };
+
   const visible =
     selectedIndex !== undefined &&
     selectedIndex >= viewport.firstRow &&
@@ -171,7 +178,7 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
         repoId={repoId}
         repoPath={repoPath}
         row={selectedRow}
-        commit={selectedRow === undefined ? undefined : rowText(selectedRow)}
+        commit={selectedText}
         highlighted={highlight.enabled ? highlight.row === selectedRow : undefined}
         onToggleHighlight={() => {
           if (highlight.row === selectedRow) highlight.dismiss();
@@ -228,6 +235,11 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
           </div>
         </div>
       </CommitContextMenu>
+      <CompareHint
+        target={scrollRef}
+        selected={compareFrom}
+        isCommit={(index) => index < rows.count && rows.artificial[index] === undefined}
+      />
     </div>
   );
 }
