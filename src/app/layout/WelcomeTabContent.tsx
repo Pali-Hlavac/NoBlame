@@ -9,6 +9,7 @@ import {
 } from "@/features/repositories";
 import { WelcomeView } from "@/features/workspace";
 import { Button } from "@/shared/ui/button";
+import { KIND_ICON_CLASSES } from "@/shared/lib/workKinds";
 
 /** The Welcome tab (dashboard): git problems first, then open/create and recent repositories. */
 export function WelcomeTabContent() {
@@ -30,7 +31,7 @@ export function WelcomeTabContent() {
               disabled={createRepository.pending}
               onClick={() => void createRepository.create()}
             >
-              <FolderPlusIcon aria-hidden />
+              <FolderPlusIcon className={KIND_ICON_CLASSES.repositories} aria-hidden />
               Create repository…
             </Button>
           </>

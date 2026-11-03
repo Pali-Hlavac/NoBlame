@@ -41,7 +41,7 @@ export function RecentRepositories() {
                 openRepositories([entry.path]);
               }}
             >
-              <FolderGitIcon className="size-4 shrink-0 text-repo-repository" aria-hidden />
+              <FolderGitIcon className="size-4 shrink-0 text-kind-repositories" aria-hidden />
               <span className="min-w-0">
                 <span className="block truncate text-sm font-medium">{entry.name}</span>
                 <span className="block truncate text-xs text-muted-foreground">{entry.path}</span>

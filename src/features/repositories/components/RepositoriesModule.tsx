@@ -6,6 +6,7 @@ import { useTabsStore, type RepositoryTab } from "@/features/workspace";
 import type { RepositoriesSection } from "@/shared/ipc/bindings";
 import { Button } from "@/shared/ui/button";
 import { Tooltip } from "@/shared/ui/tooltip";
+import { KIND_ICON_CLASSES, type WorkKind } from "@/shared/lib/workKinds";
 
 import { useEditGroups, useRepositoryGroups } from "../api/groups";
 import { useRecentRepositories } from "../api/recent";
@@ -71,11 +72,13 @@ function ModuleSections(contents: Record<RepositoriesSection, ReactNode>) {
 interface ToolbarButtonProps {
   label: string;
   icon: LucideIcon;
+  /** Colours the icon: groups or repositories. */
+  kind: WorkKind;
   disabled?: boolean;
   onClick: () => void;
 }
 
-function ToolbarButton({ label, icon: Icon, disabled, onClick }: ToolbarButtonProps) {
+function ToolbarButton({ label, icon: Icon, kind, disabled, onClick }: ToolbarButtonProps) {
   return (
     <Tooltip content={label}>
       <Button
@@ -86,7 +89,7 @@ function ToolbarButton({ label, icon: Icon, disabled, onClick }: ToolbarButtonPr
         disabled={disabled}
         onClick={onClick}
       >
-        <Icon aria-hidden />
+        <Icon className={KIND_ICON_CLASSES[kind]} aria-hidden />
       </Button>
     </Tooltip>
   );
@@ -128,17 +131,20 @@ export function RepositoriesModule() {
         <ToolbarButton
           label="New group"
           icon={ListPlusIcon}
+          kind="groups"
           disabled={!groupsLoaded}
           onClick={newGroup}
         />
         <ToolbarButton
           label="Open repository…"
           icon={FolderOpenIcon}
+          kind="repositories"
           onClick={() => void openRepository()}
         />
         <ToolbarButton
           label="Create repository…"
           icon={FolderPlusIcon}
+          kind="repositories"
           disabled={createRepository.pending}
           onClick={() => void createRepository.create()}
         />

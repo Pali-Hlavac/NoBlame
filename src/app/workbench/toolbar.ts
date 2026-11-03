@@ -57,7 +57,7 @@ export const TOOLBAR_ACTIONS: readonly ToolbarAction[] = [
     id: "stashes",
     label: "Stashes",
     icon: ArchiveIcon,
-    kind: "commit",
+    kind: "stash",
     run: STASHES_MODULE
       ? () => {
           openModule(STASHES_MODULE);

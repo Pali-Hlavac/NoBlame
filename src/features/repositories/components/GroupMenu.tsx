@@ -12,6 +12,7 @@ import {
 import { Fragment, type ReactNode } from "react";
 
 import { Button } from "@/shared/ui/button";
+import { kindIconClass, type WorkKind } from "@/shared/lib/workKinds";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -34,6 +35,8 @@ interface Entry {
   id: string;
   label: string;
   icon: LucideIcon;
+  /** Colours the icon. */
+  kind?: WorkKind;
   onSelect?: () => void;
   /** Set for stubs: the milestone that delivers the entry. */
   milestone?: string;
@@ -59,11 +62,24 @@ function entries(actions: GroupMenuActions): Entry[] {
       id: "open-all",
       label: "Open all",
       icon: FolderOpenIcon,
+      kind: "repositories",
       onSelect: actions.onOpenAll,
       disabled: !actions.hasRepositories,
     },
-    { id: "pull-all", label: "Pull all", icon: ArrowDownToLineIcon, milestone: REMOTE_MILESTONE },
-    { id: "push-all", label: "Push all", icon: ArrowUpFromLineIcon, milestone: REMOTE_MILESTONE },
+    {
+      id: "pull-all",
+      label: "Pull all",
+      icon: ArrowDownToLineIcon,
+      kind: "branches",
+      milestone: REMOTE_MILESTONE,
+    },
+    {
+      id: "push-all",
+      label: "Push all",
+      icon: ArrowUpFromLineIcon,
+      kind: "branches",
+      milestone: REMOTE_MILESTONE,
+    },
     {
       id: "rename",
       label: "Rename",
@@ -104,7 +120,7 @@ function EntryLabel({ entry }: { entry: Entry }) {
   const Icon = entry.icon;
   return (
     <>
-      <Icon aria-hidden />
+      <Icon className={kindIconClass(entry.kind)} aria-hidden />
       <span className="flex-1">{entry.label}</span>
       {entry.milestone && <span className="text-xs text-muted-foreground">{entry.milestone}</span>}
     </>

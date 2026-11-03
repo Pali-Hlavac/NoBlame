@@ -67,7 +67,12 @@ export function FileTreeRow({ row, active }: { row: TreeRow; active: boolean }) 
         <span className="w-4 shrink-0" />
       )}
       <Icon
-        className={cn("size-4 shrink-0", folder ? "text-primary" : "text-muted-foreground")}
+        className={cn(
+          "size-4 shrink-0",
+          folder && "text-primary",
+          entry.kind === "submodule" && "text-kind-submodules",
+          !folder && entry.kind !== "submodule" && "text-muted-foreground",
+        )}
         aria-hidden
       />
       <span className="truncate">{entry.name}</span>

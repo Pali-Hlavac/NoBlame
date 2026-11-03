@@ -52,8 +52,9 @@ supplies the actions (`src/app/workbench/repositoryActions.ts`, `when: "open" | 
 filtered by `actionsFor`); a row adds its own items with `extra`. **Settings → Repositories**
 hides the button. See [workbench.md](workbench.md#modules).
 
-Icons: groups `text-repo-group` (amber), repositories `text-repo-repository` (orange),
-submodules `text-repo-submodule` (violet); the tokens are in `src/app/styles.css`.
+Icons take the kind colours used across the app ([workbench.md](workbench.md#colours-by-kind-of-work)):
+groups and the group entries of menus `groups` (orange), repositories, Open and Create
+`repositories` (blue), submodules `submodules` (violet).
 
 ## Live updates
 

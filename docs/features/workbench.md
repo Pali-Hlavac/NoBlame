@@ -206,19 +206,23 @@ can also be read with the keyboard.
 
 ## Colours by kind of work
 
-Modules, toolbar buttons, repository actions and palette commands carry an optional `kind`
-(`WorkKind` in `src/shared/lib/workKinds.ts`) that colours their icon:
+Modules, toolbar buttons, repository actions, menus, palette commands and the rows of the
+Repositories module carry a `kind` (`WorkKind` in `src/shared/lib/workKinds.ts`) that colours
+their icon. One colour means one thing everywhere (owner, 2026-11-03):
 
-| Kind           | Colour | Used by                                                        |
-| -------------- | ------ | -------------------------------------------------------------- |
-| `commit`       | green  | Changed files, Stashes, Commit (toolbar, "…" menu)             |
-| `history`      | blue   | Commit details, Files, Find, Go to commit, Compare             |
-| `branches`     | violet | Branches, Pull (and its menu), Fetch, Push                     |
-| `repositories` | amber  | Repositories, Open and Create repository, Open in the "…" menu |
+| Kind           | Colour | Used by                                                                                   |
+| -------------- | ------ | ----------------------------------------------------------------------------------------- |
+| `commit`       | green  | Commit details, Changed files, Commit (toolbar, "…" menu)                                 |
+| `stash`        | amber  | Stashes (module, toolbar)                                                                 |
+| `history`      | teal   | Files, Find, Go to commit, Compare                                                        |
+| `branches`     | violet | Branches, Pull (and its menu), Fetch, Push, Pull all, Push all                            |
+| `repositories` | blue   | Repositories, repository rows, Open and Create repository (buttons, palette, menus)       |
+| `groups`       | orange | Group folders, New group, Add to / Move to / Remove from group                            |
+| `submodules`   | violet | Submodule rows and submodule entries in Changed files and Files (own token, same hue now) |
 
-Without a kind (Settings, About, Copy path) an icon keeps the text colour. The colours are the
-`--kind-*` tokens in `src/app/styles.css` (light and dark); recolouring a kind is a change
-there only. Owner decision 2026-11-03.
+Without a kind (Settings, About, Copy path, Rename) an icon keeps the text colour; icons on
+filled (primary) buttons keep the button's text colour. The colours are the `--kind-*` tokens in
+`src/app/styles.css` (light and dark); recolouring a kind is a change there only.
 
 ## Adding a module
 

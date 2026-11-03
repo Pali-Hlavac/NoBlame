@@ -1,4 +1,6 @@
 import { FolderIcon, FolderMinusIcon, FolderPlusIcon, FolderInputIcon } from "lucide-react";
+
+import { KIND_ICON_CLASSES } from "@/shared/lib/workKinds";
 import type { ReactNode } from "react";
 
 import {
@@ -31,6 +33,9 @@ interface RepositoryContextMenuProps {
 }
 
 /** Right-click menu of a repository row: add it to a group, or take it out of its group. */
+/** Group entries carry the groups' colour. */
+const GROUP_ICON = KIND_ICON_CLASSES.groups;
+
 export function RepositoryContextMenu({ path, groupId, children }: RepositoryContextMenuProps) {
   const groups = useRepositoryGroups().data?.groups ?? [];
   const edit = useEditGroups();
@@ -50,7 +55,7 @@ export function RepositoryContextMenu({ path, groupId, children }: RepositoryCon
       <ContextMenuContent>
         <ContextMenuSub>
           <ContextMenuSubTrigger>
-            <FolderInputIcon aria-hidden />
+            <FolderInputIcon className={GROUP_ICON} aria-hidden />
             {groupId ? "Move to group" : "Add to group"}
           </ContextMenuSubTrigger>
           <ContextMenuSubContent>
@@ -62,13 +67,13 @@ export function RepositoryContextMenu({ path, groupId, children }: RepositoryCon
                   edit((current) => placeRepository(current, path, group.id, undefined, groupId));
                 }}
               >
-                <FolderIcon aria-hidden />
+                <FolderIcon className={GROUP_ICON} aria-hidden />
                 <span className="truncate">{group.name}</span>
               </ContextMenuItem>
             ))}
             {groups.length > 0 && <ContextMenuSeparator />}
             <ContextMenuItem onSelect={newGroup}>
-              <FolderPlusIcon aria-hidden />
+              <FolderPlusIcon className={GROUP_ICON} aria-hidden />
               New group…
             </ContextMenuItem>
           </ContextMenuSubContent>
@@ -79,7 +84,7 @@ export function RepositoryContextMenu({ path, groupId, children }: RepositoryCon
               edit((current) => removeRepository(current, groupId, path));
             }}
           >
-            <FolderMinusIcon aria-hidden />
+            <FolderMinusIcon className={GROUP_ICON} aria-hidden />
             Remove from group
           </ContextMenuItem>
         )}

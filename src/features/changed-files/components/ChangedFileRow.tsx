@@ -36,7 +36,7 @@ export function ChangedFileRow({ file, active }: { file: ListedFile; active: boo
         {STATUS_LABELS[file.status].letter}
       </span>
       {file.submodule && (
-        <PackageIcon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+        <PackageIcon className="size-3.5 shrink-0 text-kind-submodules" aria-hidden />
       )}
       <span className={cn("shrink-0 truncate", file.status === "deleted" && "line-through")}>
         {name}

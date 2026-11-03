@@ -31,10 +31,11 @@ Each icon in the activity bar opens a module in the sidebar:
 | File   | Changed files  | Alt+5    | The files the selected commit changed; choose one to see its diff      |
 | Tree   | Files          | Alt+6    | Every folder and file of the selected commit; choose one to see it     |
 
-The icons are coloured by what they are about, here and in the toolbar and the command palette:
-green for committing and your uncommitted work (Changed files, Stashes, Commit), blue for
-history (Commit details, Files, Find), violet for branches and remotes (Branches, Pull, Push) and
-amber for repositories. Settings and About keep the normal colour.
+The icons are coloured by what they are about, the same everywhere in the app: green for
+commits and committing (Commit details, Changed files, Commit), amber for stashes, teal for
+browsing history (Files, Find, Compare), violet for branches and remotes (Branches, Pull, Push),
+blue for repositories (also the open and create buttons), orange for groups, and purple for
+submodules. Settings and About keep the normal colour.
 
 The gear at the bottom of the activity bar opens **Settings** in a tab: the theme, the commit
 highlight, and whether repositories show their **…** button.
@@ -53,7 +54,7 @@ commit in that repository, Commit details shows it right away.
 Your open repositories are listed first. Below each one are its **submodules**, and below those
 their own submodules. Click a repository to switch to its tab, or click a submodule to open it in
 a tab of its own. An open submodule is shown in bold and stays in its place in the tree.
-Groups have amber folders, repositories orange icons and submodules violet ones.
+Groups have orange folders, repositories blue icons and submodules purple ones.
 Point at a repository (open, in a group, or a downloaded submodule) to see its **…** button:
 **Copy path** works, **Open** opens it if it is not open yet, **Close** closes its tab, and in a
 group **Remove from group** takes it out. Pull, Fetch, Push and Commit are listed but come in

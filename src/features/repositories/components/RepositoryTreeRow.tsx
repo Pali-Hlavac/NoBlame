@@ -2,6 +2,7 @@ import { ChevronDownIcon, ChevronRightIcon, type LucideIcon } from "lucide-react
 import type { ComponentProps, ReactNode } from "react";
 
 import { cn } from "@/shared/lib/cn";
+import { KIND_ICON_CLASSES, type WorkKind } from "@/shared/lib/workKinds";
 
 /** Indentation per tree level, in CSS pixels. */
 const INDENT_PX = 14;
@@ -12,8 +13,8 @@ const INDENT_PX = 14;
  */
 interface RepositoryTreeRowProps extends Omit<ComponentProps<"div">, "title" | "children"> {
   icon: LucideIcon;
-  /** The icon's colour (`text-repo-*`: group, repository or submodule). */
-  iconClassName: string;
+  /** Colours the icon: `groups`, `repositories` or `submodules`. */
+  iconKind: WorkKind;
   label: string;
   title: string;
   depth: number;
@@ -36,7 +37,7 @@ interface RepositoryTreeRowProps extends Omit<ComponentProps<"div">, "title" | "
 export function RepositoryTreeRow(props: RepositoryTreeRowProps) {
   const {
     icon: Icon,
-    iconClassName,
+    iconKind,
     label,
     title,
     depth,
@@ -77,7 +78,7 @@ export function RepositoryTreeRow(props: RepositoryTreeRowProps) {
       )}
       {labelSlot ? (
         <span className="flex min-w-0 flex-1 items-center gap-2 px-1 py-0.5">
-          <Icon className={cn("size-4 shrink-0", iconClassName)} aria-hidden />
+          <Icon className={cn("size-4 shrink-0", KIND_ICON_CLASSES[iconKind])} aria-hidden />
           {labelSlot}
         </span>
       ) : (
@@ -91,7 +92,7 @@ export function RepositoryTreeRow(props: RepositoryTreeRowProps) {
           )}
           onClick={onOpen}
         >
-          <Icon className={cn("size-4 shrink-0", iconClassName)} aria-hidden />
+          <Icon className={cn("size-4 shrink-0", KIND_ICON_CLASSES[iconKind])} aria-hidden />
           <span className={cn("truncate", emphasized && "font-medium")}>{label}</span>
         </button>
       )}

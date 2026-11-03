@@ -31,7 +31,7 @@ export function SubmoduleNode({ submodule, depth }: { submodule: SubmoduleDto; d
     <li>
       <RepositoryTreeRow
         icon={PackageIcon}
-        iconClassName="text-repo-submodule"
+        iconKind="submodules"
         label={submodule.path}
         title={title}
         depth={depth}

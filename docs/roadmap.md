@@ -586,15 +586,13 @@ The Branches module gets the same entries for its rows.
 #### M4 follow-ups (owner, 2026-11-03; confirmed, done the same day)
 
 - [x] Coloured icons by kind of work. Icons stay lucide (ISC licence, line icons whose stroke
-      takes any colour); the colours become theme tokens (`--kind-*`, light and dark), so a
-      kind can be recoloured in one place. Proposed kinds:
-  - committing and the working copy (the coming Commit module, Changed files, Stashes): green;
-  - history (Commit details, Files, the graph's Find): blue;
-  - branches, tags and remotes (Branches; Pull and Push in the toolbar): violet;
-  - repositories (Repositories, Open repository): amber;
-  - app (Settings, About): the normal grey.
-- [x] Repositories module colours: groups (folder icon) amber, repositories (git icon) orange,
-      submodules (package icon) violet. Open repositories keep their bold name.
+      takes any colour); the colours are theme tokens (`--kind-*`, light and dark), so a kind is
+      recoloured in one place. Unified the same day at the owner's request, one colour per kind
+      everywhere: commits and committing green (Commit details too), stashes amber, history
+      teal, branches and remotes violet, repositories blue (also Open and Create), groups orange
+      (also New group), submodules purple
+      ([features/workbench.md](features/workbench.md#colours-by-kind-of-work)).
+- [x] Repositories module colours: groups orange, repositories blue, submodules purple.
 - [x] Initials badge for people: a small circle with up to two initials, in Commit details
       (author, committer) and before the graph's Author column; later in blame and file
       history. Its hue comes from a fixed hash of the e-mail address (FNV-1a of the trimmed,

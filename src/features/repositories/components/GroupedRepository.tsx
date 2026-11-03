@@ -4,6 +4,7 @@ import { useContext, useState } from "react";
 import type { RepositoryGroup } from "@/shared/ipc/bindings";
 import { cn } from "@/shared/lib/cn";
 import { DropdownMenuItem } from "@/shared/ui/dropdown-menu";
+import { KIND_ICON_CLASSES } from "@/shared/lib/workKinds";
 
 import { useEditGroups } from "../api/groups";
 import { useSubmodules } from "../api/submodules";
@@ -62,7 +63,7 @@ export function GroupedRepository({ group, path, missing }: GroupedRepositoryPro
       <RepositoryContextMenu path={path} groupId={group.id}>
         <RepositoryTreeRow
           icon={FolderGitIcon}
-          iconClassName="text-repo-repository"
+          iconKind="repositories"
           label={name}
           title={missing ? `${path} (folder not found)` : path}
           depth={1}
@@ -91,7 +92,7 @@ export function GroupedRepository({ group, path, missing }: GroupedRepositoryPro
                     edit((groups) => removeRepository(groups, group.id, path));
                   }}
                 >
-                  <FolderMinusIcon aria-hidden />
+                  <FolderMinusIcon className={KIND_ICON_CLASSES.groups} aria-hidden />
                   Remove from group
                 </DropdownMenuItem>
               }

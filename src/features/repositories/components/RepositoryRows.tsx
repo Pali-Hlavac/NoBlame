@@ -27,7 +27,7 @@ export function OpenRepository({ tab, active, submodules }: OpenRepositoryProps)
       <RepositoryContextMenu path={tab.path}>
         <RepositoryTreeRow
           icon={FolderGitIcon}
-          iconClassName="text-repo-repository"
+          iconKind="repositories"
           label={tab.title}
           title={tab.path}
           depth={0}
@@ -63,7 +63,7 @@ export function RecentItem({ entry }: { entry: RecentRepository }) {
       <RepositoryContextMenu path={entry.path}>
         <RepositoryTreeRow
           icon={FolderGitIcon}
-          iconClassName="text-repo-repository"
+          iconKind="repositories"
           label={entry.name}
           title={entry.exists ? entry.path : `${entry.path} (folder not found)`}
           depth={0}

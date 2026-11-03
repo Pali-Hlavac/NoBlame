@@ -63,17 +63,17 @@
   --syntax-tag: oklch(0.5 0.15 20);
   --syntax-attribute: oklch(0.52 0.12 80);
   /*
-   * Colours by kind of work: icons of modules, toolbar buttons and commands. To recolour a
-   * kind, change its value here and in `.dark` (lib: `src/shared/lib/workKinds.ts`).
+   * Colours by kind of work, the same everywhere: modules, toolbar buttons, commands, menus and
+   * the Repositories module. To recolour a kind, change its value here and in `.dark`
+   * (which icon has which kind: `src/shared/lib/workKinds.ts`).
    */
   --kind-commit: oklch(0.55 0.15 150);
-  --kind-history: oklch(0.55 0.15 250);
+  --kind-stash: oklch(0.64 0.15 75);
+  --kind-history: oklch(0.55 0.1 190);
   --kind-branches: oklch(0.52 0.17 300);
-  --kind-repositories: oklch(0.62 0.15 75);
-  /* Icons in the Repositories module. */
-  --repo-group: oklch(0.62 0.15 75);
-  --repo-repository: oklch(0.6 0.16 45);
-  --repo-submodule: oklch(0.52 0.17 300);
+  --kind-repositories: oklch(0.55 0.15 255);
+  --kind-groups: oklch(0.62 0.16 45);
+  --kind-submodules: oklch(0.52 0.17 300);
   /* Initials badges: the hue comes from the person's e-mail, these from the theme. */
   --person-lightness: 0.62;
   --person-chroma: 0.13;
@@ -132,12 +132,12 @@
   --syntax-tag: oklch(0.75 0.13 20);
   --syntax-attribute: oklch(0.82 0.11 85);
   --kind-commit: oklch(0.74 0.15 150);
-  --kind-history: oklch(0.72 0.13 250);
+  --kind-stash: oklch(0.8 0.14 80);
+  --kind-history: oklch(0.76 0.1 190);
   --kind-branches: oklch(0.72 0.14 300);
-  --kind-repositories: oklch(0.8 0.14 80);
-  --repo-group: oklch(0.8 0.14 80);
-  --repo-repository: oklch(0.74 0.15 50);
-  --repo-submodule: oklch(0.72 0.14 300);
+  --kind-repositories: oklch(0.72 0.13 255);
+  --kind-groups: oklch(0.75 0.15 50);
+  --kind-submodules: oklch(0.72 0.14 300);
   --person-lightness: 0.5;
   --person-chroma: 0.11;
   --person-foreground: oklch(0.98 0 0);
@@ -187,12 +187,12 @@
   --color-ref-tag-foreground: var(--ref-tag-foreground);
   --color-ref-head: var(--ref-head);
   --color-kind-commit: var(--kind-commit);
+  --color-kind-stash: var(--kind-stash);
   --color-kind-history: var(--kind-history);
   --color-kind-branches: var(--kind-branches);
   --color-kind-repositories: var(--kind-repositories);
-  --color-repo-group: var(--repo-group);
-  --color-repo-repository: var(--repo-repository);
-  --color-repo-submodule: var(--repo-submodule);
+  --color-kind-groups: var(--kind-groups);
+  --color-kind-submodules: var(--kind-submodules);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

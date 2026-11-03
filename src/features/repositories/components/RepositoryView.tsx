@@ -6,6 +6,7 @@ import { ErrorState } from "@/shared/components/ErrorState";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { toIpcError } from "@/shared/ipc/client";
 import { Button } from "@/shared/ui/button";
+import { KIND_ICON_CLASSES } from "@/shared/lib/workKinds";
 
 import { useRepositorySession } from "../api/session";
 import { useCreateRepository } from "../hooks/useOpenRepository";
@@ -36,7 +37,7 @@ export function RepositoryView({ tab }: { tab: RepositoryTab }) {
               void create.create(tab.path).then(() => session.refetch());
             }}
           >
-            <FolderPlusIcon aria-hidden />
+            <FolderPlusIcon className={KIND_ICON_CLASSES.repositories} aria-hidden />
             Create a repository here
           </Button>
         )}

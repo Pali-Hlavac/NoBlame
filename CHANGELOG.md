@@ -122,10 +122,10 @@ All notable changes to NoBlame are documented here. The format follows
   - the window can be moved by dragging the start screen, before the title bar is there;
   - Ctrl+P and Ctrl+Shift+P (print) are blocked in development builds too; reloading and the
     browser's context menu stay available there.
-- Colours (owner request 2026-11-03): icons in the activity bar, the toolbar, the command
-  palette and the repository menus are coloured by kind of work (green committing, blue history,
-  violet branches and remotes, amber repositories); in the Repositories module groups, repositories
-  and submodules have their own colours. All are theme tokens in one place.
+- Colours (owner request 2026-11-03): icons are coloured by kind of work, the same in the
+  activity bar, the toolbar, the command palette, menus and the Repositories module: green
+  commits and committing, amber stashes, teal history, violet branches and remotes, blue
+  repositories, orange groups, purple submodules. All are theme tokens in one place.
 - Initials badges: a round badge with a person's initials beside the author in the commit list
   and the author and committer in Commit details, coloured by a hash of the e-mail address, so
   it is the same on every device.
