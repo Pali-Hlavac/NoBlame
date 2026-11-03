@@ -1,10 +1,13 @@
-import { LoaderCircleIcon, type LucideIcon } from "lucide-react";
+import { LoaderCircleIcon, Undo2Icon, type LucideIcon } from "lucide-react";
+import type { MouseEvent } from "react";
 
 import { ChangedFileRow, describeFile } from "@/features/changed-files";
 import type { WorkingFileDto } from "@/shared/ipc/bindings";
 import { VirtualList } from "@/shared/components/VirtualList";
 import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/button";
+
+import { canDiscard } from "../lib/discard";
 
 /** Height of one row, in CSS pixels. */
 const ROW_HEIGHT_PX = 26;
@@ -33,6 +36,18 @@ interface StagingListProps {
   onChoose: (file: WorkingFileDto) => void;
   onToggle: (file: WorkingFileDto, index: number) => void;
   onToggleAll: () => void;
+  /** Throws away a file's changes (after asking); the Changes list only. */
+  onDiscard?: (file: WorkingFileDto) => void;
+  /** Throws away every listed change (after asking). */
+  onDiscardAll?: () => void;
+}
+
+/** A row's small button, shown on hover and on the active row. */
+const ROW_BUTTON_CLASSES = "size-5 bg-background/80";
+
+/** A press on a row's button is not a press on the row (that would show the file's diff). */
+function stopRowPress(event: MouseEvent): void {
+  event.stopPropagation();
 }
 
 /**
@@ -60,6 +75,19 @@ export function StagingList(props: StagingListProps) {
             <LoaderCircleIcon className="size-3.5 animate-spin" aria-hidden />
             {verb.working}
           </span>
+        )}
+        {props.onDiscardAll && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-6"
+            aria-label="Discard all changes…"
+            title="Discard all changes…"
+            disabled={busy || props.total === 0}
+            onClick={props.onDiscardAll}
+          >
+            <Undo2Icon aria-hidden />
+          </Button>
         )}
         <Button
           variant="ghost"
@@ -105,27 +133,45 @@ export function StagingList(props: StagingListProps) {
             return (
               <div className="group/row relative h-full">
                 <ChangedFileRow file={file} active={active} />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  tabIndex={-1}
-                  disabled={busy}
-                  aria-label={`${verb.label} ${file.path}`}
-                  title={`${verb.label} (Space)`}
+                <span
                   className={cn(
-                    "absolute top-1/2 right-1 size-5 -translate-y-1/2 bg-background/80 opacity-0 group-hover/row:opacity-100",
+                    "absolute top-1/2 right-1 flex -translate-y-1/2 gap-0.5 opacity-0 group-hover/row:opacity-100",
                     active && "opacity-100",
                   )}
-                  onMouseDown={(event) => {
-                    // Not a click on the row: that would show the file's diff.
-                    event.stopPropagation();
-                  }}
-                  onClick={() => {
-                    onToggle(file, index);
-                  }}
                 >
-                  <Icon aria-hidden />
-                </Button>
+                  {props.onDiscard && canDiscard(file) && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      tabIndex={-1}
+                      disabled={busy}
+                      aria-label={`Discard ${file.path}…`}
+                      title="Discard the changes…"
+                      className={ROW_BUTTON_CLASSES}
+                      onMouseDown={stopRowPress}
+                      onClick={() => {
+                        props.onDiscard?.(file);
+                      }}
+                    >
+                      <Undo2Icon aria-hidden />
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    tabIndex={-1}
+                    disabled={busy}
+                    aria-label={`${verb.label} ${file.path}`}
+                    title={`${verb.label} (Space)`}
+                    className={ROW_BUTTON_CLASSES}
+                    onMouseDown={stopRowPress}
+                    onClick={() => {
+                      onToggle(file, index);
+                    }}
+                  >
+                    <Icon aria-hidden />
+                  </Button>
+                </span>
               </div>
             );
           }}

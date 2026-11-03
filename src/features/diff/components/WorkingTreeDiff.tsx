@@ -13,6 +13,11 @@ import { LoadingState } from "@/shared/components/LoadingState";
 
 import { FileDiffView } from "./FileDiffView";
 
+/** Lines can be staged (or discarded) unless the file is in conflict or a submodule. */
+function stagingOf(file: WorkingFileDto, kind: WorkingTreeKind): WorkingTreeKind | undefined {
+  return file.status === "conflicted" || file.submodule ? undefined : kind;
+}
+
 /** A working tree file: its id names the version on disk, so a new version is a new diff. */
 function WorktreeFileDiff({ repoId, file }: { repoId: number; file: WorkingFileDto }) {
   const id = useWorktreeFileId(repoId, file.path, !file.submodule);
@@ -28,7 +33,13 @@ function WorktreeFileDiff({ repoId, file }: { repoId: number; file: WorkingFileD
     );
   }
   if (id.data === undefined) return <LoadingState label="Reading the file…" className="h-full" />;
-  return <FileDiffView repoId={repoId} file={{ ...file, newId: id.data, worktree: true }} />;
+  return (
+    <FileDiffView
+      repoId={repoId}
+      file={{ ...file, newId: id.data, worktree: true }}
+      staging={stagingOf(file, "worktree")}
+    />
+  );
 }
 
 interface WorkingTreeDiffProps {
@@ -66,6 +77,8 @@ export function WorkingTreeDiff({ repoId, kind, path }: WorkingTreeDiffProps) {
       />
     );
   }
-  if (!file.worktree) return <FileDiffView repoId={repoId} file={file} />;
+  if (!file.worktree) {
+    return <FileDiffView repoId={repoId} file={file} staging={stagingOf(file, kind)} />;
+  }
   return <WorktreeFileDiff key={file.path} repoId={repoId} file={file} />;
 }

@@ -1,20 +1,28 @@
-//! Staging and committing: the first writes NoBlame makes to a repository.
+//! Staging and committing: the first writes NoBlame makes to a repository. Whole files
+//! (`stage.rs`), or some of their lines (`partial.rs`, computed in `lines.rs`).
 //!
-//! Everything here runs the user's `git` (never gix), so hooks, signing (`commit.gpgSign`),
+//! Every write runs the user's `git` (gix only reads), so hooks, signing (`commit.gpgSign`),
 //! `commit.cleanup`, filters and the index lock behave exactly as on the command line
 //! (`docs/architecture/git-engine.md`). Paths are passed literally (`--literal-pathspecs`) on
 //! standard input, so neither patterns in file names nor the length of the list matter.
 
+mod index;
+mod lines;
+mod partial;
 mod stage;
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use gix::bstr::BString;
 use tokio_util::sync::CancellationToken;
 
 use crate::cli::{Git, GitError, GitOutput};
+use crate::diff::DiffError;
 
-pub use stage::{stage_all, stage_paths, unstage_all, unstage_paths};
+pub use index::{IndexEntry, index_entry};
+pub use lines::{LineSelection, Take, combine};
+pub use partial::{PartialChange, discard_lines, stage_lines, unstage_lines};
+pub use stage::{discard_paths, stage_all, stage_paths, unstage_all, unstage_paths};
 
 /// Failures while staging or committing.
 #[derive(Debug, thiserror::Error)]
@@ -32,6 +40,25 @@ pub enum CommitError {
     /// gix could not read the last commit.
     #[error("{0}")]
     Gix(String),
+    /// The file (in the index or the working tree) changed since the user saw it, so the lines
+    /// chosen there may mean something else now; nothing was written.
+    #[error("{0} changed since it was shown")]
+    Changed(String),
+    /// The file has merge conflicts; it is resolved as a whole, not line by line.
+    #[error("{0} has merge conflicts")]
+    Conflicted(String),
+    /// A version of the file could not be read (too large, not in a partial clone, ...).
+    #[error(transparent)]
+    Diff(#[from] DiffError),
+    /// Writing the working tree file failed.
+    #[error("could not write {}: {source}", path.display())]
+    Write {
+        /// The file.
+        path: PathBuf,
+        /// The operating system error.
+        #[source]
+        source: std::io::Error,
+    },
 }
 
 /// How to commit.

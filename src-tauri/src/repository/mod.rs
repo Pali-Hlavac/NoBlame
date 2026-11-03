@@ -13,6 +13,7 @@ mod groups;
 mod recent;
 mod service;
 mod sessions;
+mod staging_error;
 mod types;
 mod watch;
 

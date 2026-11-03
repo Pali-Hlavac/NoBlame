@@ -397,8 +397,15 @@ all at once, with a confirmation before marking conflicts resolved; Commit, Amen
 last message) and Sign off run the user's `git commit`, so hooks and signing apply, and a hook's
 refusal is shown with its output. The toolbar's Commit button, the palette and the repository
 **…** menu open it. Clicked through in the dev app on a scratch repository with real input
-(staging, a `commit-msg` hook refusing, committing from the dialog with sign-off, Amend). Next:
-slice 3, hunks, lines and discarding.
+(staging, a `commit-msg` hook refusing, committing from the dialog with sign-off, Amend).
+
+Slice 3 done (2026-11-03): hunks and single lines are staged, unstaged and discarded from the diff
+(hunk buttons; line numbers clicked or Shift+clicked, then the bar above the diff), and whole
+files are discarded from the Commit module, each discard after a confirmation naming what is
+lost. The new contents are computed in-process and written with git (`hash-object`,
+`update-index`, `cat-file --filters` for the working tree). Clicked through in the dev app:
+staging two chosen lines, discarding a hunk (CRLF kept as a checkout writes it), unstaging a
+hunk. Next: slice 4, the message (recent messages, `commit.template`, author).
 
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
@@ -614,8 +621,8 @@ The Branches module gets the same entries for its rows.
 - [~] Status: staged, unstaged, untracked, conflicted; fast on large trees (`--no-optional-locks`, fsmonitor, untracked cache).
   Lists and diffs done (slice 1); gix status still to be benchmarked on a checked-out 100k+
   file tree
-- [~] Stage/unstage files, hunks and single lines; discard changes (with confirmation). Files
-  done (slice 2); hunks, lines and discarding are slice 3
+- [x] Stage/unstage files, hunks and single lines; discard changes (with confirmation). Files
+      (slice 2); hunks, lines and discarding (slice 3)
 - [~] Commit dialog: message editor with templates, amend, sign-off, GPG/SSH signing via git, author override, hooks output shown.
   Amend, sign-off, signing (the user's `commit.gpgSign`) and hooks' output done (slice 2);
   templates and author override are slice 4
@@ -642,7 +649,7 @@ Slices, in order (planned 2026-11-02):
    lists, stage and unstage files (or all), the message, Commit, Amend, Sign-off, hooks' output
    shown; the toolbar's Commit button becomes real.
 3. Stage and unstage hunks and single lines from the diff; discard changes (files, hunks) with a
-   confirmation naming what is lost.
+   confirmation naming what is lost (done 2026-11-03).
 4. The message: recent messages, `commit.template`, author override, summary length hints.
 5. Stash: create (selected files, message, keep index, untracked), show, apply or pop (whole or
    selected files), drop; the stash label in the graph.

@@ -134,3 +134,31 @@ pub struct CommitResultDto {
     /// What git and its hooks printed (git's summary line, hook messages).
     pub output: String,
 }
+
+/// Lines `start..=end` (1-based) of one version of a file.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct LineRangeDto {
+    /// First line.
+    pub start: u32,
+    /// Last line (inclusive).
+    pub end: u32,
+}
+
+/// Changed lines of one file to stage, unstage or discard, between the versions the diff
+/// showed.
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct LineChangeDto {
+    /// Path in the working tree.
+    pub path: String,
+    /// The old version the diff showed (hex): the index's blob for working tree changes,
+    /// HEAD's for staged ones; `null` when the file was not there.
+    pub old_id: Option<String>,
+    /// The new version the diff showed: the working tree file's id, or the staged blob.
+    pub new_id: String,
+    /// Removed lines, by their number in the old version (a range may include context).
+    pub removed: Vec<LineRangeDto>,
+    /// Added lines, by their number in the new version.
+    pub added: Vec<LineRangeDto>,
+}

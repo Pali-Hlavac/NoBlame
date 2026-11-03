@@ -141,6 +141,12 @@ All notable changes to NoBlame are documented here. The format follows
   endings, filters). One `git status` run gives the counts and both lists (about 260 ms for the
   97,000 entries of the Linux kernel clone, 40 ms for the 40,000 files of synthetic-1m). New
   files are counted and listed one by one unless `status.showUntrackedFiles` is `no`.
+- Staging part of a file (M4, slice 3): in the diff of a changed or staged file, each hunk has
+  **Stage hunk** and **Discard hunk…** (or **Unstage hunk**), and changed lines can be chosen by
+  clicking their numbers (Shift+click for a range), then staged, unstaged or discarded from the
+  bar above the diff. The Commit module discards whole files (**↶** on a row or for all), after a
+  confirmation that names what is lost; new files are deleted, conflicts left alone. Nothing is
+  written when the file changed since its diff was shown.
 - Committing (M4, slice 2): the **Commit** module (Alt+7) lists the changed and the staged files;
   **+** / **−** on a file (or Space) stages or unstages it, **Stage all** / **Unstage all** move
   everything, and staging a conflicted file asks first. Write the message and press Ctrl+Enter

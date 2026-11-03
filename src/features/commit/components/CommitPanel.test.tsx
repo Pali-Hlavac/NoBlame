@@ -15,6 +15,7 @@ const ipc = vi.hoisted(() => ({
   unstageAllFiles: vi.fn(),
   createCommit: vi.fn(),
   getHeadMessage: vi.fn(),
+  discardFiles: vi.fn(),
 }));
 vi.mock("@/shared/ipc/bindings", () => ({ commands: ipc }));
 
@@ -65,6 +66,7 @@ describe("CommitPanel", () => {
       ipc.stageAllFiles,
       ipc.unstageFiles,
       ipc.unstageAllFiles,
+      ipc.discardFiles,
     ]) {
       command.mockResolvedValue(OK);
     }
@@ -93,6 +95,19 @@ describe("CommitPanel", () => {
     });
     // main.ts was last in the list: the diff shows the one before it.
     expect(useSelectionStore.getState().files["/repo"]).toBe("src/both.ts");
+  });
+
+  it("asks before discarding a file's changes, naming it", async () => {
+    renderPanel();
+    fireEvent.click(await screen.findByRole("button", { name: "Discard src/main.ts…" }));
+    const dialog = await screen.findByRole("dialog", {
+      name: "Discard the changes to src/main.ts?",
+    });
+    expect(screen.queryByRole("button", { name: "Discard src/both.ts…" })).toBeNull();
+    fireEvent.click(within(dialog).getByRole("button", { name: "Discard" }));
+    await waitFor(() => {
+      expect(ipc.discardFiles).toHaveBeenCalledWith(1, ["src/main.ts"], []);
+    });
   });
 
   it("asks before staging conflicted files, which marks them resolved", async () => {

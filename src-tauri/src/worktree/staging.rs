@@ -100,7 +100,7 @@ pub async fn last_message(
 
 /// Checks the paths can go back to git. A display path with a replacement character stood for
 /// a name that is not UTF-8; passing it back would name another file (or none).
-fn exact_paths(paths: &[String]) -> Result<&[String], RepositoryError> {
+pub(super) fn exact_paths(paths: &[String]) -> Result<&[String], RepositoryError> {
     match paths
         .iter()
         .find(|path| path.contains(char::REPLACEMENT_CHARACTER))

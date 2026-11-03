@@ -2,6 +2,8 @@ import type { SplitCellDto, SplitLineDto } from "@/shared/ipc/bindings";
 import { cn } from "@/shared/lib/cn";
 
 import { LINE_CLASSES, MARKERS, SPOKEN, TRUNCATED_NOTE } from "../lib/rowStyles";
+import { HunkActions } from "./HunkActions";
+import { LineChoiceButton, type LineChoice } from "./LineChoiceButton";
 import { LineText } from "./LineText";
 
 /**
@@ -19,25 +21,34 @@ const SELECTABLE_SIDE = {
   right: "select-text in-data-[selecting=left]:select-none",
 } as const;
 
+const GUTTER = "shrink-0 border-r border-border px-2 text-right text-muted-foreground select-none";
+
 interface HalfProps {
   cell: SplitCellDto | null;
   side: keyof typeof SELECTABLE_SIDE;
   digits: number;
   className?: string;
+  /** Set on a changed line of a working tree diff. */
+  choice?: LineChoice | undefined;
 }
 
-function Half({ cell, side, digits, className }: HalfProps) {
+function Half({ cell, side, digits, className, choice }: HalfProps) {
   if (!cell) return <div className={cn("h-full bg-muted/40", className)} />;
   return (
     <div data-side={side} className={cn("flex h-full min-w-0", LINE_CLASSES[cell.kind], className)}>
-      <span
-        aria-hidden
-        className="shrink-0 border-r border-border px-2 text-right text-muted-foreground select-none"
-      >
-        <span className="inline-block" style={{ width: `${digits}ch` }}>
-          {cell.line}
+      {choice ? (
+        <LineChoiceButton choice={choice} label={`line ${cell.line}`} className={GUTTER}>
+          <span className="inline-block" style={{ width: `${digits}ch` }}>
+            {cell.line}
+          </span>
+        </LineChoiceButton>
+      ) : (
+        <span aria-hidden className={GUTTER}>
+          <span className="inline-block" style={{ width: `${digits}ch` }}>
+            {cell.line}
+          </span>
         </span>
-      </span>
+      )}
       {/* Not selectable, so copied text has no + and - (screen readers hear "added:"). */}
       <span className="w-5 shrink-0 text-center select-none">
         <span aria-hidden>{MARKERS[cell.kind]}</span>
@@ -70,20 +81,31 @@ interface SplitRowProps {
   line: SplitLineDto | undefined;
   /** Width of the line-number column, in characters. */
   digits: number;
+  /** Choosing the changed line of each half, in a working tree diff. */
+  choices?: { left?: LineChoice | undefined; right?: LineChoice | undefined };
 }
 
 /** One side-by-side row: a hunk header across both halves, or the old and the new line. */
-export function SplitRow({ line, digits }: SplitRowProps) {
+export function SplitRow({ line, digits, choices }: SplitRowProps) {
   if (!line) return null;
   if (line.hunk !== null) {
     return (
-      <div className={cn("flex h-full items-center px-2", LINE_CLASSES.hunk)}>{line.hunk}</div>
+      <div className={cn("flex h-full items-center px-2", LINE_CLASSES.hunk)}>
+        <span className="truncate">{line.hunk}</span>
+        <HunkActions header={line.hunk} />
+      </div>
     );
   }
   return (
     <div className="grid h-full grid-cols-2">
-      <Half cell={line.left} side="left" digits={digits} className="border-r border-border" />
-      <Half cell={line.right} side="right" digits={digits} />
+      <Half
+        cell={line.left}
+        side="left"
+        digits={digits}
+        className="border-r border-border"
+        choice={choices?.left}
+      />
+      <Half cell={line.right} side="right" digits={digits} choice={choices?.right} />
     </div>
   );
 }

@@ -65,6 +65,10 @@
     "allow-unstage-all-files",
     "allow-create-commit",
     "allow-get-head-message",
+    "allow-stage-lines",
+    "allow-unstage-lines",
+    "allow-discard-lines",
+    "allow-discard-files",
     "allow-list-submodules",
     "allow-get-workbench-layout",
     "allow-save-workbench-layout"

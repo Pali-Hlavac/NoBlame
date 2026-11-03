@@ -37,6 +37,10 @@ since both work on the active repository. `openCommit(placement)` in
   button (labelled **Amend** when amending) and why it is disabled.
 - Ticking Amend with an empty box fills in the last commit's message (`get_head_message`);
   unticking takes it away again unless it was edited.
+- **Discard**: a **↶** button on Changes rows (not conflicted files or submodules) and in the
+  Changes header (all listed files). The confirmation (`lib/discard.ts`) names the files: changed
+  ones go back to the staged version, new ones are deleted, conflicts and submodules are left as
+  they are, and only listed files are discarded when the list was cut at 5,000.
 - The draft (message, Amend, Sign off) lives in a Zustand store keyed by repository path, kept
   while the app runs; a commit clears the message and Amend and keeps Sign off.
 - Git's output is shown under the button: the summary line after a commit, or everything git
@@ -44,14 +48,16 @@ since both work on the active repository. `openCommit(placement)` in
 
 ## Backend
 
-| Command             | Runs                                                                               |
-| ------------------- | ---------------------------------------------------------------------------------- |
-| `stage_files`       | `git --literal-pathspecs add --all --pathspec-from-file=- --pathspec-file-nul`     |
-| `stage_all_files`   | `git add --all`                                                                    |
-| `unstage_files`     | `git --literal-pathspecs reset --quiet --pathspec-from-file=- --pathspec-file-nul` |
-| `unstage_all_files` | `git reset --quiet -- .` (limited to paths, so a merge in progress is kept)        |
-| `create_commit`     | `git commit --file=- [--amend] [--signoff]`, the message on standard input         |
-| `get_head_message`  | gix: HEAD's commit message (`null` on an unborn branch)                            |
+| Command                                         | Runs                                                                                                |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `stage_files`                                   | `git --literal-pathspecs add --all --pathspec-from-file=- --pathspec-file-nul`                      |
+| `stage_all_files`                               | `git add --all`                                                                                     |
+| `unstage_files`                                 | `git --literal-pathspecs reset --quiet --pathspec-from-file=- --pathspec-file-nul`                  |
+| `unstage_all_files`                             | `git reset --quiet -- .` (limited to paths, so a merge in progress is kept)                         |
+| `create_commit`                                 | `git commit --file=- [--amend] [--signoff]`, the message on standard input                          |
+| `get_head_message`                              | gix: HEAD's commit message (`null` on an unborn branch)                                             |
+| `stage_lines`, `unstage_lines`, `discard_lines` | Some changed lines of a file, see [diff.md](diff.md#staging-lines-and-hunks)                        |
+| `discard_files`                                 | `git restore --worktree` (literal paths on stdin) and `git clean -f -q -- <new files>`, 200 per run |
 
 - Paths go on standard input, NUL-separated and literal: no command-line length limit, and a
   file named `[ab].txt` is not a pattern. A rename is unstaged by both its names.
@@ -67,7 +73,7 @@ since both work on the active repository. `openCommit(placement)` in
 
 ## Not yet
 
-- Hunks and single lines, discarding changes (slice 3); recent messages, `commit.template`,
-  author override and summary length hints (slice 4).
+- Recent messages, `commit.template`, author override and summary length hints (slice 4).
+- Discarding to the recycle bin instead of deleting new files.
 - Choosing several files at once (Shift/Ctrl+click).
 - The `noblame commit <path>` task window is still the M8 placeholder.

@@ -1,12 +1,14 @@
-import type { RefObject } from "react";
+import { useContext, type RefObject } from "react";
 
 import { InlineError } from "@/shared/components/InlineError";
 import type { DiffLayout, FileDiffDto } from "@/shared/ipc/bindings";
 
 import { useDiffPages, type DiffRequest } from "../api/diff";
+import { LineStagingContext, clickLine } from "../hooks/useLineStaging";
 import { rowAt, useVirtualRows } from "../hooks/useVirtualRows";
 import { MAX_SHOWN_ROWS, ROW_HEIGHT_PX } from "../lib/constants";
 import { gutterDigits } from "../lib/format";
+import { keyOfRow, type LineKey } from "../lib/lineSelection";
 import { REGION_CLASSES, type LinesProps } from "../lib/region";
 import { DiffRow } from "./DiffRow";
 import { SplitLines } from "./SplitLines";
@@ -19,16 +21,32 @@ function UnifiedLines({ request, diff, count, label, viewport, scrollTop }: Line
   const results = useDiffPages(request, pages);
   const failed = results.find((result) => result.error)?.error;
   const digits = gutterDigits(diff.oldLines, diff.newLines);
+  const staging = useContext(LineStagingContext);
+  const keysOfRow = (index: number): LineKey[] => {
+    const key = keyOfRow(rowAt(results, pages, index));
+    return key ? [key] : [];
+  };
 
   const rows = [];
   for (let index = first; index <= last; index++) {
+    const line = rowAt(results, pages, index);
+    const key = keyOfRow(line);
+    const choice =
+      staging && key
+        ? {
+            selected: staging.selected.has(key),
+            onClick: (extend: boolean) => {
+              clickLine(staging, index, key, extend, keysOfRow);
+            },
+          }
+        : undefined;
     rows.push(
       <div
         key={index}
         className="absolute left-0 min-w-full"
         style={{ top: index * ROW_HEIGHT_PX, height: ROW_HEIGHT_PX }}
       >
-        <DiffRow line={rowAt(results, pages, index)} digits={digits} />
+        <DiffRow line={line} digits={digits} choice={choice} />
       </div>,
     );
   }

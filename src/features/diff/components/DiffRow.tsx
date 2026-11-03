@@ -9,6 +9,8 @@ import {
   SPOKEN,
   TRUNCATED_NOTE,
 } from "../lib/rowStyles";
+import { HunkActions } from "./HunkActions";
+import { LineChoiceButton, type LineChoice } from "./LineChoiceButton";
 import { LineText } from "./LineText";
 
 interface DiffRowProps {
@@ -16,24 +18,39 @@ interface DiffRowProps {
   line: DiffLineDto | undefined;
   /** Width of each line-number column, in characters. */
   digits: number;
+  /** Set on changed lines of a working tree diff. */
+  choice?: LineChoice | undefined;
 }
 
 /** One unified row: old and new line numbers, the +/- marker, and the text. */
-export function DiffRow({ line, digits }: DiffRowProps) {
+export function DiffRow({ line, digits, choice }: DiffRowProps) {
   if (!line) return null;
   const number = { width: `${digits}ch` };
+  const numbers = (
+    <>
+      <span style={number}>{line.oldLine ?? ""}</span>
+      <span style={number}>{line.newLine ?? ""}</span>
+    </>
+  );
+  const gutter = cn(
+    "sticky left-0 flex shrink-0 gap-2 border-r border-border px-2 text-right text-muted-foreground select-none",
+    GUTTER_CLASSES[line.kind],
+  );
   return (
     <div className={cn("flex h-full w-max min-w-full", LINE_CLASSES[line.kind])}>
-      <span
-        aria-hidden
-        className={cn(
-          "sticky left-0 flex shrink-0 gap-2 border-r border-border px-2 text-right text-muted-foreground select-none",
-          GUTTER_CLASSES[line.kind],
-        )}
-      >
-        <span style={number}>{line.oldLine ?? ""}</span>
-        <span style={number}>{line.newLine ?? ""}</span>
-      </span>
+      {choice ? (
+        <LineChoiceButton
+          choice={choice}
+          label={`line ${line.oldLine ?? line.newLine ?? ""}`}
+          className={gutter}
+        >
+          {numbers}
+        </LineChoiceButton>
+      ) : (
+        <span aria-hidden className={gutter}>
+          {numbers}
+        </span>
+      )}
       {/* Not selectable, so copied text has no + and - (screen readers hear "added:"). */}
       <span className="w-5 shrink-0 text-center select-none">
         <span aria-hidden>{MARKERS[line.kind]}</span>
@@ -55,6 +72,7 @@ export function DiffRow({ line, digits }: DiffRowProps) {
           <span className="pl-2 text-muted-foreground italic select-none">{TRUNCATED_NOTE}</span>
         )}
       </span>
+      {line.kind === "hunk" && <HunkActions header={line.text} />}
     </div>
   );
 }

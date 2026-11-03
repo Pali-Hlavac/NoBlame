@@ -59,6 +59,10 @@ const APP_COMMANDS: &[&str] = &[
     "unstage_all_files",
     "create_commit",
     "get_head_message",
+    "stage_lines",
+    "unstage_lines",
+    "discard_lines",
+    "discard_files",
     "get_workbench_layout",
     "save_workbench_layout",
 ];

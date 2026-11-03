@@ -3,18 +3,22 @@ import { useRef, type RefObject } from "react";
 
 import { shortId } from "@/features/graph";
 import { requestedContext, useDiffSettings } from "@/features/settings";
+import type { WorkingTreeKind } from "@/features/working-tree";
+import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { LoadingOverlay } from "@/shared/components/LoadingOverlay";
 import { LoadingState } from "@/shared/components/LoadingState";
 
 import type { DiffRequest } from "../api/diff";
+import { LineStagingContext, useLineStaging } from "../hooks/useLineStaging";
 import { useShownDiff, viewKey, type ShownDiff } from "../hooks/useShownDiff";
 import type { DiffFile } from "../lib/diffFile";
 import { formatBytes, unchangedText } from "../lib/format";
 import { imageType } from "../lib/images";
 import { DiffHeader } from "./DiffHeader";
 import { DiffLines } from "./DiffLines";
+import { LineSelectionBar } from "./LineSelectionBar";
 import { ImageDiff } from "./ImageDiff";
 
 interface DiffBodyProps {
@@ -87,8 +91,19 @@ function submoduleText(file: DiffFile): string {
  * layout keeps the old diff under an overlay until the new one is ready, then opens it at the
  * same line.
  */
-export function FileDiffView({ repoId, file }: { repoId: number; file: DiffFile }) {
+interface FileDiffViewProps {
+  repoId: number;
+  file: DiffFile;
+  /**
+   * Lines of a working tree diff can be chosen and staged, unstaged or discarded (with hunk
+   * buttons); unset for commits.
+   */
+  staging?: WorkingTreeKind | undefined;
+}
+
+export function FileDiffView({ repoId, file, staging: stagingKind }: FileDiffViewProps) {
   const [settings] = useDiffSettings();
+  const lines = useLineStaging(repoId, file, stagingKind);
   const request: DiffRequest = {
     repoId,
     oldId: file.oldId,
@@ -143,10 +158,25 @@ export function FileDiffView({ repoId, file }: { repoId: number; file: DiffFile 
       </div>
     );
   }
+  const textDiff = shown?.diff.content === "text" && shown.diff.rows > 0;
   return (
-    <div className="flex h-full flex-col">
-      <DiffHeader file={file} diff={summary.data ?? shown?.diff} />
-      {body}
-    </div>
+    <LineStagingContext.Provider value={textDiff ? lines.staging : null}>
+      <div className="flex h-full flex-col">
+        <DiffHeader file={file} diff={summary.data ?? shown?.diff} />
+        <LineSelectionBar />
+        {body}
+      </div>
+      <ConfirmDialog
+        open={lines.pending !== null}
+        onOpenChange={(open) => {
+          if (!open) lines.cancelDiscard();
+        }}
+        title={`Discard ${lines.pending?.what ?? ""} in ${file.path}?`}
+        description="The changes go back to the staged version: added lines are removed, removed lines come back. NoBlame keeps no copy, so this cannot be undone."
+        confirmLabel="Discard"
+        destructive
+        onConfirm={lines.confirmDiscard}
+      />
+    </LineStagingContext.Provider>
   );
 }

@@ -178,6 +178,17 @@ export const commands = {
 	createCommit: (id: number, request: CommitRequestDto) => typedError<CommitResultDto, AppError>(__TAURI_INVOKE("create_commit", { id, request })),
 	/**  The message of the commit HEAD points at (`null` before the first commit), for amending. */
 	getHeadMessage: (id: number) => typedError<string | null, AppError>(__TAURI_INVOKE("get_head_message", { id })),
+	/**  Stages the chosen changed lines of a working tree file (a hunk, or single lines). */
+	stageLines: (id: number, request: LineChangeDto) => typedError<null, AppError>(__TAURI_INVOKE("stage_lines", { id, request })),
+	/**  Unstages the chosen changed lines of a staged file. */
+	unstageLines: (id: number, request: LineChangeDto) => typedError<null, AppError>(__TAURI_INVOKE("unstage_lines", { id, request })),
+	/**  Throws away the chosen changed lines of a working tree file. Cannot be undone. */
+	discardLines: (id: number, request: LineChangeDto) => typedError<null, AppError>(__TAURI_INVOKE("discard_lines", { id, request })),
+	/**
+	 *  Throws away the working tree changes of `tracked` files (back to the staged version) and
+	 *  deletes the `untracked` files. Cannot be undone.
+	 */
+	discardFiles: (id: number, tracked: string[], untracked: string[]) => typedError<null, AppError>(__TAURI_INVOKE("discard_files", { id, tracked, untracked })),
 	/**
 	 *  The saved layout, or `None` on first launch. A corrupted file is logged and treated as
 	 *  missing, so a bad layout can never stop the main window from opening.
@@ -794,6 +805,34 @@ export type HistoryStopDto =
 { kind: "missingContents"; 
 /**  The commit (hex) where following stopped. */
 commit: string };
+
+/**
+ *  Changed lines of one file to stage, unstage or discard, between the versions the diff
+ *  showed.
+ */
+export type LineChangeDto = {
+	/**  Path in the working tree. */
+	path: string,
+	/**
+	 *  The old version the diff showed (hex): the index's blob for working tree changes,
+	 *  HEAD's for staged ones; `null` when the file was not there.
+	 */
+	oldId: string | null,
+	/**  The new version the diff showed: the working tree file's id, or the staged blob. */
+	newId: string,
+	/**  Removed lines, by their number in the old version (a range may include context). */
+	removed: LineRangeDto[],
+	/**  Added lines, by their number in the new version. */
+	added: LineRangeDto[],
+};
+
+/**  Lines `start..=end` (1-based) of one version of a file. */
+export type LineRangeDto = {
+	/**  First line. */
+	start: number,
+	/**  Last line (inclusive). */
+	end: number,
+};
 
 /**  A version of the file, for finding the row of one of its lines. */
 export type LineSideDto = 

@@ -198,6 +198,12 @@ each file, and git printing 40,000 line-ending warnings to a terminal). The time
 the app adds one status read afterwards (about 170 ms here). The lists say **Staging…** while
 git runs.
 
+Staging some lines (M4 slice 3) adds, on that index of 40,000 entries: `git ls-files --stage`
+about 50 ms, `git hash-object -w` about 60 ms and `git update-index --index-info` about 113 ms
+(it rewrites the index), so about 225 ms besides comparing the file (the same diff as the diff
+tab, see below). Discarding lines uses `git cat-file --filters` (about 50 ms) instead of
+`update-index`: about 160 ms.
+
 ### File diffs (M3, ADR 0013, 2026-10-28)
 
 `cargo run --release -p git-core --example diff_spike -- <repo> <old-blob> <new-blob>`, Windows 11,

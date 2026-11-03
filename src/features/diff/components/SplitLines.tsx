@@ -1,11 +1,13 @@
-import { useRef, type KeyboardEvent, type WheelEvent } from "react";
+import { useContext, useRef, type KeyboardEvent, type WheelEvent } from "react";
 
 import { InlineError } from "@/shared/components/InlineError";
 
 import { useSplitDiffPages } from "../api/diff";
+import { LineStagingContext, clickLine } from "../hooks/useLineStaging";
 import { rowAt, useVirtualRows } from "../hooks/useVirtualRows";
 import { ROW_HEIGHT_PX } from "../lib/constants";
 import { gutterDigits } from "../lib/format";
+import { keyOfCell, type LineKey } from "../lib/lineSelection";
 import { REGION_CLASSES, type LinesProps } from "../lib/region";
 import { SplitRow } from "./SplitRow";
 
@@ -45,15 +47,35 @@ export function SplitLines({ request, diff, count, label, viewport, scrollTop }:
     else if (event.key === "ArrowRight") scrollSideways(ARROW_STEP_PX);
   };
 
+  const staging = useContext(LineStagingContext);
+  const keysOfRow = (index: number): LineKey[] => {
+    const line = rowAt(results, pages, index);
+    return [keyOfCell(line?.left), keyOfCell(line?.right)].filter((key) => key !== undefined);
+  };
+  const choiceFor = (index: number, key: LineKey | undefined) =>
+    staging && key
+      ? {
+          selected: staging.selected.has(key),
+          onClick: (extend: boolean) => {
+            clickLine(staging, index, key, extend, keysOfRow);
+          },
+        }
+      : undefined;
+
   const rows = [];
   for (let index = first; index <= last; index++) {
+    const line = rowAt(results, pages, index);
+    const choices = {
+      left: choiceFor(index, keyOfCell(line?.left)),
+      right: choiceFor(index, keyOfCell(line?.right)),
+    };
     rows.push(
       <div
         key={index}
         className="absolute right-0 left-0"
         style={{ top: index * ROW_HEIGHT_PX, height: ROW_HEIGHT_PX }}
       >
-        <SplitRow line={rowAt(results, pages, index)} digits={digits} />
+        <SplitRow line={line} digits={digits} choices={choices} />
       </div>,
     );
   }

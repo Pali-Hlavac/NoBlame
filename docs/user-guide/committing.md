@@ -30,7 +30,25 @@ The **Changes** list has the files you changed, new files (**?**) and files with
 On a very large working tree, staging thousands of files can take a few seconds. The list says
 **Staging…** meanwhile.
 
-Staging parts of a file (hunks and single lines) and discarding changes come in a later version.
+Point at a changed file and click **↶** to throw its changes away, or **↶** in the Changes
+header to throw away every change. NoBlame asks first and names what is lost: a changed file goes
+back to its staged version (or the last commit's), and a new file is deleted for good (not moved
+to the recycle bin). Files with conflicts are left alone.
+
+## Staging part of a file
+
+In the diff of a changed or staged file:
+
+- each hunk (a block of changes, starting with `@@`) has buttons on its header: **Stage hunk** and
+  **Discard hunk…** for your changes, **Unstage hunk** for staged ones;
+- click a changed line's numbers to choose it, and Shift+click another to choose every changed
+  line in between. The bar above the diff then says how many are chosen, with **Stage**,
+  **Discard…** (or **Unstage**) and **Clear**.
+
+What you choose is staged exactly: other changes in the file stay as they are, in the working tree.
+Discarding asks first, as it cannot be undone. If the file changed since its diff was shown (you
+saved it in your editor), nothing happens and NoBlame asks you to choose again in the new diff.
+A file with conflicts can only be staged whole.
 
 ## The message and committing
 

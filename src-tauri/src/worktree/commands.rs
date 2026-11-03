@@ -2,8 +2,9 @@
 
 use tauri::State;
 
+use super::partial::{self, LineAction};
 use super::staging::{self, Scope};
-use super::types::{CommitRequestDto, CommitResultDto};
+use super::types::{CommitRequestDto, CommitResultDto, LineChangeDto};
 use super::{WorkingTreeStatusDto, service};
 use crate::error::CommandResult;
 use crate::repository::{RawBytes, RepoId, RepoSessions};
@@ -101,4 +102,50 @@ pub async fn get_head_message(
     id: RepoId,
 ) -> CommandResult<Option<String>> {
     Ok(staging::last_message(&sessions, id).await?)
+}
+
+/// Stages the chosen changed lines of a working tree file (a hunk, or single lines).
+#[tauri::command]
+#[specta::specta]
+pub async fn stage_lines(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    request: LineChangeDto,
+) -> CommandResult<()> {
+    Ok(partial::change_lines(&sessions, id, LineAction::Stage, request).await?)
+}
+
+/// Unstages the chosen changed lines of a staged file.
+#[tauri::command]
+#[specta::specta]
+pub async fn unstage_lines(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    request: LineChangeDto,
+) -> CommandResult<()> {
+    Ok(partial::change_lines(&sessions, id, LineAction::Unstage, request).await?)
+}
+
+/// Throws away the chosen changed lines of a working tree file. Cannot be undone.
+#[tauri::command]
+#[specta::specta]
+pub async fn discard_lines(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    request: LineChangeDto,
+) -> CommandResult<()> {
+    Ok(partial::change_lines(&sessions, id, LineAction::Discard, request).await?)
+}
+
+/// Throws away the working tree changes of `tracked` files (back to the staged version) and
+/// deletes the `untracked` files. Cannot be undone.
+#[tauri::command]
+#[specta::specta]
+pub async fn discard_files(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    tracked: Vec<String>,
+    untracked: Vec<String>,
+) -> CommandResult<()> {
+    Ok(partial::discard_files(&sessions, id, tracked, untracked).await?)
 }

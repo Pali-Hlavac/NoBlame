@@ -313,6 +313,19 @@ Use a scratch repository, or a branch you can throw away.
       the commit window.
   - Notes:
 
+- [ ] **(slice 3)** In a changed file's diff: **Stage hunk** stages only that hunk (the file is
+      then in both lists); **Unstage hunk** in the staged diff takes it back.
+  - Notes:
+- [ ] **(slice 3)** Click two changed lines' numbers (or click and Shift+click): the bar says
+      "2 lines chosen"; **Stage 2 lines** stages exactly those.
+  - Notes:
+- [ ] **(slice 3)** **Discard hunk…** and **Discard…** ask first, then the file loses only those
+      changes (line endings as before).
+  - Notes:
+- [ ] **(slice 3)** **↶** on a changed file asks, then puts back the staged version; on a new file
+      it says the file is deleted. **↶** in the Changes header lists what is lost.
+  - Notes:
+
 ## 14. Files (Alt+6) and the File tab
 
 - [ ] Select a commit: its folders and files; click a folder or Enter to open; Right opens or

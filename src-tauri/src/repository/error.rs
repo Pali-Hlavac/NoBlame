@@ -13,6 +13,7 @@ use git_core::status::StatusError;
 use git_core::submodule::SubmoduleError;
 use git_core::tree::TreeError;
 
+use super::staging_error::staging_error;
 use crate::error::{AppError, ErrorCode};
 use crate::git_env::GitEnvError;
 use crate::storage::StorageError;
@@ -209,31 +210,8 @@ fn open_error(error: RepoError) -> AppError {
     }
 }
 
-/// What a refused stage or commit tells the user: everything git and its hooks printed.
-fn staging_error(error: RepositoryError) -> AppError {
-    match error {
-        RepositoryError::Commit(CommitError::Git(error)) => GitEnvError::from(error).into(),
-        RepositoryError::Commit(CommitError::Rejected { output }) => {
-            AppError::new(ErrorCode::GitFailed, output)
-        }
-        RepositoryError::Commit(CommitError::Gix(message)) => read_failed(&message),
-        RepositoryError::Bare => AppError::new(
-            ErrorCode::InvalidInput,
-            "This repository is bare: it has no working tree to stage or commit.",
-        ),
-        RepositoryError::LossyPath(path) => AppError::new(
-            ErrorCode::InvalidInput,
-            format!(
-                "The name of {path} is not valid UTF-8, so NoBlame cannot pass it back to Git."
-            ),
-        )
-        .with_hint("Stage this file with git in a terminal, or use Stage all."),
-        other => AppError::new(ErrorCode::Internal, other.to_string()),
-    }
-}
-
 /// A gix read failed: logged, and shown with its message.
-fn read_failed(message: &str) -> AppError {
+pub(super) fn read_failed(message: &str) -> AppError {
     tracing::error!(%message, "repository read failed");
     AppError::new(
         ErrorCode::GitFailed,

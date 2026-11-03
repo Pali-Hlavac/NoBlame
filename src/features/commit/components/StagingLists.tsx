@@ -5,6 +5,7 @@ import { select, selectFile, useSelectedFile, useSelection } from "@/features/se
 import {
   filesOf,
   totalOf,
+  useDiscardFiles,
   useWorkingTreeStatus,
   type WorkingTreeKind,
 } from "@/features/working-tree";
@@ -16,6 +17,7 @@ import { ErrorState } from "@/shared/components/ErrorState";
 import { LoadingState } from "@/shared/components/LoadingState";
 
 import { useIndexChange, type IndexChange } from "../api/commit";
+import { discardPlan, type DiscardPlan } from "../lib/discard";
 import { indexPaths, neighbour } from "../lib/files";
 import { StagingList, type StagingVerb } from "./StagingList";
 
@@ -55,6 +57,8 @@ export function StagingLists({ repoId, repoPath, showDiff }: StagingListsProps) 
   const chosenPath = useSelectedFile(repoPath);
   const indexChange = useIndexChange(repoId);
   const [pending, setPending] = useState<Pending | null>(null);
+  const discard = useDiscardFiles(repoId);
+  const [discarding, setDiscarding] = useState<DiscardPlan | null>(null);
 
   if (status.error) {
     return (
@@ -104,7 +108,7 @@ export function StagingLists({ repoId, repoPath, showDiff }: StagingListsProps) 
         total={totalOf(data.summary, kind)}
         verb={stage ? STAGE : UNSTAGE}
         chosen={selection?.kind === kind ? chosenPath : undefined}
-        busy={indexChange.isPending}
+        busy={indexChange.isPending || discard.isPending}
         working={indexChange.isPending && indexChange.variables.stage === stage}
         empty={stage ? "No changes in the working tree." : "Nothing is staged."}
         onChoose={(file) => {
@@ -130,6 +134,22 @@ export function StagingLists({ repoId, repoPath, showDiff }: StagingListsProps) 
           }
           indexChange.mutate({ stage });
         }}
+        onDiscard={
+          stage
+            ? (file) => {
+                setDiscarding(discardPlan([file], { all: false, truncated: false }));
+              }
+            : undefined
+        }
+        onDiscardAll={
+          stage
+            ? () => {
+                const files = filesOf(data, kind);
+                const truncated = totalOf(data.summary, kind) > files.length;
+                setDiscarding(discardPlan(files, { all: true, truncated }));
+              }
+            : undefined
+        }
       />
     );
   };
@@ -150,6 +170,20 @@ export function StagingLists({ repoId, repoPath, showDiff }: StagingListsProps) 
         onConfirm={() => {
           if (pending) indexChange.mutate(pending.change);
           setPending(null);
+        }}
+      />
+      <ConfirmDialog
+        open={discarding !== null}
+        onOpenChange={(open) => {
+          if (!open) setDiscarding(null);
+        }}
+        title={discarding?.title ?? ""}
+        description={discarding?.description ?? ""}
+        confirmLabel={discarding?.files.tracked.length === 0 ? "Delete" : "Discard"}
+        destructive
+        onConfirm={() => {
+          if (discarding) discard.mutate(discarding.files);
+          setDiscarding(null);
         }}
       />
     </>

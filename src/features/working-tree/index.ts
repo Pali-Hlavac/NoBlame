@@ -1,5 +1,11 @@
 /** Public API of the working tree feature: the status and its files (staging is in `commit`). */
 export {
+  useDiscardFiles,
+  useLineChange,
+  type DiscardedFiles,
+  type LineAction,
+} from "./api/changes";
+export {
   statusKeys,
   useStatusSummary,
   useWorkingTreeStatus,

@@ -172,6 +172,39 @@ A work tree without an index (`git clone --no-checkout`) has no checked-out `.gi
 its files have no `diff` attribute; reading the attributes no longer fails there (found on the
 Linux kernel clone during slice 7).
 
+## Staging lines and hunks
+
+In a working tree diff (Changed files with a working tree row selected, the Commit module, the
+commit dialog), `WorkingTreeDiff` passes `staging` (`worktree` or `index`) to `FileDiffView`,
+unless the file is conflicted or a submodule. Commit diffs have none of this.
+
+- Hunk headers get **Stage hunk** and **Discard hunk…** (working tree) or **Unstage hunk**
+  (staged). A hunk is sent as the line ranges of its header, so it does not need its rows loaded;
+  context lines in a range change nothing.
+- The line numbers of a changed row are a button (mouse only; hunks have the keyboard
+  reachable buttons) that chooses the line; Shift+click adds every changed line between the last
+  clicked row and this one (rows loaded on screen). Chosen lines are keyed `o<old line>` and
+  `n<new line>` (`lib/lineSelection.ts`) and forgotten when the file's ids change.
+- `LineSelectionBar` (always one row high, so rows do not move) shows the hint, or the count with
+  Stage, Discard…, Unstage and Clear. Discards confirm first (`ConfirmDialog`, destructive).
+- The request names the versions the diff showed (`oldId`, `newId`); the backend refuses with
+  "changed since its diff was shown" when the index or the file no longer match.
+
+Backend (`git_core::commit::{lines, partial, index}`): both versions are compared again with
+every whitespace change counted, and `combine` builds the new contents line by line: staging
+starts from the old version and makes the chosen changes, unstaging and discarding start from
+the new version and undo them. Any choice gives a valid file (a line that loses its place as the
+last line gets a newline). The result is written with git:
+
+| Action  | Old → new            | Writes                                                                                                                                              |
+| ------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Stage   | index → file on disk | `git hash-object -w --no-filters --stdin`, then `git update-index -z --index-info` (mode kept; new files 100644, or 100755 when executable on Unix) |
+| Unstage | HEAD → index         | the same; when nothing staged is left, `git reset -- <path>` instead                                                                                |
+| Discard | index → file on disk | the blob, then `git cat-file --filters --path=<path>` gives the bytes a checkout would write (line endings, smudge filters), written over the file  |
+
+The index entry is read with `git ls-files --stage` (a conflicted path is refused), HEAD's with
+gix. Selecting with whitespace ignored still works: the line numbers name real lines.
+
 ## Not yet
 
 - Word diff: the changed words inside paired lines (slice 3b).
@@ -181,5 +214,5 @@ Linux kernel clone during slice 7).
 - Diff drivers and `textconv` from `.gitattributes` (by design, see ADR 0013); previews of
   other binary formats; an image overlay or slider mode.
 - Next/previous change shortcuts; search inside the diff.
-- Staging hunks or lines from the diff (M4).
+- Choosing lines with the keyboard; staging lines of a renamed file's old name.
 - Several diff tabs, or a diff in its own window (`noblame diff`); later.
