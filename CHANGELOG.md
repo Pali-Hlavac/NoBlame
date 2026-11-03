@@ -122,6 +122,9 @@ All notable changes to NoBlame are documented here. The format follows
   - the window can be moved by dragging the start screen, before the title bar is there;
   - Ctrl+P and Ctrl+Shift+P (print) are blocked in development builds too; reloading and the
     browser's context menu stay available there.
+- The owner's refreshed logo artwork (2026-11-03): new finch app icons for every platform, a new
+  hand-made Windows icon and a new songbird in the title bar, the Welcome tab, About and task
+  windows.
 - Colours (owner request 2026-11-03): icons are coloured by kind of work, the same in the
   activity bar, the toolbar, the command palette, menus and the Repositories module: green
   commits and committing, amber stashes, teal history, violet branches and remotes, blue

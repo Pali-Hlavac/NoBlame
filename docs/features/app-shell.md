@@ -65,11 +65,15 @@ and `assets/logo/noblame.ico` (hand-made, 16 to 256 px). `pnpm icons` generates 
 icons in `src-tauri/icons/` from the PNG (including `icon.icns` for macOS), then
 `scripts/icons.mjs` puts the hand-made `.ico` in place of the generated one and copies the 256 px
 icon to `public/icon.png` (the page icon). The songbird alone on a transparent background
-(`assets/logo/songbird.png`, 945 × 822) is shown in the title bar (28 px high, so it is easy to
+(`assets/logo/songbird.png`, 1254 × 1254) is shown in the title bar (28 px high, so it is easy to
 spot), on the Welcome tab, in About and in task windows, from a 320 px copy in
-`public/songbird.png` (made once by hand; `pnpm icons` does not resize it). The branch doubles as a
-Git branch: three commit nodes on a forked line. The first, drawn SVG logo is in the git history.
-Small-size variants and monochrome versions are M9.
+`public/songbird.png` (made by hand: the transparent border trimmed, then 320 px wide; `pnpm icons`
+does not resize it). The branch doubles as a Git branch: three commit nodes on a forked line. The
+owner's refreshed artwork (finch, icon and songbird) replaced the first painted one on
+2026-11-03; the first, drawn SVG logo is in the git history. The source of the loading picture,
+a chirping songbird on a berry branch, is archived in
+`assets/chirping birb/Chirping-Songbird-on-Berry-Branch.svg` (the app draws it from
+`shared/lib/loadingBird.ts`). Small-size variants and monochrome versions are M9.
 
 ## Not yet
 
