@@ -14,7 +14,8 @@ All Git access lives in `crates/git-core`, which has no Tauri dependency
 | Blame                                                            | git CLI | `git blame --incremental`: faster than gix-blame, reads `blame.ignoreRevsFile` and `.mailmap` (ADR 0022)                                                                                                                                 | M3 done                   |
 | Comparing two revisions                                          | both    | `git diff --raw` (rename detection 20 times faster than gix's on git.git); gix in partial clones, where git would try to download ([ADR 0023](../adr/0023-compare-revisions.md))                                                         | M3 done                   |
 | Working tree status                                              | git CLI | `git status --porcelain=v2 -z`, read-only: honours fsmonitor, the untracked cache and `status.*` settings. Working tree files are read with gix's filter pipeline (as `git add` would store them). gix status is still to be benchmarked | Summary M2; lists M4 done |
-| Commit, merge, rebase, cherry-pick, revert, reset, stash         | git CLI | Hooks, signing, `rerere`, merge drivers and config behave as users expect                                                                                                                                                                | M4–M6                     |
+| Stage, unstage, commit                                           | git CLI | `git add`, `git reset -- <paths>`, `git commit --file=-`: hooks, signing, filters, `commit.cleanup` and the index lock behave as on the command line (`git_core::commit`)                                                                | M4 slice 2 done           |
+| Merge, rebase, cherry-pick, revert, reset, stash                 | git CLI | Hooks, signing, `rerere`, merge drivers and config behave as users expect                                                                                                                                                                | M4–M6                     |
 | Fetch, pull, push, clone                                         | git CLI | Credential helpers, SSH, proxies, LFS                                                                                                                                                                                                    | M5                        |
 
 Rule of thumb: **reads with `gix`, writes and network with the `git` CLI.**
@@ -81,6 +82,7 @@ The app always runs the absolute path it found, never a bare `git`.
 | Parseable, stable output              | `-c core.quotepath=false -c color.ui=false`, `LC_ALL=C`                                                                                                                                               |
 | Never prompt                          | `GIT_TERMINAL_PROMPT=0`; stdin is null unless input is given                                                                                                                                          |
 | Reads never take optional locks       | `.read_only()` adds `--no-optional-locks` and `GIT_OPTIONAL_LOCKS=0`                                                                                                                                  |
+| File names are never patterns         | `.literal_pathspecs()` adds `--literal-pathspecs`; long path lists go on stdin (`--pathspec-from-file=- --pathspec-file-nul`), so no command-line length limit applies                                |
 | Repository chosen explicitly          | `GIT_DIR`, `GIT_WORK_TREE`, `GIT_INDEX_FILE` and friends are cleared                                                                                                                                  |
 | No console window on Windows          | `CREATE_NO_WINDOW`                                                                                                                                                                                    |
 | Cancellable                           | `output(&CancellationToken)`; the child is killed on cancel or drop                                                                                                                                   |
@@ -94,6 +96,9 @@ shown with background jobs.
 Known gap: cancelling kills only the direct `git` child. Helpers it started (ssh, credential
 helpers, `sh` for aliases) keep running until they exit. The M5 job model kills process trees
 (job objects on Windows, process groups elsewhere).
+
+Writes (staging, committing) hold the session's write lock (`Session::lock_writes`), so the
+app never runs two of them at once in one repository and they never race for `index.lock`.
 
 ## Configuration and trust
 

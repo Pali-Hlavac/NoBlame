@@ -9,17 +9,18 @@ import { isMacPlatform } from "@/shared/lib/platform";
 import { Button } from "@/shared/ui/button";
 import { Tooltip } from "@/shared/ui/tooltip";
 
-import { TOOLBAR_ACTIONS } from "../workbench/toolbar";
+import { useToolbarActions } from "../workbench/toolbar";
 
 /**
  * The main window's title bar: repository actions on the left, the active repository with its
  * branch and the command palette button on the right, then the window buttons.
  */
 export function MainTitleBar() {
+  const actions = useToolbarActions();
   const paletteLabel = `Command palette (${formatHotkey(PALETTE_HOTKEY, isMacPlatform())})`;
   return (
     <TitleBar
-      start={<WorkbenchToolbar actions={TOOLBAR_ACTIONS} />}
+      start={<WorkbenchToolbar actions={actions} />}
       end={
         <>
           <ActiveRepositoryStatus />

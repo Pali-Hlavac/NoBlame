@@ -3,6 +3,7 @@
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
+pub use super::commit::CommitSettings;
 pub use super::graph::GraphSettings;
 
 /// Which color scheme the UI uses.
@@ -33,6 +34,8 @@ pub struct Settings {
     pub diff: DiffSettings,
     /// Branches module.
     pub branches: BranchesSettings,
+    /// Committing.
+    pub commit: CommitSettings,
 }
 
 /// Branches module preferences.

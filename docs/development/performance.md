@@ -181,6 +181,23 @@ for the filter pipeline) and under 1 ms after that; diffing small files is micro
 checked-out 100k+ file tree is still to be measured, and gix status to be benchmarked against
 git there.
 
+### Staging and committing (M4 slice 2, 2026-11-03)
+
+The git commands the app runs, timed on a checked-out clone of synthetic-1m (40,000 files;
+Windows 11, git 2.56.0, `core.autocrlf` on, Defender active):
+
+| Change                                      | One changed file | Every file changed (40,000) |
+| ------------------------------------------- | ---------------- | --------------------------- |
+| Stage all (`git add --all`)                 | 112 ms           | 13.5 s                      |
+| Unstage all (`git reset -- .`)              | 105 ms           | 3.8 s                       |
+| 5,000 listed files (`--pathspec-from-file`) | –                | 2.6 s stage, 3.2 s unstage  |
+| Commit (`git commit`)                       | –                | 26 s                        |
+
+The first `git add --all` after touching every file took 185 s (cold cache, Defender scanning
+each file, and git printing 40,000 line-ending warnings to a terminal). The time is git's own;
+the app adds one status read afterwards (about 170 ms here). The lists say **Staging…** while
+git runs.
+
 ### File diffs (M3, ADR 0013, 2026-10-28)
 
 `cargo run --release -p git-core --example diff_spike -- <repo> <old-blob> <new-blob>`, Windows 11,

@@ -144,7 +144,8 @@ Ideas from the owner, newest last, with where each one is planned.
   somewhere else; where they show is a setting → M2 (artificial rows, with the setting), M4
   (staging).
 - 2026-10-28 (review 2): the commit window as a modal dialog (the app behind it cannot be used)
-  or as a module in the left dock; which one is a setting → M4.
+  or as a module in the left dock; which one is a setting → done (M4 slice 2; the module is
+  the default).
 - 2026-10-28 (review 2): a Settings button at the bottom of the activity bar → done (opens the
   Settings tab).
 - 2026-10-28 (review 2): a "…" button on each repository with its actions (pull, commit, ...),

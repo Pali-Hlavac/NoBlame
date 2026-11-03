@@ -1,0 +1,112 @@
+//! Staging and committing: the first writes NoBlame makes to a repository.
+//!
+//! Everything here runs the user's `git` (never gix), so hooks, signing (`commit.gpgSign`),
+//! `commit.cleanup`, filters and the index lock behave exactly as on the command line
+//! (`docs/architecture/git-engine.md`). Paths are passed literally (`--literal-pathspecs`) on
+//! standard input, so neither patterns in file names nor the length of the list matter.
+
+mod stage;
+
+use std::path::Path;
+
+use gix::bstr::BString;
+use tokio_util::sync::CancellationToken;
+
+use crate::cli::{Git, GitError, GitOutput};
+
+pub use stage::{stage_all, stage_paths, unstage_all, unstage_paths};
+
+/// Failures while staging or committing.
+#[derive(Debug, thiserror::Error)]
+pub enum CommitError {
+    /// git could not run.
+    #[error(transparent)]
+    Git(#[from] GitError),
+    /// git refused: a hook failed, nothing was staged, the index was locked, ... `output` is
+    /// everything git and its hooks printed, for the user to read.
+    #[error("{output}")]
+    Rejected {
+        /// Standard output and standard error, trimmed.
+        output: String,
+    },
+    /// gix could not read the last commit.
+    #[error("{0}")]
+    Gix(String),
+}
+
+/// How to commit.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct CommitOptions {
+    /// The message, as typed. Bytes: git stores it as given (after `commit.cleanup`).
+    pub message: BString,
+    /// Replace the last commit (`--amend`) instead of adding one.
+    pub amend: bool,
+    /// Add a `Signed-off-by` trailer with the committer's name (`--signoff`).
+    pub sign_off: bool,
+}
+
+/// What a commit printed: git's summary line and anything its hooks wrote.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CommitOutput {
+    /// Standard output and standard error, trimmed.
+    pub output: String,
+}
+
+/// Commits the staged changes with `git commit --file=-`. Hooks run as usual; when one fails,
+/// or there is nothing to commit, the result is [`CommitError::Rejected`] with git's output.
+pub async fn commit(
+    git: &Git,
+    work_dir: &Path,
+    options: &CommitOptions,
+    cancel: &CancellationToken,
+) -> Result<CommitOutput, CommitError> {
+    let mut command = git.command().current_dir(work_dir).arg("commit");
+    if options.amend {
+        command = command.arg("--amend");
+    }
+    if options.sign_off {
+        command = command.arg("--signoff");
+    }
+    let output = command
+        .arg("--file=-")
+        .stdin(options.message.to_vec())
+        .output(cancel)
+        .await?;
+    accepted(&output).map(|output| CommitOutput { output })
+}
+
+/// The full message of the commit `HEAD` points at (`None` on a branch without commits), for
+/// amending.
+pub fn head_message(repo: &gix::Repository) -> Result<Option<BString>, CommitError> {
+    let head = repo.head().map_err(CommitError::gix)?;
+    let Some(id) = head.id() else {
+        return Ok(None);
+    };
+    let commit = repo.find_commit(id).map_err(CommitError::gix)?;
+    let message = commit.message_raw().map_err(CommitError::gix)?;
+    Ok(Some(message.to_owned()))
+}
+
+/// Everything git printed, when it succeeded; otherwise the same text as the error.
+fn accepted(output: &GitOutput) -> Result<String, CommitError> {
+    let mut text = output.stdout_lossy();
+    let stderr = output.stderr_lossy();
+    if !stderr.is_empty() {
+        if !text.trim().is_empty() {
+            text.push('\n');
+        }
+        text.push_str(&stderr);
+    }
+    let text = text.trim().to_owned();
+    if output.success() {
+        Ok(text)
+    } else {
+        Err(CommitError::Rejected { output: text })
+    }
+}
+
+impl CommitError {
+    fn gix(error: impl std::fmt::Display) -> Self {
+        Self::Gix(error.to_string())
+    }
+}

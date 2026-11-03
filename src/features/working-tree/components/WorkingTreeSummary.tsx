@@ -1,7 +1,7 @@
 import { FilePenLineIcon } from "lucide-react";
 
 import { useStatusSummary } from "../api/status";
-import { WORKING_TREE_MILESTONE, workingTreeRows, type WorkingTreeKind } from "../lib/rows";
+import { workingTreeRows, type WorkingTreeKind } from "../lib/rows";
 
 /**
  * A compact summary for the repository header ("3 changed, 1 untracked · 2 staged"), shown when
@@ -28,7 +28,7 @@ export function WorkingTreeChip({ repoId }: { repoId: number }) {
 
 /**
  * What the Commit details module shows while a working tree row is selected: its counts, where
- * its files are, and that staging and committing arrive later (labelled until they do).
+ * its files are, and where to stage and commit them.
  */
 export function WorkingTreeDetails({ repoId, kind }: { repoId: number; kind: WorkingTreeKind }) {
   const status = useStatusSummary(repoId);
@@ -40,8 +40,8 @@ export function WorkingTreeDetails({ repoId, kind }: { repoId: number; kind: Wor
       </h2>
       <p>{row ? row.detail : "No changes left."}</p>
       <p className="text-xs text-muted-foreground">
-        Changed files (Alt+5) lists them; choose one to see its diff. Staging and committing arrive
-        in {WORKING_TREE_MILESTONE}.
+        Changed files (Alt+5) lists them; choose one to see its diff. Stage and commit them with the
+        Commit button or in the Commit module (Alt+7).
       </p>
     </div>
   );

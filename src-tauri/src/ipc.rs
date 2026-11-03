@@ -78,6 +78,12 @@ pub fn builder() -> Builder<tauri::Wry> {
             worktree::commands::get_status,
             worktree::commands::get_worktree_file_id,
             worktree::commands::get_worktree_file_contents,
+            worktree::commands::stage_files,
+            worktree::commands::stage_all_files,
+            worktree::commands::unstage_files,
+            worktree::commands::unstage_all_files,
+            worktree::commands::create_commit,
+            worktree::commands::get_head_message,
             workbench::commands::get_workbench_layout,
             workbench::commands::save_workbench_layout,
         ])

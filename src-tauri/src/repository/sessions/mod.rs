@@ -55,6 +55,8 @@ pub struct Session {
     blame_cancel: Mutex<CancellationToken>,
     /// Stops a comparison when a newer one is asked for.
     compare_cancel: Mutex<CancellationToken>,
+    /// Held while the app changes the repository (staging, committing), one change at a time.
+    writes: tokio::sync::Mutex<()>,
 }
 
 impl Session {
@@ -72,6 +74,12 @@ impl Session {
     /// one.
     pub fn new_comparison(&self) -> CancellationToken {
         renew(&self.compare_cancel)
+    }
+
+    /// Waits until no other change the app makes to the repository is running, so two of them
+    /// never race for git's index lock.
+    pub async fn lock_writes(&self) -> tokio::sync::MutexGuard<'_, ()> {
+        self.writes.lock().await
     }
 
     /// Keeps `watcher` running for as long as the session lives.
@@ -191,6 +199,7 @@ impl RepoSessions {
             history_cancel: Mutex::default(),
             blame_cancel: Mutex::default(),
             compare_cancel: Mutex::default(),
+            writes: tokio::sync::Mutex::default(),
         });
         inner.sessions.insert(id, Arc::clone(&session));
         (id, session)

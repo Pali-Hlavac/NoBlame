@@ -4,9 +4,6 @@
  */
 import type { StatusSummaryDto } from "@/shared/ipc/bindings";
 
-/** Milestone that brings staging and committing. */
-export const WORKING_TREE_MILESTONE = "M4";
-
 /** Which part of the working tree a row stands for. */
 export type WorkingTreeKind = "worktree" | "index";
 

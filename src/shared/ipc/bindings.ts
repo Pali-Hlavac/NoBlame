@@ -161,6 +161,24 @@ export const commands = {
 	 */
 	getWorktreeFileContents: (id: number, path: string, blobId: string) => typedError<unknown, AppError>(__TAURI_INVOKE("get_worktree_file_contents", { id, path, blobId })),
 	/**
+	 *  Stages the files at `paths` as they are in the working tree (changes, new files,
+	 *  deletions; a conflicted file is marked resolved).
+	 */
+	stageFiles: (id: number, paths: string[]) => typedError<null, AppError>(__TAURI_INVOKE("stage_files", { id, paths })),
+	/**  Stages every change in the working tree. */
+	stageAllFiles: (id: number) => typedError<null, AppError>(__TAURI_INVOKE("stage_all_files", { id })),
+	/**  Unstages the files at `paths` (both names of a rename); the working tree is not touched. */
+	unstageFiles: (id: number, paths: string[]) => typedError<null, AppError>(__TAURI_INVOKE("unstage_files", { id, paths })),
+	/**  Unstages everything; the working tree is not touched. */
+	unstageAllFiles: (id: number) => typedError<null, AppError>(__TAURI_INVOKE("unstage_all_files", { id })),
+	/**
+	 *  Commits the staged changes (or amends the last commit). Hooks run; when git refuses, the
+	 *  error's message is everything git and its hooks printed.
+	 */
+	createCommit: (id: number, request: CommitRequestDto) => typedError<CommitResultDto, AppError>(__TAURI_INVOKE("create_commit", { id, request })),
+	/**  The message of the commit HEAD points at (`null` before the first commit), for amending. */
+	getHeadMessage: (id: number) => typedError<string | null, AppError>(__TAURI_INVOKE("get_head_message", { id })),
+	/**
 	 *  The saved layout, or `None` on first launch. A corrupted file is logged and treated as
 	 *  missing, so a bad layout can never stop the main window from opening.
 	 */
@@ -348,6 +366,29 @@ export type CommitLinkDto = {
 	row: number | null,
 };
 
+/**  Where the commit window opens. */
+export type CommitPlacement = 
+/**  The Commit module in the left dock; the diff tab shows the chosen file. */
+"module" | 
+/**  A dialog over the app, with its own diff; the app cannot be used until it closes. */
+"dialog";
+
+/**  A commit to make from the staged changes. */
+export type CommitRequestDto = {
+	/**  The message as typed (git applies `commit.cleanup`). */
+	message: string,
+	/**  Replace the last commit instead of adding one. */
+	amend: boolean,
+	/**  Add a `Signed-off-by` trailer. */
+	signOff: boolean,
+};
+
+/**  A commit that was made. */
+export type CommitResultDto = {
+	/**  What git and its hooks printed (git's summary line, hook messages). */
+	output: string,
+};
+
 /**  Text columns of one graph row. */
 export type CommitRowDto = {
 	/**  Row number. */
@@ -366,6 +407,12 @@ export type CommitRowDto = {
 	parentCount: number,
 	/**  References pointing here. */
 	refs: RefLabel[],
+};
+
+/**  Committing preferences. */
+export type CommitSettings = {
+	/**  Where the Commit button (and the palette's Commit command) opens the commit window. */
+	openIn?: CommitPlacement,
 };
 
 /**  What to compare: two revisions as typed or picked (a branch, tag, commit id, `HEAD~2`). */
@@ -940,6 +987,8 @@ export type Settings = {
 	diff?: DiffSettings,
 	/**  Branches module. */
 	branches?: BranchesSettings,
+	/**  Committing. */
+	commit?: CommitSettings,
 };
 
 /**  The result of checking a commit's signature. */

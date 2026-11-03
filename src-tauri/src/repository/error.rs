@@ -1,6 +1,7 @@
 //! Repository errors and their mapping to [`AppError`].
 
 use git_core::blame::BlameError;
+use git_core::commit::CommitError;
 use git_core::compare::CompareError;
 use git_core::diff::DiffError;
 use git_core::graph::GraphError;
@@ -49,6 +50,9 @@ pub enum RepositoryError {
     /// Reading the working tree status failed.
     #[error(transparent)]
     Status(#[from] StatusError),
+    /// Staging or committing failed.
+    #[error(transparent)]
+    Commit(#[from] CommitError),
     /// Checking a commit's signature failed.
     #[error(transparent)]
     Signing(#[from] SigningError),
@@ -58,6 +62,12 @@ pub enum RepositoryError {
     /// The recent-repositories file could not be read or written.
     #[error(transparent)]
     Storage(#[from] StorageError),
+    /// The repository is bare, so it has no files to stage or commit.
+    #[error("the repository has no working tree")]
+    Bare,
+    /// A path came back from the UI with characters replaced (its name is not UTF-8).
+    #[error("the path {0:?} is not valid UTF-8")]
+    LossyPath(String),
     /// No open repository has this id (the tab was closed).
     #[error("repository session {0} is not open")]
     UnknownSession(u32),
@@ -69,33 +79,14 @@ pub enum RepositoryError {
 impl From<RepositoryError> for AppError {
     fn from(error: RepositoryError) -> Self {
         match error {
-            RepositoryError::Open(RepoError::NotARepository { path }) => AppError::new(
-                ErrorCode::NotARepository,
-                format!("{} is not a Git repository.", path.display()),
-            )
-            .with_hint("Choose the folder that contains the repository, or create one there."),
-            RepositoryError::Open(RepoError::Untrusted { path }) => AppError::new(
-                ErrorCode::UntrustedRepository,
-                format!(
-                    "Git does not trust the repository at {}: it belongs to another user.",
-                    path.display()
-                ),
-            )
-            .with_hint(format!(
-                "If you trust it, run `git config --global --add safe.directory \"{}\"` in a terminal. NoBlame never changes this setting itself.",
-                path.display()
-            )),
-            RepositoryError::Open(RepoError::Gix(message))
-            | RepositoryError::Graph(GraphError::Gix(message))
+            RepositoryError::Open(error) => open_error(error),
+            RepositoryError::Graph(GraphError::Gix(message))
             | RepositoryError::Stash(StashError::Gix(message))
             | RepositoryError::Submodule(SubmoduleError::Gix(message))
             | RepositoryError::Diff(DiffError::Gix(message))
             | RepositoryError::Tree(TreeError::Gix(message))
             | RepositoryError::History(HistoryError::Gix(message))
-            | RepositoryError::Signing(SigningError::Gix(message)) => {
-                tracing::error!(%message, "repository read failed");
-                AppError::new(ErrorCode::GitFailed, format!("Reading the repository failed: {message}"))
-            }
+            | RepositoryError::Signing(SigningError::Gix(message)) => read_failed(&message),
             RepositoryError::Graph(error @ GraphError::RowOutOfRange { .. }) => {
                 AppError::new(ErrorCode::InvalidInput, error.to_string())
             }
@@ -148,6 +139,9 @@ impl From<RepositoryError> for AppError {
             | RepositoryError::Blame(BlameError::Git(error))
             | RepositoryError::Signing(SigningError::Git(error)) => GitEnvError::from(error).into(),
             RepositoryError::Compare(error) => compare_error(error),
+            error @ (RepositoryError::Commit(_)
+            | RepositoryError::Bare
+            | RepositoryError::LossyPath(_)) => staging_error(error),
             RepositoryError::Blame(error @ BlameError::Parse(_)) => {
                 tracing::error!(%error, "blame output not understood");
                 AppError::new(ErrorCode::GitFailed, format!("Reading the blame failed: {error}"))
@@ -176,13 +170,7 @@ fn compare_error(error: CompareError) -> AppError {
     match error {
         CompareError::Diff(error) => RepositoryError::Diff(error).into(),
         CompareError::Git(error) => GitEnvError::from(error).into(),
-        CompareError::Gix(message) => {
-            tracing::error!(%message, "repository read failed");
-            AppError::new(
-                ErrorCode::GitFailed,
-                format!("Reading the repository failed: {message}"),
-            )
-        }
+        CompareError::Gix(message) => read_failed(&message),
         CompareError::NoMergeBase => AppError::new(
             ErrorCode::InvalidInput,
             "These commits share no history, so there is no point where they split.",
@@ -196,6 +184,61 @@ fn compare_error(error: CompareError) -> AppError {
             )
         }
     }
+}
+
+/// What a failed open tells the user.
+fn open_error(error: RepoError) -> AppError {
+    match error {
+        RepoError::NotARepository { path } => AppError::new(
+            ErrorCode::NotARepository,
+            format!("{} is not a Git repository.", path.display()),
+        )
+        .with_hint("Choose the folder that contains the repository, or create one there."),
+        RepoError::Untrusted { path } => AppError::new(
+            ErrorCode::UntrustedRepository,
+            format!(
+                "Git does not trust the repository at {}: it belongs to another user.",
+                path.display()
+            ),
+        )
+        .with_hint(format!(
+            "If you trust it, run `git config --global --add safe.directory \"{}\"` in a terminal. NoBlame never changes this setting itself.",
+            path.display()
+        )),
+        RepoError::Gix(message) => read_failed(&message),
+    }
+}
+
+/// What a refused stage or commit tells the user: everything git and its hooks printed.
+fn staging_error(error: RepositoryError) -> AppError {
+    match error {
+        RepositoryError::Commit(CommitError::Git(error)) => GitEnvError::from(error).into(),
+        RepositoryError::Commit(CommitError::Rejected { output }) => {
+            AppError::new(ErrorCode::GitFailed, output)
+        }
+        RepositoryError::Commit(CommitError::Gix(message)) => read_failed(&message),
+        RepositoryError::Bare => AppError::new(
+            ErrorCode::InvalidInput,
+            "This repository is bare: it has no working tree to stage or commit.",
+        ),
+        RepositoryError::LossyPath(path) => AppError::new(
+            ErrorCode::InvalidInput,
+            format!(
+                "The name of {path} is not valid UTF-8, so NoBlame cannot pass it back to Git."
+            ),
+        )
+        .with_hint("Stage this file with git in a terminal, or use Stage all."),
+        other => AppError::new(ErrorCode::Internal, other.to_string()),
+    }
+}
+
+/// A gix read failed: logged, and shown with its message.
+fn read_failed(message: &str) -> AppError {
+    tracing::error!(%message, "repository read failed");
+    AppError::new(
+        ErrorCode::GitFailed,
+        format!("Reading the repository failed: {message}"),
+    )
 }
 
 /// `text` with its first letter in upper case (error texts start lower case in Rust).

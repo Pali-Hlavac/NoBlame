@@ -1,4 +1,5 @@
 import { CommandPalette } from "@/features/command-palette";
+import { CommitDialog } from "@/features/commit";
 import {
   RepositoryActionsContext,
   openRepositories,
@@ -13,7 +14,7 @@ import { LoadingState } from "@/shared/components/LoadingState";
 import { useAppCommands } from "../commands/useAppCommands";
 import { useHistoryHotkeys } from "../commands/useHistoryHotkeys";
 import { DEFAULT_MODULE_LAYOUT, MODULES } from "../workbench/modules";
-import { REPOSITORY_ACTIONS } from "../workbench/repositoryActions";
+import { useRepositoryActions } from "../workbench/repositoryActions";
 import { MainTitleBar } from "./MainTitleBar";
 import { renderTab } from "./renderTab";
 import { SettingsButton } from "./SettingsButton";
@@ -30,6 +31,7 @@ export function MainWindow() {
 /** Title bar (with the toolbar), workbench, status bar and command palette. */
 function MainWorkbench({ saved }: { saved: SavedLayout | null }) {
   const commands = useAppCommands(MODULES);
+  const repositoryActions = useRepositoryActions();
   useRepositoryRequests(openRepositories);
   useSessionCleanup();
   useRepositoryChanges();
@@ -39,7 +41,7 @@ function MainWorkbench({ saved }: { saved: SavedLayout | null }) {
   return (
     <div className="flex h-screen flex-col bg-background text-foreground">
       <MainTitleBar />
-      <RepositoryActionsContext.Provider value={REPOSITORY_ACTIONS}>
+      <RepositoryActionsContext.Provider value={repositoryActions}>
         <Workbench
           modules={MODULES}
           defaultModuleLayout={DEFAULT_MODULE_LAYOUT}
@@ -50,6 +52,7 @@ function MainWorkbench({ saved }: { saved: SavedLayout | null }) {
       </RepositoryActionsContext.Provider>
       <StatusBar />
       <CommandPalette commands={commands} />
+      <CommitDialog />
     </div>
   );
 }

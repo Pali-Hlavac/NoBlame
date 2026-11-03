@@ -40,6 +40,7 @@ import {
 import type { TaskKind } from "@/shared/ipc/bindings";
 
 import { SETTINGS_HOTKEY, openSettings } from "../layout/settingsTab";
+import { useCommitCommands } from "../workbench/commit";
 
 const THEME_ICONS = { system: MonitorIcon, light: SunIcon, dark: MoonIcon } as const;
 
@@ -52,6 +53,7 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
   const gitInfo = useGitInfo();
   const activeTab = useActiveTab();
   const activeRepository = useActiveRepository();
+  const commitCommands = useCommitCommands();
   const repositoryPath = activeTab?.kind === "repository" ? activeTab.path : null;
 
   const taskCommands = repositoryPath
@@ -150,6 +152,7 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
       keywords: ["init", "new"],
       run: () => void createRepository.create(),
     },
+    ...commitCommands,
     ...historyCommands,
     ...taskCommands,
     {

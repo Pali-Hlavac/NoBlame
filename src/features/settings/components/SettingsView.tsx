@@ -1,4 +1,4 @@
-import type { BranchSort, WorkingTreeDisplay } from "@/shared/ipc/bindings";
+import type { BranchSort, CommitPlacement, WorkingTreeDisplay } from "@/shared/ipc/bindings";
 
 import { useAppSettings, useChangeSettings } from "../hooks/useAppSettings";
 import { useDiffSettings } from "../hooks/useDiffSettings";
@@ -68,6 +68,11 @@ function DiffSection() {
   );
 }
 
+const COMMIT_PLACEMENT_OPTIONS: readonly { value: CommitPlacement; label: string }[] = [
+  { value: "module", label: "The Commit module in the side bar (diffs open in the diff tab)" },
+  { value: "dialog", label: "A dialog over the app, with the diff beside the files" },
+];
+
 const BRANCH_SORT_OPTIONS: readonly { value: BranchSort; label: string }[] = [
   { value: "name", label: "By name" },
   { value: "lastCommit", label: "By last commit, newest first" },
@@ -107,6 +112,16 @@ export function SettingsView() {
           <GraphColumnsSetting />
         </Section>
         <DiffSection />
+        <Section title="Committing">
+          <Choice
+            legend="The Commit button opens"
+            options={COMMIT_PLACEMENT_OPTIONS}
+            value={settings.commit.openIn}
+            onChange={(openIn) => {
+              change((current) => ({ ...current, commit: { ...current.commit, openIn } }));
+            }}
+          />
+        </Section>
         <Section title="Branches">
           <Choice
             legend="Order of the branches and tags"

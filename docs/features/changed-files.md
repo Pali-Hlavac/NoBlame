@@ -27,6 +27,8 @@ shows that file if the new commit changed it. The compared parent is kept in the
 
 With **Working tree changes** selected, the list shows the changed, untracked (**?**) and
 conflicted (**U**, in the destructive colour) files; with **Staged changes**, the staged ones.
+Staging and committing them is the Commit module's job ([commit.md](commit.md)); it shares this
+module's row component and the chosen file.
 The header counts all of them; each list stops at 5,000.
 
 - One `git status --porcelain=v2 -z` run (`git_core::status::working_tree_status`, read-only)

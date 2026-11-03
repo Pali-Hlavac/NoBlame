@@ -141,6 +141,15 @@ All notable changes to NoBlame are documented here. The format follows
   endings, filters). One `git status` run gives the counts and both lists (about 260 ms for the
   97,000 entries of the Linux kernel clone, 40 ms for the 40,000 files of synthetic-1m). New
   files are counted and listed one by one unless `status.showUntrackedFiles` is `no`.
+- Committing (M4, slice 2): the **Commit** module (Alt+7) lists the changed and the staged files;
+  **+** / **−** on a file (or Space) stages or unstages it, **Stage all** / **Unstage all** move
+  everything, and staging a conflicted file asks first. Write the message and press Ctrl+Enter
+  (⌘Enter) or **Commit**; **Amend last commit** fills in the last message, **Sign off** adds
+  `Signed-off-by:`. NoBlame runs your own `git commit`, so hooks, signing and your identity
+  apply; when a hook refuses, its output is shown and the message kept. Settings → Committing
+  opens it as a dialog instead, with the diff beside the files. The toolbar's **Commit**
+  button, the palette's **Commit…** and a repository's **…** → **Commit…** open it. File
+  names are passed to git literally, so a file named `[ab].txt` is not read as a pattern.
 - Commit graph columns (M3, slice 11, owner request 2026-11-02): show or hide columns, move them
   by dragging their titles, resize them by dragging their edges (or with the arrow keys), and
   show dates as "3 h ago" instead of the date and time. From the column header's right-click

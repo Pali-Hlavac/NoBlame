@@ -278,6 +278,41 @@ Use `target\debug\noblame.exe` while the dev app runs.
 - [ ] **(new, M4)** A new file shows all lines added; a changed image shows before and after.
   - Notes:
 
+## 13a. Committing (new, M4 slice 2)
+
+Use a scratch repository, or a branch you can throw away.
+
+- [ ] Toolbar **Commit**: the Commit module opens in the sidebar with **Changes** and **Staged**.
+  - Notes:
+- [ ] Click a file: its diff shows in the Diff tab and the matching row is selected in the graph.
+  - Notes:
+- [ ] Point at a file, click **+**: it moves to Staged and the next file is shown. Space on the
+      active row does the same; **−** and Space in Staged move it back.
+  - Notes:
+- [ ] A renamed, staged file (`git mv`): **−** unstages both names.
+  - Notes:
+- [ ] **Stage all** / **Unstage all**. With a merge conflict, Stage all asks before marking the
+      file resolved.
+  - Notes:
+- [ ] Write a message, Ctrl+Enter: the commit appears in the graph, the box empties and git's
+      summary line shows.
+  - Notes:
+- [ ] A failing hook (e.g. a `commit-msg` hook that exits 1): its message shows in red, the
+      message is kept, nothing is committed.
+  - Notes:
+- [ ] Tick **Amend last commit**: the last message is filled in; untick: it goes away. Amend
+      with a new message: the graph shows the replaced commit.
+  - Notes:
+- [ ] **Sign off** adds `Signed-off-by:` with your name; with `commit.gpgSign` on, the commit is
+      signed (Commit details says so).
+  - Notes:
+- [ ] Settings → Committing → **A dialog**: Commit opens a dialog with the diff beside the lists;
+      Esc closes it, the message is kept; after a commit it closes with a toast.
+  - Notes:
+- [ ] A repository's **…** → **Commit…** (also for a closed one in a group) shows it and opens
+      the commit window.
+  - Notes:
+
 ## 14. Files (Alt+6) and the File tab
 
 - [ ] Select a commit: its folders and files; click a folder or Enter to open; Right opens or
@@ -387,7 +422,7 @@ Use `target\debug\noblame.exe` while the dev app runs.
   (placeholders).
   - Notes: mouse cursor diappears on typing - when system file explorer opens (open repository, using only keyboard) the mouse doesn't appear back when moving it
 - [ ] Settings: theme, commit highlight, working-tree rows, repository **…** button, Diff
-      (layout, whitespace, context, colours), Branches sort. Each change applies at once and is
+      (layout, whitespace, context, colours), Committing (module or dialog), Branches sort. Each change applies at once and is
       kept after a restart.
   - Notes:
 
@@ -397,9 +432,10 @@ Use `target\debug\noblame.exe` while the dev app runs.
 ## 19. Colours and badges (new, 2026-11-03)
 
 - [ ] Activity bar, toolbar and command palette icons are coloured by kind (green committing,
-      blue history, violet branches and remotes, amber repositories), in light and dark.
+      amber stashes, teal history, violet branches and remotes, blue repositories), in light and
+      dark.
   - Notes:
-- [ ] Repositories module: amber group folders, orange repositories, violet submodules.
+- [ ] Repositories module: orange group folders, blue repositories, purple submodules.
   - Notes:
 - [ ] Initials badges beside authors in the commit list and in Commit details; the same person
       always has the same colour.

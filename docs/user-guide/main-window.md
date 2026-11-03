@@ -30,6 +30,7 @@ Each icon in the activity bar opens a module in the sidebar:
 | Box    | Stashes        | Alt+4    | Your stashes                                                           |
 | File   | Changed files  | Alt+5    | The files the selected commit changed; choose one to see its diff      |
 | Tree   | Files          | Alt+6    | Every folder and file of the selected commit; choose one to see it     |
+| Commit | Commit         | Alt+7    | Stage your changes and commit them ([Committing](committing.md))       |
 
 The icons are coloured by what they are about, the same everywhere in the app: green for
 commits and committing (Commit details, Changed files, Commit), amber for stashes, teal for
@@ -38,7 +39,7 @@ blue for repositories (also the open and create buttons), orange for groups, and
 submodules. Settings and About keep the normal colour.
 
 The gear at the bottom of the activity bar opens **Settings** in a tab: the theme, the commit
-highlight, and whether repositories show their **…** button.
+highlight, whether repositories show their **…** button, and where the commit window opens.
 
 Clicking the icon of a module that is already showing hides the sidebar; click any icon to show
 it again. You can also drag the line between the sidebar and the tabs to change its width.
@@ -57,8 +58,8 @@ a tab of its own. An open submodule is shown in bold and stays in its place in t
 Groups have orange folders, repositories blue icons and submodules purple ones.
 Point at a repository (open, in a group, or a downloaded submodule) to see its **…** button:
 **Copy path** works, **Open** opens it if it is not open yet, **Close** closes its tab, and in a
-group **Remove from group** takes it out. Pull, Fetch, Push and Commit are listed but come in
-later versions. A grey submodule has not been downloaded yet ("initialized"); NoBlame cannot
+group **Remove from group** takes it out. **Commit…** shows the repository and opens the commit
+window. Pull, Fetch and Push are listed but come in later versions. A grey submodule has not been downloaded yet ("initialized"); NoBlame cannot
 initialize submodules in this version.
 
 Click the title of a section (**Open**, **Groups**, **Recent**) to fold or unfold it. Drag a
@@ -111,8 +112,10 @@ when you come back to NoBlame. You cannot create, apply or drop stashes here yet
 The toolbar sits in the title bar and acts on the active repository. That repository's name and
 current branch are shown on the right of the title bar.
 
-- **Pull** (with ▾ for Fetch, Fetch all remotes and Fetch and prune), **Push** and **Commit** are
-  greyed out: they arrive in later versions. Hover over them to see which.
+- **Pull** (with ▾ for Fetch, Fetch all remotes and Fetch and prune) and **Push** are greyed
+  out: they arrive in a later version. Hover over them to see which.
+- **Commit** opens the commit window, in the sidebar or as a dialog
+  ([Committing](committing.md)).
 - **Stashes** opens the Stashes module.
 - The magnifier opens the [command palette](command-palette.md).
 

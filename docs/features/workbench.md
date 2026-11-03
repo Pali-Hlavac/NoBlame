@@ -94,6 +94,7 @@ Settings shown there (stored in `settings.json`, see `src-tauri/src/settings/typ
 | Changed files  | Alt+5    | The files the selected commit changed (status, renames); a merge can be compared with any parent ([changed-files.md](changed-files.md))                                                                                                    |
 | Stashes        | Alt+4    | Stash list (`stash@{n}`, message, branch, date); refreshed when the window regains focus                                                                                                                                                   |
 | Files          | Alt+6    | The folders and files of the selected commit, read as they are opened; showing a file opens the file tab ([files.md](files.md)); File history opens the history tab ([history.md](history.md)), Blame the blame tab ([blame.md](blame.md)) |
+| Commit         | Alt+7    | Changes and staged files, stage and unstage, the message, Amend, Sign off, Commit ([commit.md](commit.md)); not in the default layout, the Commit button opens it                                                                          |
 
 Default arrangement: Repositories and Branches as tabs on top, Commit details, Changed files and
 Stashes as tabs below (Files after Changed files). A layout saved before Changed files or Files
@@ -108,8 +109,8 @@ Details:
     the active repository. It is not listed again as a repository of its own.
   - Submodules that are not initialized are dimmed and cannot be opened; initializing them is M7.
   - Each open repository (and each open submodule) has a **…** button, shown on hover or focus,
-    with its actions: **Copy path** and **Close** work; **Pull**, **Fetch**, **Push** (M5) and
-    **Commit…** (M4) are listed disabled with their milestone. The app shell supplies the
+    with its actions: **Copy path**, **Close** and **Commit…** work; **Pull**, **Fetch** and
+    **Push** (M5) are listed disabled with their milestone. The app shell supplies the
     actions (`src/app/workbench/repositoryActions.ts`) through `RepositoryActionsContext`, so
     the Repositories module does not depend on the features that implement them. Settings can
     hide the button.
@@ -150,7 +151,7 @@ Modules that work on the active repository share one frame (`WithActiveRepositor
 | ------- | ---------------------------------------------------------- |
 | Pull ▾  | Menu: Pull, Fetch, Fetch all remotes, Fetch and prune (M5) |
 | Push    | M5                                                         |
-| Commit  | M4                                                         |
+| Commit  | Opens the Commit module or dialog ([commit.md](commit.md)) |
 | Stashes | Opens the Stashes module                                   |
 
 The placeholder buttons look dimmed but stay focusable, so their tooltip ("Push: arrives in M5")
@@ -198,7 +199,7 @@ can also be read with the keyboard.
 
 - `F6` / `Shift+F6` move focus to the next or previous region: activity bar, modules, toolbar,
   tabs, status bar. A collapsed sidebar is skipped.
-- `Alt+1` … `Alt+6` open a module.
+- `Alt+1` … `Alt+7` open a module.
 - Each module is also in the command palette under **View** ("Show Branches", ...), next to
   **Reset layout**.
 - The commit list, the Branches list and other long lists are listboxes. Arrows, Page Up/Down

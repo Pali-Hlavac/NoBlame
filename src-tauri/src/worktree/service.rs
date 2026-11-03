@@ -1,9 +1,11 @@
 //! Working tree operations behind the Tauri commands: the status, and working tree files read
 //! as git would store them (for diffs and previews).
 
+use std::path::PathBuf;
+
 use git_core::cli::Git;
 use git_core::diff::{DiffError, parse_object_id, read_worktree_file, worktree_version};
-use git_core::repo::RepoKind;
+use git_core::repo::{RepoKind, Repository};
 use git_core::status::{UntrackedFiles, working_tree_status};
 use tokio_util::sync::CancellationToken;
 
@@ -21,12 +23,7 @@ pub async fn status(
     id: RepoId,
 ) -> Result<Option<WorkingTreeStatusDto>, RepositoryError> {
     let session = sessions.get(id)?;
-    let info = session.repo.info();
-    let Some(work_dir) = info
-        .work_dir
-        .clone()
-        .filter(|_| info.kind != RepoKind::Bare)
-    else {
+    let Some(work_dir) = work_dir(&session.repo) else {
         return Ok(None);
     };
     let repo = session.repo.clone();
@@ -34,6 +31,14 @@ pub async fn status(
     let git = Git::locate().map_err(GitEnvError::from)?;
     let status = working_tree_status(&git, &work_dir, untracked, &CancellationToken::new()).await?;
     Ok(Some(status.into()))
+}
+
+/// The working tree of `repo`; `None` for a bare repository.
+pub(super) fn work_dir(repo: &Repository) -> Option<PathBuf> {
+    let info = repo.info();
+    info.work_dir
+        .clone()
+        .filter(|_| info.kind != RepoKind::Bare)
 }
 
 /// The id of the working tree file at `path` as git would store it (hex); `None` when nothing

@@ -6,3 +6,4 @@ export { DiffView } from "./components/DiffView";
 export { FileContents } from "./components/FileContents";
 export { FileDiffView } from "./components/FileDiffView";
 export type { LineGutter } from "./components/FileLines";
+export { WorkingTreeDiff } from "./components/WorkingTreeDiff";

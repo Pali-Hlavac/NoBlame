@@ -1,6 +1,7 @@
 //! User preferences persisted as JSON in the platform app-config directory.
 
 pub mod commands;
+mod commit;
 mod graph;
 mod types;
 

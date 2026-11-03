@@ -2,7 +2,7 @@
 //! the header), and the staged and unstaged files.
 
 use git_core::status::{FileState, StatusFile, StatusSummary, WorkingTreeStatus};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use specta::Type;
 
 /// Number of files in each state; a file staged and changed again counts in both.
@@ -113,4 +113,24 @@ impl From<WorkingTreeStatus> for WorkingTreeStatusDto {
             unstaged: status.unstaged.into_iter().map(Into::into).collect(),
         }
     }
+}
+
+/// A commit to make from the staged changes.
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct CommitRequestDto {
+    /// The message as typed (git applies `commit.cleanup`).
+    pub message: String,
+    /// Replace the last commit instead of adding one.
+    pub amend: bool,
+    /// Add a `Signed-off-by` trailer.
+    pub sign_off: bool,
+}
+
+/// A commit that was made.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct CommitResultDto {
+    /// What git and its hooks printed (git's summary line, hook messages).
+    pub output: String,
 }

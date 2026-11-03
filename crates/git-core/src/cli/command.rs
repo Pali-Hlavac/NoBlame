@@ -37,6 +37,8 @@ pub struct GitCommand {
     pub(super) args: Vec<OsString>,
     pub(super) read_only: bool,
     pub(super) no_lazy_fetch: bool,
+    /// Options for git itself, placed before the subcommand (`--literal-pathspecs`).
+    pub(super) global_flags: Vec<&'static str>,
     pub(super) stdin: Option<Vec<u8>>,
     has_separator: bool,
 }
@@ -49,6 +51,7 @@ impl GitCommand {
             args: Vec::new(),
             read_only: false,
             no_lazy_fetch: false,
+            global_flags: Vec::new(),
             stdin: None,
             has_separator: false,
         }
@@ -74,6 +77,14 @@ impl GitCommand {
     #[must_use]
     pub fn no_lazy_fetch(mut self) -> Self {
         self.no_lazy_fetch = true;
+        self
+    }
+
+    /// Reads every path as a literal path (`--literal-pathspecs`), never as a pattern: a file
+    /// named `*.txt` or `:(top)` then means exactly that file.
+    #[must_use]
+    pub fn literal_pathspecs(mut self) -> Self {
+        self.global_flags.push("--literal-pathspecs");
         self
     }
 
@@ -143,6 +154,7 @@ impl GitCommand {
         if self.read_only {
             full.push(OsString::from("--no-optional-locks"));
         }
+        full.extend(self.global_flags.iter().map(OsString::from));
         full.extend(self.args.iter().cloned());
         full
     }

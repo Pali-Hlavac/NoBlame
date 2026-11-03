@@ -82,5 +82,5 @@ Choose a file to see its diff:
 - a new file shows all its lines as added; a file with conflicts shows your side against the
   file with its conflict markers.
 
-The list and the diff update when you save a file or come back to the window. Staging and
-committing come in a later version.
+The list and the diff update when you save a file or come back to the window. To stage and
+commit them, see [Committing](committing.md).

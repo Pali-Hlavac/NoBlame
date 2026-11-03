@@ -1,5 +1,6 @@
 import type {
   BranchesSettings,
+  CommitSettings,
   DiffSettings,
   GraphSettings,
   RepositoriesSettings,
@@ -20,6 +21,7 @@ export interface AppSettings {
   repositories: Required<RepositoriesSettings>;
   diff: Required<DiffSettings>;
   branches: Required<BranchesSettings>;
+  commit: Required<CommitSettings>;
 }
 
 /** What the backend uses for missing settings (`src-tauri/src/settings/types.rs`). */
@@ -44,6 +46,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     syntaxHighlighting: true,
   },
   branches: { sort: "name" },
+  commit: { openIn: "module" },
 };
 
 /** Fills fields missing from `settings` with their defaults. */
@@ -54,6 +57,7 @@ export function withDefaults(settings: Settings | undefined): AppSettings {
     repositories: { ...DEFAULT_SETTINGS.repositories, ...settings?.repositories },
     diff: migrateDiff({ ...DEFAULT_SETTINGS.diff, ...settings?.diff }),
     branches: { ...DEFAULT_SETTINGS.branches, ...settings?.branches },
+    commit: { ...DEFAULT_SETTINGS.commit, ...settings?.commit },
   };
 }
 

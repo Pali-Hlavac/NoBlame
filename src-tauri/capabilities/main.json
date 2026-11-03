@@ -59,6 +59,12 @@
     "allow-get-status",
     "allow-get-worktree-file-id",
     "allow-get-worktree-file-contents",
+    "allow-stage-files",
+    "allow-stage-all-files",
+    "allow-unstage-files",
+    "allow-unstage-all-files",
+    "allow-create-commit",
+    "allow-get-head-message",
     "allow-list-submodules",
     "allow-get-workbench-layout",
     "allow-save-workbench-layout"

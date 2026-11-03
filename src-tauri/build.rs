@@ -53,6 +53,12 @@ const APP_COMMANDS: &[&str] = &[
     "get_status",
     "get_worktree_file_id",
     "get_worktree_file_contents",
+    "stage_files",
+    "stage_all_files",
+    "unstage_files",
+    "unstage_all_files",
+    "create_commit",
+    "get_head_message",
     "get_workbench_layout",
     "save_workbench_layout",
 ];

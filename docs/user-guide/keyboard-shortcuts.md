@@ -3,25 +3,27 @@
 On macOS, use **⌘** where this page says **Ctrl**, except for switching tabs, which uses
 **Ctrl** on every platform.
 
-| Shortcut           | Action                                  |
-| ------------------ | --------------------------------------- |
-| Ctrl+K (⌘K)        | Open or close the command palette       |
-| Ctrl+W (⌘W)        | Close the current tab                   |
-| Ctrl+Tab           | Next tab                                |
-| Ctrl+Shift+Tab     | Previous tab                            |
-| F6                 | Move to the next part of the window     |
-| Shift+F6           | Move to the previous part of the window |
-| Alt+1              | Show Repositories                       |
-| Alt+2              | Show Branches                           |
-| Alt+3              | Show Commit details                     |
-| Alt+4              | Show Stashes                            |
-| Alt+5              | Show Changed files                      |
-| Alt+6              | Show Files                              |
-| Ctrl+, (⌘,)        | Open Settings                           |
-| Ctrl+F (⌘F)        | Find commits in the active repository   |
-| Ctrl+Shift+G (⌘⇧G) | Go to a commit, branch or tag           |
-| Escape             | Close the palette or a dialog           |
-| Enter              | Run the selected command in the palette |
+| Shortcut            | Action                                  |
+| ------------------- | --------------------------------------- |
+| Ctrl+K (⌘K)         | Open or close the command palette       |
+| Ctrl+W (⌘W)         | Close the current tab                   |
+| Ctrl+Tab            | Next tab                                |
+| Ctrl+Shift+Tab      | Previous tab                            |
+| F6                  | Move to the next part of the window     |
+| Shift+F6            | Move to the previous part of the window |
+| Alt+1               | Show Repositories                       |
+| Alt+2               | Show Branches                           |
+| Alt+3               | Show Commit details                     |
+| Alt+4               | Show Stashes                            |
+| Alt+5               | Show Changed files                      |
+| Alt+6               | Show Files                              |
+| Alt+7               | Show Commit                             |
+| Ctrl+Enter (⌘Enter) | Commit, in the commit message box       |
+| Ctrl+, (⌘,)         | Open Settings                           |
+| Ctrl+F (⌘F)         | Find commits in the active repository   |
+| Ctrl+Shift+G (⌘⇧G)  | Go to a commit, branch or tag           |
+| Escape              | Close the palette or a dialog           |
+| Enter               | Run the selected command in the palette |
 
 **F6** moves between the activity bar, the sidebar, the toolbar, the tabs and the status bar.
 

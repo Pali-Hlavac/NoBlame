@@ -9,15 +9,19 @@ import {
   FolderTreeIcon,
   GitBranchIcon,
   GitCommitHorizontalIcon,
+  GitCommitVerticalIcon,
 } from "lucide-react";
 
 import { BranchesModule } from "@/features/branches";
 import { ChangedFilesModule } from "@/features/changed-files";
+import { CommitModule } from "@/features/commit";
 import { CommitDetailsModule } from "@/features/commit-details";
 import { FilesModule } from "@/features/files";
 import { RepositoriesModule } from "@/features/repositories";
 import { StashesModule } from "@/features/stashes";
 import type { WorkbenchModule } from "@/features/workbench";
+
+import { COMMIT_MODULE_ID } from "./commit";
 
 export const MODULES: readonly WorkbenchModule[] = [
   {
@@ -68,6 +72,15 @@ export const MODULES: readonly WorkbenchModule[] = [
     kind: "history",
     hotkey: "alt+6",
     component: FilesModule,
+  },
+  {
+    // The Commit button opens it by this id.
+    id: COMMIT_MODULE_ID,
+    title: "Commit",
+    icon: GitCommitVerticalIcon,
+    kind: "commit",
+    hotkey: "alt+7",
+    component: CommitModule,
   },
 ];
 

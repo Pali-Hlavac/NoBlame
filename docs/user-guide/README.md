@@ -4,7 +4,8 @@ NoBlame is a fast Git client for Windows, Linux and macOS, built for very large 
 
 This guide describes version 0.1.0 while milestone M2 is in progress. You can open and create
 repositories, browse their history in the commit graph, look at commit details, branches,
-stashes and submodules, and see what each commit changed, file by file. Committing and the other Git operations come in later versions; their
+stashes and submodules, see what each commit changed, file by file, and stage and commit your
+changes. The other Git operations (pull, push, branches, merging) come in later versions; their
 buttons and the task windows are labelled placeholders.
 
 | Page                                            | What it covers                               |
@@ -14,6 +15,7 @@ buttons and the task windows are labelled placeholders.
 | [Opening repositories](opening-repositories.md) | Open, create and recent repositories         |
 | [The commit graph](commit-graph.md)             | Reading and moving through the history       |
 | [Viewing changes](viewing-changes.md)           | Changed files of a commit and their diffs    |
+| [Committing](committing.md)                     | Staging files and committing them            |
 | [Browsing files](browsing-files.md)             | Every file of a commit; saving one           |
 | [File history](file-history.md)                 | Every commit that changed a file             |
 | [Blame](blame.md)                               | Who last changed each line of a file         |
