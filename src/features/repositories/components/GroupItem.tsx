@@ -99,6 +99,7 @@ export function GroupItem({ group, index, count, missing }: GroupItemProps) {
       <GroupContextMenu actions={actions}>
         <RepositoryTreeRow
           icon={expanded ? FolderOpenIcon : FolderClosedIcon}
+          iconClassName="text-repo-group"
           label={group.name}
           title={`${group.name}: ${group.repositories.length} repositories`}
           depth={0}

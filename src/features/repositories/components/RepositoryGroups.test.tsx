@@ -156,4 +156,14 @@ describe("repository groups", () => {
     );
     expect(screen.getByRole("menuitem", { name: /Push all.*M5/ })).toBeVisible();
   });
+
+  it("removes a repository from its group with the … button", async () => {
+    const user = userEvent.setup();
+    renderModule([WORK]);
+    await user.click(await screen.findByRole("button", { name: "Actions for api" }));
+    await user.click(screen.getByRole("menuitem", { name: "Remove from group" }));
+    await waitFor(() => {
+      expect(lastSaved()[0]?.repositories).toEqual([]);
+    });
+  });
 });

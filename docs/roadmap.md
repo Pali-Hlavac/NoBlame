@@ -583,6 +583,28 @@ The Branches module gets the same entries for its rows.
 
 ### M4: Working copy and committing
 
+#### M4 follow-ups (owner, 2026-11-03; confirmed, done the same day)
+
+- [x] Coloured icons by kind of work. Icons stay lucide (ISC licence, line icons whose stroke
+      takes any colour); the colours become theme tokens (`--kind-*`, light and dark), so a
+      kind can be recoloured in one place. Proposed kinds:
+  - committing and the working copy (the coming Commit module, Changed files, Stashes): green;
+  - history (Commit details, Files, the graph's Find): blue;
+  - branches, tags and remotes (Branches; Pull and Push in the toolbar): violet;
+  - repositories (Repositories, Open repository): amber;
+  - app (Settings, About): the normal grey.
+- [x] Repositories module colours: groups (folder icon) amber, repositories (git icon) orange,
+      submodules (package icon) violet. Open repositories keep their bold name.
+- [x] Initials badge for people: a small circle with up to two initials, in Commit details
+      (author, committer) and before the graph's Author column; later in blame and file
+      history. Its hue comes from a fixed hash of the e-mail address (FNV-1a of the trimmed,
+      lower-case address; the owner chose the e-mail over the name), so it is the same on every
+      device; lightness and saturation come from the theme so
+      it stays readable in light and dark.
+- [x] Repositories in groups (and initialized submodules) get the same "…" button as open ones (Copy path, Open, Remove from
+      group; Pull, Fetch, Push and Commit shown as stubs until they arrive), and later the
+      configurable Pull and Push buttons (M5).
+
 - [~] Status: staged, unstaged, untracked, conflicted; fast on large trees (`--no-optional-locks`, fsmonitor, untracked cache).
   Lists and diffs done (slice 1); gix status still to be benchmarked on a checked-out 100k+
   file tree

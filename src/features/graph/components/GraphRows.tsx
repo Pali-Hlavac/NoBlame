@@ -1,5 +1,6 @@
 import type { CSSProperties, MouseEvent } from "react";
 
+import { PersonBadge } from "@/shared/components/PersonBadge";
 import type { CommitRowDto, DateDisplay, GraphColumnId } from "@/shared/ipc/bindings";
 import { cn } from "@/shared/lib/cn";
 
@@ -61,12 +62,17 @@ function CommitCell({ id, text, byAuthor, dateDisplay, nowMs }: CommitCellProps)
       return (
         <span
           className={cn(
-            "truncate",
+            "flex min-w-0 items-center gap-1.5",
             byAuthor ? "font-medium text-foreground" : "text-muted-foreground",
           )}
           title={text.authorEmail}
         >
-          {text.authorName}
+          <PersonBadge
+            name={text.authorName}
+            email={text.authorEmail}
+            className="size-4 text-[0.5rem]"
+          />
+          <span className="truncate">{text.authorName}</span>
         </span>
       );
     case "date": {

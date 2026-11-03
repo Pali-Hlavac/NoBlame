@@ -2,6 +2,7 @@ import { CopyIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { RefBadge, shortId } from "@/features/graph";
+import { PersonBadge } from "@/shared/components/PersonBadge";
 import type { CommitDetailsDto, SignatureDto } from "@/shared/ipc/bindings";
 import { copyToClipboard } from "@/shared/lib/clipboard";
 import { cn } from "@/shared/lib/cn";
@@ -14,12 +15,15 @@ import { SignatureStatus } from "./SignatureStatus";
 
 function Person({ signature }: { signature: SignatureDto }) {
   return (
-    <span className="min-w-0">
-      <span className="block truncate">
-        {signature.name} <span className="text-muted-foreground">&lt;{signature.email}&gt;</span>
-      </span>
-      <span className="block text-muted-foreground tabular-nums">
-        {formatSignatureDate(signature.time, signature.offsetMinutes)}
+    <span className="flex min-w-0 items-start gap-2">
+      <PersonBadge name={signature.name} email={signature.email} className="mt-0.5" />
+      <span className="min-w-0">
+        <span className="block truncate">
+          {signature.name} <span className="text-muted-foreground">&lt;{signature.email}&gt;</span>
+        </span>
+        <span className="block text-muted-foreground tabular-nums">
+          {formatSignatureDate(signature.time, signature.offsetMinutes)}
+        </span>
       </span>
     </span>
   );

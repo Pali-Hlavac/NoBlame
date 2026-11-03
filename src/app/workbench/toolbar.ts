@@ -20,6 +20,7 @@ export const TOOLBAR_ACTIONS: readonly ToolbarAction[] = [
     id: "pull",
     label: "Pull",
     icon: ArrowDownToLineIcon,
+    kind: "branches",
     milestone: REMOTE_MILESTONE,
     menu: [
       { id: "pull", label: "Pull", icon: ArrowDownToLineIcon, milestone: REMOTE_MILESTONE },
@@ -38,12 +39,25 @@ export const TOOLBAR_ACTIONS: readonly ToolbarAction[] = [
       },
     ],
   },
-  { id: "push", label: "Push", icon: ArrowUpFromLineIcon, milestone: REMOTE_MILESTONE },
-  { id: "commit", label: "Commit", icon: GitCommitVerticalIcon, milestone: COMMIT_MILESTONE },
+  {
+    id: "push",
+    label: "Push",
+    icon: ArrowUpFromLineIcon,
+    kind: "branches",
+    milestone: REMOTE_MILESTONE,
+  },
+  {
+    id: "commit",
+    label: "Commit",
+    icon: GitCommitVerticalIcon,
+    kind: "commit",
+    milestone: COMMIT_MILESTONE,
+  },
   {
     id: "stashes",
     label: "Stashes",
     icon: ArchiveIcon,
+    kind: "commit",
     run: STASHES_MODULE
       ? () => {
           openModule(STASHES_MODULE);

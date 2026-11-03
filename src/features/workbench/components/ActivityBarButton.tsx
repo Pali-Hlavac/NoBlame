@@ -7,13 +7,21 @@ interface ActivityBarButtonProps {
   /** Accessible name and tooltip (include the shortcut, if any). */
   label: string;
   icon: LucideIcon;
+  /** Colours the icon (by kind of work); the text colour when missing. */
+  iconClassName?: string;
   /** Shows a bar on the left, like VS Code, while what it opens is visible. */
   pressed: boolean;
   onClick: () => void;
 }
 
 /** An icon button of the activity bar. */
-export function ActivityBarButton({ label, icon: Icon, pressed, onClick }: ActivityBarButtonProps) {
+export function ActivityBarButton({
+  label,
+  icon: Icon,
+  iconClassName,
+  pressed,
+  onClick,
+}: ActivityBarButtonProps) {
   return (
     <Tooltip content={label} side="right">
       <button
@@ -26,7 +34,7 @@ export function ActivityBarButton({ label, icon: Icon, pressed, onClick }: Activ
         )}
         onClick={onClick}
       >
-        <Icon className="size-5" aria-hidden />
+        <Icon className={cn("size-5", iconClassName)} aria-hidden />
       </button>
     </Tooltip>
   );

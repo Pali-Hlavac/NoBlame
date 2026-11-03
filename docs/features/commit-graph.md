@@ -14,7 +14,7 @@ merges, message, author and path are done. Stash labels are not done.
 | ------- | ---------------------------------------------------------------------------------------- |
 | Graph   | Lanes and commit nodes drawn on a canvas; capped at 16 lanes wide (wider graphs are cut) |
 | Message | Reference labels, then the first line of the commit message                              |
-| Author  | Author name (e-mail in the tooltip)                                                      |
+| Author  | Initials badge and author name (e-mail in the tooltip); see "Initials badges" below      |
 | Date    | Author date, local time, medium date and short time                                      |
 | Commit  | The first 8 characters of the commit id                                                  |
 
@@ -134,6 +134,16 @@ is Radix's context menu (`@radix-ui/react-context-menu` 2.4.1, MIT, `shared/ui/c
 - Selection and scroll position are remembered per repository while switching tabs.
 - Screen readers: the list is a listbox named "Commit history, N commits"; each row is labelled
   with its summary and author.
+
+## Initials badges
+
+`PersonBadge` (`src/shared/components/`) draws up to two initials (first and last word of the
+name) in a circle. Its hue is 32-bit FNV-1a of the trimmed, lower-case e-mail address (the name
+when there is none) modulo 360 (`src/shared/lib/person.ts`), so a person has the same colour on
+every device; lightness, chroma and the text colour are the `--person-*` tokens of the theme
+(`bg-person` utility). Owner decision 2026-11-03: hash the e-mail, not the name. Shown in the
+Author column and in Commit details (author, committer); decorative (`aria-hidden`), the name is
+always written beside it.
 
 ## Uncommitted changes
 

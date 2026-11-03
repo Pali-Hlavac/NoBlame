@@ -7,7 +7,8 @@ is never shown below the commits it came from.
 
 - **Graph**: the branches as coloured lines and each commit as a dot.
 - **Message**: labels for branches and tags, then the first line of the commit message.
-- **Author** (hover to see the e-mail address), **Date** and **Commit** (the start of the commit
+- **Author**, with a round badge of the author's initials (hover to see the e-mail address),
+  **Date** and **Commit** (the start of the commit
   id).
 
 You choose the columns:
@@ -58,6 +59,9 @@ counts in Commit details; choose a file to see its diff. Staging and committing 
 version. In **Settings → Commit graph** you can show a short
 summary in the repository header instead, or hide them. NoBlame checks again whenever you come
 back to the window.
+
+Each person's badge has their own colour, worked out from their e-mail address, so it is the
+same on every computer; Commit details shows the same badges for the author and committer.
 
 When you select a commit, NoBlame highlights it:
 

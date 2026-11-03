@@ -213,3 +213,12 @@ Ideas from the owner, newest last, with where each one is planned.
     setting → M4.
   - The mouse pointer stayed hidden after the keyboard-only "Open repository…" → to
     investigate (M3 follow-ups).
+- 2026-11-03:
+  - Colourful icons: each activity bar module gets a colour that says what it is about (one
+    colour for everything about committing, others for other kinds of work) → done (colours as
+    theme tokens, easy to change).
+  - Colours in the Repositories module for groups, repositories and submodules → done.
+  - A round badge with the person's initials, its colour (hue only) computed from the e-mail
+    address (owner's choice), so it is the same on every device → done.
+  - Repositories inside groups get the same "…" button as open repositories → done; the
+    configurable Pull, Push, … buttons come with M5.

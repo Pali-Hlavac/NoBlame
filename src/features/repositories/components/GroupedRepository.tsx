@@ -1,8 +1,9 @@
-import { FolderGitIcon } from "lucide-react";
+import { FolderGitIcon, FolderMinusIcon } from "lucide-react";
 import { useContext, useState } from "react";
 
 import type { RepositoryGroup } from "@/shared/ipc/bindings";
 import { cn } from "@/shared/lib/cn";
+import { DropdownMenuItem } from "@/shared/ui/dropdown-menu";
 
 import { useEditGroups } from "../api/groups";
 import { useSubmodules } from "../api/submodules";
@@ -14,9 +15,10 @@ import {
   onLowerHalf,
   startRepositoryDrag,
 } from "../lib/dragData";
-import { placeRepository, repositoryDropIndex } from "../lib/groups";
+import { placeRepository, removeRepository, repositoryDropIndex } from "../lib/groups";
 import { repositoryName, repositoryTab } from "../lib/path";
 import { OpenTabsContext } from "./openTabsContext";
+import { RepositoryActions } from "./RepositoryActionsMenu";
 import { RepositoryContextMenu } from "./RepositoryContextMenu";
 import { RepositoryTreeRow } from "./RepositoryTreeRow";
 import { SubmoduleList } from "./SubmoduleTree";
@@ -60,6 +62,7 @@ export function GroupedRepository({ group, path, missing }: GroupedRepositoryPro
       <RepositoryContextMenu path={path} groupId={group.id}>
         <RepositoryTreeRow
           icon={FolderGitIcon}
+          iconClassName="text-repo-repository"
           label={name}
           title={missing ? `${path} (folder not found)` : path}
           depth={1}
@@ -79,6 +82,21 @@ export function GroupedRepository({ group, path, missing }: GroupedRepositoryPro
           }}
           className={cn(drop.over && DROP_TARGET_CLASSES)}
           {...drop.props}
+          actions={
+            <RepositoryActions
+              repository={{ path, tabId, title: name, open: ids.has(tabId) }}
+              extra={
+                <DropdownMenuItem
+                  onSelect={() => {
+                    edit((groups) => removeRepository(groups, group.id, path));
+                  }}
+                >
+                  <FolderMinusIcon aria-hidden />
+                  Remove from group
+                </DropdownMenuItem>
+              }
+            />
+          }
         />
       </RepositoryContextMenu>
       {expanded && submodules.length > 0 && <SubmoduleList submodules={submodules} depth={2} />}

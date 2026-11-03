@@ -394,6 +394,20 @@ Use `target\debug\noblame.exe` while the dev app runs.
 - [ ] **(new)** Ctrl+P does nothing (no print dialog), also in the dev app.
   - Notes:
 
+## 19. Colours and badges (new, 2026-11-03)
+
+- [ ] Activity bar, toolbar and command palette icons are coloured by kind (green committing,
+      blue history, violet branches and remotes, amber repositories), in light and dark.
+  - Notes:
+- [ ] Repositories module: amber group folders, orange repositories, violet submodules.
+  - Notes:
+- [ ] Initials badges beside authors in the commit list and in Commit details; the same person
+      always has the same colour.
+  - Notes:
+- [ ] Point at a repository inside a group: its **…** button offers Open (or Close when open),
+      Copy path and Remove from group.
+  - Notes:
+
 ## Known issues to watch for
 
 - [ ] Once, after a hot reload during development, opening a tab threw "invalid location" and

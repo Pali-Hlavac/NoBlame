@@ -10,6 +10,7 @@ import {
 } from "@/shared/ui/command";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/shared/ui/dialog";
 import { Kbd } from "@/shared/ui/kbd";
+import { kindIconClass } from "@/shared/lib/workKinds";
 
 import { groupCommands } from "../lib/group";
 import { usePaletteStore } from "../store/palette";
@@ -58,7 +59,7 @@ export function CommandPalette({ commands }: { commands: readonly PaletteCommand
                         runCommand(command);
                       }}
                     >
-                      {Icon && <Icon aria-hidden />}
+                      {Icon && <Icon className={kindIconClass(command.kind)} aria-hidden />}
                       <span className="flex-1">{command.label}</span>
                       {command.hotkey && <Kbd combo={command.hotkey} />}
                     </CommandItem>

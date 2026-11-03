@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
 import { Tooltip } from "@/shared/ui/tooltip";
+import { kindIconClass } from "@/shared/lib/workKinds";
 
 import type { ToolbarAction } from "../types";
 
@@ -36,7 +37,7 @@ function ActionButton({ action, className }: { action: ToolbarAction; className?
           if (!stub) action.run?.();
         }}
       >
-        <Icon aria-hidden />
+        <Icon className={kindIconClass(action.kind)} aria-hidden />
         <span className="hidden @3xl:inline">{action.label}</span>
       </Button>
     </Tooltip>
@@ -74,7 +75,7 @@ function SplitButton({ action }: { action: ToolbarAction }) {
                   if (!stub) item.run?.();
                 }}
               >
-                <Icon aria-hidden />
+                <Icon className={kindIconClass(item.kind ?? action.kind)} aria-hidden />
                 <span className="flex-1">{item.label}</span>
                 {item.milestone && (
                   <span className="text-xs text-muted-foreground">{item.milestone}</span>

@@ -1,6 +1,8 @@
 import type { LucideIcon } from "lucide-react";
 import type { ComponentType } from "react";
 
+import type { WorkKind } from "@/shared/lib/workKinds";
+
 /**
  * A module: a view that opens in the module dock from the activity bar. Modules know nothing
  * about where they are docked; they read shared state (active repository, selected commit)
@@ -12,6 +14,8 @@ export interface WorkbenchModule {
   /** Tab title and activity bar label. */
   title: string;
   icon: LucideIcon;
+  /** What it is about; colours its icon (`src/shared/lib/workKinds.ts`). */
+  kind?: WorkKind;
   /** Shortcut that opens the module, e.g. `alt+1`. */
   hotkey?: string;
   /** The module's content. */
@@ -23,6 +27,8 @@ export interface ToolbarAction {
   id: string;
   label: string;
   icon: LucideIcon;
+  /** What it is about; colours its icon (`src/shared/lib/workKinds.ts`). */
+  kind?: WorkKind;
   /** What the button does; missing for stubs. */
   run?: () => void;
   /** Set for stubs: the milestone that delivers the action (the button is disabled). */

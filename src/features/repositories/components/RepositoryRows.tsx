@@ -8,7 +8,7 @@ import { Button } from "@/shared/ui/button";
 import { useRemoveRecentRepository } from "../api/recent";
 import { openRepositories } from "../hooks/useOpenRepository";
 import { startRepositoryDrag } from "../lib/dragData";
-import { OpenRepositoryActions } from "./RepositoryActionsMenu";
+import { RepositoryActions } from "./RepositoryActionsMenu";
 import { RepositoryContextMenu } from "./RepositoryContextMenu";
 import { RepositoryTreeRow } from "./RepositoryTreeRow";
 import { SubmoduleList } from "./SubmoduleTree";
@@ -27,6 +27,7 @@ export function OpenRepository({ tab, active, submodules }: OpenRepositoryProps)
       <RepositoryContextMenu path={tab.path}>
         <RepositoryTreeRow
           icon={FolderGitIcon}
+          iconClassName="text-repo-repository"
           label={tab.title}
           title={tab.path}
           depth={0}
@@ -43,8 +44,8 @@ export function OpenRepository({ tab, active, submodules }: OpenRepositoryProps)
             startRepositoryDrag(event, { path: tab.path });
           }}
           actions={
-            <OpenRepositoryActions
-              repository={{ path: tab.path, tabId: tab.id, title: tab.title }}
+            <RepositoryActions
+              repository={{ path: tab.path, tabId: tab.id, title: tab.title, open: true }}
             />
           }
         />
@@ -62,6 +63,7 @@ export function RecentItem({ entry }: { entry: RecentRepository }) {
       <RepositoryContextMenu path={entry.path}>
         <RepositoryTreeRow
           icon={FolderGitIcon}
+          iconClassName="text-repo-repository"
           label={entry.name}
           title={entry.exists ? entry.path : `${entry.path} (folder not found)`}
           depth={0}

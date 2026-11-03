@@ -12,6 +12,8 @@ const INDENT_PX = 14;
  */
 interface RepositoryTreeRowProps extends Omit<ComponentProps<"div">, "title" | "children"> {
   icon: LucideIcon;
+  /** The icon's colour (`text-repo-*`: group, repository or submodule). */
+  iconClassName: string;
   label: string;
   title: string;
   depth: number;
@@ -34,6 +36,7 @@ interface RepositoryTreeRowProps extends Omit<ComponentProps<"div">, "title" | "
 export function RepositoryTreeRow(props: RepositoryTreeRowProps) {
   const {
     icon: Icon,
+    iconClassName,
     label,
     title,
     depth,
@@ -74,7 +77,7 @@ export function RepositoryTreeRow(props: RepositoryTreeRowProps) {
       )}
       {labelSlot ? (
         <span className="flex min-w-0 flex-1 items-center gap-2 px-1 py-0.5">
-          <Icon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+          <Icon className={cn("size-4 shrink-0", iconClassName)} aria-hidden />
           {labelSlot}
         </span>
       ) : (
@@ -88,7 +91,7 @@ export function RepositoryTreeRow(props: RepositoryTreeRowProps) {
           )}
           onClick={onOpen}
         >
-          <Icon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+          <Icon className={cn("size-4 shrink-0", iconClassName)} aria-hidden />
           <span className={cn("truncate", emphasized && "font-medium")}>{label}</span>
         </button>
       )}

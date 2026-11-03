@@ -204,11 +204,27 @@ can also be read with the keyboard.
 - The commit list, the Branches list and other long lists are listboxes. Arrows, Page Up/Down
   and Home/End move; Enter activates.
 
+## Colours by kind of work
+
+Modules, toolbar buttons, repository actions and palette commands carry an optional `kind`
+(`WorkKind` in `src/shared/lib/workKinds.ts`) that colours their icon:
+
+| Kind           | Colour | Used by                                                        |
+| -------------- | ------ | -------------------------------------------------------------- |
+| `commit`       | green  | Changed files, Stashes, Commit (toolbar, "…" menu)             |
+| `history`      | blue   | Commit details, Files, Find, Go to commit, Compare             |
+| `branches`     | violet | Branches, Pull (and its menu), Fetch, Push                     |
+| `repositories` | amber  | Repositories, Open and Create repository, Open in the "…" menu |
+
+Without a kind (Settings, About, Copy path) an icon keeps the text colour. The colours are the
+`--kind-*` tokens in `src/app/styles.css` (light and dark); recolouring a kind is a change
+there only. Owner decision 2026-11-03.
+
 ## Adding a module
 
 1. Create `src/features/<module>/` with the component, and export it from its `index.ts`.
 2. Add one entry to `MODULES` in `src/app/workbench/modules.ts`: `id` (never reuse one, layouts
-   store it), title, icon, hotkey and component. Optionally add it to `DEFAULT_MODULE_LAYOUT`.
+   store it), title, icon, `kind` (its colour), hotkey and component. Optionally add it to `DEFAULT_MODULE_LAYOUT`.
 3. Read the active repository with `WithActiveRepository` / `useActiveRepository`
    (`features/repositories`), and the selection with `useSelectedRow` (`features/selection`).
 

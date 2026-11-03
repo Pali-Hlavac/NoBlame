@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import { formatHotkey } from "@/shared/lib/hotkeys";
 import { isMacPlatform } from "@/shared/lib/platform";
+import { kindIconClass } from "@/shared/lib/workKinds";
 
 import { toggleModule } from "../lib/docks";
 import { useWorkbenchStore } from "../store/workbench";
@@ -33,6 +34,7 @@ export function ActivityBar({ modules, footer }: ActivityBarProps) {
             module.hotkey ? `${module.title} (${formatHotkey(module.hotkey, isMac)})` : module.title
           }
           icon={module.icon}
+          iconClassName={kindIconClass(module.kind)}
           pressed={!collapsed && visible.includes(module.id)}
           onClick={() => {
             toggleModule(module);

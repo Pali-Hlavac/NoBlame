@@ -72,6 +72,7 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
     group: "View",
     label: `Show ${module.title}`,
     icon: module.icon,
+    kind: module.kind,
     hotkey: module.hotkey,
     keywords: ["module", "panel", "sidebar"],
     run: () => {
@@ -87,6 +88,7 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
           group: "History",
           label: "Find commits…",
           icon: SearchIcon,
+          kind: "history",
           hotkey: FIND_HOTKEY,
           keywords: ["search", "message", "author", "hash"],
           run: () => {
@@ -98,6 +100,7 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
           group: "History",
           label: "Go to commit…",
           icon: CrosshairIcon,
+          kind: "history",
           hotkey: GO_TO_HOTKEY,
           keywords: ["jump", "hash", "id", "revision", "branch", "tag"],
           run: () => {
@@ -109,6 +112,7 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
           group: "History",
           label: "Compare branches or commits…",
           icon: GitCompareArrowsIcon,
+          kind: "history",
           keywords: ["diff", "two", "revisions", "branch", "tag"],
           // The tab keeps what it compared last, or asks for both sides.
           run: showCompareTab,
@@ -133,6 +137,7 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
       group: "Repository",
       label: "Open repository…",
       icon: FolderOpenIcon,
+      kind: "repositories",
       keywords: ["folder", "browse"],
       run: () => void openRepository(),
     },
@@ -141,6 +146,7 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
       group: "Repository",
       label: "Create repository…",
       icon: FolderPlusIcon,
+      kind: "repositories",
       keywords: ["init", "new"],
       run: () => void createRepository.create(),
     },
