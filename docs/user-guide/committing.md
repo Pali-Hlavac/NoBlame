@@ -37,6 +37,21 @@ header to throw away every change. NoBlame asks first and names what is lost: a 
 back to its staged version (or the last commit's), and a new file is deleted for good (not moved
 to the recycle bin). Files with conflicts are left alone.
 
+## Ignoring files
+
+New files that should never be committed (logs, build output, editor settings) can be hidden
+from the Changes list. Point at a new file (**?**) and click the crossed-out eye, **Ignore…**:
+
+- **What to ignore**: only this file, every file with this name, every file with this extension
+  (for example every `.log` file), or the folder it is in. You can also type your own pattern
+  (`.gitignore` syntax, such as `*.tmp` or `/build/`).
+- Below it, NoBlame lists the files in the Changes list that the pattern would hide.
+- **Add it to**: `.gitignore` is shared with everyone once you commit it; `.git/info/exclude`
+  stays on your computer.
+
+Click **Ignore**. The files disappear from the list; `.gitignore` itself now shows as changed,
+ready to commit. Files Git already tracks are not affected by ignore patterns.
+
 ## Staging part of a file
 
 In the diff of a changed or staged file:

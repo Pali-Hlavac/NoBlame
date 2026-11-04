@@ -444,6 +444,11 @@ Slice 6, first part (2026-11-04): a commit is compared with the working tree fro
 can name contents it never stored), and the comparison is read again with the status. 0.49 s
 for `v2.40.0` against a git.git checkout.
 
+Second part: the `.gitignore` helper. Untracked files in the Commit module's Changes list get
+**Ignore…**: ready-made patterns (the file, its name, its extension, its folder) or a typed one,
+the files it would hide listed before anything is written (two `git ls-files --others` runs,
+about 0.1 s on git.git), and `.gitignore` or `.git/info/exclude` as the target.
+
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
 highlighted after a slow first load and names both costs (done). Option 2 later: show rows while
@@ -674,7 +679,8 @@ The Branches module gets the same entries for its rows.
       list (Stashes module), show (files and diffs in the dock), apply/pop a whole stash or only
       selected files, drop with confirmation; stash label in the graph (slice 5; a stash shows in its
       own Stash tab, its label on the commit it was made on)
-- [ ] `.gitignore` helper: ignore file/extension/folder from the status list
+- [x] `.gitignore` helper: ignore file/extension/folder from the status list (slice 6; an
+      **Ignore…** button on untracked files in the Commit module, with a preview)
 - [ ] Open a file's diff in an external diff tool from the diff tab (`git difftool` settings, or
       a preset such as VS Code `code --wait --diff`)
 - [ ] Repositories module: the number of added, changed and deleted files beside each

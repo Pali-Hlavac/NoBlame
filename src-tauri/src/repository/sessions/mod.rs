@@ -55,6 +55,8 @@ pub struct Session {
     blame_cancel: Mutex<CancellationToken>,
     /// Stops a comparison when a newer one is asked for.
     compare_cancel: Mutex<CancellationToken>,
+    /// Stops an ignore preview when the pattern changes.
+    ignore_cancel: Mutex<CancellationToken>,
     /// Held while the app changes the repository (staging, committing), one change at a time.
     writes: tokio::sync::Mutex<()>,
 }
@@ -74,6 +76,11 @@ impl Session {
     /// one.
     pub fn new_comparison(&self) -> CancellationToken {
         renew(&self.compare_cancel)
+    }
+
+    /// A token for a new preview of an ignore pattern, cancelling the one still running.
+    pub fn new_ignore_preview(&self) -> CancellationToken {
+        renew(&self.ignore_cancel)
     }
 
     /// Waits until no other change the app makes to the repository is running, so two of them
@@ -199,6 +206,7 @@ impl RepoSessions {
             history_cancel: Mutex::default(),
             blame_cancel: Mutex::default(),
             compare_cancel: Mutex::default(),
+            ignore_cancel: Mutex::default(),
             writes: tokio::sync::Mutex::default(),
         });
         inner.sessions.insert(id, Arc::clone(&session));

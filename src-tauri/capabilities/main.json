@@ -76,6 +76,8 @@
     "allow-drop-stash",
     "allow-get-stash-files",
     "allow-apply-stash-files",
+    "allow-preview-ignore",
+    "allow-ignore-files",
     "allow-list-submodules",
     "allow-get-workbench-layout",
     "allow-save-workbench-layout"

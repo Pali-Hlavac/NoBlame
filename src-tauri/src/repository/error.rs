@@ -6,6 +6,7 @@ use git_core::compare::CompareError;
 use git_core::diff::DiffError;
 use git_core::graph::GraphError;
 use git_core::history::HistoryError;
+use git_core::ignore::IgnoreError;
 use git_core::repo::RepoError;
 use git_core::signing::SigningError;
 use git_core::stash::StashError;
@@ -54,6 +55,9 @@ pub enum RepositoryError {
     /// Staging or committing failed.
     #[error(transparent)]
     Commit(#[from] CommitError),
+    /// Ignoring files (or previewing it) failed.
+    #[error(transparent)]
+    Ignore(#[from] IgnoreError),
     /// Checking a commit's signature failed.
     #[error(transparent)]
     Signing(#[from] SigningError),
@@ -141,6 +145,7 @@ impl From<RepositoryError> for AppError {
             | RepositoryError::Signing(SigningError::Git(error)) => GitEnvError::from(error).into(),
             RepositoryError::Compare(error) => compare_error(error),
             error @ (RepositoryError::Commit(_)
+            | RepositoryError::Ignore(_)
             | RepositoryError::Stash(_)
             | RepositoryError::Bare
             | RepositoryError::LossyPath(_)) => staging_error(error),

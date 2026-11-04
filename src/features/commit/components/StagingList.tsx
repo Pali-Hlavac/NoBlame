@@ -1,4 +1,4 @@
-import { LoaderCircleIcon, Undo2Icon, type LucideIcon } from "lucide-react";
+import { EyeOffIcon, LoaderCircleIcon, Undo2Icon, type LucideIcon } from "lucide-react";
 import type { MouseEvent } from "react";
 
 import { ChangedFileRow, describeFile } from "@/features/changed-files";
@@ -40,6 +40,8 @@ interface StagingListProps {
   onDiscard?: (file: WorkingFileDto) => void;
   /** Throws away every listed change (after asking). */
   onDiscardAll?: () => void;
+  /** Adds an untracked file to an ignore file (after asking how). */
+  onIgnore?: (file: WorkingFileDto) => void;
 }
 
 /** A row's small button, shown on hover and on the active row. */
@@ -139,6 +141,23 @@ export function StagingList(props: StagingListProps) {
                     active && "opacity-100",
                   )}
                 >
+                  {props.onIgnore && file.status === "untracked" && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      tabIndex={-1}
+                      disabled={busy}
+                      aria-label={`Ignore ${file.path}…`}
+                      title="Ignore (add to .gitignore)…"
+                      className={ROW_BUTTON_CLASSES}
+                      onMouseDown={stopRowPress}
+                      onClick={() => {
+                        props.onIgnore?.(file);
+                      }}
+                    >
+                      <EyeOffIcon aria-hidden />
+                    </Button>
+                  )}
                   {props.onDiscard && canDiscard(file) && (
                     <Button
                       variant="ghost"

@@ -5,6 +5,7 @@ export {
   type DiscardedFiles,
   type LineAction,
 } from "./api/changes";
+export { useIgnoreFiles, useIgnorePreview } from "./api/ignore";
 export {
   statusKeys,
   useStatusSummary,

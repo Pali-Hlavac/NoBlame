@@ -151,6 +151,9 @@ All notable changes to NoBlame are documented here. The format follows
 - Compare with the working tree (M4 slice 6): a commit's menu → **Compare with the working
   tree**, or **Working tree** as the compare tab's second side. Lists what `git diff <commit>`
   lists, diffs against the files on disk, and updates when they change.
+- `.gitignore` helper (M4 slice 6): **Ignore…** on untracked files in the Commit module offers
+  the file, its name, its extension or its folder as a pattern (or a typed one), lists the files
+  it would hide, and adds it to `.gitignore` or `.git/info/exclude`.
 - The commit message (M4, slice 4): **Recent ▾** above the box puts one of your last commit
   messages back in it; the box starts with your `commit.template` (its `#` lines are left out,
   as Git does); **Author → Change** commits someone else's work as `Name <email>` with you as

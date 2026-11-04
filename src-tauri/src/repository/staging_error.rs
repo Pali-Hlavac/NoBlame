@@ -1,6 +1,7 @@
-//! What a refused stage, unstage, discard, commit or stash tells the user.
+//! What a refused stage, unstage, discard, commit, stash or ignore tells the user.
 
 use git_core::commit::CommitError;
+use git_core::ignore::IgnoreError;
 use git_core::stash::StashError;
 
 use super::RepositoryError;
@@ -14,6 +15,7 @@ pub(super) fn staging_error(error: RepositoryError) -> AppError {
     match error {
         RepositoryError::Commit(error) => commit_error(error),
         RepositoryError::Stash(error) => stash_error(error),
+        RepositoryError::Ignore(error) => ignore_error(error),
         RepositoryError::Bare => AppError::new(
             ErrorCode::InvalidInput,
             "This repository is bare: it has no working tree.",
@@ -26,6 +28,19 @@ pub(super) fn staging_error(error: RepositoryError) -> AppError {
         )
         .with_hint("Stage this file with git in a terminal, or use Stage all."),
         other => AppError::new(ErrorCode::Internal, other.to_string()),
+    }
+}
+
+fn ignore_error(error: IgnoreError) -> AppError {
+    match error {
+        IgnoreError::Invalid(reason) => AppError::new(ErrorCode::InvalidInput, reason),
+        IgnoreError::Bare => staging_error(RepositoryError::Bare),
+        IgnoreError::Git(error) => GitEnvError::from(error).into(),
+        IgnoreError::Write { path, source } => AppError::new(
+            ErrorCode::Io,
+            format!("Could not write {}: {source}.", path.display()),
+        )
+        .with_hint("Close any program that holds the file open, then try again."),
     }
 }
 

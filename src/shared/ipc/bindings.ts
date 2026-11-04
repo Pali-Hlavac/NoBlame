@@ -212,6 +212,13 @@ export const commands = {
 	getStashFiles: (id: number, stashId: string) => typedError<StashFilesDto, AppError>(__TAURI_INVOKE("get_stash_files", { id, stashId })),
 	/**  Applies some files of a stash (merged as `git stash apply` would); the stash is kept. */
 	applyStashFiles: (id: number, request: ApplyStashFilesRequestDto) => typedError<ApplyOutcomeDto, AppError>(__TAURI_INVOKE("apply_stash_files", { id, request })),
+	/**  The untracked files listed now that a `.gitignore` pattern would hide (at most 200 named). */
+	previewIgnore: (id: number, pattern: string) => typedError<IgnorePreviewDto, AppError>(__TAURI_INVOKE("preview_ignore", { id, pattern })),
+	/**
+	 *  Adds a pattern to the repository's `.gitignore` or `.git/info/exclude`; `false` when that
+	 *  line is already there.
+	 */
+	ignoreFiles: (id: number, request: IgnoreRequestDto) => typedError<boolean, AppError>(__TAURI_INVOKE("ignore_files", { id, request })),
 	/**
 	 *  The saved layout, or `None` on first launch. A corrupted file is logged and treated as
 	 *  missing, so a bad layout can never stop the main window from opening.
@@ -882,6 +889,29 @@ export type HistoryStopDto =
 { kind: "missingContents"; 
 /**  The commit (hex) where following stopped. */
 commit: string };
+
+/**  Where an ignore pattern is written. */
+export type IgnoreFileDto = 
+/**  `.gitignore` at the top of the working tree, shared through commits. */
+"shared" | 
+/**  `.git/info/exclude`: only this clone. */
+"local";
+
+/**  The untracked files a pattern would hide. */
+export type IgnorePreviewDto = {
+	/**  Sorted, at most 200. */
+	files: string[],
+	/**  All of them. */
+	total: number,
+};
+
+/**  A pattern to add to an ignore file. */
+export type IgnoreRequestDto = {
+	/**  One line of `.gitignore` syntax (`*.log`, `/build/`). */
+	pattern: string,
+	/**  Which file to add it to. */
+	file: IgnoreFileDto,
+};
 
 /**
  *  Changed lines of one file to stage, unstage or discard, between the versions the diff

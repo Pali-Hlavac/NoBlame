@@ -345,6 +345,15 @@ Use a scratch repository, or a branch you can throw away.
       it says the file is deleted. **↶** in the Changes header lists what is lost.
   - Notes:
 
+- [ ] **(slice 6)** Create `a.log` and `logs/b.log` in a scratch repository. Point at `a.log` in
+      Changes → crossed-out eye **Ignore…**: **Only this file** is picked and "Hides 1 file";
+      **Every .log file** hides both. **Ignore** → both leave the list, `.gitignore` shows as
+      changed with `*.log` as its last line.
+  - Notes:
+- [ ] **(slice 6)** Ignore a file into `.git/info/exclude`: it leaves the list, nothing new is
+      listed. Type `#x` as the pattern: the dialog says why it cannot be used.
+  - Notes:
+
 ## 13b. Stashes (new, M4 slice 5)
 
 Use a scratch repository with a few changed files and one new file.

@@ -95,6 +95,8 @@ pub fn builder() -> Builder<tauri::Wry> {
             worktree::stash_commands::drop_stash,
             worktree::stash_commands::get_stash_files,
             worktree::stash_commands::apply_stash_files,
+            worktree::ignore_commands::preview_ignore,
+            worktree::ignore_commands::ignore_files,
             workbench::commands::get_workbench_layout,
             workbench::commands::save_workbench_layout,
         ])

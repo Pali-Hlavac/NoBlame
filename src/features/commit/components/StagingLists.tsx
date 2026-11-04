@@ -19,6 +19,7 @@ import { LoadingState } from "@/shared/components/LoadingState";
 import { useIndexChange, type IndexChange } from "../api/commit";
 import { discardPlan, type DiscardPlan } from "../lib/discard";
 import { indexPaths, neighbour } from "../lib/files";
+import { IgnoreDialog } from "./IgnoreDialog";
 import { StagingList, type StagingVerb } from "./StagingList";
 
 const STAGE: StagingVerb = {
@@ -59,6 +60,7 @@ export function StagingLists({ repoId, repoPath, showDiff }: StagingListsProps) 
   const [pending, setPending] = useState<Pending | null>(null);
   const discard = useDiscardFiles(repoId);
   const [discarding, setDiscarding] = useState<DiscardPlan | null>(null);
+  const [ignoring, setIgnoring] = useState<string | null>(null);
 
   if (status.error) {
     return (
@@ -141,6 +143,13 @@ export function StagingLists({ repoId, repoPath, showDiff }: StagingListsProps) 
               }
             : undefined
         }
+        onIgnore={
+          stage
+            ? (file) => {
+                setIgnoring(file.path);
+              }
+            : undefined
+        }
         onDiscardAll={
           stage
             ? () => {
@@ -172,6 +181,16 @@ export function StagingLists({ repoId, repoPath, showDiff }: StagingListsProps) 
           setPending(null);
         }}
       />
+      {ignoring !== null && (
+        <IgnoreDialog
+          key={ignoring}
+          repoId={repoId}
+          path={ignoring}
+          onClose={() => {
+            setIgnoring(null);
+          }}
+        />
+      )}
       <ConfirmDialog
         open={discarding !== null}
         onOpenChange={(open) => {

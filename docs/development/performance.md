@@ -209,6 +209,12 @@ with no commits, so all 2,000 commits are read. Linux kernel: 32 ms warm, 0.51 s
 read of the pack after a restart; 20 messages of anyone 10 ms. synthetic-1m: 0.43 s cold. They
 are read only when the **Recent** menu opens, on a blocking thread.
 
+### Ignore preview (M4 slice 6, 2026-11-04)
+
+The `.gitignore` helper's preview runs `git ls-files --others` twice (the untracked files listed
+now, and what the pattern would ignore). On a shared clone of git.git (4,857 tracked files) with
+2,000 untracked files, warm: 0.05 s each, about 0.1 s per preview (Windows 11, git 2.56).
+
 ### File diffs (M3, ADR 0013, 2026-10-28)
 
 `cargo run --release -p git-core --example diff_spike -- <repo> <old-blob> <new-blob>`, Windows 11,

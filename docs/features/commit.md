@@ -44,6 +44,8 @@ since both work on the active repository.
   Changes header (all listed files). The confirmation (`lib/discard.ts`) names the files: changed
   ones go back to the staged version, new ones are deleted, conflicts and submodules are left as
   they are, and only listed files are discarded when the list was cut at 5,000.
+- **Ignore** (M4 slice 6): an eye-off button on untracked Changes rows opens `IgnoreDialog`, see
+  [Ignoring files](#ignoring-files-slice-6).
 - The draft (message, Amend, Sign off, author override, the template it started from) lives in
   a Zustand store keyed by repository path, kept while the app runs; a commit clears the
   message, Amend and the author and keeps Sign off.
@@ -78,6 +80,40 @@ character) each time it mounts.
   of the message as it will be stored) against 50 (amber above) and 72 (red above), and
   **Leave line 2 empty** when the line after the summary has text.
 
+## Ignoring files (slice 6)
+
+The `.gitignore` helper, on untracked files (and untracked folders, which the status lists as
+`folder/`):
+
+- **What to ignore** offers ready-made patterns (`lib/ignore.ts`): only this file (`/logs/a.log`),
+  every file of that name (`a.log`), every file with its extension (`*.log`, not for dot files
+  such as `.env`), and the folder it is in (`/logs/`); for a folder, the folder itself or every
+  folder of that name (`out/`). Wildcards (`*`, `?`, `[`, `\`), a leading `#` or `!` and a last
+  space are escaped. The **Pattern** box can be edited freely.
+- Under it, the files listed now that the pattern would hide (`preview_ignore`, 250 ms after the
+  last key press; a newer preview cancels the running one): the count and up to 200 names, or
+  git's reason the pattern is refused.
+- **Add it to** `.gitignore` (at the top of the working tree, shared once committed) or
+  `.git/info/exclude` (this clone only; in a linked worktree the common git folder's). Global
+  ignore files (`core.excludesFile`) are never touched.
+- **Ignore** appends the line (`ignore_files`): the file and its folder are created when missing,
+  the file's line endings are kept (CRLF if it has any), a missing last newline is added first,
+  and a line already there is not added again (the toast says "Already in …"). Files git tracks
+  are not untracked.
+- The status is read again afterwards (`info/exclude` is inside `.git`, which the watcher does
+  not report).
+
+`git_core::ignore`:
+
+- `check_pattern` refuses an empty pattern, several lines, a comment (`#`) and an unescaped last
+  space (git would drop it).
+- `files_hidden_by` runs `git ls-files -z --others --exclude-standard` (the untracked files listed
+  now) and `git ls-files -z --others --exclude-standard --ignored --directory --exclude=<pattern>`
+  (what would be ignored, ignored folders as one `folder/` entry), and keeps the first list's
+  files that the second names, or whose folder it names. A pattern given with `--exclude` takes
+  precedence over a `!` rule in a deeper `.gitignore`, so the preview can name a file the written
+  pattern would not hide. About 0.1 s for both on git.git with 2,000 untracked files.
+
 ## Backend
 
 | Command                                         | Runs                                                                                                |
@@ -92,6 +128,8 @@ character) each time it mounts.
 | `get_recent_messages`                           | gix: up to 20 of the user's messages, walking at most 2,000 commits from HEAD by date               |
 | `stage_lines`, `unstage_lines`, `discard_lines` | Some changed lines of a file, see [diff.md](diff.md#staging-lines-and-hunks)                        |
 | `discard_files`                                 | `git restore --worktree` (literal paths on stdin) and `git clean -f -q -- <new files>`, 200 per run |
+| `preview_ignore`                                | Two `git ls-files --others` runs, see [Ignoring files](#ignoring-files-slice-6)                     |
+| `ignore_files`                                  | Appends a line to `.gitignore` or `.git/info/exclude` (no git)                                      |
 
 - Paths go on standard input, NUL-separated and literal: no command-line length limit, and a
   file named `[ab].txt` is not a pattern. A rename is unstaged by both its names.
@@ -111,4 +149,5 @@ character) each time it mounts.
 - Recent messages from other branches, or typed but never committed.
 - Discarding to the recycle bin instead of deleting new files.
 - Choosing several files at once (Shift/Ctrl+click).
+- Ignoring a tracked file (it would need `git rm --cached` too), and several patterns at once.
 - The `noblame commit <path>` task window is still the M8 placeholder.
