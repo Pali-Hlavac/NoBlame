@@ -220,6 +220,11 @@ export const commands = {
 	 */
 	ignoreFiles: (id: number, request: IgnoreRequestDto) => typedError<boolean, AppError>(__TAURI_INVOKE("ignore_files", { id, request })),
 	/**
+	 *  Opens a file's two versions in the external diff tool chosen in Settings (through
+	 *  `git difftool --no-index`). Returns once the tool started; fails when it could not.
+	 */
+	openExternalDiff: (id: number, request: ExternalDiffRequestDto) => typedError<null, AppError>(__TAURI_INVOKE("open_external_diff", { id, request })),
+	/**
 	 *  The saved layout, or `None` on first launch. A corrupted file is logged and treated as
 	 *  missing, so a bad layout can never stop the main window from opening.
 	 */
@@ -647,6 +652,8 @@ export type DiffSettings = {
 	wholeFile?: boolean,
 	/**  Colour the code by its language. */
 	syntaxHighlighting?: boolean,
+	/**  The program "Open in diff tool" starts. */
+	externalTool?: ExternalDiffTool,
 };
 
 /**  Stable, machine-readable error category the frontend can branch on. */
@@ -673,6 +680,43 @@ export type ErrorCode =
 "NOT_A_REPOSITORY" | 
 /**  Git refuses the repository (owned by another user, not in `safe.directory`). */
 "UNTRUSTED_REPOSITORY";
+
+/**  The file whose diff is opened, as the diff tab shows it. */
+export type ExternalDiffRequestDto = {
+	/**  Blob before the change (hex); `null` when the file is absent there. */
+	oldId: string | null,
+	/**  Blob after the change (hex); `null` when absent, ignored with `worktree`. */
+	newId: string | null,
+	/**  The file's path (after a rename). */
+	path: string,
+	/**  The path before a rename or copy. */
+	oldPath: string | null,
+	/**  The new side is the working tree file at `path`, opened itself (edits are kept). */
+	worktree: boolean,
+};
+
+/**  The external diff tool. */
+export type ExternalDiffTool = {
+	/**  Which program. */
+	kind?: ExternalDiffToolKind,
+	/**
+	 *  For [`ExternalDiffToolKind::Custom`]: a shell command git runs with the old and the new
+	 *  file appended (`git difftool --extcmd`); it must wait until the tool is closed.
+	 */
+	command?: string,
+};
+
+/**
+ *  Which program shows a diff outside the app. Each runs through `git difftool --no-index`, so
+ *  git starts it as it would from a terminal.
+ */
+export type ExternalDiffToolKind = 
+/**  The user's `diff.tool` (or `merge.tool`) from their git config. */
+"git" | 
+/**  Visual Studio Code (`code --wait --diff`). */
+"vsCode" | 
+/**  The command in [`ExternalDiffTool::command`]. */
+"custom";
 
 /**  What the diff tab needs before it asks for rows. */
 export type FileDiffDto = {

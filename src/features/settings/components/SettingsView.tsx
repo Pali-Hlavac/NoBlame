@@ -6,6 +6,7 @@ import { useThemePreference } from "../hooks/useThemePreference";
 import { DIFF_LAYOUT_OPTIONS, WHITESPACE_OPTIONS } from "../lib/diff";
 import { THEME_OPTIONS } from "../lib/theme";
 import { ContextStepper } from "./ContextStepper";
+import { ExternalToolSetting } from "./ExternalToolSetting";
 import { GraphColumnsSetting } from "./GraphColumnsSetting";
 import { Choice, Section, Toggle } from "./SettingControls";
 
@@ -64,6 +65,7 @@ function DiffSection() {
           changeDiff({ syntaxHighlighting });
         }}
       />
+      <ExternalToolSetting />
     </Section>
   );
 }

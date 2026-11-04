@@ -154,6 +154,9 @@ All notable changes to NoBlame are documented here. The format follows
 - `.gitignore` helper (M4 slice 6): **Ignore…** on untracked files in the Commit module offers
   the file, its name, its extension or its folder as a pattern (or a typed one), lists the files
   it would hide, and adds it to `.gitignore` or `.git/info/exclude`.
+- External diff tool (M4 slice 6): **Open in diff tool** beside the file name in every diff opens
+  the two versions in Git's `diff.tool`, Visual Studio Code or a command of your own
+  (Settings → Diff), through `git difftool --no-index`.
 - The commit message (M4, slice 4): **Recent ▾** above the box puts one of your last commit
   messages back in it; the box starts with your `commit.template` (its `#` lines are left out,
   as Git does); **Author → Change** commits someone else's work as `Name <email>` with you as

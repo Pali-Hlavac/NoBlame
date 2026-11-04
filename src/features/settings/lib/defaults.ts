@@ -1,6 +1,7 @@
 import type {
   BranchesSettings,
   DiffSettings,
+  ExternalDiffTool,
   GraphSettings,
   RepositoriesSettings,
   Settings,
@@ -18,9 +19,14 @@ export interface AppSettings {
   theme: ThemePreference;
   graph: Required<GraphSettings>;
   repositories: Required<RepositoriesSettings>;
-  diff: Required<DiffSettings>;
+  diff: AppDiffSettings;
   branches: Required<BranchesSettings>;
 }
+
+/** The diff settings with every field present, the external tool's too. */
+export type AppDiffSettings = Required<Omit<DiffSettings, "externalTool">> & {
+  externalTool: Required<ExternalDiffTool>;
+};
 
 /** What the backend uses for missing settings (`src-tauri/src/settings/types.rs`). */
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -42,6 +48,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     contextLines: 3,
     wholeFile: false,
     syntaxHighlighting: true,
+    externalTool: { kind: "git", command: "" },
   },
   branches: { sort: "name" },
 };
@@ -52,13 +59,17 @@ export function withDefaults(settings: Settings | undefined): AppSettings {
     theme: settings?.theme ?? DEFAULT_SETTINGS.theme,
     graph: { ...DEFAULT_SETTINGS.graph, ...settings?.graph },
     repositories: { ...DEFAULT_SETTINGS.repositories, ...settings?.repositories },
-    diff: migrateDiff({ ...DEFAULT_SETTINGS.diff, ...settings?.diff }),
+    diff: migrateDiff({
+      ...DEFAULT_SETTINGS.diff,
+      ...settings?.diff,
+      externalTool: { ...DEFAULT_SETTINGS.diff.externalTool, ...settings?.diff?.externalTool },
+    }),
     branches: { ...DEFAULT_SETTINGS.branches, ...settings?.branches },
   };
 }
 
 /** Earlier versions stored "whole file" as a huge number of context lines. */
-function migrateDiff(diff: Required<DiffSettings>): Required<DiffSettings> {
+function migrateDiff(diff: AppDiffSettings): AppDiffSettings {
   return diff.contextLines === WHOLE_FILE_CONTEXT
     ? { ...diff, contextLines: DEFAULT_SETTINGS.diff.contextLines, wholeFile: true }
     : diff;

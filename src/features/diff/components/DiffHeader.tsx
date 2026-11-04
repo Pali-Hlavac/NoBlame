@@ -1,3 +1,5 @@
+import { AppWindowIcon } from "lucide-react";
+
 import { STATUS_LABELS, splitPath } from "@/features/changed-files";
 import {
   ContextStepper,
@@ -7,7 +9,9 @@ import {
 } from "@/features/settings";
 import type { FileDiffDto, WhitespaceMode } from "@/shared/ipc/bindings";
 import { cn } from "@/shared/lib/cn";
+import { Button } from "@/shared/ui/button";
 
+import { useOpenExternalDiff } from "../api/external";
 import type { DiffFile } from "../lib/diffFile";
 import { formatChangeCounts } from "../lib/format";
 
@@ -65,9 +69,16 @@ function DiffOptionsBar() {
   );
 }
 
-/** File name, folder (or old name), status, line counts and the diff options. */
-export function DiffHeader({ file, diff }: { file: DiffFile; diff: FileDiffDto | undefined }) {
+interface DiffHeaderProps {
+  repoId: number;
+  file: DiffFile;
+  diff: FileDiffDto | undefined;
+}
+
+/** File name, folder (or old name), status, line counts, the diff options and the diff tool. */
+export function DiffHeader({ repoId, file, diff }: DiffHeaderProps) {
   const { name, folder } = splitPath(file.path);
+  const external = useOpenExternalDiff(repoId);
   return (
     <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 border-b border-border px-3 py-1.5 text-sm">
       <div className="flex min-w-0 items-baseline gap-2">
@@ -84,6 +95,22 @@ export function DiffHeader({ file, diff }: { file: DiffFile; diff: FileDiffDto |
           <span className="font-mono text-xs text-muted-foreground">
             {formatChangeCounts(diff.additions, diff.deletions)}
           </span>
+        )}
+        {/* Beside the name, so a narrow pane never pushes it out of view. */}
+        {!file.submodule && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-6 shrink-0 self-center"
+            aria-label="Open in diff tool"
+            title="Open in diff tool (Settings → Diff)"
+            disabled={external.isPending}
+            onClick={() => {
+              external.mutate(file);
+            }}
+          >
+            <AppWindowIcon aria-hidden />
+          </Button>
         )}
       </div>
       {/* The options change text diffs only (not images, binaries or submodules). */}

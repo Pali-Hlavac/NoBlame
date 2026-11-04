@@ -4,6 +4,7 @@ use git_core::blame::BlameError;
 use git_core::commit::CommitError;
 use git_core::compare::CompareError;
 use git_core::diff::DiffError;
+use git_core::difftool::DiffToolError;
 use git_core::graph::GraphError;
 use git_core::history::HistoryError;
 use git_core::ignore::IgnoreError;
@@ -55,6 +56,9 @@ pub enum RepositoryError {
     /// Staging or committing failed.
     #[error(transparent)]
     Commit(#[from] CommitError),
+    /// Opening an external diff tool failed.
+    #[error(transparent)]
+    DiffTool(#[from] DiffToolError),
     /// Ignoring files (or previewing it) failed.
     #[error(transparent)]
     Ignore(#[from] IgnoreError),
@@ -146,6 +150,7 @@ impl From<RepositoryError> for AppError {
             RepositoryError::Compare(error) => compare_error(error),
             error @ (RepositoryError::Commit(_)
             | RepositoryError::Ignore(_)
+            | RepositoryError::DiffTool(_)
             | RepositoryError::Stash(_)
             | RepositoryError::Bare
             | RepositoryError::LossyPath(_)) => staging_error(error),

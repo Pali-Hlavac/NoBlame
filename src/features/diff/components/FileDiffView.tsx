@@ -162,7 +162,7 @@ export function FileDiffView({ repoId, file, staging: stagingKind }: FileDiffVie
   return (
     <LineStagingContext.Provider value={textDiff ? lines.staging : null}>
       <div className="flex h-full flex-col">
-        <DiffHeader file={file} diff={summary.data ?? shown?.diff} />
+        <DiffHeader repoId={repoId} file={file} diff={summary.data ?? shown?.diff} />
         <LineSelectionBar />
         {body}
       </div>

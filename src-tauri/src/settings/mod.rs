@@ -1,10 +1,12 @@
 //! User preferences persisted as JSON in the platform app-config directory.
 
 pub mod commands;
+mod diff;
 mod graph;
 mod types;
 
-pub use types::{DiffLayout, Settings, ThemePreference, WhitespaceMode};
+pub use diff::{DiffLayout, ExternalDiffTool, ExternalDiffToolKind, WhitespaceMode};
+pub use types::{Settings, ThemePreference};
 
 use tauri::{App, Manager};
 

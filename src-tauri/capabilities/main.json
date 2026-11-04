@@ -78,6 +78,7 @@
     "allow-apply-stash-files",
     "allow-preview-ignore",
     "allow-ignore-files",
+    "allow-open-external-diff",
     "allow-list-submodules",
     "allow-get-workbench-layout",
     "allow-save-workbench-layout"

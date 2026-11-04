@@ -10,6 +10,7 @@ pub mod cli;
 pub mod commit;
 pub mod compare;
 pub mod diff;
+pub mod difftool;
 pub mod graph;
 pub mod history;
 pub mod ignore;

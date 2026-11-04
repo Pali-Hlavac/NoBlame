@@ -205,6 +205,40 @@ last line gets a newline). The result is written with git:
 The index entry is read with `git ls-files --stage` (a conflicted path is refused), HEAD's with
 gix. Selecting with whitespace ignored still works: the line numbers name real lines.
 
+## External diff tool (M4 slice 6)
+
+A button beside the file name (a window icon, **Open in diff tool**) opens the file's two
+versions in another program. It is in every diff header (Diff tab, compare tab, Commit module),
+not for submodules. **Settings → Diff → External diff tool** chooses the program:
+
+| Choice                | Runs                                                                            |
+| --------------------- | ------------------------------------------------------------------------------- |
+| Git's diff tool       | `git difftool --no-index -y --tool=<diff.tool, else merge.tool> -- <old> <new>` |
+| Visual Studio Code    | the same with `--tool=vscode` (git runs `code --wait --diff`)                   |
+| A command of your own | the same with `--extcmd=<command>` (git appends the two files)                  |
+
+- Everything goes through `git difftool`, so git's own table of tools (`meld`, `bc`, `kdiff3`,
+  `p4merge`, `winmerge`, …), `difftool.<tool>.cmd`, `.path` and the repository's config apply
+  as in a terminal (`git_core::difftool`, run in the working tree or, for a bare repository, the
+  git folder).
+- The tool is always named. Without `--tool`, git would guess one when `diff.tool` is unset or
+  unknown, even vimdiff, which then runs with no terminal; NoBlame says "Git has no diff tool
+  set" instead (`configured_tool` reads `diff.tool`, then `merge.tool`, with gix).
+- The versions: a blob is written as a checkout would write it (`git cat-file --filters
+--path=<path>`, so line endings and smudge filters apply) to
+  `<system temp>/noblame-difftool/<pid>-<n>/<short id>/<file name>`; the file keeps its name so
+  the tool recognises its type. A working tree side is the file itself, so edits made in the tool
+  are kept. An absent side (added, deleted) is an empty file. A rename shows each side under its
+  own name.
+- `git difftool --no-index` exits with 1 when the files differ, like `git diff --no-index`; only
+  other codes are failures, reported with git's message (an unknown tool, one not installed,
+  a command not found).
+- `open_external_diff` waits up to 1.5 s: a failure in that time is the command's error (a toast
+  with the hint to check Settings). A tool still open then keeps running in the background; when
+  it closes, its folder is deleted (a later failure is only logged). As with `git difftool`, the
+  tool must wait until it is closed: VS Code's `--wait` does; a custom command that returns at
+  once loses its files.
+
 ## Not yet
 
 - Word diff: the changed words inside paired lines (slice 3b).
@@ -216,3 +250,5 @@ gix. Selecting with whitespace ignored still works: the line numbers name real l
 - Next/previous change shortcuts; search inside the diff.
 - Choosing lines with the keyboard; staging lines of a renamed file's old name.
 - Several diff tabs, or a diff in its own window (`noblame diff`); later.
+- Terminal diff tools (vimdiff) from the external tool button: there is no terminal to run them
+  in. A folder-wide external diff (`git difftool --dir-diff`), and merge tools (M6).

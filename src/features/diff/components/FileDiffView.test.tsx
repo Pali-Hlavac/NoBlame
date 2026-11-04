@@ -13,6 +13,7 @@ const ipc = vi.hoisted(() => ({
   stageLines: vi.fn(),
   unstageLines: vi.fn(),
   discardLines: vi.fn(),
+  openExternalDiff: vi.fn(),
 }));
 vi.mock("@/shared/ipc/bindings", () => ({ commands: ipc }));
 
@@ -73,6 +74,21 @@ describe("FileDiffView line staging", () => {
     for (const command of [ipc.stageLines, ipc.unstageLines, ipc.discardLines]) {
       command.mockResolvedValue({ status: "ok", data: null });
     }
+  });
+
+  it("opens the file in the external diff tool, the working tree file itself", async () => {
+    ipc.openExternalDiff.mockResolvedValue({ status: "ok", data: null });
+    renderView(undefined);
+    fireEvent.click(await screen.findByRole("button", { name: "Open in diff tool" }));
+    await waitFor(() => {
+      expect(ipc.openExternalDiff).toHaveBeenCalledWith(1, {
+        oldId: INDEX,
+        newId: DISK,
+        path: "a.txt",
+        oldPath: null,
+        worktree: true,
+      });
+    });
   });
 
   it("stages a hunk with its button", async () => {

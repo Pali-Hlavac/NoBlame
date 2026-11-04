@@ -49,6 +49,18 @@ just the code: no line numbers and no `+` or `-`. In side by side, the selection
 side where you started it. You can also start dragging in the empty space after the end of a
 line.
 
+To look at a file in another program, click the window icon beside its name, **Open in diff
+tool**. Choose the program in **Settings → Diff → External diff tool**:
+
+- **Git's diff tool** uses the tool set in your Git configuration (`diff.tool`, for example
+  Beyond Compare, Meld or KDiff3). If none is set, NoBlame says so.
+- **Visual Studio Code** opens the two versions side by side in VS Code.
+- **A command of your own** runs your command with the old and the new file added at the end.
+  The program must stay open until you close it (NoBlame removes the copies it made then).
+
+For changes you have not committed, the right side is your file itself, so you can edit it in
+the tool.
+
 Images (PNG, JPEG, GIF, WebP, BMP, ICO, AVIF) are shown as pictures: before on the left, after
 on the right, with their size in pixels and bytes. A checkerboard shows through transparent
 parts.

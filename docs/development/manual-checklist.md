@@ -483,6 +483,11 @@ Use a scratch repository with a few changed files and one new file.
   - Notes:
 - [ ] **(not checked yet)** Command palette → **Compare branches or commits…**.
   - Notes:
+- [ ] (new, M4 slice 6) With no `diff.tool` in your Git config, click the window icon beside a
+      file's name in the Diff tab: "Git has no diff tool set". Choose **Visual Studio Code** in
+      Settings → Diff and click again: VS Code shows both versions; for an uncommitted file the
+      right side is the file itself.
+  - Notes:
 - [ ] (new, M4 slice 6) Edit a file, then right-click an older commit → **Compare with the
       working tree**: the right side says **Working tree**, ⇄ is greyed out, the edited file is
       listed with your change in its diff. Save the file again with another change:

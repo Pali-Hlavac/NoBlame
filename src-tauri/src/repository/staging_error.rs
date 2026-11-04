@@ -1,6 +1,8 @@
-//! What a refused stage, unstage, discard, commit, stash or ignore tells the user.
+//! What a refused stage, unstage, discard, commit, stash or ignore tells the user, and why an
+//! external diff tool did not open.
 
 use git_core::commit::CommitError;
+use git_core::difftool::DiffToolError;
 use git_core::ignore::IgnoreError;
 use git_core::stash::StashError;
 
@@ -16,6 +18,7 @@ pub(super) fn staging_error(error: RepositoryError) -> AppError {
         RepositoryError::Commit(error) => commit_error(error),
         RepositoryError::Stash(error) => stash_error(error),
         RepositoryError::Ignore(error) => ignore_error(error),
+        RepositoryError::DiffTool(error) => diff_tool_error(error),
         RepositoryError::Bare => AppError::new(
             ErrorCode::InvalidInput,
             "This repository is bare: it has no working tree.",
@@ -28,6 +31,33 @@ pub(super) fn staging_error(error: RepositoryError) -> AppError {
         )
         .with_hint("Stage this file with git in a terminal, or use Stage all."),
         other => AppError::new(ErrorCode::Internal, other.to_string()),
+    }
+}
+
+fn diff_tool_error(error: DiffToolError) -> AppError {
+    const SETTINGS_HINT: &str = "Choose the diff tool in Settings → Diff.";
+    match error {
+        DiffToolError::NotConfigured => AppError::new(
+            ErrorCode::InvalidInput,
+            "Git has no diff tool set (diff.tool).",
+        )
+        .with_hint("Choose Visual Studio Code or a command of your own in Settings → Diff, or set diff.tool in your Git config."),
+        DiffToolError::NoCommand => AppError::new(
+            ErrorCode::InvalidInput,
+            "The diff tool command in Settings → Diff is empty.",
+        ),
+        DiffToolError::Failed { output } => {
+            AppError::new(ErrorCode::GitFailed, output).with_hint(SETTINGS_HINT)
+        }
+        DiffToolError::InvalidPath(path) => AppError::new(
+            ErrorCode::InvalidInput,
+            format!("{path} cannot be written as a file on this system."),
+        ),
+        DiffToolError::Git(error) => GitEnvError::from(error).into(),
+        DiffToolError::Write { path, source } => AppError::new(
+            ErrorCode::Io,
+            format!("Could not write {}: {source}.", path.display()),
+        ),
     }
 }
 

@@ -449,6 +449,17 @@ Second part: the `.gitignore` helper. Untracked files in the Commit module's Cha
 the files it would hide listed before anything is written (two `git ls-files --others` runs,
 about 0.1 s on git.git), and `.gitignore` or `.git/info/exclude` as the target.
 
+Third part: **Open in diff tool** beside the file name in every diff header. Settings → Diff
+chooses Git's `diff.tool` (NoBlame names it with `--tool`, so git never guesses a terminal tool),
+VS Code (git's `vscode` tool) or a command of one's own (`--extcmd`); all run through
+`git difftool --no-index` with blobs written as a checkout would write them and the working tree
+file itself on the right. Slice 6 done (2026-11-04). Clicked through in the dev app on a scratch
+repository: comparing a commit with the working tree (and the diff following an edit on disk),
+both ignore files with the preview and a refused `#x`, the missing `diff.tool` message, and a
+custom command (a script standing in for a tool) receiving both versions, its files removed
+after it closed. VS Code itself was not opened (it would have appeared on the owner's screen).
+Next: slice 7, the Repositories module counts (measured first).
+
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
 highlighted after a slow first load and names both costs (done). Option 2 later: show rows while
@@ -681,8 +692,9 @@ The Branches module gets the same entries for its rows.
       own Stash tab, its label on the commit it was made on)
 - [x] `.gitignore` helper: ignore file/extension/folder from the status list (slice 6; an
       **Ignore…** button on untracked files in the Commit module, with a preview)
-- [ ] Open a file's diff in an external diff tool from the diff tab (`git difftool` settings, or
-      a preset such as VS Code `code --wait --diff`)
+- [x] Open a file's diff in an external diff tool from the diff tab (`git difftool` settings, or
+      a preset such as VS Code `code --wait --diff`). Slice 6: Git's `diff.tool`, VS Code or a
+      command of one's own, all through `git difftool --no-index`
 - [ ] Repositories module: the number of added, changed and deleted files beside each
       repository, behind a setting (owner request 2026-11-02). Open repositories have their
       status already; closed ones need a `git status` each, so that is measured first
@@ -703,7 +715,7 @@ Slices, in order (planned 2026-11-02):
 5. Stash: create (selected files, message, keep index, untracked), show, apply or pop (whole or
    selected files), drop; the stash label in the graph. Done 2026-11-04.
 6. `.gitignore` helper, external diff tool from the diff tab, compare with the working tree
-   (left from M3 slice 9).
+   (left from M3 slice 9). Done 2026-11-04.
 7. Repositories module counts (measured first).
 
 ### M5: Branches, tags and remotes

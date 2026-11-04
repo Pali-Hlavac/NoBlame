@@ -15,6 +15,12 @@ describe("withDefaults", () => {
     expect(settings.graph.highlightSelection).toBe(true);
   });
 
+  it("fills a partly saved external diff tool", () => {
+    const settings = withDefaults({ diff: { externalTool: { kind: "custom" } } });
+    expect(settings.diff.externalTool).toEqual({ kind: "custom", command: "" });
+    expect(withDefaults({ diff: {} }).diff.externalTool.kind).toBe("git");
+  });
+
   it("turns the old whole-file context into the whole-file switch", () => {
     const settings = withDefaults({ diff: { contextLines: WHOLE_FILE_CONTEXT } });
     expect(settings.diff).toMatchObject({ contextLines: 3, wholeFile: true });
