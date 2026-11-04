@@ -65,6 +65,8 @@
     "allow-unstage-all-files",
     "allow-create-commit",
     "allow-get-head-message",
+    "allow-get-commit-defaults",
+    "allow-get-recent-messages",
     "allow-stage-lines",
     "allow-unstage-lines",
     "allow-discard-lines",

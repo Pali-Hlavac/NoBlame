@@ -317,6 +317,20 @@ Use a scratch repository, or a branch you can throw away.
 - [ ] A repository's **…** → **Commit…** (also for a closed one in a group) shows it and opens
       the commit window.
   - Notes:
+- [ ] **(slice 4)** **Recent ▾** lists your last messages (not other people's); choosing one
+      replaces the box.
+  - Notes:
+- [ ] **(slice 4)** With `git config commit.template .gitmessage` (a file with `#` lines): the box
+      starts with it; Commit waits until it is changed; the commit has no `#` lines; after the
+      commit the template is back. Amend over it fills in the last message; untick: the template
+      returns.
+  - Notes:
+- [ ] **(slice 4)** **Author → Change**: `Grace` is refused, `Grace <g@example.com>` commits with
+      her as the author and you as the committer (Commit details); the next commit is yours.
+  - Notes:
+- [ ] **(slice 4)** A 60-character summary shows 60/50 in amber, 80 in red; text on line 2 shows
+      **Leave line 2 empty**.
+  - Notes:
 
 - [ ] **(slice 3)** In a changed file's diff: **Stage hunk** stages only that hunk (the file is
       then in both lists); **Unstage hunk** in the staged diff takes it back.

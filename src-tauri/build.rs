@@ -59,6 +59,8 @@ const APP_COMMANDS: &[&str] = &[
     "unstage_all_files",
     "create_commit",
     "get_head_message",
+    "get_commit_defaults",
+    "get_recent_messages",
     "stage_lines",
     "unstage_lines",
     "discard_lines",

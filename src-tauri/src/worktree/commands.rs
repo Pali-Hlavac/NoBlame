@@ -4,8 +4,8 @@ use tauri::State;
 
 use super::partial::{self, LineAction};
 use super::staging::{self, Scope};
-use super::types::{CommitRequestDto, CommitResultDto, LineChangeDto};
-use super::{WorkingTreeStatusDto, service};
+use super::types::{CommitDefaultsDto, CommitRequestDto, CommitResultDto, LineChangeDto};
+use super::{WorkingTreeStatusDto, message, service};
 use crate::error::CommandResult;
 use crate::repository::{RawBytes, RepoId, RepoSessions};
 
@@ -102,6 +102,27 @@ pub async fn get_head_message(
     id: RepoId,
 ) -> CommandResult<Option<String>> {
     Ok(staging::last_message(&sessions, id).await?)
+}
+
+/// What the message box needs: the configured author, `commit.template` and comment character.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_commit_defaults(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+) -> CommandResult<CommitDefaultsDto> {
+    Ok(message::defaults(&sessions, id).await?)
+}
+
+/// The newest distinct messages of the user's own commits (up to 20, looking at most 2,000
+/// commits back from HEAD).
+#[tauri::command]
+#[specta::specta]
+pub async fn get_recent_messages(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+) -> CommandResult<Vec<String>> {
+    Ok(message::recent(&sessions, id).await?)
 }
 
 /// Stages the chosen changed lines of a working tree file (a hunk, or single lines).

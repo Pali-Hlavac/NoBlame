@@ -204,6 +204,11 @@ about 50 ms, `git hash-object -w` about 60 ms and `git update-index --index-info
 tab, see below). Discarding lines uses `git cat-file --filters` (about 50 ms) instead of
 `update-index`: about 160 ms.
 
+Recent messages (M4 slice 4, 2026-11-04, release `status_spike`): the worst case is an address
+with no commits, so all 2,000 commits are read. Linux kernel: 32 ms warm, 0.51 s on the first
+read of the pack after a restart; 20 messages of anyone 10 ms. synthetic-1m: 0.43 s cold. They
+are read only when the **Recent** menu opens, on a blocking thread.
+
 ### File diffs (M3, ADR 0013, 2026-10-28)
 
 `cargo run --release -p git-core --example diff_spike -- <repo> <old-blob> <new-blob>`, Windows 11,

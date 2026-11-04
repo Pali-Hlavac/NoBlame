@@ -1,5 +1,6 @@
 //! Staging and committing: the first writes NoBlame makes to a repository. Whole files
-//! (`stage.rs`), or some of their lines (`partial.rs`, computed in `lines.rs`).
+//! (`stage.rs`), or some of their lines (`partial.rs`, computed in `lines.rs`); what the message
+//! box offers (recent messages, the template, the author) is read in `message.rs`.
 //!
 //! Every write runs the user's `git` (gix only reads), so hooks, signing (`commit.gpgSign`),
 //! `commit.cleanup`, filters and the index lock behave exactly as on the command line
@@ -8,6 +9,7 @@
 
 mod index;
 mod lines;
+mod message;
 mod partial;
 mod stage;
 
@@ -21,6 +23,10 @@ use crate::diff::DiffError;
 
 pub use index::{IndexEntry, index_entry};
 pub use lines::{LineSelection, Take, combine};
+pub use message::{
+    Identity, RECENT_SCAN_LIMIT, TEMPLATE_MAX_BYTES, Template, author_identity, comment_char,
+    commit_template, recent_messages,
+};
 pub use partial::{PartialChange, discard_lines, stage_lines, unstage_lines};
 pub use stage::{discard_paths, stage_all, stage_paths, unstage_all, unstage_paths};
 
@@ -44,6 +50,9 @@ pub enum CommitError {
     /// chosen there may mean something else now; nothing was written.
     #[error("{0} changed since it was shown")]
     Changed(String),
+    /// An author override not written as `Name <email>`; nothing was committed.
+    #[error("{0:?} is not written as Name <email>")]
+    InvalidAuthor(String),
     /// The file has merge conflicts; it is resolved as a whole, not line by line.
     #[error("{0} has merge conflicts")]
     Conflicted(String),
@@ -70,6 +79,11 @@ pub struct CommitOptions {
     pub amend: bool,
     /// Add a `Signed-off-by` trailer with the committer's name (`--signoff`).
     pub sign_off: bool,
+    /// Someone else wrote the change (`--author`); the committer stays the user.
+    pub author: Option<Identity>,
+    /// Leave out comment lines (`--cleanup=strip`), as git does when the message started from
+    /// `commit.template` in its editor. Otherwise the user's `commit.cleanup` applies.
+    pub strip_comments: bool,
 }
 
 /// What a commit printed: git's summary line and anything its hooks wrote.
@@ -93,6 +107,12 @@ pub async fn commit(
     }
     if options.sign_off {
         command = command.arg("--signoff");
+    }
+    if let Some(author) = &options.author {
+        command = command.option("--author", author.to_string());
+    }
+    if options.strip_comments {
+        command = command.arg("--cleanup=strip");
     }
     let output = command
         .arg("--file=-")

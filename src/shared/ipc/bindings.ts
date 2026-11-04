@@ -178,6 +178,13 @@ export const commands = {
 	createCommit: (id: number, request: CommitRequestDto) => typedError<CommitResultDto, AppError>(__TAURI_INVOKE("create_commit", { id, request })),
 	/**  The message of the commit HEAD points at (`null` before the first commit), for amending. */
 	getHeadMessage: (id: number) => typedError<string | null, AppError>(__TAURI_INVOKE("get_head_message", { id })),
+	/**  What the message box needs: the configured author, `commit.template` and comment character. */
+	getCommitDefaults: (id: number) => typedError<CommitDefaultsDto, AppError>(__TAURI_INVOKE("get_commit_defaults", { id })),
+	/**
+	 *  The newest distinct messages of the user's own commits (up to 20, looking at most 2,000
+	 *  commits back from HEAD).
+	 */
+	getRecentMessages: (id: number) => typedError<string[], AppError>(__TAURI_INVOKE("get_recent_messages", { id })),
 	/**  Stages the chosen changed lines of a working tree file (a hunk, or single lines). */
 	stageLines: (id: number, request: LineChangeDto) => typedError<null, AppError>(__TAURI_INVOKE("stage_lines", { id, request })),
 	/**  Unstages the chosen changed lines of a staged file. */
@@ -340,6 +347,19 @@ export type ChangedFilesDto = {
 	parentCount: number,
 };
 
+/**
+ *  What the message box needs before the user types: who commits, the template, the comment
+ *  character.
+ */
+export type CommitDefaultsDto = {
+	/**  The configured author as `Name <email>`; `null` when no name or address is set. */
+	author: string | null,
+	/**  The configured `commit.template`, if any. */
+	template: CommitTemplateDto | null,
+	/**  The character starting comment lines (`core.commentChar`). */
+	commentChar: string,
+};
+
 /**  Everything the Commit details module shows. */
 export type CommitDetailsDto = {
 	/**  Row in the graph. */
@@ -385,6 +405,10 @@ export type CommitRequestDto = {
 	amend: boolean,
 	/**  Add a `Signed-off-by` trailer. */
 	signOff: boolean,
+	/**  Someone else as the author, written `Name <email>`; `null`: the configured author. */
+	author: string | null,
+	/**  Leave out comment lines: the message started from `commit.template`. */
+	stripComments: boolean,
 };
 
 /**  A commit that was made. */
@@ -411,6 +435,16 @@ export type CommitRowDto = {
 	parentCount: number,
 	/**  References pointing here. */
 	refs: RefLabel[],
+};
+
+/**  The configured `commit.template`: its text, or why it could not be read. */
+export type CommitTemplateDto = {
+	/**  Where it is. */
+	path: string,
+	/**  Its text (lossy UTF-8); `null` when it could not be read. */
+	text: string | null,
+	/**  Why it could not be read. */
+	problem: string | null,
 };
 
 /**  What to compare: two revisions as typed or picked (a branch, tag, commit id, `HEAD~2`). */

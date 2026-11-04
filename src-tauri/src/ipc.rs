@@ -84,6 +84,8 @@ pub fn builder() -> Builder<tauri::Wry> {
             worktree::commands::unstage_all_files,
             worktree::commands::create_commit,
             worktree::commands::get_head_message,
+            worktree::commands::get_commit_defaults,
+            worktree::commands::get_recent_messages,
             worktree::commands::stage_lines,
             worktree::commands::unstage_lines,
             worktree::commands::discard_lines,

@@ -1,5 +1,8 @@
-/** Staging, unstaging and committing in an open repository, and the last commit's message. */
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+/**
+ * Staging, unstaging and committing in an open repository, and what the message box offers: the
+ * last commit's message, the configured author and template, recent messages.
+ */
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { statusKeys } from "@/features/working-tree";
 import type { CommitRequestDto } from "@/shared/ipc/bindings";
@@ -7,6 +10,8 @@ import { commands, unwrap } from "@/shared/ipc/client";
 
 export const commitKeys = {
   headMessage: (repoId: number) => ["commit", repoId, "head-message"] as const,
+  defaults: (repoId: number) => ["commit", repoId, "defaults"] as const,
+  recent: (repoId: number) => ["commit", repoId, "recent"] as const,
 };
 
 /** A change to the index: these paths (both names of a rename), or everything. */
@@ -47,6 +52,7 @@ export function useCreateCommit(repoId: number) {
     meta: { silent: true },
     onSettled: async () => {
       queryClient.removeQueries({ queryKey: commitKeys.headMessage(repoId) });
+      queryClient.removeQueries({ queryKey: commitKeys.recent(repoId) });
       await queryClient.invalidateQueries({ queryKey: statusKeys.all(repoId) });
     },
   });
@@ -61,4 +67,24 @@ export function useFetchHeadMessage(repoId: number): () => Promise<string | null
       queryFn: () => unwrap(commands.getHeadMessage(repoId)),
       staleTime: 0,
     });
+}
+
+/**
+ * The configured author, `commit.template` and comment character. Read when the box first shows
+ * and again each time it mounts (config changes are rare, but cheap to pick up).
+ */
+export function useCommitDefaults(repoId: number) {
+  return useQuery({
+    queryKey: commitKeys.defaults(repoId),
+    queryFn: () => unwrap(commands.getCommitDefaults(repoId)),
+  });
+}
+
+/** The user's recent commit messages, read when the menu opens (a commit makes them stale). */
+export function useRecentMessages(repoId: number, enabled: boolean) {
+  return useQuery({
+    queryKey: commitKeys.recent(repoId),
+    queryFn: () => unwrap(commands.getRecentMessages(repoId)),
+    enabled,
+  });
 }

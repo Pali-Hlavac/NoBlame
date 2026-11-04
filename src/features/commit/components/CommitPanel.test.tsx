@@ -15,6 +15,8 @@ const ipc = vi.hoisted(() => ({
   unstageAllFiles: vi.fn(),
   createCommit: vi.fn(),
   getHeadMessage: vi.fn(),
+  getCommitDefaults: vi.fn(),
+  getRecentMessages: vi.fn(),
   discardFiles: vi.fn(),
 }));
 vi.mock("@/shared/ipc/bindings", () => ({ commands: ipc }));
@@ -61,6 +63,10 @@ describe("CommitPanel", () => {
     useSelectionStore.setState({ selections: {}, files: {} });
     useDraftStore.setState({ drafts: {} });
     ipc.getStatus.mockResolvedValue({ status: "ok", data: STATUS });
+    ipc.getCommitDefaults.mockResolvedValue({
+      status: "ok",
+      data: { author: "Ada <ada@example.com>", template: null, commentChar: "#" },
+    });
     for (const command of [
       ipc.stageFiles,
       ipc.stageAllFiles,
@@ -137,6 +143,8 @@ describe("CommitPanel", () => {
       message: "Fix the parser",
       amend: false,
       signOff: false,
+      author: null,
+      stripComments: false,
     });
     expect(messageBox().value).toBe("");
   });

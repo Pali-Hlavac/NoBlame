@@ -125,6 +125,35 @@ pub struct CommitRequestDto {
     pub amend: bool,
     /// Add a `Signed-off-by` trailer.
     pub sign_off: bool,
+    /// Someone else as the author, written `Name <email>`; `null`: the configured author.
+    pub author: Option<String>,
+    /// Leave out comment lines: the message started from `commit.template`.
+    pub strip_comments: bool,
+}
+
+/// What the message box needs before the user types: who commits, the template, the comment
+/// character.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct CommitDefaultsDto {
+    /// The configured author as `Name <email>`; `null` when no name or address is set.
+    pub author: Option<String>,
+    /// The configured `commit.template`, if any.
+    pub template: Option<CommitTemplateDto>,
+    /// The character starting comment lines (`core.commentChar`).
+    pub comment_char: String,
+}
+
+/// The configured `commit.template`: its text, or why it could not be read.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct CommitTemplateDto {
+    /// Where it is.
+    pub path: String,
+    /// Its text (lossy UTF-8); `null` when it could not be read.
+    pub text: Option<String>,
+    /// Why it could not be read.
+    pub problem: Option<String>,
 }
 
 /// A commit that was made.

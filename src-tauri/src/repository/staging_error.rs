@@ -37,6 +37,10 @@ fn commit_error(error: CommitError) -> AppError {
             format!("{path} changed since its diff was shown, so nothing was changed."),
         )
         .with_hint("The diff now shows it as it is; choose the lines again."),
+        CommitError::InvalidAuthor(author) => AppError::new(
+            ErrorCode::InvalidInput,
+            format!("The author “{author}” is not written as Name <email>."),
+        ),
         CommitError::Conflicted(path) => AppError::new(
             ErrorCode::InvalidInput,
             format!("{path} has merge conflicts; stage it whole once they are resolved."),

@@ -1,5 +1,6 @@
 //! Spike for M4: times reading the working tree status (`git status`, every untracked file
-//! listed) and reading changed files as git would store them, for their diffs.
+//! listed), reading changed files as git would store them, for their diffs, and the commit
+//! message box's recent messages (the worst case: an address with no commits).
 //!
 //! ```sh
 //! cargo run --release -p git-core --example status_spike -- <repository>
@@ -13,6 +14,7 @@ use std::process::ExitCode;
 use std::time::Instant;
 
 use git_core::cli::Git;
+use git_core::commit::{RECENT_SCAN_LIMIT, recent_messages};
 use git_core::diff::{DiffOptions, read_worktree_file, worktree_diff};
 use git_core::repo::Repository;
 use git_core::status::{UntrackedFiles, working_tree_status};
@@ -22,6 +24,8 @@ use tokio_util::sync::CancellationToken;
 const STATUS_RUNS: usize = 3;
 /// Changed files read and diffed at most.
 const FILES_READ: usize = 5;
+/// Recent messages asked for, as the message box does.
+const RECENT_MESSAGES: usize = 20;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> ExitCode {
@@ -42,6 +46,20 @@ async fn main() -> ExitCode {
 async fn run(dir: &Path) -> Result<(), Box<dyn std::error::Error>> {
     let repo = Repository::discover(dir)?.local();
     let git = Git::locate()?;
+    for email in [None, Some(&b"nobody@invalid"[..])] {
+        let start = Instant::now();
+        let messages = recent_messages(&repo, email, RECENT_MESSAGES)?;
+        println!(
+            "recent messages ({}): {} in {:?} (at most {RECENT_SCAN_LIMIT} commits)",
+            if email.is_some() {
+                "no match"
+            } else {
+                "anyone"
+            },
+            messages.len(),
+            start.elapsed()
+        );
+    }
     let untracked = UntrackedFiles::configured(&repo);
     let mut status = None;
     for _ in 0..STATUS_RUNS {

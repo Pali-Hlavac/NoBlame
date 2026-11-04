@@ -62,11 +62,30 @@ details. Press **Ctrl+Enter** (⌘Enter on macOS) or click **Commit**.
   not amend a commit you have already pushed, unless you mean to rewrite it.
 - **Sign off** adds a `Signed-off-by:` line with your name, as some projects require.
 
+Above the box:
+
+- **Recent** lists the messages of your last commits in this repository (newest first). Choose
+  one to put it in the box, for example to commit the next step of a series.
+- On the right, the summary's length: up to 50 characters is the usual advice, so the number
+  turns amber above 50 and red above 72, where many tools cut it off. **Leave line 2 empty**
+  appears when the line after the summary has text, which Git would read as part of the summary.
+
+If your Git has a commit template (`commit.template`), the box starts with it, again after each
+commit. Lines starting with `#` (or your `core.commentChar`) are left out of the commit, as Git
+does, and the line under the box says so. **Commit** waits until you have filled the template in.
+**Recent → Start from the template** brings it back.
+
+Under the options, **Author** shows who the commit will be by: your name and e-mail from Git.
+To commit someone else's work (a patch they sent), click **Change** and type their
+`Name <email>`; you stay the committer. Click **×** to go back to yourself. The next commit is
+yours again.
+
 NoBlame commits with your own Git, so your Git settings apply: your name and e-mail, signing
 your commits with GPG or SSH (`commit.gpgSign`), and your hooks. When a hook refuses the commit,
 its message is shown under the button and your message is kept, so you can fix the problem and
 try again. After a commit, Git's summary line is shown (`[main 1a2b3c4] Fix the parser`), and
 the commit graph shows the new commit.
 
-The Commit button is greyed out until something is staged (or Amend is ticked) and the message
-is not empty; the text beside it says which is missing.
+The Commit button is greyed out until something is staged (or Amend is ticked), the message is
+not empty (and not the template as it was) and a changed author reads `Name <email>`; the text
+beside it says which is missing.

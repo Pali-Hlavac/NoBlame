@@ -414,6 +414,14 @@ choice went away. Clicked through in the dev app: popping Commit and Branches ou
 and the branch filter kept after closing, the choice kept after a reload, Esc closing a
 confirmation inside before the popup, a commit from the popup, Dock.
 
+Slice 4 done (2026-11-04): the message box offers the user's recent messages (**Recent ▾**,
+read with gix, at most 2,000 commits back: 32 ms warm on the kernel), starts from
+`commit.template` and leaves its comment lines out (`--cleanup=strip`), commits as another author
+(`--author`, `Name <email>` checked on both sides), and measures the summary (50/72, line 2
+empty). Not clicked through: the owner's dev app was running; covered by integration tests
+against git (author and committer, stripped comments, recent messages, the template path) and
+component tests. Next: slice 5, stash.
+
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
 highlighted after a slow first load and names both costs (done). Option 2 later: show rows while
@@ -630,9 +638,10 @@ The Branches module gets the same entries for its rows.
   file tree
 - [x] Stage/unstage files, hunks and single lines; discard changes (with confirmation). Files
       (slice 2); hunks, lines and discarding (slice 3)
-- [~] Commit dialog: message editor with templates, amend, sign-off, GPG/SSH signing via git, author override, hooks output shown.
-  Amend, sign-off, signing (the user's `commit.gpgSign`) and hooks' output done (slice 2);
-  templates and author override are slice 4
+- [x] Commit dialog: message editor with templates, amend, sign-off, GPG/SSH signing via git, author override, hooks output shown.
+      Amend, sign-off, signing (the user's `commit.gpgSign`) and hooks' output done (slice 2);
+      `commit.template`, recent messages, author override and summary hints (slice 4). NoBlame's own
+      list of templates is in the backlog
 - [x] Commit window as a modal dialog or as a module in the left dock; a setting picks one (owner
       request 2026-10-28; slice 2). Replaced 2026-11-04 by popping the module out
 - [x] Pop out any module from its tab's right-click menu: it then opens in a modal popup inside
@@ -660,7 +669,8 @@ Slices, in order (planned 2026-11-02):
    shown; the toolbar's Commit button becomes real.
 3. Stage and unstage hunks and single lines from the diff; discard changes (files, hunks) with a
    confirmation naming what is lost (done 2026-11-03).
-4. The message: recent messages, `commit.template`, author override, summary length hints.
+4. The message: recent messages, `commit.template`, author override, summary length hints
+   (done 2026-11-04).
 5. Stash: create (selected files, message, keep index, untracked), show, apply or pop (whole or
    selected files), drop; the stash label in the graph.
 6. `.gitignore` helper, external diff tool from the diff tab, compare with the working tree

@@ -168,6 +168,7 @@ async fn commits_amends_and_signs_off() {
         message: "Change a, reworded".into(),
         amend: true,
         sign_off: true,
+        ..CommitOptions::default()
     };
     commit(&git, &fixture.path(), &amend, &cancel)
         .await

@@ -6,7 +6,8 @@ use std::path::PathBuf;
 
 use git_core::cli::Git;
 use git_core::commit::{
-    CommitOptions, commit, head_message, stage_all, stage_paths, unstage_all, unstage_paths,
+    CommitError, CommitOptions, Identity, commit, head_message, stage_all, stage_paths,
+    unstage_all, unstage_paths,
 };
 use tokio_util::sync::CancellationToken;
 
@@ -76,10 +77,16 @@ pub async fn create_commit(
     let session = sessions.get(id)?;
     let work_dir: PathBuf = work_dir(&session.repo).ok_or(RepositoryError::Bare)?;
     let git = Git::locate().map_err(GitEnvError::from)?;
+    let author = match request.author {
+        Some(text) => Some(Identity::parse(&text).ok_or(CommitError::InvalidAuthor(text))?),
+        None => None,
+    };
     let options = CommitOptions {
         message: request.message.into(),
         amend: request.amend,
         sign_off: request.sign_off,
+        author,
+        strip_comments: request.strip_comments,
     };
     let _writing = session.lock_writes().await;
     let result = commit(&git, &work_dir, &options, &CancellationToken::new()).await?;

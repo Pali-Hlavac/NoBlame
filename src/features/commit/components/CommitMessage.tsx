@@ -7,12 +7,28 @@ import { formatHotkey, matchesHotkey } from "@/shared/lib/hotkeys";
 import { isMacPlatform } from "@/shared/lib/platform";
 import { Button } from "@/shared/ui/button";
 
-import { useCreateCommit, useFetchHeadMessage } from "../api/commit";
-import { amendOff, amendOn, changeDraft, clearDraft, draftOf, useDraft } from "../store/draft";
+import { useCommitDefaults, useCreateCommit } from "../api/commit";
+import { useTemplateSeed } from "../hooks/useTemplateSeed";
+import { isAuthor, withoutComments } from "../lib/message";
+import {
+  type CommitDraft,
+  changeDraft,
+  clearDraft,
+  fromRecent,
+  fromTemplate,
+  typed,
+  useDraft,
+} from "../store/draft";
+import { CommitOptions } from "./CommitOptions";
 import { CommitOutput } from "./CommitOutput";
+import { MessageMenu } from "./MessageMenu";
+import { SummaryHint } from "./SummaryHint";
 
 /** Commits from the message box. */
 export const COMMIT_HOTKEY = "mod+enter";
+
+/** Comment lines start with this when the config does not say otherwise. */
+const DEFAULT_COMMENT_CHAR = "#";
 
 interface CommitMessageProps {
   repoId: number;
@@ -22,28 +38,41 @@ interface CommitMessageProps {
 }
 
 /** Why the Commit button is disabled, or null when it is not. */
-function blocker(message: string, staged: number | undefined, amend: boolean): string | null {
-  if (staged === 0 && !amend) return "Stage the changes to commit first.";
-  if (message.trim() === "") return "Write a message.";
+function blocker(draft: CommitDraft, stored: string, staged: number | undefined): string | null {
+  if (staged === 0 && !draft.amend) return "Stage the changes to commit first.";
+  if (draft.template !== null && draft.message === draft.template) {
+    return "Fill in the template first.";
+  }
+  if (stored.trim() === "") return "Write a message.";
+  if (draft.author !== null && !isAuthor(draft.author)) return "Write the author as Name <email>.";
   return null;
 }
 
-/** The message box, Amend and Sign off, the Commit button, and what git and its hooks printed. */
+/**
+ * The message box with recent messages and the template, its summary hints, the options (Amend,
+ * Sign off, author), the Commit button, and what git and its hooks printed.
+ */
 export function CommitMessage({ repoId, repoPath, onCommitted }: CommitMessageProps) {
   const id = useId();
   const draft = useDraft(repoPath);
   const staged = useStatusSummary(repoId).data?.staged;
-  const fetchHeadMessage = useFetchHeadMessage(repoId);
+  const defaults = useCommitDefaults(repoId).data;
   const create = useCreateCommit(repoId);
   const [output, setOutput] = useState<string | null>(null);
   const isMac = isMacPlatform();
-  const reason = blocker(draft.message, staged, draft.amend);
+  const template = defaults?.template?.text ?? null;
+  const commentChar = defaults?.commentChar ?? DEFAULT_COMMENT_CHAR;
+  const stripComments = draft.template !== null;
+  const stored = stripComments ? withoutComments(draft.message, commentChar) : draft.message;
+  const reason = blocker(draft, stored, staged);
+  useTemplateSeed(repoPath, draft, template);
 
   const commit = (): void => {
     if (reason !== null || create.isPending) return;
     setOutput(null);
+    const author = draft.author === null ? null : draft.author.trim();
     create.mutate(
-      { message: draft.message, amend: draft.amend, signOff: draft.signOff },
+      { message: draft.message, amend: draft.amend, signOff: draft.signOff, author, stripComments },
       {
         onSuccess: (result) => {
           clearDraft(repoPath);
@@ -54,23 +83,21 @@ export function CommitMessage({ repoId, repoPath, onCommitted }: CommitMessagePr
     );
   };
 
-  const toggleAmend = (checked: boolean): void => {
-    if (!checked) {
-      changeDraft(repoPath, amendOff(draft));
-      return;
-    }
-    fetchHeadMessage().then(
-      (message) => {
-        changeDraft(repoPath, amendOn(draftOf(repoPath), message));
-      },
-      () => {
-        changeDraft(repoPath, { amend: true });
-      },
-    );
-  };
-
   return (
     <div className="flex shrink-0 flex-col gap-2 border-t border-border p-2">
+      <div className="flex min-w-0 items-center justify-between gap-2">
+        <MessageMenu
+          repoId={repoId}
+          template={template}
+          onTemplate={() => {
+            if (template !== null) changeDraft(repoPath, fromTemplate(template));
+          }}
+          onRecent={(message) => {
+            changeDraft(repoPath, fromRecent(message));
+          }}
+        />
+        <SummaryHint message={stored} />
+      </div>
       <label htmlFor={`${id}-message`} className="sr-only">
         Commit message
       </label>
@@ -80,9 +107,10 @@ export function CommitMessage({ repoId, repoPath, onCommitted }: CommitMessagePr
         placeholder="Commit message"
         rows={4}
         spellCheck
+        aria-describedby={stripComments ? `${id}-comments` : undefined}
         className="min-h-16 resize-y rounded-md border border-border bg-background px-2 py-1.5 font-mono text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
         onChange={(event) => {
-          changeDraft(repoPath, { message: event.target.value });
+          changeDraft(repoPath, typed(event.target.value));
         }}
         onKeyDown={(event) => {
           if (!matchesHotkey(event.nativeEvent, COMMIT_HOTKEY, isMac)) return;
@@ -90,30 +118,23 @@ export function CommitMessage({ repoId, repoPath, onCommitted }: CommitMessagePr
           commit();
         }}
       />
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-        <label className="flex items-center gap-1.5">
-          <input
-            type="checkbox"
-            className="size-4 accent-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-            checked={draft.amend}
-            onChange={(event) => {
-              toggleAmend(event.target.checked);
-            }}
-          />
-          Amend last commit
-        </label>
-        <label className="flex items-center gap-1.5">
-          <input
-            type="checkbox"
-            className="size-4 accent-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-            checked={draft.signOff}
-            onChange={(event) => {
-              changeDraft(repoPath, { signOff: event.target.checked });
-            }}
-          />
-          Sign off
-        </label>
-      </div>
+      {stripComments && (
+        <span id={`${id}-comments`} className="text-xs text-muted-foreground">
+          From the template: lines starting with {commentChar} are left out.
+        </span>
+      )}
+      {defaults?.template?.problem && (
+        <span className="text-xs text-warning">
+          The commit template {defaults.template.path} could not be read:{" "}
+          {defaults.template.problem}
+        </span>
+      )}
+      <CommitOptions
+        repoId={repoId}
+        repoPath={repoPath}
+        draft={draft}
+        configuredAuthor={defaults?.author ?? null}
+      />
       <div className="flex items-center gap-2">
         <Button
           size="sm"

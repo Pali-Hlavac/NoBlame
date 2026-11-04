@@ -141,6 +141,11 @@ All notable changes to NoBlame are documented here. The format follows
   endings, filters). One `git status` run gives the counts and both lists (about 260 ms for the
   97,000 entries of the Linux kernel clone, 40 ms for the 40,000 files of synthetic-1m). New
   files are counted and listed one by one unless `status.showUntrackedFiles` is `no`.
+- The commit message (M4, slice 4): **Recent ▾** above the box puts one of your last commit
+  messages back in it; the box starts with your `commit.template` (its `#` lines are left out,
+  as Git does); **Author → Change** commits someone else's work as `Name <email>` with you as
+  the committer; the summary's length shows against 50 and 72 characters, with a warning when
+  line 2 is not empty.
 - Popping modules out (owner request): right-click a module's tab in the sidebar → **Pop out**.
   From then on the module opens in a popup over the window (inside the app), and the rest of
   NoBlame waits until it is closed. Closing keeps what was typed or chosen in it; **Dock** puts it
