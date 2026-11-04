@@ -1,4 +1,4 @@
-/** What the commit dialog's title says about where the commit goes. */
+/** What the popped-out Commit module says about where the commit goes. */
 import type { HeadDto } from "@/shared/ipc/bindings";
 
 /** "Commit to main", or "Commit (detached HEAD)". */

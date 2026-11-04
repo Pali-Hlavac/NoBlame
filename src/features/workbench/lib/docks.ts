@@ -29,12 +29,13 @@ export const docks: {
 
 /** Current layout of both docks and the sidebar. */
 export function snapshotLayout(): SavedLayout {
-  const { sidebarCollapsed, sidebarWidthPx } = useWorkbenchStore.getState();
+  const { sidebarCollapsed, sidebarWidthPx, poppedOut } = useWorkbenchStore.getState();
   return {
     version: LAYOUT_VERSION,
     modules: docks.modules?.toJSON() ?? null,
     documents: docks.documents?.toJSON() ?? null,
     sidebar: { widthPx: sidebarWidthPx, collapsed: sidebarCollapsed },
+    popouts: poppedOut,
   };
 }
 
@@ -57,9 +58,17 @@ export async function resetLayout(): Promise<void> {
   useWorkbenchStore.getState().resetLayout();
 }
 
-/** Opens the module (or brings it to the front of its group) and shows the sidebar. */
+/**
+ * Opens the module (or brings it to the front of its group) and shows the sidebar; a popped-out
+ * module shows its popup instead.
+ */
 export function openModule(module: Pick<WorkbenchModule, "id" | "title">): void {
-  useWorkbenchStore.getState().setSidebarCollapsed(false);
+  const store = useWorkbenchStore.getState();
+  if (store.poppedOut.includes(module.id)) {
+    store.showPopup(module.id);
+    return;
+  }
+  store.setSidebarCollapsed(false);
   const api = docks.modules;
   if (!api) return;
   const panel = api.getPanel(module.id);
@@ -90,7 +99,7 @@ export function openModuleById(id: string): void {
 
 /**
  * Activity bar click: hides the sidebar when the module is already showing (like VS Code),
- * otherwise opens it.
+ * otherwise opens it (a popped-out module in its popup).
  */
 export function toggleModule(module: Pick<WorkbenchModule, "id" | "title">): void {
   const { sidebarCollapsed, visibleModules, setSidebarCollapsed } = useWorkbenchStore.getState();

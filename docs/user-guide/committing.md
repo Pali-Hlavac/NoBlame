@@ -5,15 +5,17 @@ in a repository's **…** menu) to commit the changes of the active repository.
 
 ## Where it opens
 
-**Settings → Committing** chooses where the commit window opens:
+The Commit module opens in the sidebar. Choosing a file shows its diff in the diff tab, so you
+can keep the commit graph in view.
 
-- **The Commit module** in the sidebar (the default). Choosing a file shows its diff in the diff
-  tab, so you can keep the commit graph in view.
-- **A dialog** over the window, with the diff of the chosen file beside the lists. The rest of
-  NoBlame waits until you close it (Esc or ×). It closes by itself after a commit.
+To commit in a larger window instead, right-click the **Commit** tab and choose **Pop out**
+([Popping a module out](main-window.md#popping-a-module-out)). From then on Commit opens in a
+popup over the window, with the diff of the chosen file beside the lists. The rest of NoBlame
+waits until you close it (Esc or ×), and it closes by itself after a commit. **Dock** in its
+header puts it back in the sidebar.
 
 Both show the same lists and the same message. What you type is kept while NoBlame runs, so you
-can close the dialog, look at something else, and come back to your message.
+can close the popup, look at something else, and come back to your message.
 
 ## Staging
 

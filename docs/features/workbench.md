@@ -30,6 +30,8 @@ Stashes and the toolbar arrive in M4 and M5.
   collapsed by dragging it closed or with the activity bar. It keeps its width in pixels when the
   window is resized; the document dock takes the difference (`groupResizeBehavior:
 "preserve-pixel-size"`, owner request 2026-10-30).
+- **Popped-out modules**: a module's tab menu (right-click) has **Pop out**; the module then
+  opens in a popup over the window instead of the dock (see below).
 - **Document dock**: Welcome and repository tabs. Drag a tab to an edge to split the dock left,
   right, above or below. New tabs open in the focused group.
 - **Title bar** (custom, `features/window-frame`):
@@ -55,6 +57,27 @@ Dragging tabs needs HTML drag and drop, so both window kinds are built with
 Windows. Dropping folders onto the window to open them will use HTML drop events later.
 
 Floating groups and popping a group out into its own window are switched off for now (backlog).
+
+## Popping a module out
+
+Owner request 2026-11-04. Right-click a module's tab in the dock (`ModuleTab`, dockview's default
+tab inside a Radix context menu) → **Pop out** or **Close**.
+
+- **Pop out** closes the module's dock panel and marks it popped out (`poppedOut` in the
+  workbench store, saved as `popouts` in the layout). From then on everything that opens the
+  module (activity bar, Alt+N, toolbar, palette, `openModuleById`) shows its popup instead.
+- **The popup** (`ModulePopups`): over the window, inside the app, 85 % of the window high;
+  narrow, or wide for modules registered with `popupWide` (Commit). While it is open the main
+  window's frame is `inert`, so nothing behind it can be clicked or focused, and the popup has
+  `role="dialog"`, so global shortcuts pause. Esc (unless a menu or dialog inside took it), ×
+  or **Dock** close it; focus returns to where it was.
+- **State is kept**: a popup is rendered once first shown and then only hidden, so the module
+  keeps what was typed, filtered or scrolled until it is shown again. It unmounts when docked.
+- **Dock** (in the popup's header) clears the mark and opens the module in the focused dock
+  group.
+- Modules ask `useModuleHost()` whether they are docked or in a popup, and can close it; only
+  Commit uses it (diff beside the lists, closing after a commit).
+- **Reset layout** docks every module again.
 
 ## Settings button
 
@@ -147,24 +170,25 @@ Modules that work on the active repository share one frame (`WithActiveRepositor
 
 ## Toolbar (in the title bar)
 
-| Button  | Does                                                       |
-| ------- | ---------------------------------------------------------- |
-| Pull ▾  | Menu: Pull, Fetch, Fetch all remotes, Fetch and prune (M5) |
-| Push    | M5                                                         |
-| Commit  | Opens the Commit module or dialog ([commit.md](commit.md)) |
-| Stashes | Opens the Stashes module                                   |
+| Button  | Does                                                                   |
+| ------- | ---------------------------------------------------------------------- |
+| Pull ▾  | Menu: Pull, Fetch, Fetch all remotes, Fetch and prune (M5)             |
+| Push    | M5                                                                     |
+| Commit  | Opens the Commit module, docked or popped out ([commit.md](commit.md)) |
+| Stashes | Opens the Stashes module                                               |
 
 The placeholder buttons look dimmed but stay focusable, so their tooltip ("Push: arrives in M5")
 can also be read with the keyboard.
 
 ## Layout persistence
 
-- One layout for all repositories: both docks, the open tabs and the sidebar width and state.
+- One layout for all repositories: both docks, the open tabs, the sidebar width and state, and
+  the popped-out modules (`popouts`; a layout without it has none).
   It is saved 0.5 s after the last change into `workbench-layout.json` in the app config folder,
   and restored on the next start.
 - Restored tabs in the background do not open their repositories until they are first shown.
 - **Reset layout** (command palette) forgets the saved layout and rebuilds both docks with the
-  default arrangement. Open tabs stay open.
+  default arrangement; popped-out modules are docked again. Open tabs stay open.
 - A saved layout from another version, or one that cannot be read, is ignored and the default
   is used. Modules that no longer exist are dropped from a restored layout.
 

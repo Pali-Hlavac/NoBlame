@@ -1,4 +1,7 @@
-/** Applies a saved layout's non-dock parts (open tabs, sidebar) before the docks mount. */
+/**
+ * Applies a saved layout's non-dock parts (open tabs, sidebar, popped-out modules) before the
+ * docks mount.
+ */
 import { useTabsStore } from "@/features/workspace";
 
 import { useWorkbenchStore } from "../store/workbench";
@@ -28,6 +31,7 @@ function apply(saved: SavedLayout): SavedLayout {
   useWorkbenchStore.setState({
     sidebarCollapsed: saved.sidebar.collapsed,
     sidebarWidthPx: saved.sidebar.widthPx,
+    poppedOut: saved.popouts,
   });
   const restored = saved.documents ? tabsOfDocuments(saved.documents) : null;
   if (!restored) return { ...saved, documents: null };

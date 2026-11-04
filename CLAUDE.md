@@ -18,7 +18,8 @@ Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 > children and signature status, graph columns (choose, order, width, relative dates). M4 in
 > progress: working tree files and their diffs (slice 1), the Commit module and dialog (staging
 > files, commit, amend, sign-off; slice 2), hunks and lines staged, unstaged and discarded from the
-> diff, files discarded (slice 3). Next: the commit message (recent messages, template, author).
+> diff, files discarded (slice 3); any module can be popped out into a modal popup in the app.
+> Next: the commit message (recent messages, template, author).
 > Parts marked _(later)_ below are planned and do not exist yet.
 
 ## Architecture

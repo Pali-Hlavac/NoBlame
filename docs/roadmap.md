@@ -392,7 +392,7 @@ entries (Linux clone). Not clicked through: the owner's dev app was running; com
 integration tests cover it (CRLF conversion matches `git hash-object`).
 
 Slice 2 done (2026-11-03): the Commit module (Alt+7) and the commit dialog, picked in Settings →
-Committing (module by default). Files are staged and unstaged one by one (button or Space) or
+Committing (module by default; since 2026-11-04 the dialog is the Commit module popped out). Files are staged and unstaged one by one (button or Space) or
 all at once, with a confirmation before marking conflicts resolved; Commit, Amend (fills in the
 last message) and Sign off run the user's `git commit`, so hooks and signing apply, and a hook's
 refusal is shown with its output. The toolbar's Commit button, the palette and the repository
@@ -406,6 +406,13 @@ lost. The new contents are computed in-process and written with git (`hash-objec
 `update-index`, `cat-file --filters` for the working tree). Clicked through in the dev app:
 staging two chosen lines, discarding a hunk (CRLF kept as a checkout writes it), unstaging a
 hunk. Next: slice 4, the message (recent messages, `commit.template`, author).
+
+Between slices (2026-11-04, owner request): any module can be popped out from its tab's menu
+and then opens in a modal popup inside the app, keeping its state when closed; **Dock** puts it
+back. The Commit module popped out is the former commit dialog, so the Settings → Committing
+choice went away. Clicked through in the dev app: popping Commit and Branches out, the message
+and the branch filter kept after closing, the choice kept after a reload, Esc closing a
+confirmation inside before the popup, a commit from the popup, Dock.
 
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
@@ -627,7 +634,10 @@ The Branches module gets the same entries for its rows.
   Amend, sign-off, signing (the user's `commit.gpgSign`) and hooks' output done (slice 2);
   templates and author override are slice 4
 - [x] Commit window as a modal dialog or as a module in the left dock; a setting picks one (owner
-      request 2026-10-28; slice 2)
+      request 2026-10-28; slice 2). Replaced 2026-11-04 by popping the module out
+- [x] Pop out any module from its tab's right-click menu: it then opens in a modal popup inside
+      the app (keeping its state when closed) until **Dock** puts it back (owner request
+      2026-11-04)
 - [ ] Commit message history and recent-message reuse
 - [ ] Stash: create from selected files (checkbox list, message, keep index, include untracked),
       list (Stashes module), show (files and diffs in the dock), apply/pop a whole stash or only

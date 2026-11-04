@@ -141,6 +141,12 @@ All notable changes to NoBlame are documented here. The format follows
   endings, filters). One `git status` run gives the counts and both lists (about 260 ms for the
   97,000 entries of the Linux kernel clone, 40 ms for the 40,000 files of synthetic-1m). New
   files are counted and listed one by one unless `status.showUntrackedFiles` is `no`.
+- Popping modules out (owner request): right-click a module's tab in the sidebar → **Pop out**.
+  From then on the module opens in a popup over the window (inside the app), and the rest of
+  NoBlame waits until it is closed. Closing keeps what was typed or chosen in it; **Dock** puts it
+  back in the sidebar, and the choice is kept with the layout. Popping out the Commit module
+  replaces the Settings → Committing choice: the popup shows the diff beside the files and
+  closes after a commit.
 - Staging part of a file (M4, slice 3): in the diff of a changed or staged file, each hunk has
   **Stage hunk** and **Discard hunk…** (or **Unstage hunk**), and changed lines can be chosen by
   clicking their numbers (Shift+click for a range), then staged, unstaged or discarded from the
@@ -152,8 +158,8 @@ All notable changes to NoBlame are documented here. The format follows
   everything, and staging a conflicted file asks first. Write the message and press Ctrl+Enter
   (⌘Enter) or **Commit**; **Amend last commit** fills in the last message, **Sign off** adds
   `Signed-off-by:`. NoBlame runs your own `git commit`, so hooks, signing and your identity
-  apply; when a hook refuses, its output is shown and the message kept. Settings → Committing
-  opens it as a dialog instead, with the diff beside the files. The toolbar's **Commit**
+  apply; when a hook refuses, its output is shown and the message kept. Popped out (see
+  above), it shows the diff beside the files. The toolbar's **Commit**
   button, the palette's **Commit…** and a repository's **…** → **Commit…** open it. File
   names are passed to git literally, so a file named `[ab].txt` is not read as a pattern.
 - Commit graph columns (M3, slice 11, owner request 2026-11-02): show or hide columns, move them

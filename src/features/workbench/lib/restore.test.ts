@@ -2,6 +2,7 @@ import type { SerializedDockview } from "dockview-react";
 
 import { WELCOME_TAB, useTabsStore } from "@/features/workspace";
 
+import { useWorkbenchStore } from "../store/workbench";
 import { LAYOUT_VERSION, type SavedLayout } from "./layout";
 import { restoreWorkbench } from "./restore";
 
@@ -26,6 +27,7 @@ function savedLayout(): SavedLayout {
     modules: null,
     documents,
     sidebar: { collapsed: false, widthPx: 280 },
+    popouts: ["commit"],
   };
 }
 
@@ -38,6 +40,7 @@ describe("restoreWorkbench", () => {
     const saved = savedLayout();
     expect(restoreWorkbench(saved)).toBe(saved);
     expect(useTabsStore.getState().tabs).toEqual([repo]);
+    expect(useWorkbenchStore.getState().poppedOut).toEqual(["commit"]);
   });
 
   it("applies a layout once, so a remount keeps the tabs opened since", () => {

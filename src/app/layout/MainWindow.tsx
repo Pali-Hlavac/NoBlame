@@ -1,5 +1,4 @@
 import { CommandPalette } from "@/features/command-palette";
-import { CommitDialog } from "@/features/commit";
 import {
   RepositoryActionsContext,
   openRepositories,
@@ -7,14 +6,19 @@ import {
   useSessionCleanup,
 } from "@/features/repositories";
 import { useRepositoryRequests } from "@/features/windows";
-import { Workbench, useSavedLayout, type SavedLayout } from "@/features/workbench";
+import {
+  Workbench,
+  useModulePopupOpen,
+  useSavedLayout,
+  type SavedLayout,
+} from "@/features/workbench";
 import { useTabHotkeys } from "@/features/workspace";
 import { LoadingState } from "@/shared/components/LoadingState";
 
 import { useAppCommands } from "../commands/useAppCommands";
 import { useHistoryHotkeys } from "../commands/useHistoryHotkeys";
 import { DEFAULT_MODULE_LAYOUT, MODULES } from "../workbench/modules";
-import { useRepositoryActions } from "../workbench/repositoryActions";
+import { REPOSITORY_ACTIONS } from "../workbench/repositoryActions";
 import { MainTitleBar } from "./MainTitleBar";
 import { renderTab } from "./renderTab";
 import { SettingsButton } from "./SettingsButton";
@@ -31,7 +35,8 @@ export function MainWindow() {
 /** Title bar (with the toolbar), workbench, status bar and command palette. */
 function MainWorkbench({ saved }: { saved: SavedLayout | null }) {
   const commands = useAppCommands(MODULES);
-  const repositoryActions = useRepositoryActions();
+  // A popped-out module's popup is modal: the window behind waits until it closes.
+  const popupOpen = useModulePopupOpen();
   useRepositoryRequests(openRepositories);
   useSessionCleanup();
   useRepositoryChanges();
@@ -39,9 +44,9 @@ function MainWorkbench({ saved }: { saved: SavedLayout | null }) {
   useHistoryHotkeys();
 
   return (
-    <div className="flex h-screen flex-col bg-background text-foreground">
+    <div className="flex h-screen flex-col bg-background text-foreground" inert={popupOpen}>
       <MainTitleBar />
-      <RepositoryActionsContext.Provider value={repositoryActions}>
+      <RepositoryActionsContext.Provider value={REPOSITORY_ACTIONS}>
         <Workbench
           modules={MODULES}
           defaultModuleLayout={DEFAULT_MODULE_LAYOUT}
@@ -52,7 +57,6 @@ function MainWorkbench({ saved }: { saved: SavedLayout | null }) {
       </RepositoryActionsContext.Provider>
       <StatusBar />
       <CommandPalette commands={commands} />
-      <CommitDialog />
     </div>
   );
 }

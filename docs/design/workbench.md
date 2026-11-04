@@ -145,7 +145,7 @@ Ideas from the owner, newest last, with where each one is planned.
   (staging).
 - 2026-10-28 (review 2): the commit window as a modal dialog (the app behind it cannot be used)
   or as a module in the left dock; which one is a setting → done (M4 slice 2; the module is
-  the default).
+  the default). Since 2026-11-04 the module popped out (below) is the dialog; the setting went.
 - 2026-10-28 (review 2): a Settings button at the bottom of the activity bar → done (opens the
   Settings tab).
 - 2026-10-28 (review 2): a "…" button on each repository with its actions (pull, commit, ...),
@@ -223,3 +223,7 @@ Ideas from the owner, newest last, with where each one is planned.
     address (owner's choice), so it is the same on every device → done.
   - Repositories inside groups get the same "…" button as open repositories → done; the
     configurable Pull, Push, … buttons come with M5.
+- 2026-11-04: pop out the left pane's tabs: right-click a tab → **Pop out**; the module then
+  opens as a popup inside the app (not a new window), the rest of the app waits until it is
+  closed, its state is kept (a half-written commit message), and a **Dock** button puts it back;
+  for every module → done (between M4 slices 3 and 4).

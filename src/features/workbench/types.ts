@@ -20,6 +20,8 @@ export interface WorkbenchModule {
   hotkey?: string;
   /** The module's content. */
   component: ComponentType;
+  /** Its popup (when popped out) is wide, for content beside its lists; narrow otherwise. */
+  popupWide?: boolean;
 }
 
 /** A toolbar button. Data, so the app shell decides what the toolbar offers. */

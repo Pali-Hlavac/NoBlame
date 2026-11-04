@@ -81,6 +81,8 @@ export const MODULES: readonly WorkbenchModule[] = [
     kind: "commit",
     hotkey: "alt+7",
     component: CommitModule,
+    // Popped out, it shows the chosen file's diff beside the lists.
+    popupWide: true,
   },
 ];
 

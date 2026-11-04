@@ -377,13 +377,6 @@ export type CommitLinkDto = {
 	row: number | null,
 };
 
-/**  Where the commit window opens. */
-export type CommitPlacement = 
-/**  The Commit module in the left dock; the diff tab shows the chosen file. */
-"module" | 
-/**  A dialog over the app, with its own diff; the app cannot be used until it closes. */
-"dialog";
-
 /**  A commit to make from the staged changes. */
 export type CommitRequestDto = {
 	/**  The message as typed (git applies `commit.cleanup`). */
@@ -418,12 +411,6 @@ export type CommitRowDto = {
 	parentCount: number,
 	/**  References pointing here. */
 	refs: RefLabel[],
-};
-
-/**  Committing preferences. */
-export type CommitSettings = {
-	/**  Where the Commit button (and the palette's Commit command) opens the commit window. */
-	openIn?: CommitPlacement,
 };
 
 /**  What to compare: two revisions as typed or picked (a branch, tag, commit id, `HEAD~2`). */
@@ -1026,8 +1013,6 @@ export type Settings = {
 	diff?: DiffSettings,
 	/**  Branches module. */
 	branches?: BranchesSettings,
-	/**  Committing. */
-	commit?: CommitSettings,
 };
 
 /**  The result of checking a commit's signature. */

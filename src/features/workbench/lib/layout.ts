@@ -24,6 +24,8 @@ export interface SavedLayout {
   /** The document dock (main area): open tabs and how they are split. */
   documents: SerializedDockview | null;
   sidebar: SidebarLayout;
+  /** Modules popped out of the dock (they open in a popup). Missing in older layouts. */
+  popouts: string[];
 }
 
 /** Panel parameters of a document panel. */
@@ -64,6 +66,9 @@ export function parseSavedLayout(value: unknown): SavedLayout | null {
     modules: isSerializedDock(value.modules) ? value.modules : null,
     documents: isSerializedDock(value.documents) ? value.documents : null,
     sidebar: parseSidebar(value.sidebar),
+    popouts: Array.isArray(value.popouts)
+      ? value.popouts.filter((id): id is string => typeof id === "string")
+      : [],
   };
 }
 

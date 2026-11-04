@@ -99,6 +99,11 @@ Use `target\debug\noblame.exe` while the dev app runs.
   - Notes:
 - [ ] Ctrl+, (or the gear at the bottom of the activity bar) opens Settings.
   - Notes:
+- [ ] **(new)** Right-click a module's tab → **Pop out**: it leaves the sidebar and opens in a
+      popup; nothing behind it reacts. Close it (×, Esc), open it again from its icon or Alt+N:
+      it is the popup again, with what you typed still there. **Dock** puts it back in the
+      sidebar. Restart: a popped-out module stays popped out.
+  - Notes:
 
 ## 5. Toolbar
 
@@ -306,8 +311,8 @@ Use a scratch repository, or a branch you can throw away.
 - [ ] **Sign off** adds `Signed-off-by:` with your name; with `commit.gpgSign` on, the commit is
       signed (Commit details says so).
   - Notes:
-- [ ] Settings → Committing → **A dialog**: Commit opens a dialog with the diff beside the lists;
-      Esc closes it, the message is kept; after a commit it closes with a toast.
+- [ ] Pop out the **Commit** tab: Commit opens a popup with the diff beside the lists; Esc
+      closes it, the message is kept; after a commit it closes with a toast.
   - Notes:
 - [ ] A repository's **…** → **Commit…** (also for a closed one in a group) shows it and opens
       the commit window.
@@ -435,7 +440,7 @@ Use a scratch repository, or a branch you can throw away.
   (placeholders).
   - Notes: mouse cursor diappears on typing - when system file explorer opens (open repository, using only keyboard) the mouse doesn't appear back when moving it
 - [ ] Settings: theme, commit highlight, working-tree rows, repository **…** button, Diff
-      (layout, whitespace, context, colours), Committing (module or dialog), Branches sort. Each change applies at once and is
+      (layout, whitespace, context, colours), Branches sort. Each change applies at once and is
       kept after a restart.
   - Notes:
 

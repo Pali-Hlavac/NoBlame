@@ -39,13 +39,24 @@ blue for repositories (also the open and create buttons), orange for groups, and
 submodules. Settings and About keep the normal colour.
 
 The gear at the bottom of the activity bar opens **Settings** in a tab: the theme, the commit
-highlight, whether repositories show their **…** button, and where the commit window opens.
+highlight, whether repositories show their **…** button, and how diffs look.
 
 Clicking the icon of a module that is already showing hides the sidebar; click any icon to show
 it again. You can also drag the line between the sidebar and the tabs to change its width.
 
 Modules sit in the sidebar as tabs. Drag a module's tab to move it: next to another tab, or to
 an edge to place it above or below the others.
+
+### Popping a module out
+
+Right-click a module's tab in the sidebar and choose **Pop out**. The module leaves the sidebar
+and opens in a popup over the window, and from then on it always opens there: from its icon,
+its shortcut or the toolbar. While the popup is open the rest of NoBlame waits; close it with
+**×** or Esc to carry on.
+
+Closing the popup keeps what you did in it. A half-written commit message, a filter you typed
+or the file you chose are still there when you open it again. To put the module back in the
+sidebar, click **Dock** in the popup's header. **Reset layout** docks every module again.
 
 The modules follow the **active repository**: the repository tab you used last. If you click a
 commit in that repository, Commit details shows it right away.
@@ -114,7 +125,7 @@ current branch are shown on the right of the title bar.
 
 - **Pull** (with ▾ for Fetch, Fetch all remotes and Fetch and prune) and **Push** are greyed
   out: they arrive in a later version. Hover over them to see which.
-- **Commit** opens the commit window, in the sidebar or as a dialog
+- **Commit** opens the Commit module, in the sidebar or in its popup if you popped it out
   ([Committing](committing.md)).
 - **Stashes** opens the Stashes module.
 - The magnifier opens the [command palette](command-palette.md).
@@ -143,7 +154,7 @@ version. See [Opening repositories](opening-repositories.md).
 ## NoBlame remembers your layout
 
 When you start NoBlame again, it reopens your tabs and puts the modules and tabs back where you
-left them. A repository in a tab you have not looked at yet is only opened when you switch to
+left them, popped-out modules included. A repository in a tab you have not looked at yet is only opened when you switch to
 that tab.
 
 To go back to the original arrangement, open the command palette and run **Reset layout**. Your

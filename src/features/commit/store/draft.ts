@@ -1,6 +1,6 @@
 /**
  * The commit message being written in each repository, with its options. Kept while the app
- * runs, so it survives closing the dialog or switching repositories (keyed by path: the
+ * runs, so it survives closing the popup or switching repositories (keyed by path: the
  * session id changes when a repository is reopened).
  */
 import { create } from "zustand";

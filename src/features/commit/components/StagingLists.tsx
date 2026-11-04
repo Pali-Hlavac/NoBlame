@@ -46,7 +46,7 @@ const RESOLVED_WARNING =
 interface StagingListsProps {
   repoId: number;
   repoPath: string;
-  /** Choosing a file shows the diff tab (the module); the dialog shows the diff itself. */
+  /** Choosing a file shows the diff tab (docked); popped out, the module shows it itself. */
   showDiff: boolean;
 }
 

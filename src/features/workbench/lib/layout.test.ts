@@ -53,7 +53,13 @@ describe("parseSavedLayout", () => {
       modules: null,
       documents: null,
       sidebar: { widthPx: DEFAULT_SIDEBAR_WIDTH_PX, collapsed: false },
+      popouts: [],
     });
+  });
+
+  it("keeps the popped-out modules", () => {
+    const parsed = parseSavedLayout({ version: LAYOUT_VERSION, popouts: ["commit", 4] });
+    expect(parsed?.popouts).toEqual(["commit"]);
   });
 });
 

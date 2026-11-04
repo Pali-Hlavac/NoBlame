@@ -14,6 +14,7 @@ import type { WorkbenchModule } from "../types";
 import { ActivityBar } from "./ActivityBar";
 import { DocumentDock } from "./DocumentDock";
 import { ModuleDock } from "./ModuleDock";
+import { ModulePopups } from "./ModulePopups";
 
 /** Sidebar (module dock) limits. */
 const SIDEBAR_MIN = "180px";
@@ -122,6 +123,7 @@ export function Workbench(props: WorkbenchProps) {
           </main>
         </Panel>
       </Group>
+      <ModulePopups modules={modules} />
     </div>
   );
 }

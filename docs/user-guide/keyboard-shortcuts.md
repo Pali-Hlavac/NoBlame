@@ -22,7 +22,7 @@ On macOS, use **⌘** where this page says **Ctrl**, except for switching tabs, 
 | Ctrl+, (⌘,)         | Open Settings                           |
 | Ctrl+F (⌘F)         | Find commits in the active repository   |
 | Ctrl+Shift+G (⌘⇧G)  | Go to a commit, branch or tag           |
-| Escape              | Close the palette or a dialog           |
+| Escape              | Close the palette, a dialog or a popup  |
 | Enter               | Run the selected command in the palette |
 
 **F6** moves between the activity bar, the sidebar, the toolbar, the tabs and the status bar.

@@ -1,4 +1,4 @@
-# Commit module and dialog
+# Commit module
 
 Staging files and committing them (M4 slice 2). User guide:
 [committing.md](../user-guide/committing.md).
@@ -6,18 +6,20 @@ Staging files and committing them (M4 slice 2). User guide:
 ## Where it opens
 
 The toolbar's **Commit** button, the palette's **Commit…** and the **Commit…** entry of a
-repository's **…** menu open the commit window where `commit.openIn` says
-(Settings → Committing):
+repository's **…** menu open the **Commit** module (`commit`, Alt+7) with `openCommit()` in
+`src/app/workbench/commit.ts`:
 
-| Setting            | Opens                                                                                                                                                                                         |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `module` (default) | The **Commit** module (`commit`, Alt+7) in the left dock; choosing a file shows the diff tab                                                                                                  |
-| `dialog`           | `CommitDialog`, a modal dialog (85 % of the window) with the lists and message on the left and the chosen file's diff (`WorkingTreeDiff`) on the right; it closes after a commit with a toast |
+| Where                  | Shows                                                                                                                                                                                                        |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Docked (default)       | The lists and the message (`CommitPanel`); choosing a file shows the diff tab                                                                                                                                |
+| Popped out (its popup) | `CommitBeside`: the lists and message on the left, the chosen file's diff (`WorkingTreeDiff`) on the right, under a line naming the branch and the repository; the popup closes after a commit, with a toast |
+
+The module asks `useModuleHost()` where it is ([workbench.md](workbench.md#popping-a-module-out)).
+Popping it out replaced the earlier setting (Settings → Committing, module or dialog,
+2026-11-03): the popup is that dialog, chosen from the tab's menu instead.
 
 From a repository's **…** menu, the repository's tab is shown first (or the repository opened),
-since both work on the active repository. `openCommit(placement)` in
-`src/app/workbench/commit.ts` decides; the toolbar and the repository actions are built by hooks
-(`useToolbarActions`, `useRepositoryActions`) so they read the setting.
+since both work on the active repository.
 
 ## Content (`CommitPanel`)
 

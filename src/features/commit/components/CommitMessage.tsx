@@ -17,7 +17,7 @@ export const COMMIT_HOTKEY = "mod+enter";
 interface CommitMessageProps {
   repoId: number;
   repoPath: string;
-  /** Called with git's output after a commit (the dialog closes). */
+  /** Called with git's output after a commit (a popped-out module closes). */
   onCommitted?: (output: string) => void;
 }
 

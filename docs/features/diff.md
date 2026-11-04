@@ -174,8 +174,8 @@ Linux kernel clone during slice 7).
 
 ## Staging lines and hunks
 
-In a working tree diff (Changed files with a working tree row selected, the Commit module, the
-commit dialog), `WorkingTreeDiff` passes `staging` (`worktree` or `index`) to `FileDiffView`,
+In a working tree diff (Changed files with a working tree row selected, the Commit module docked
+or popped out), `WorkingTreeDiff` passes `staging` (`worktree` or `index`) to `FileDiffView`,
 unless the file is conflicted or a submodule. Commit diffs have none of this.
 
 - Hunk headers get **Stage hunk** and **Discard hunk…** (working tree) or **Unstage hunk**

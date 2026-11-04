@@ -15,6 +15,7 @@ import { DOCK_THEME } from "../lib/theme";
 import type { ModuleParams } from "../lib/layout";
 import { useWorkbenchStore } from "../store/workbench";
 import type { WorkbenchModule } from "../types";
+import { ModuleTab } from "./ModuleTab";
 
 const ModulesContext = createContext<ReadonlyMap<string, WorkbenchModule>>(new Map());
 
@@ -113,9 +114,10 @@ export function ModuleDock({ modules, defaultLayout, saved }: ModuleDockProps) {
       api.clear();
     }
     if (!saved || api.totalPanels === 0) addDefaultModules(api, defaultLayout, byId);
-    // Modules removed from the app since the layout was saved.
+    // Modules removed from the app since the layout was saved, and popped-out ones.
+    const { poppedOut } = useWorkbenchStore.getState();
     for (const panel of [...api.panels]) {
-      if (!byId.has(panel.id)) panel.api.close();
+      if (!byId.has(panel.id) || poppedOut.includes(panel.id)) panel.api.close();
     }
     publishModules(api);
     const onChange = (): void => {
@@ -136,6 +138,7 @@ export function ModuleDock({ modules, defaultLayout, saved }: ModuleDockProps) {
         className="h-full"
         theme={DOCK_THEME}
         components={COMPONENTS}
+        defaultTabComponent={ModuleTab}
         watermarkComponent={ModuleWatermark}
         disableFloatingGroups
         onReady={onReady}
