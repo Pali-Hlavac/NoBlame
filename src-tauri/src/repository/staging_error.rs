@@ -16,7 +16,7 @@ pub(super) fn staging_error(error: RepositoryError) -> AppError {
         RepositoryError::Stash(error) => stash_error(error),
         RepositoryError::Bare => AppError::new(
             ErrorCode::InvalidInput,
-            "This repository is bare: it has no working tree to stage or commit.",
+            "This repository is bare: it has no working tree.",
         ),
         RepositoryError::LossyPath(path) => AppError::new(
             ErrorCode::InvalidInput,

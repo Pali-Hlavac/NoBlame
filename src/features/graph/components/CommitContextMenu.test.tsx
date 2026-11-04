@@ -24,6 +24,7 @@ function renderMenu(commit: CommitRowDto | undefined, onToggleHighlight = vi.fn(
       repoPath="/repo"
       row={commit ? 3 : undefined}
       commit={commit}
+      hasWorkingTree
       highlighted={false}
       onToggleHighlight={onToggleHighlight}
     >

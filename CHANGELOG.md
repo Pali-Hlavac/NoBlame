@@ -148,6 +148,9 @@ All notable changes to NoBlame are documented here. The format follows
   merges only the ticked files' changes into the working tree and keeps the stash. Conflicts are
   marked as by `git stash apply`. The commit graph labels the commit each stash was made on
   (`stash@{n}`).
+- Compare with the working tree (M4 slice 6): a commit's menu → **Compare with the working
+  tree**, or **Working tree** as the compare tab's second side. Lists what `git diff <commit>`
+  lists, diffs against the files on disk, and updates when they change.
 - The commit message (M4, slice 4): **Recent ▾** above the box puts one of your last commit
   messages back in it; the box starts with your `commit.template` (its `#` lines are left out,
   as Git does); **Author → Change** commits someone else's work as `Name <email>` with you as

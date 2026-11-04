@@ -1,12 +1,14 @@
 # Comparing branches and commits
 
-The **Compare** tab shows every file that differs between two branches, tags or commits, and
-what changed in each one.
+The **Compare** tab shows every file that differs between two branches, tags or commits, or
+between one of them and your files as they are now, and what changed in each one.
 
 ## Opening it
 
 - In the graph, right-click a commit and choose **Compare with HEAD**. This shows what changed
   from that commit to the commit you have checked out.
+- Right-click a commit and choose **Compare with the working tree** to see everything that
+  changed since that commit, including what you have not committed yet.
 - Right-click a commit that has a branch or tag, open the branch's or tag's submenu, and choose
   **Compare with the current branch**.
 - Click a commit, then hold **Ctrl** (**Cmd** on macOS) and click another one. The first click
@@ -21,9 +23,10 @@ pick:
 
 - **HEAD**, a branch, a remote branch or a tag (type to narrow the list);
 - or anything Git understands: type it and choose **Use "…"**. For example, a commit id,
-  `HEAD~3` (three commits back) or `v1.0^`.
+  `HEAD~3` (three commits back) or `v1.0^`;
+- on the right side, **Working tree (your files now)**.
 
-The **⇄** button swaps the two sides.
+The **⇄** button swaps the two sides (not while the right side is the working tree).
 
 **Only changes since they split** shows only what the right side changed since the two went
 their separate ways. Use it to see what a feature branch adds, without the changes made on the
@@ -48,4 +51,5 @@ The file stays chosen when you compare other branches, as long as it differs the
 - In a partial clone (one that downloads old file contents only when needed), a file that was
   both moved and edited is shown as deleted and added. NoBlame does not download anything for
   this.
-- Comparing with your uncommitted changes comes later, with committing.
+- Compared with the working tree, the list shows files Git tracks and files you staged; new
+  files Git does not know yet are not listed. It updates by itself when you save a file.

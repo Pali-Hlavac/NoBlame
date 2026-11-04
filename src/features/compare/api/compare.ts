@@ -3,17 +3,23 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 import { graphKeys } from "@/features/graph";
 import type { Comparison } from "@/features/selection";
+import { statusKeys } from "@/features/working-tree";
 import { commands, unwrap } from "@/shared/ipc/client";
 
-import { isComplete } from "../lib/revisions";
+import { compareRequest, isComplete, withWorkingTree } from "../lib/revisions";
 
 /**
  * Under the graph's keys: a reload (a branch moved) compares again, and closing the repository
- * drops them. Revisions are keyed as typed, so `main` follows the branch.
+ * drops them. Revisions are keyed as typed, so `main` follows the branch. A comparison with the
+ * working tree is under the status keys instead, read again whenever the files or refs change.
  */
 export const compareKeys = {
-  files: (repoId: number, { base, target, sinceMergeBase }: Comparison) =>
-    [...graphKeys.all(repoId), "compare", base.trim(), target.trim(), sinceMergeBase] as const,
+  files: (repoId: number, comparison: Comparison) => {
+    const { base, target, sinceMergeBase } = compareRequest(comparison);
+    return withWorkingTree(comparison)
+      ? ([...statusKeys.all(repoId), "compare", base, sinceMergeBase] as const)
+      : ([...graphKeys.all(repoId), "compare", base, target, sinceMergeBase] as const);
+  },
   counts: (repoId: number, base: string, target: string) =>
     [...graphKeys.all(repoId), "ahead-behind", base, target] as const,
 };
@@ -22,14 +28,7 @@ export const compareKeys = {
 export function useComparisonFiles(repoId: number, comparison: Comparison) {
   return useQuery({
     queryKey: compareKeys.files(repoId, comparison),
-    queryFn: () =>
-      unwrap(
-        commands.getComparison(repoId, {
-          base: comparison.base.trim(),
-          target: comparison.target.trim(),
-          sinceMergeBase: comparison.sinceMergeBase,
-        }),
-      ),
+    queryFn: () => unwrap(commands.getComparison(repoId, compareRequest(comparison))),
     staleTime: Infinity,
     enabled: isComplete(comparison),
     // The last comparison stays (under an overlay) while the next one is read.

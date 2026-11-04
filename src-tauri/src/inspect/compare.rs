@@ -1,8 +1,8 @@
-//! The compare tab: the files that differ between two revisions, directly or since their merge
-//! base, and the commits each one has that the other lacks.
+//! The compare tab: the files that differ between two revisions (or a revision and the working
+//! tree), directly or since their merge base, and the commits each one has that the other lacks.
 
 use git_core::cli::Git;
-use git_core::compare::{compare_commits, count_ahead_behind};
+use git_core::compare::{compare_commits, compare_with_worktree, count_ahead_behind};
 use git_core::diff::{ObjectId, parse_object_id};
 use git_core::graph::{CommitText, GraphError, commit_text, resolve_commit};
 use serde::{Deserialize, Serialize};
@@ -19,11 +19,14 @@ use crate::repository::{RepoId, RepoSessions, RepositoryError, blocking};
 pub struct CompareRequestDto {
     /// The revision compared from.
     pub base: String,
-    /// The revision compared to.
+    /// The revision compared to; ignored when `worktree` is set.
     pub target: String,
     /// Compare from the commits' merge base instead of from `base` (`git diff base...target`):
     /// only what `target` changed since the two split.
     pub since_merge_base: bool,
+    /// Compare to the working tree instead of `target` (`git diff base`); the merge base is then
+    /// the one of `base` and HEAD.
+    pub worktree: bool,
 }
 
 /// One of the compared commits.
@@ -46,16 +49,19 @@ pub struct ComparedCommitDto {
 pub struct ComparisonDto {
     /// The commit `base` names.
     pub base: ComparedCommitDto,
-    /// The commit `target` names.
+    /// The commit `target` names; HEAD when compared with the working tree.
     pub target: ComparedCommitDto,
     /// The merge base the files are compared from; `null` when compared directly.
     pub merge_base: Option<ComparedCommitDto>,
-    /// Sorted by path, at most 100,000.
+    /// Sorted by path, at most 100,000. Compared with the working tree, the new side of a file
+    /// that is not deleted is the file on disk (no `newId`), except for submodules.
     pub files: Vec<ChangedFileDto>,
     /// All files that differ, including those not listed.
     pub total: u32,
     /// Renames were found only between identical files (a partial clone lacks the contents).
     pub exact_renames_only: bool,
+    /// The second side is the working tree.
+    pub worktree: bool,
 }
 
 /// Commits one side has that the other lacks.
@@ -98,7 +104,15 @@ pub async fn comparison(
         base,
         target,
         since_merge_base,
+        worktree,
     } = request;
+    let info = session.repo.info();
+    let work_dir = info.work_dir.clone();
+    if worktree && work_dir.is_none() {
+        return Err(RepositoryError::Bare);
+    }
+    // The working tree is compared as HEAD for the merge base and the commit counts.
+    let target = if worktree { "HEAD".to_owned() } else { target };
     let (base, target) = blocking(move || {
         let local = repo.local();
         let commit = |revision: &str| {
@@ -109,18 +123,17 @@ pub async fn comparison(
     })
     .await??;
     let git = Git::locate().map_err(GitEnvError::from)?;
-    let info = session.repo.info();
-    let dir = info.work_dir.as_ref().unwrap_or(&info.git_dir);
-    let compared = compare_commits(
-        &git,
-        dir,
-        &session.repo.thread_safe(),
-        parse_object_id(&base.id)?,
-        parse_object_id(&target.id)?,
-        since_merge_base,
-        &cancel,
-    )
-    .await?;
+    let (from, to) = (parse_object_id(&base.id)?, parse_object_id(&target.id)?);
+    let repo = session.repo.thread_safe();
+    let compared = match &work_dir {
+        Some(dir) if worktree => {
+            compare_with_worktree(&git, dir, &repo, from, to, since_merge_base, &cancel).await?
+        }
+        _ => {
+            let dir = work_dir.as_ref().unwrap_or(&info.git_dir);
+            compare_commits(&git, dir, &repo, from, to, since_merge_base, &cancel).await?
+        }
+    };
     let merge_base = if since_merge_base {
         let repo = session.repo.clone();
         let from = compared.from;
@@ -140,6 +153,7 @@ pub async fn comparison(
             .collect(),
         total: to_u32(compared.total),
         exact_renames_only: compared.exact_renames_only,
+        worktree,
     })
 }
 

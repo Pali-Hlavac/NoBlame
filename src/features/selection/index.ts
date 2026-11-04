@@ -11,6 +11,7 @@ export {
   useSelectedRow,
   useSelection,
   useSelectionStore,
+  WORKING_TREE,
   type Comparison,
   type Selection,
 } from "./store/selection";

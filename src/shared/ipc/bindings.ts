@@ -497,13 +497,18 @@ export type CommitTemplateDto = {
 export type CompareRequestDto = {
 	/**  The revision compared from. */
 	base: string,
-	/**  The revision compared to. */
+	/**  The revision compared to; ignored when `worktree` is set. */
 	target: string,
 	/**
 	 *  Compare from the commits' merge base instead of from `base` (`git diff base...target`):
 	 *  only what `target` changed since the two split.
 	 */
 	sinceMergeBase: boolean,
+	/**
+	 *  Compare to the working tree instead of `target` (`git diff base`); the merge base is then
+	 *  the one of `base` and HEAD.
+	 */
+	worktree: boolean,
 };
 
 /**  One of the compared commits. */
@@ -522,16 +527,21 @@ export type ComparedCommitDto = {
 export type ComparisonDto = {
 	/**  The commit `base` names. */
 	base: ComparedCommitDto,
-	/**  The commit `target` names. */
+	/**  The commit `target` names; HEAD when compared with the working tree. */
 	target: ComparedCommitDto,
 	/**  The merge base the files are compared from; `null` when compared directly. */
 	mergeBase: ComparedCommitDto | null,
-	/**  Sorted by path, at most 100,000. */
+	/**
+	 *  Sorted by path, at most 100,000. Compared with the working tree, the new side of a file
+	 *  that is not deleted is the file on disk (no `newId`), except for submodules.
+	 */
 	files: ChangedFileDto[],
 	/**  All files that differ, including those not listed. */
 	total: number,
 	/**  Renames were found only between identical files (a partial clone lacks the contents). */
 	exactRenamesOnly: boolean,
+	/**  The second side is the working tree. */
+	worktree: boolean,
 };
 
 /**  How dates are shown in the commit list. */

@@ -1,7 +1,8 @@
-import { ChevronDownIcon, CornerDownLeftIcon, GitBranchIcon } from "lucide-react";
+import { ChevronDownIcon, CornerDownLeftIcon, FolderOpenIcon, GitBranchIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { headNameOf, pickerSections, refRevision, useRefs } from "@/features/graph";
+import { WORKING_TREE } from "@/features/selection";
 import { cn } from "@/shared/lib/cn";
 import {
   Command,
@@ -22,6 +23,8 @@ interface RevisionPickerProps {
   revision: string;
   /** The commit it names, shown as the tooltip. */
   detail: string | undefined;
+  /** Offer the working tree (the second side only). */
+  withWorkingTree?: boolean;
   onChange: (revision: string) => void;
 }
 
@@ -29,7 +32,14 @@ const TRIGGER_CLASSES =
   "flex h-7 max-w-56 min-w-0 shrink items-center gap-1.5 rounded border border-border bg-background px-2 text-sm hover:bg-muted/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none";
 
 /** Chooses one side of a comparison: a branch, a tag, or any revision typed in. */
-export function RevisionPicker({ repoId, side, revision, detail, onChange }: RevisionPickerProps) {
+export function RevisionPicker({
+  repoId,
+  side,
+  revision,
+  detail,
+  withWorkingTree = false,
+  onChange,
+}: RevisionPickerProps) {
   const refs = useRefs(repoId);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -55,7 +65,11 @@ export function RevisionPicker({ repoId, side, revision, detail, onChange }: Rev
           title={detail ?? label}
           className={TRIGGER_CLASSES}
         >
-          <GitBranchIcon className="size-3.5 shrink-0" aria-hidden />
+          {revision === WORKING_TREE ? (
+            <FolderOpenIcon className="size-3.5 shrink-0" aria-hidden />
+          ) : (
+            <GitBranchIcon className="size-3.5 shrink-0" aria-hidden />
+          )}
           <span className={cn("truncate", revision.trim() === "" && "text-muted-foreground")}>
             {label}
           </span>
@@ -81,6 +95,19 @@ export function RevisionPicker({ repoId, side, revision, detail, onChange }: Rev
                 >
                   <CornerDownLeftIcon aria-hidden />
                   <span className="truncate">Use “{typed}”</span>
+                </CommandItem>
+              </CommandGroup>
+            )}
+            {withWorkingTree && (typed === "" || "working tree".includes(typed.toLowerCase())) && (
+              <CommandGroup>
+                <CommandItem
+                  value="working-tree"
+                  onSelect={() => {
+                    choose(WORKING_TREE);
+                  }}
+                >
+                  <FolderOpenIcon aria-hidden />
+                  <span className="truncate">Working tree (your files now)</span>
                 </CommandItem>
               </CommandGroup>
             )}

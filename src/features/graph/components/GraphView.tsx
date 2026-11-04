@@ -16,10 +16,12 @@ import { GraphTable } from "./GraphTable";
 interface GraphViewProps {
   repoId: number;
   repoPath: string;
+  /** Not a bare repository: commits can be compared with the working tree. */
+  hasWorkingTree: boolean;
 }
 
 /** Shown when the filter hides every commit. */
-function NothingMatches({ repoId, repoPath }: GraphViewProps) {
+function NothingMatches({ repoId, repoPath }: Omit<GraphViewProps, "hasWorkingTree">) {
   const setFilter = useSetGraphFilter(repoId, repoPath);
   return (
     <EmptyState
@@ -43,7 +45,12 @@ function NothingMatches({ repoId, repoPath }: GraphViewProps) {
   );
 }
 
-function GraphContent({ repoId, repoPath, summary }: GraphViewProps & { summary: GraphSummary }) {
+function GraphContent({
+  repoId,
+  repoPath,
+  hasWorkingTree,
+  summary,
+}: GraphViewProps & { summary: GraphSummary }) {
   if (summary.rows === 0) return <NothingMatches repoId={repoId} repoPath={repoPath} />;
   // A new graph (after a commit, a fetch, a filter change) starts with fresh block caches.
   return (
@@ -51,13 +58,14 @@ function GraphContent({ repoId, repoPath, summary }: GraphViewProps & { summary:
       key={`${repoId}:${summary.generation}`}
       repoId={repoId}
       repoPath={repoPath}
+      hasWorkingTree={hasWorkingTree}
       summary={summary}
     />
   );
 }
 
 /** The commit graph of one repository, with its filter bar and loading, error and empty states. */
-export function GraphView({ repoId, repoPath }: GraphViewProps) {
+export function GraphView({ repoId, repoPath, hasWorkingTree }: GraphViewProps) {
   const summary = useGraphSummary(repoId);
   if (summary.isPending) return <LoadingState label="Reading history…" className="h-full" />;
   if (summary.error) {
@@ -86,7 +94,12 @@ export function GraphView({ repoId, repoPath }: GraphViewProps) {
       <FindBar repoId={repoId} repoPath={repoPath} />
       <GoToCommitDialog repoId={repoId} repoPath={repoPath} />
       <div className="min-h-0 flex-1">
-        <GraphContent repoId={repoId} repoPath={repoPath} summary={summary.data} />
+        <GraphContent
+          repoId={repoId}
+          repoPath={repoPath}
+          hasWorkingTree={hasWorkingTree}
+          summary={summary.data}
+        />
       </div>
     </div>
   );

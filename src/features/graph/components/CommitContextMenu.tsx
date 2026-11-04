@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { toast } from "sonner";
 
+import { WORKING_TREE } from "@/features/selection";
 import { openModuleById } from "@/features/workbench";
 import type { CommitRowDto } from "@/shared/ipc/bindings";
 import { commands, toIpcError, unwrap } from "@/shared/ipc/client";
@@ -67,6 +68,8 @@ interface CommitContextMenuProps {
   /** The selected commit's row and text; no menu without them (working tree rows, loading). */
   row: number | undefined;
   commit: CommitRowDto | undefined;
+  /** The repository has a working tree to compare with (not bare). */
+  hasWorkingTree: boolean;
   /** Whether its history is highlighted; `undefined` when highlighting is switched off. */
   highlighted: boolean | undefined;
   onToggleHighlight: () => void;
@@ -102,6 +105,15 @@ export function CommitContextMenu(props: CommitContextMenuProps) {
                 openComparison(repoPath, {
                   base: commit.id,
                   target: "HEAD",
+                  sinceMergeBase: false,
+                });
+              },
+          compareWithWorkingTree: !props.hasWorkingTree
+            ? undefined
+            : () => {
+                openComparison(repoPath, {
+                  base: commit.id,
+                  target: WORKING_TREE,
                   sinceMergeBase: false,
                 });
               },

@@ -3,6 +3,7 @@
  * changed file (also shown by the compare tab) and file views.
  */
 export { DiffView } from "./components/DiffView";
+export { DiskFileDiff } from "./components/DiskFileDiff";
 export { FileContents } from "./components/FileContents";
 export { FileDiffView } from "./components/FileDiffView";
 export type { LineGutter } from "./components/FileLines";

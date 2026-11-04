@@ -26,6 +26,7 @@ function actions() {
     toggleHighlight: vi.fn(),
     browseFiles: vi.fn(),
     compareWithHead: vi.fn() as (() => void) | undefined,
+    compareWithWorkingTree: vi.fn() as (() => void) | undefined,
     compareWithCurrent: vi.fn(),
   };
 }
@@ -64,7 +65,17 @@ describe("commitMenu", () => {
     const entries = commitMenu(commit(), actions());
     expect(find(entries, "create-branch")).toMatchObject({ milestone: "M5" });
     expect(find(entries, "cherry-pick")).toMatchObject({ milestone: "M6" });
-    expect(find(entries, "compare-worktree")).toMatchObject({ milestone: "M4" });
+  });
+
+  it("compares with the working tree, except in a bare repository", () => {
+    const handlers = actions();
+    const entry = find(commitMenu(commit(), handlers), "compare-worktree");
+    if (entry?.type !== "item") throw new Error("missing");
+    expect(entry.milestone).toBeUndefined();
+    entry.run?.();
+    expect(handlers.compareWithWorkingTree).toHaveBeenCalled();
+    handlers.compareWithWorkingTree = undefined;
+    expect(find(commitMenu(commit(), handlers), "compare-worktree")).toBeUndefined();
   });
 
   it("compares with HEAD, except HEAD itself", () => {

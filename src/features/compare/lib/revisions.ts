@@ -1,6 +1,6 @@
 /** Pure helpers for the revisions the compare tab compares. */
-import type { Comparison } from "@/features/selection";
-import type { AheadBehindDto } from "@/shared/ipc/bindings";
+import { WORKING_TREE, type Comparison } from "@/features/selection";
+import type { AheadBehindDto, CompareRequestDto } from "@/shared/ipc/bindings";
 
 /** What the compare tab shows before anything is chosen. */
 export const NO_COMPARISON: Comparison = { base: "HEAD", target: "", sinceMergeBase: false };
@@ -12,6 +12,7 @@ const REF_PREFIXES = ["refs/heads/", "refs/remotes/", "refs/tags/"] as const;
 
 /** How a revision is shown: `main` for `refs/heads/main`, a short id for a full one. */
 export function revisionLabel(revision: string): string {
+  if (revision === WORKING_TREE) return "Working tree";
   const text = revision.trim();
   const prefix = REF_PREFIXES.find((start) => text.startsWith(start));
   if (prefix) return text.slice(prefix.length);
@@ -21,6 +22,27 @@ export function revisionLabel(revision: string): string {
 /** Both sides are chosen. */
 export function isComplete(comparison: Comparison): boolean {
   return comparison.base.trim() !== "" && comparison.target.trim() !== "";
+}
+
+/** The second side is the working tree. */
+export function withWorkingTree(comparison: Comparison): boolean {
+  return comparison.target === WORKING_TREE;
+}
+
+/** The request `get_comparison` takes. */
+export function compareRequest(comparison: Comparison): CompareRequestDto {
+  const worktree = withWorkingTree(comparison);
+  return {
+    base: comparison.base.trim(),
+    target: worktree ? "" : comparison.target.trim(),
+    sinceMergeBase: comparison.sinceMergeBase,
+    worktree,
+  };
+}
+
+/** The sides can change places: the working tree can only be the second one. */
+export function canSwap(comparison: Comparison): boolean {
+  return !withWorkingTree(comparison);
 }
 
 /** The comparison the other way round. */
@@ -40,7 +62,8 @@ export function describeAheadBehind(
   comparison: Comparison,
 ): string {
   const base = revisionLabel(comparison.base);
-  const target = revisionLabel(comparison.target);
+  // The working tree's commits are HEAD's.
+  const target = withWorkingTree(comparison) ? "HEAD" : revisionLabel(comparison.target);
   if (ahead === 0 && behind === 0) return "Same history";
   if (behind === 0) return `${commits(ahead)} only in ${target}`;
   if (ahead === 0) return `${commits(behind)} only in ${base}`;

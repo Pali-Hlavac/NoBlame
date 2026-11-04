@@ -472,8 +472,12 @@ Use a scratch repository with a few changed files and one new file.
 - [x] **(not checked yet)** Linux: compare `v4.0` with `HEAD`: about a second, 116,665 files;
       `v7.2` → `v7.3` shows the partial-clone note about renames.
   - Notes:
-- [ ] **(not checked yet)** Command palette → **Compare branches or commits…**; **Compare with
-      the working tree** is greyed out (M4).
+- [ ] **(not checked yet)** Command palette → **Compare branches or commits…**.
+  - Notes:
+- [ ] (new, M4 slice 6) Edit a file, then right-click an older commit → **Compare with the
+      working tree**: the right side says **Working tree**, ⇄ is greyed out, the edited file is
+      listed with your change in its diff. Save the file again with another change:
+      the list and diff update within a second.
   - Notes:
 
 ## 18. Command palette and Settings

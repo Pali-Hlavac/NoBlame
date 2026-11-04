@@ -1,6 +1,7 @@
 //! Two commits compared: the files that differ between their trees, directly (`git diff A B`)
 //! or since the commits' merge base (`git diff A...B`), and how many commits each one has that
-//! the other lacks (`git rev-list --left-right --count A...B`).
+//! the other lacks (`git rev-list --left-right --count A...B`). A commit compared with the
+//! working tree is in `worktree.rs`.
 
 use std::path::Path;
 
@@ -12,7 +13,9 @@ use crate::cli::{Git, GitError};
 use crate::diff::{ChangedFile, DiffError, tree_changes};
 
 mod raw;
+mod worktree;
 use raw::parse_raw;
+pub use worktree::compare_with_worktree;
 
 /// Files returned at most for one comparison. Two releases of a large project can differ in
 /// every file; the Linux kernel has about 90,000.
@@ -93,18 +96,7 @@ pub async fn compare_commits(
     since_merge_base: bool,
     cancel: &CancellationToken,
 ) -> Result<Comparison, CompareError> {
-    let safe = repo.clone();
-    let (from, partial) = tokio::task::spawn_blocking(move || {
-        let repo = safe.to_thread_local();
-        let from = if since_merge_base {
-            merge_base(&repo, base, target)?
-        } else {
-            base
-        };
-        Ok::<_, CompareError>((from, is_partial_clone(&repo)))
-    })
-    .await
-    .map_err(CompareError::gix)??;
+    let (from, partial) = starting_point(repo, base, target, since_merge_base).await?;
     if partial {
         let safe = repo.clone();
         return tokio::task::spawn_blocking(move || {
@@ -124,7 +116,38 @@ pub async fn compare_commits(
         .paths(std::iter::empty::<&Path>())
         .run(cancel)
         .await?;
-    let mut files = parse_raw(&output.stdout)?;
+    listed(from, &output.stdout, false)
+}
+
+/// The commit compared from (`base`, or its merge base with `target`), and whether the
+/// repository is a partial clone.
+async fn starting_point(
+    repo: &gix::ThreadSafeRepository,
+    base: ObjectId,
+    target: ObjectId,
+    since_merge_base: bool,
+) -> Result<(ObjectId, bool), CompareError> {
+    let safe = repo.clone();
+    tokio::task::spawn_blocking(move || {
+        let repo = safe.to_thread_local();
+        let from = if since_merge_base {
+            merge_base(&repo, base, target)?
+        } else {
+            base
+        };
+        Ok::<_, CompareError>((from, is_partial_clone(&repo)))
+    })
+    .await
+    .map_err(CompareError::gix)?
+}
+
+/// The comparison `git diff --raw -z` printed, sorted by path and cut to [`MAX_COMPARED_FILES`].
+fn listed(
+    from: ObjectId,
+    raw: &[u8],
+    exact_renames_only: bool,
+) -> Result<Comparison, CompareError> {
+    let mut files = parse_raw(raw)?;
     files.sort_by(|a, b| a.path.cmp(&b.path));
     let total = files.len();
     files.truncate(MAX_COMPARED_FILES);
@@ -132,7 +155,7 @@ pub async fn compare_commits(
         from,
         files,
         total,
-        exact_renames_only: false,
+        exact_renames_only,
     })
 }
 

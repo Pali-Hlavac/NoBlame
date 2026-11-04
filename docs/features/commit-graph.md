@@ -107,7 +107,7 @@ subject.
 | Highlight its history / Clear the highlight                    | Works (when highlighting is on) |
 | Browse files at this commit                                    | Works (opens the Files module)  |
 | Compare with HEAD                                              | Works (the compare tab)         |
-| Compare with the working tree                                  | Disabled, **M4**                |
+| Compare with the working tree                                  | Works (not in bare repos)       |
 | Check out this commit, Create a branch here, Create a tag here | Disabled, **M5**                |
 | Merge, Rebase, Interactive rebase, Cherry-pick, Revert, Reset  | Disabled, **M6**                |
 | A submenu per branch or tag on the commit                      | Copy name works; the rest M5/M6 |

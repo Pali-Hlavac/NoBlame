@@ -50,7 +50,11 @@ export function RepositoryView({ tab }: { tab: RepositoryTab }) {
       <RepositoryHeader summary={session.data} />
       <CommitGraphNotice summary={session.data} tabPath={tab.path} />
       <div className="min-h-0 flex-1">
-        <GraphView repoId={session.data.id} repoPath={tab.path} />
+        <GraphView
+          repoId={session.data.id}
+          repoPath={tab.path}
+          hasWorkingTree={session.data.kind !== "bare"}
+        />
       </div>
     </div>
   );

@@ -1,4 +1,8 @@
+import { WORKING_TREE } from "@/features/selection";
+
 import {
+  canSwap,
+  compareRequest,
   describeAheadBehind,
   describeFileCount,
   isComplete,
@@ -37,6 +41,26 @@ describe("compare revisions", () => {
       "1,200 commits only in main",
     );
     expect(describeAheadBehind({ ahead: 0, behind: 0 }, COMPARISON)).toBe("Same history");
+  });
+
+  it("compares with the working tree as the second side only", () => {
+    const worktree = { base: " main ", target: WORKING_TREE, sinceMergeBase: false };
+    expect(revisionLabel(WORKING_TREE)).toBe("Working tree");
+    expect(isComplete(worktree)).toBe(true);
+    expect(canSwap(worktree)).toBe(false);
+    expect(canSwap(COMPARISON)).toBe(true);
+    expect(compareRequest(worktree)).toEqual({
+      base: "main",
+      target: "",
+      sinceMergeBase: false,
+      worktree: true,
+    });
+    expect(compareRequest(COMPARISON)).toMatchObject({
+      target: "refs/heads/feature",
+      worktree: false,
+    });
+    // Its commits are HEAD's.
+    expect(describeAheadBehind({ ahead: 2, behind: 0 }, worktree)).toBe("2 commits only in HEAD");
   });
 
   it("counts the files", () => {

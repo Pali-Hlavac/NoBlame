@@ -302,6 +302,12 @@ git.git goes through `git diff --raw`; gix's tree diff with rename detection too
 first row. The blobless Linux clone uses gix with exact renames only: `git diff` there spent
 70 s trying to fetch contents, then failed. Clicked through in the running app on git.git.
 
+With the working tree (M4 slice 6, 2026-11-04): `git diff --raw <from> --` in a shared clone of
+git.git with 4,857 files checked out (Windows 11, git 2.56, warm): `v2.40.0` → working tree
+0.49 s (3,846 files, renames found), `v1.0.0` → working tree 0.13 s (5,131 files; git skips
+exhaustive renames above `diff.renameLimit`). The benchmark Linux clone has no checkout, so a
+100k-file working tree is still to be measured (as for the status).
+
 ### Graph filters (M3 slice 4a, ADR 0021, 2026-10-29)
 
 Measured with `graph_spike` (release), from the loaded full graph. The view's time is choosing

@@ -1,45 +1,17 @@
 import { FileCheckIcon } from "lucide-react";
 
-import {
-  filesOf,
-  useWorkingTreeStatus,
-  useWorktreeFileId,
-  type WorkingTreeKind,
-} from "@/features/working-tree";
+import { filesOf, useWorkingTreeStatus, type WorkingTreeKind } from "@/features/working-tree";
 import type { WorkingFileDto } from "@/shared/ipc/bindings";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { LoadingState } from "@/shared/components/LoadingState";
 
+import { DiskFileDiff } from "./DiskFileDiff";
 import { FileDiffView } from "./FileDiffView";
 
 /** Lines can be staged (or discarded) unless the file is in conflict or a submodule. */
 function stagingOf(file: WorkingFileDto, kind: WorkingTreeKind): WorkingTreeKind | undefined {
   return file.status === "conflicted" || file.submodule ? undefined : kind;
-}
-
-/** A working tree file: its id names the version on disk, so a new version is a new diff. */
-function WorktreeFileDiff({ repoId, file }: { repoId: number; file: WorkingFileDto }) {
-  const id = useWorktreeFileId(repoId, file.path, !file.submodule);
-  if (file.submodule) return <FileDiffView repoId={repoId} file={file} />;
-  if (id.error) {
-    return (
-      <ErrorState
-        error={id.error}
-        title="Could not read the file"
-        onRetry={() => void id.refetch()}
-        className="h-full justify-center"
-      />
-    );
-  }
-  if (id.data === undefined) return <LoadingState label="Reading the file…" className="h-full" />;
-  return (
-    <FileDiffView
-      repoId={repoId}
-      file={{ ...file, newId: id.data, worktree: true }}
-      staging={stagingOf(file, "worktree")}
-    />
-  );
 }
 
 interface WorkingTreeDiffProps {
@@ -80,5 +52,12 @@ export function WorkingTreeDiff({ repoId, kind, path }: WorkingTreeDiffProps) {
   if (!file.worktree) {
     return <FileDiffView repoId={repoId} file={file} staging={stagingOf(file, kind)} />;
   }
-  return <WorktreeFileDiff key={file.path} repoId={repoId} file={file} />;
+  return (
+    <DiskFileDiff
+      key={file.path}
+      repoId={repoId}
+      file={file}
+      staging={stagingOf(file, "worktree")}
+    />
+  );
 }

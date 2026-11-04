@@ -9,7 +9,6 @@ import { refRevision } from "./revision";
 
 /** Milestones of the stubbed entries (docs/roadmap.md). */
 export const MENU_MILESTONES = {
-  workingTree: "M4",
   branches: "M5",
   history: "M6",
   advanced: "M7",
@@ -39,11 +38,13 @@ export interface CommitMenuActions {
   browseFiles: () => void;
   /** Compares the commit with HEAD; `undefined` when it is HEAD. */
   compareWithHead: (() => void) | undefined;
+  /** Compares the commit with the working tree; `undefined` in a bare repository. */
+  compareWithWorkingTree: (() => void) | undefined;
   /** Compares the current branch with a reference (its full name) on the commit. */
   compareWithCurrent: (revision: string) => void;
 }
 
-const { workingTree, branches, history, advanced } = MENU_MILESTONES;
+const { branches, history, advanced } = MENU_MILESTONES;
 
 function item(id: string, label: string, milestone?: string, run?: () => void): MenuEntry {
   return { type: "item", id, label, milestone, run };
@@ -145,7 +146,16 @@ export function commitMenu(commit: CommitRowDto, actions: CommitMenuActions): Me
   entries.push(
     separator("sep-inspect"),
     item("compare-head", "Compare with HEAD", undefined, actions.compareWithHead),
-    item("compare-worktree", "Compare with the working tree", workingTree),
+    ...(actions.compareWithWorkingTree
+      ? [
+          item(
+            "compare-worktree",
+            "Compare with the working tree",
+            undefined,
+            actions.compareWithWorkingTree,
+          ),
+        ]
+      : []),
     item("browse", "Browse files at this commit", undefined, actions.browseFiles),
     separator("sep-branches"),
     item("checkout", "Check out this commit…", branches),

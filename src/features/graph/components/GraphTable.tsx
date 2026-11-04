@@ -37,6 +37,8 @@ const RELATIVE_DATE_REFRESH_MS = 60_000;
 interface GraphTableProps {
   repoId: number;
   repoPath: string;
+  /** Not a bare repository (the commit menu offers comparing with the working tree). */
+  hasWorkingTree: boolean;
   summary: GraphSummary;
 }
 
@@ -44,7 +46,7 @@ interface GraphTableProps {
  * The commit list: a scrollable spacer with a sticky layer holding the canvas and the rows.
  * Working tree rows (if any) come first; "display indexes" count them, graph rows do not.
  */
-export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
+export function GraphTable({ repoId, repoPath, hasWorkingTree, summary }: GraphTableProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const size = useElementSize(scrollRef);
   const [scrollTop, setScrollTop] = useState(
@@ -184,6 +186,7 @@ export function GraphTable({ repoId, repoPath, summary }: GraphTableProps) {
         repoPath={repoPath}
         row={selectedRow}
         commit={selectedText}
+        hasWorkingTree={hasWorkingTree}
         highlighted={highlight.enabled ? highlight.row === selectedRow : undefined}
         onToggleHighlight={() => {
           if (highlight.row === selectedRow) highlight.dismiss();

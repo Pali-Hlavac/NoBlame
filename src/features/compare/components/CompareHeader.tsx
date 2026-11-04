@@ -5,7 +5,7 @@ import type { Comparison } from "@/features/selection";
 import type { ComparedCommitDto, ComparisonDto } from "@/shared/ipc/bindings";
 
 import { useAheadBehind } from "../api/compare";
-import { describeAheadBehind, describeFileCount, swapped } from "../lib/revisions";
+import { canSwap, describeAheadBehind, describeFileCount, swapped } from "../lib/revisions";
 import { RevisionPicker } from "./RevisionPicker";
 
 function describeCommit(commit: ComparedCommitDto | undefined): string | undefined {
@@ -44,7 +44,12 @@ export function CompareHeader({ repoId, comparison, onChange, result }: CompareH
           repoId={repoId}
           side="Compare to"
           revision={comparison.target}
-          detail={describeCommit(result?.target)}
+          detail={
+            result?.worktree
+              ? `Your files, on ${describeCommit(result.target) ?? "HEAD"}`
+              : describeCommit(result?.target)
+          }
+          withWorkingTree
           onChange={(target) => {
             onChange({ ...comparison, target });
           }}
@@ -52,8 +57,13 @@ export function CompareHeader({ repoId, comparison, onChange, result }: CompareH
         <button
           type="button"
           aria-label="Swap the two sides"
-          title="Swap the two sides"
-          className="rounded p-1 text-muted-foreground hover:bg-muted/60 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          title={
+            canSwap(comparison)
+              ? "Swap the two sides"
+              : "The working tree can only be the second side"
+          }
+          disabled={!canSwap(comparison)}
+          className="rounded p-1 text-muted-foreground hover:bg-muted/60 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:opacity-40 disabled:hover:bg-transparent"
           onClick={() => {
             onChange(swapped(comparison));
           }}

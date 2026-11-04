@@ -13,8 +13,15 @@ import { create } from "zustand";
 export type Selection = { kind: "commit"; row: number } | { kind: "worktree" } | { kind: "index" };
 
 /**
+ * The second side of a comparison that is the working tree. No revision can be named so: a
+ * reference cannot contain spaces or parentheses.
+ */
+export const WORKING_TREE = "(working tree)";
+
+/**
  * Two revisions the compare tab compares, as typed or picked (a branch, tag, commit id or
  * `HEAD~2`), so a branch that moves is compared where it is now. An empty text is not chosen yet.
+ * The target can be {@link WORKING_TREE}.
  */
 export interface Comparison {
   base: string;

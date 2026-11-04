@@ -2,7 +2,7 @@ import { EqualIcon, MousePointerClickIcon } from "lucide-react";
 import { Group, Panel, Separator } from "react-resizable-panels";
 
 import { ChangedFileRow, describeFile } from "@/features/changed-files";
-import { FileDiffView } from "@/features/diff";
+import { DiskFileDiff, FileDiffView } from "@/features/diff";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { VirtualList } from "@/shared/components/VirtualList";
 import type { ComparisonDto } from "@/shared/ipc/bindings";
@@ -70,7 +70,9 @@ export function CompareFiles({ repoId, repoPath, result }: CompareFilesProps) {
         className="w-px bg-border outline-none hover:bg-primary focus-visible:bg-ring data-[separator=active]:bg-primary"
       />
       <Panel id="compare-diff" minSize="200px" style={PANEL_STYLE}>
-        {file ? (
+        {file && result.worktree && file.status !== "deleted" ? (
+          <DiskFileDiff key={file.path} repoId={repoId} file={file} />
+        ) : file ? (
           <FileDiffView repoId={repoId} file={file} />
         ) : (
           <EmptyState

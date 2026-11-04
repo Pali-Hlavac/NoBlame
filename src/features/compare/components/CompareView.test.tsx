@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { useSelectionStore } from "@/features/selection";
+import { useSelectionStore, WORKING_TREE } from "@/features/selection";
 import { useTabsStore } from "@/features/workspace";
 import type { ChangedFileDto, ComparisonDto } from "@/shared/ipc/bindings";
 
@@ -17,6 +17,7 @@ const ipc = vi.hoisted(() => ({
 vi.mock("@/shared/ipc/bindings", () => ({ commands: ipc }));
 vi.mock("@/features/diff", () => ({
   FileDiffView: ({ file }: { file: ChangedFileDto }) => <p>Diff of {file.path}</p>,
+  DiskFileDiff: ({ file }: { file: ChangedFileDto }) => <p>Diff of {file.path} on disk</p>,
 }));
 
 const MAIN = "1111111111111111111111111111111111111111";
@@ -33,6 +34,7 @@ const RESULT: ComparisonDto = {
   files: [file("src/lib.rs", "modified"), file("README.md", "added")],
   total: 2,
   exactRenamesOnly: false,
+  worktree: false,
 };
 
 function renderView() {
@@ -74,6 +76,7 @@ describe("ComparisonView", () => {
       base: "refs/heads/main",
       target: "refs/heads/feature",
       sinceMergeBase: false,
+      worktree: false,
     });
     expect(ipc.countAheadBehind).toHaveBeenCalledWith(1, MAIN, FEATURE);
     // The split's separator claims pointer presses at (0, 0), where jsdom puts everything.
@@ -99,7 +102,33 @@ describe("ComparisonView", () => {
         base: "v1.0",
         target: "HEAD",
         sinceMergeBase: true,
+        worktree: false,
       });
     });
+  });
+
+  it("compares with the working tree, whose files are read from disk", async () => {
+    const files = [{ ...file("src/lib.rs", "modified"), newId: null }, file("gone.txt", "deleted")];
+    ipc.getComparison.mockResolvedValue({
+      status: "ok",
+      data: { ...RESULT, files, worktree: true },
+    });
+    useSelectionStore.setState({
+      comparisons: { "/repo": { base: "v1.0", target: WORKING_TREE, sinceMergeBase: false } },
+    });
+    renderView();
+    expect(await screen.findByText(/2 commits only in HEAD/)).toBeVisible();
+    expect(ipc.getComparison).toHaveBeenCalledWith(1, {
+      base: "v1.0",
+      target: "",
+      sinceMergeBase: false,
+      worktree: true,
+    });
+    expect(screen.getByRole("button", { name: "Compare to: Working tree" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Swap the two sides" })).toBeDisabled();
+    fireEvent.mouseDown(screen.getByRole("option", { name: /^lib\.rs, modified/ }));
+    expect(screen.getByText("Diff of src/lib.rs on disk")).toBeVisible();
+    fireEvent.mouseDown(screen.getByRole("option", { name: /^gone\.txt, deleted/ }));
+    expect(screen.getByText("Diff of gone.txt")).toBeVisible();
   });
 });

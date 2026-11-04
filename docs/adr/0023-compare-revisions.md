@@ -65,6 +65,15 @@ first, and then files with the same base name, before comparing contents. In the
 clone, `git diff` with rename detection spent 70 s and then failed, even with lazy fetching
 off.
 
+### Later: the working tree (M4 slice 6, 2026-11-04)
+
+A revision compared with the working tree runs `git diff --raw -z --no-abbrev <from> --`, the
+same parser, in the working tree; in a partial clone with `-M100%`, so only exact renames are
+looked for and no old contents are read. The new side of each file is the file on disk: git gives
+the index's id, none, or the hash of contents it never stored (when it hashed files to look for
+renames), so those ids are dropped and the file is read. On git.git with its 4,857 files checked
+out, `v2.40.0` → working tree takes 0.49 s.
+
 ### Consequences
 
 Good:
