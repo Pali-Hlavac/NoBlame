@@ -136,15 +136,7 @@ pub fn head_message(repo: &gix::Repository) -> Result<Option<BString>, CommitErr
 
 /// Everything git printed, when it succeeded; otherwise the same text as the error.
 fn accepted(output: &GitOutput) -> Result<String, CommitError> {
-    let mut text = output.stdout_lossy();
-    let stderr = output.stderr_lossy();
-    if !stderr.is_empty() {
-        if !text.trim().is_empty() {
-            text.push('\n');
-        }
-        text.push_str(&stderr);
-    }
-    let text = text.trim().to_owned();
+    let text = output.combined();
     if output.success() {
         Ok(text)
     } else {

@@ -98,7 +98,12 @@ into one sidebar and one content area without clutter, and new modules would hav
   the index and include untracked files (`git stash push -m <message> -- <paths>`).
 - **Apply, pop, drop** a whole stash; drop asks for confirmation and names the stash.
 - **Apply only selected files**: for tracked files `git restore --source=stash@{n} -- <paths>`;
-  untracked files come from the stash's third parent. To be verified in M4.
+  untracked files come from the stash's third parent. To be verified in M4. Verified (M4 slice 5,
+  2026-11-04): `restore` would undo what the branch changed in those files since the stash, so
+  their patch is merged with `git apply --3way` instead ([stashes.md](../features/stashes.md)).
+- Built (M4 slice 5): selecting a stash shows its files and diffs in a **Stash tab** (like the
+  compare tab), not in Changed files and the diff tab: those follow the graph's selected row, and
+  a stash is not a row of the graph.
 
 ## Technology
 

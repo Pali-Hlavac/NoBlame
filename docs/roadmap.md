@@ -422,6 +422,16 @@ empty). Not clicked through: the owner's dev app was running; covered by integra
 against git (author and committer, stripped comments, recent messages, the template path) and
 component tests. Next: slice 5, stash.
 
+Slice 5 (2026-11-04): stashes are made (chosen files, message, keep index, new files), shown in a
+Stash tab (its files and their diffs; a stash is not a graph row, so not in Changed files),
+applied or popped (optionally restoring the index), dropped after a confirmation, and chosen
+files applied with a three-way merge (`git apply --3way`, then unstaged) instead of the
+`git restore` the design proposed, which would undo commits made since. Every change checks that
+`stash@{n}` is still the stash shown. Clicked through in the dev app on a scratch repository:
+showing a stash and a file's diff, applying a file with local changes (refused, named),
+stashing one of two files with a message, applying one chosen file, dropping with the
+confirmation. The stash label in the graph follows.
+
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
 highlighted after a slow first load and names both costs (done). Option 2 later: show rows while
@@ -647,10 +657,11 @@ The Branches module gets the same entries for its rows.
 - [x] Pop out any module from its tab's right-click menu: it then opens in a modal popup inside
       the app (keeping its state when closed) until **Dock** puts it back (owner request
       2026-11-04)
-- [ ] Commit message history and recent-message reuse
-- [ ] Stash: create from selected files (checkbox list, message, keep index, include untracked),
-      list (Stashes module), show (files and diffs in the dock), apply/pop a whole stash or only
-      selected files, drop with confirmation; stash label in the graph
+- [x] Commit message history and recent-message reuse (slice 4)
+- [~] Stash: create from selected files (checkbox list, message, keep index, include untracked),
+  list (Stashes module), show (files and diffs in the dock), apply/pop a whole stash or only
+  selected files, drop with confirmation; stash label in the graph. All but the label done
+  (slice 5); a stash shows in its own Stash tab
 - [ ] `.gitignore` helper: ignore file/extension/folder from the status list
 - [ ] Open a file's diff in an external diff tool from the diff tab (`git difftool` settings, or
       a preset such as VS Code `code --wait --diff`)
@@ -672,7 +683,7 @@ Slices, in order (planned 2026-11-02):
 4. The message: recent messages, `commit.template`, author override, summary length hints
    (done 2026-11-04).
 5. Stash: create (selected files, message, keep index, untracked), show, apply or pop (whole or
-   selected files), drop; the stash label in the graph.
+   selected files), drop; the stash label in the graph. Done 2026-11-04 except the label.
 6. `.gitignore` helper, external diff tool from the diff tab, compare with the working tree
    (left from M3 slice 9).
 7. Repositories module counts (measured first).

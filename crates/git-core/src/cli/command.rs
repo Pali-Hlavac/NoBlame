@@ -137,6 +137,21 @@ impl GitCommand {
         self
     }
 
+    /// Passes `paths` (bytes: names may be non-UTF-8) on standard input, NUL-separated and read
+    /// literally (`--literal-pathspecs --pathspec-from-file=- --pathspec-file-nul`): no limit on
+    /// their number, and `[ab].txt` is not a pattern. For commands that take a pathspec file.
+    #[must_use]
+    pub fn pathspecs_on_stdin(self, paths: &[impl AsRef<[u8]>]) -> Self {
+        let mut input = Vec::with_capacity(paths.iter().map(|path| path.as_ref().len() + 1).sum());
+        for path in paths {
+            input.extend_from_slice(path.as_ref());
+            input.push(0);
+        }
+        self.literal_pathspecs()
+            .args(["--pathspec-from-file=-", "--pathspec-file-nul"])
+            .stdin(input)
+    }
+
     /// Bytes written to the process's standard input (e.g. a commit message with `-F -`).
     #[must_use]
     pub fn stdin(mut self, input: impl Into<Vec<u8>>) -> Self {

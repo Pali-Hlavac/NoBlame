@@ -17,7 +17,7 @@ mod syntax;
 mod types;
 
 pub use blame::BlameDto;
-pub use changes::ChangedFilesDto;
+pub use changes::{ChangedFileDto, ChangedFilesDto};
 pub use compare::{AheadBehindDto, CompareRequestDto, ComparisonDto};
 pub use diff::{DiffLineDto, DiffRequestDto, FileDiffDto, LineSideDto};
 pub use files::{FileViewRequestDto, TreeEntryDto, TreeListingDto};

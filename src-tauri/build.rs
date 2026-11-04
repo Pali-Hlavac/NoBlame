@@ -65,6 +65,11 @@ const APP_COMMANDS: &[&str] = &[
     "unstage_lines",
     "discard_lines",
     "discard_files",
+    "stash_changes",
+    "apply_stash",
+    "drop_stash",
+    "get_stash_files",
+    "apply_stash_files",
     "get_workbench_layout",
     "save_workbench_layout",
 ];

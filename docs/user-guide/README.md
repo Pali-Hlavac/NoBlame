@@ -16,6 +16,7 @@ buttons and the task windows are labelled placeholders.
 | [The commit graph](commit-graph.md)             | Reading and moving through the history       |
 | [Viewing changes](viewing-changes.md)           | Changed files of a commit and their diffs    |
 | [Committing](committing.md)                     | Staging files and committing them            |
+| [Stashing](stashing.md)                         | Putting changes aside and bringing them back |
 | [Browsing files](browsing-files.md)             | Every file of a commit; saving one           |
 | [File history](file-history.md)                 | Every commit that changed a file             |
 | [Blame](blame.md)                               | Who last changed each line of a file         |

@@ -1,6 +1,7 @@
-//! What a refused stage, unstage, discard or commit tells the user.
+//! What a refused stage, unstage, discard, commit or stash tells the user.
 
 use git_core::commit::CommitError;
+use git_core::stash::StashError;
 
 use super::RepositoryError;
 use super::error::read_failed;
@@ -12,6 +13,7 @@ use crate::git_env::GitEnvError;
 pub(super) fn staging_error(error: RepositoryError) -> AppError {
     match error {
         RepositoryError::Commit(error) => commit_error(error),
+        RepositoryError::Stash(error) => stash_error(error),
         RepositoryError::Bare => AppError::new(
             ErrorCode::InvalidInput,
             "This repository is bare: it has no working tree to stage or commit.",
@@ -24,6 +26,24 @@ pub(super) fn staging_error(error: RepositoryError) -> AppError {
         )
         .with_hint("Stage this file with git in a terminal, or use Stage all."),
         other => AppError::new(ErrorCode::Internal, other.to_string()),
+    }
+}
+
+fn stash_error(error: StashError) -> AppError {
+    match error {
+        StashError::Gix(message) => read_failed(&message),
+        StashError::Git(error) => GitEnvError::from(error).into(),
+        StashError::Rejected { output } => AppError::new(ErrorCode::GitFailed, output),
+        StashError::NothingToStash => AppError::new(
+            ErrorCode::InvalidInput,
+            "There are no changes to stash in the chosen files.",
+        ),
+        StashError::Moved { index } => AppError::new(
+            ErrorCode::NotFound,
+            format!("stash@{{{index}}} changed since the list was shown, so nothing was done."),
+        )
+        .with_hint("The list shows the stashes as they are now; choose the stash again."),
+        StashError::Diff(error) => RepositoryError::Diff(error).into(),
     }
 }
 

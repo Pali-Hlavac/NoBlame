@@ -8,6 +8,7 @@ export {
   FILE_TAB,
   HISTORY_TAB,
   SETTINGS_TAB,
+  STASH_TAB,
   WELCOME_TAB,
   showBlameTab,
   showCompareTab,
@@ -15,6 +16,7 @@ export {
   showFileTab,
   setCloseFallback,
   showHistoryTab,
+  showStashTab,
   useActiveRepositoryTab,
   useActiveTab,
   useTabsStore,
@@ -27,5 +29,6 @@ export type {
   FileTab,
   HistoryTab,
   RepositoryTab,
+  StashTab,
   WorkspaceTab,
 } from "./types";

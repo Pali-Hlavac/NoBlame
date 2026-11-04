@@ -141,6 +141,12 @@ All notable changes to NoBlame are documented here. The format follows
   endings, filters). One `git status` run gives the counts and both lists (about 260 ms for the
   97,000 entries of the Linux kernel clone, 40 ms for the 40,000 files of synthetic-1m). New
   files are counted and listed one by one unless `status.showUntrackedFiles` is `no`.
+- Stashes (M4, slice 5): **Stash changes…** in the Stashes module stashes all or only the ticked
+  files, with a message, optionally new files and keeping the staged changes; clicking a stash
+  opens a Stash tab with its files and diffs; **Apply**, **Pop** (optionally restoring the
+  staged changes) and **Drop…** (after a confirmation naming the stash); **Apply N chosen**
+  merges only the ticked files' changes into the working tree and keeps the stash. Conflicts are
+  marked as by `git stash apply`.
 - The commit message (M4, slice 4): **Recent ▾** above the box puts one of your last commit
   messages back in it; the box starts with your `commit.template` (its `#` lines are left out,
   as Git does); **Author → Change** commits someone else's work as `Name <email>` with you as

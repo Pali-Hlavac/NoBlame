@@ -47,8 +47,21 @@ export interface CompareTab extends TabBase {
   kind: "compare";
 }
 
+/** One stash: its files and their diffs, with its actions (one tab at most). */
+export interface StashTab extends TabBase {
+  kind: "stash";
+}
+
 export type WorkspaceTab =
-  WelcomeTab | RepositoryTab | SettingsTab | DiffTab | FileTab | HistoryTab | BlameTab | CompareTab;
+  | WelcomeTab
+  | RepositoryTab
+  | SettingsTab
+  | DiffTab
+  | FileTab
+  | HistoryTab
+  | BlameTab
+  | CompareTab
+  | StashTab;
 
 /** Checks a tab read back from a saved layout (which may come from another app version). */
 export function isWorkspaceTab(value: unknown): value is WorkspaceTab {
@@ -63,6 +76,7 @@ export function isWorkspaceTab(value: unknown): value is WorkspaceTab {
     case "history":
     case "blame":
     case "compare":
+    case "stash":
       return true;
     case "repository":
       return typeof tab.path === "string";

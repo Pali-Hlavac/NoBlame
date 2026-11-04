@@ -197,6 +197,22 @@ export const commands = {
 	 */
 	discardFiles: (id: number, tracked: string[], untracked: string[]) => typedError<null, AppError>(__TAURI_INVOKE("discard_files", { id, tracked, untracked })),
 	/**
+	 *  Stashes the working tree's changes, or only some files; returns what git printed. Fails
+	 *  when there is nothing to stash.
+	 */
+	stashChanges: (id: number, request: StashRequestDto) => typedError<string, AppError>(__TAURI_INVOKE("stash_changes", { id, request })),
+	/**
+	 *  Applies a stash, or pops it (dropped unless it conflicted). Conflicts are not an error: the
+	 *  result says so.
+	 */
+	applyStash: (id: number, request: ApplyStashRequestDto) => typedError<ApplyOutcomeDto, AppError>(__TAURI_INVOKE("apply_stash", { id, request })),
+	/**  Drops a stash. Cannot be undone from the app. */
+	dropStash: (id: number, stash: StashTargetDto) => typedError<string, AppError>(__TAURI_INVOKE("drop_stash", { id, stash })),
+	/**  The tracked files a stash changed and the untracked files it saved. */
+	getStashFiles: (id: number, stashId: string) => typedError<StashFilesDto, AppError>(__TAURI_INVOKE("get_stash_files", { id, stashId })),
+	/**  Applies some files of a stash (merged as `git stash apply` would); the stash is kept. */
+	applyStashFiles: (id: number, request: ApplyStashFilesRequestDto) => typedError<ApplyOutcomeDto, AppError>(__TAURI_INVOKE("apply_stash_files", { id, request })),
+	/**
 	 *  The saved layout, or `None` on first launch. A corrupted file is logged and treated as
 	 *  missing, so a bad layout can never stop the main window from opening.
 	 */
@@ -240,6 +256,34 @@ export type AppInfo = {
 	os: string,
 	/**  CPU architecture, e.g. `x86_64`, `aarch64`. */
 	arch: string,
+};
+
+/**  What applying did. */
+export type ApplyOutcomeDto = {
+	/**  What git printed. */
+	output: string,
+	/**  It applied with merge conflicts, now in the working tree; a pop kept the stash. */
+	conflicts: boolean,
+};
+
+/**  Applying some files of a stash. */
+export type ApplyStashFilesRequestDto = {
+	/**  The stash commit's full id (hex). */
+	id: string,
+	/**  Tracked files, as listed in `changed` (both names of a rename). */
+	tracked: string[],
+	/**  Untracked files, as listed in `untracked`. */
+	untracked: string[],
+};
+
+/**  Applying or popping a whole stash. */
+export type ApplyStashRequestDto = {
+	/**  Which stash. */
+	stash: StashTargetDto,
+	/**  Drop it after applying without conflicts (`git stash pop`). */
+	pop: boolean,
+	/**  Also restore what was staged (`--index`). */
+	restoreIndex: boolean,
 };
 
 /**  A commit some lines come from. */
@@ -1149,6 +1193,40 @@ export type StashDto = {
 	branch: string | null,
 	/**  When it was made, seconds since the epoch. */
 	time: number | null,
+};
+
+/**  The files of one stash. */
+export type StashFilesDto = {
+	/**  The commit it was made on (hex). */
+	base: string,
+	/**  Tracked files it changed, against `base`, sorted by path (at most 5,000). */
+	changed: ChangedFileDto[],
+	/**  All changed tracked files. */
+	changedTotal: number,
+	/**  Untracked files it saved (each added), sorted by path (at most 5,000). */
+	untracked: ChangedFileDto[],
+	/**  All untracked files. */
+	untrackedTotal: number,
+};
+
+/**  Changes to stash. */
+export type StashRequestDto = {
+	/**  The stash's message; git's `WIP on <branch>: …` when empty. */
+	message: string,
+	/**  Leave the staged changes in the working tree and the index too. */
+	keepIndex: boolean,
+	/**  Stash new files as well (they are deleted from the working tree). */
+	includeUntracked: boolean,
+	/**  Only these files (both names of a rename); `null`: every change. */
+	paths: string[] | null,
+};
+
+/**  The stash the user chose: `stash@{index}`, checked to still be `id` before anything runs. */
+export type StashTargetDto = {
+	/**  `n` in `stash@{n}`. */
+	index: number,
+	/**  The stash commit's full id (hex). */
+	id: string,
 };
 
 /**  Number of files in each state; a file staged and changed again counts in both. */

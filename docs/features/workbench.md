@@ -162,8 +162,8 @@ Details:
     gpg on git.git. Git reports an SSH signature as unsigned (`N`) when
     `gpg.ssh.allowedSignersFile` is not set; NoBlame shows it as "could not be checked" with
     git's message.
-- **Stashes**: read-only. Creating with file selection, apply, pop, drop and applying single
-  files are M4.
+- **Stashes**: stash changes (chosen files, message, keep index, new files), show a stash in
+  the Stash tab, apply, pop or drop it, apply chosen files ([stashes.md](stashes.md)).
 
 Modules that work on the active repository share one frame (`WithActiveRepository`). It explains
 "No repository open", "Opening repository…" or the error, so modules only render their content.

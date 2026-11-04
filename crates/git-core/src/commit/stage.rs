@@ -21,7 +21,7 @@ pub async fn stage_paths(
         return Ok(());
     }
     let command = git.command().current_dir(work_dir).args(["add", "--all"]);
-    run(with_paths(command, paths), cancel).await
+    run(command.pathspecs_on_stdin(paths), cancel).await
 }
 
 /// Stages every change in the working tree (`git add --all`).
@@ -50,7 +50,7 @@ pub async fn unstage_paths(
         .command()
         .current_dir(work_dir)
         .args(["reset", "--quiet"]);
-    run(with_paths(command, paths), cancel).await
+    run(command.pathspecs_on_stdin(paths), cancel).await
 }
 
 /// Unstages everything (`git reset -- .`). Limited to paths, so a merge in progress is kept
@@ -86,7 +86,7 @@ pub async fn discard_paths(
             .command()
             .current_dir(work_dir)
             .args(["restore", "--worktree"]);
-        run(with_paths(command, tracked), cancel).await?;
+        run(command.pathspecs_on_stdin(tracked), cancel).await?;
     }
     for batch in untracked.chunks(CLEAN_BATCH) {
         let paths = batch
@@ -102,20 +102,6 @@ pub async fn discard_paths(
         run(command, cancel).await?;
     }
     Ok(())
-}
-
-/// Passes `paths` (bytes: names may be non-UTF-8) on standard input, NUL-separated and read
-/// literally.
-fn with_paths(command: GitCommand, paths: &[impl AsRef<[u8]>]) -> GitCommand {
-    let mut input = Vec::with_capacity(paths.iter().map(|path| path.as_ref().len() + 1).sum());
-    for path in paths {
-        input.extend_from_slice(path.as_ref());
-        input.push(0);
-    }
-    command
-        .literal_pathspecs()
-        .args(["--pathspec-from-file=-", "--pathspec-file-nul"])
-        .stdin(input)
 }
 
 async fn run(command: GitCommand, cancel: &CancellationToken) -> Result<(), CommitError> {

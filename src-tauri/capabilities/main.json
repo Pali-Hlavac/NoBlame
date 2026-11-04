@@ -71,6 +71,11 @@
     "allow-unstage-lines",
     "allow-discard-lines",
     "allow-discard-files",
+    "allow-stash-changes",
+    "allow-apply-stash",
+    "allow-drop-stash",
+    "allow-get-stash-files",
+    "allow-apply-stash-files",
     "allow-list-submodules",
     "allow-get-workbench-layout",
     "allow-save-workbench-layout"

@@ -27,4 +27,18 @@ impl GitOutput {
     pub fn stderr_lossy(&self) -> String {
         String::from_utf8_lossy(&self.stderr).trim().to_owned()
     }
+
+    /// Everything git printed for the user (standard output, then standard error), trimmed:
+    /// what a write command (commit, stash) reports, or why it refused.
+    pub fn combined(&self) -> String {
+        let mut text = self.stdout_lossy();
+        let stderr = self.stderr_lossy();
+        if !stderr.is_empty() {
+            if !text.trim().is_empty() {
+                text.push('\n');
+            }
+            text.push_str(&stderr);
+        }
+        text.trim().to_owned()
+    }
 }

@@ -42,11 +42,13 @@ type Position =
   { referenceGroup: string; direction: "within" } | { referencePanel: string; direction: "right" };
 
 /**
- * Tabs that show what a module or the graph chose (the diff, a file, a comparison): they open
- * beside the graph, so it stays visible (Ctrl+click compares another commit).
+ * Tabs that show what a module or the graph chose (the diff, a file, a comparison, a stash): they
+ * open beside the graph, so it stays visible (Ctrl+click compares another commit).
  */
 function isViewer(tab: WorkspaceTab): boolean {
-  return tab.kind === "diff" || tab.kind === "file" || tab.kind === "compare";
+  return (
+    tab.kind === "diff" || tab.kind === "file" || tab.kind === "compare" || tab.kind === "stash"
+  );
 }
 
 /**

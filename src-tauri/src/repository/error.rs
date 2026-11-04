@@ -141,6 +141,7 @@ impl From<RepositoryError> for AppError {
             | RepositoryError::Signing(SigningError::Git(error)) => GitEnvError::from(error).into(),
             RepositoryError::Compare(error) => compare_error(error),
             error @ (RepositoryError::Commit(_)
+            | RepositoryError::Stash(_)
             | RepositoryError::Bare
             | RepositoryError::LossyPath(_)) => staging_error(error),
             RepositoryError::Blame(error @ BlameError::Parse(_)) => {

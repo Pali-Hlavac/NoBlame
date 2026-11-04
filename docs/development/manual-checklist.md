@@ -345,6 +345,32 @@ Use a scratch repository, or a branch you can throw away.
       it says the file is deleted. **↶** in the Changes header lists what is lost.
   - Notes:
 
+## 13b. Stashes (new, M4 slice 5)
+
+Use a scratch repository with a few changed files and one new file.
+
+- [ ] Stashes → **Stash changes…**: every changed file is ticked; untick one, write a message,
+      **Stash**: only the ticked files go back to their committed version; the stash is
+      `stash@{0}` with your message.
+  - Notes:
+- [ ] **Include new files** lists the new file; stashing removes it from the folder.
+  - Notes:
+- [ ] Click a stash: the Stash tab opens beside the graph with its files (new ones marked **?**);
+      a file shows its diff.
+  - Notes:
+- [ ] **Apply** brings the changes back and keeps the stash; **Pop** also removes it. With your
+      own change in one of its files: nothing happens and the message names the file.
+  - Notes:
+- [ ] Tick one file, **Apply 1 chosen**: only that file changes (unstaged); the stash stays.
+      Commit something in that file first, then apply: both changes are in it (or conflict
+      markers when they touch the same lines).
+  - Notes:
+- [ ] **Drop…** asks, naming the stash; after Drop it is gone from the list.
+  - Notes:
+- [ ] Make a stash in a terminal while NoBlame shows the list, then drop the old `stash@{0}`
+      from NoBlame without refreshing: it refuses ("changed since the list was shown").
+  - Notes:
+
 ## 14. Files (Alt+6) and the File tab
 
 - [ ] Select a commit: its folders and files; click a folder or Enter to open; Right opens or

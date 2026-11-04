@@ -1,7 +1,8 @@
 import { ArchiveIcon, RefreshCwIcon } from "lucide-react";
+import { useState } from "react";
 
-import { formatCommitDate } from "@/features/graph";
 import { WithActiveRepository } from "@/features/repositories";
+import { showStashTab } from "@/features/workspace";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { LoadingState } from "@/shared/components/LoadingState";
@@ -9,35 +10,25 @@ import type { StashDto } from "@/shared/ipc/bindings";
 import { Button } from "@/shared/ui/button";
 
 import { useStashes } from "../api/stashes";
+import { useStashActions } from "../hooks/useStashActions";
+import { showStash, useShownStash } from "../store/shown";
+import { DropStashDialog } from "./DropStashDialog";
+import { StashDialog } from "./StashDialog";
+import { StashItem } from "./StashItem";
 
-/** Milestone that adds creating, applying, popping and dropping stashes. */
-const STASH_ACTIONS_MILESTONE = "M4";
-
-/** The message without git's `WIP on <branch>:` / `On <branch>:` prefix. */
-function description(stash: StashDto): string {
-  const separator = stash.message.indexOf(": ");
-  return stash.branch && separator !== -1 ? stash.message.slice(separator + 2) : stash.message;
+interface StashesProps {
+  repoId: number;
+  repoPath: string;
 }
 
-function StashItem({ stash }: { stash: StashDto }) {
-  return (
-    <li className="space-y-0.5 rounded-md px-2 py-1.5 hover:bg-muted/60" title={stash.id}>
-      <div className="flex items-baseline gap-2">
-        <code className="shrink-0 font-mono text-xs text-muted-foreground">
-          stash@{`{${stash.index}}`}
-        </code>
-        <span className="truncate text-sm">{description(stash)}</span>
-      </div>
-      <p className="truncate text-xs text-muted-foreground">
-        {stash.branch ? `on ${stash.branch} · ` : ""}
-        {formatCommitDate(stash.time)}
-      </p>
-    </li>
-  );
-}
-
-function Stashes({ repoId }: { repoId: number }) {
+/** The stashes of one repository, with stashing, applying and dropping. */
+export function Stashes({ repoId, repoPath }: StashesProps) {
   const stashes = useStashes(repoId);
+  const shown = useShownStash(repoPath);
+  const actions = useStashActions(repoId, repoPath);
+  const [creating, setCreating] = useState(false);
+  const [dropping, setDropping] = useState<StashDto | null>(null);
+
   if (stashes.error) {
     return (
       <ErrorState
@@ -49,12 +40,25 @@ function Stashes({ repoId }: { repoId: number }) {
     );
   }
   if (!stashes.data) return <LoadingState label="Reading stashes…" className="h-full" />;
+  const show = (stash: StashDto): void => {
+    if (shown?.id !== stash.id) showStash(repoPath, stash.id);
+    showStashTab();
+  };
   return (
     <div className="flex h-full flex-col">
-      <div className="flex shrink-0 items-center gap-2 border-b border-border px-2 py-1 text-xs text-muted-foreground">
-        <span className="flex-1">
-          Read-only: creating, applying and dropping stashes arrive in {STASH_ACTIONS_MILESTONE}.
-        </span>
+      <div className="flex shrink-0 items-center gap-1 border-b border-border px-2 py-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 px-2"
+          onClick={() => {
+            setCreating(true);
+          }}
+        >
+          <ArchiveIcon aria-hidden className="text-kind-stash" />
+          Stash changes…
+        </Button>
+        <span className="flex-1" />
         <Button
           variant="ghost"
           size="icon"
@@ -67,21 +71,46 @@ function Stashes({ repoId }: { repoId: number }) {
         </Button>
       </div>
       {stashes.data.length === 0 ? (
-        <EmptyState icon={ArchiveIcon} title="No stashes" className="flex-1" />
+        <EmptyState
+          icon={ArchiveIcon}
+          title="No stashes"
+          description="Stash changes to put them aside and get them back later."
+          className="flex-1"
+        />
       ) : (
         <ul aria-label="Stashes" className="min-h-0 flex-1 overflow-auto p-1">
           {stashes.data.map((stash) => (
-            <StashItem key={stash.id} stash={stash} />
+            <StashItem
+              key={stash.id}
+              stash={stash}
+              shown={shown?.id === stash.id}
+              busy={actions.busy}
+              onShow={show}
+              onApply={actions.apply}
+              onPop={actions.pop}
+              onDrop={setDropping}
+            />
           ))}
         </ul>
       )}
+      <StashDialog repoId={repoId} open={creating} onOpenChange={setCreating} />
+      <DropStashDialog
+        repoId={repoId}
+        repoPath={repoPath}
+        stash={dropping}
+        onClose={() => {
+          setDropping(null);
+        }}
+      />
     </div>
   );
 }
 
-/** Stashes module: the stash list of the active repository (read-only until M4). */
+/** Stashes module: the active repository's stashes, stashing changes, applying and dropping. */
 export function StashesModule() {
   return (
-    <WithActiveRepository>{(summary) => <Stashes repoId={summary.id} />}</WithActiveRepository>
+    <WithActiveRepository>
+      {(summary, tab) => <Stashes repoId={summary.id} repoPath={tab.path} />}
+    </WithActiveRepository>
   );
 }

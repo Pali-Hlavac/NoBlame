@@ -115,8 +115,9 @@ Shows the selected commit:
 
 ### Stashes
 
-Lists your stashes, newest first, with the branch they were made on and when. The list updates
-when you come back to NoBlame. You cannot create, apply or drop stashes here yet.
+Lists your stashes, newest first, with the branch they were made on and when. **Stash
+changes…** stashes your changes; click a stash to see its files, and use its **…** menu to apply,
+pop or drop it. See [Stashing](stashing.md).
 
 ## Toolbar
 

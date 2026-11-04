@@ -12,6 +12,7 @@ import type {
   HistoryTab,
   RepositoryTab,
   SettingsTab,
+  StashTab,
   WelcomeTab,
   WorkspaceTab,
 } from "../types";
@@ -23,6 +24,7 @@ export const FILE_TAB: FileTab = { id: "file", kind: "file", title: "File" };
 export const HISTORY_TAB: HistoryTab = { id: "history", kind: "history", title: "History" };
 export const BLAME_TAB: BlameTab = { id: "blame", kind: "blame", title: "Blame" };
 export const COMPARE_TAB: CompareTab = { id: "compare", kind: "compare", title: "Compare" };
+export const STASH_TAB: StashTab = { id: "stash", kind: "stash", title: "Stash" };
 
 interface TabsState {
   tabs: WorkspaceTab[];
@@ -170,6 +172,11 @@ export function showBlameTab(): void {
 /** Shows the compare tab: opens it the first time, otherwise focuses it where it is docked. */
 export function showCompareTab(): void {
   useTabsStore.getState().openTab(COMPARE_TAB);
+}
+
+/** Shows the stash tab: opens it the first time, otherwise focuses it where it is docked. */
+export function showStashTab(): void {
+  useTabsStore.getState().openTab(STASH_TAB);
 }
 
 /** The currently active tab, if any. */

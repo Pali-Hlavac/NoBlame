@@ -7,6 +7,7 @@ import { FileView } from "@/features/files";
 import { HistoryView } from "@/features/history";
 import { RepositoryView } from "@/features/repositories";
 import { SettingsView } from "@/features/settings";
+import { StashView } from "@/features/stashes";
 import type { WorkspaceTab } from "@/features/workspace";
 
 import { WelcomeTabContent } from "./WelcomeTabContent";
@@ -30,5 +31,7 @@ export function renderTab(tab: WorkspaceTab): ReactNode {
       return <BlameView />;
     case "compare":
       return <CompareView />;
+    case "stash":
+      return <StashView />;
   }
 }
