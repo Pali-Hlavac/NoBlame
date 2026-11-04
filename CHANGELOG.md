@@ -146,7 +146,8 @@ All notable changes to NoBlame are documented here. The format follows
   opens a Stash tab with its files and diffs; **Apply**, **Pop** (optionally restoring the
   staged changes) and **Drop…** (after a confirmation naming the stash); **Apply N chosen**
   merges only the ticked files' changes into the working tree and keeps the stash. Conflicts are
-  marked as by `git stash apply`.
+  marked as by `git stash apply`. The commit graph labels the commit each stash was made on
+  (`stash@{n}`).
 - The commit message (M4, slice 4): **Recent ▾** above the box puts one of your last commit
   messages back in it; the box starts with your `commit.template` (its `#` lines are left out,
   as Git does); **Author → Change** commits someone else's work as `Name <email>` with you as

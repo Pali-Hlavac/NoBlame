@@ -479,6 +479,8 @@ export type CommitRowDto = {
 	parentCount: number,
 	/**  References pointing here. */
 	refs: RefLabel[],
+	/**  Stashes made on this commit (it is their base), newest first. */
+	stashes: StashLabel[],
 };
 
 /**  The configured `commit.template`: its text, or why it could not be read. */
@@ -1207,6 +1209,14 @@ export type StashFilesDto = {
 	untracked: ChangedFileDto[],
 	/**  All untracked files. */
 	untrackedTotal: number,
+};
+
+/**  A stash made on a commit, labelled on that commit's row. */
+export type StashLabel = {
+	/**  `n` in `stash@{n}`. */
+	index: number,
+	/**  The message as `git stash list` shows it. */
+	message: string,
 };
 
 /**  Changes to stash. */

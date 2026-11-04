@@ -36,6 +36,35 @@ pub fn stash_commits(repo: &gix::Repository, id: ObjectId) -> Result<StashCommit
     })
 }
 
+/// Where a stash was made, for its label in the graph.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct StashBase {
+    /// Position: 0 is `stash@{0}`.
+    pub index: u32,
+    /// The message as `git stash list` shows it.
+    pub message: String,
+    /// The commit it was made on (its first parent).
+    pub base: ObjectId,
+}
+
+/// Every stash with the commit it was made on, newest first. A stash whose commit cannot be read
+/// is left out (it has no place in the graph anyway).
+pub fn stash_bases(repo: &gix::Repository) -> Result<Vec<StashBase>, StashError> {
+    let stashes = super::list_stashes(repo)?;
+    Ok(stashes
+        .into_iter()
+        .filter_map(|stash| {
+            let id = ObjectId::from_hex(stash.id.as_bytes()).ok()?;
+            let commits = stash_commits(repo, id).ok()?;
+            Some(StashBase {
+                index: stash.index,
+                message: stash.message,
+                base: commits.base,
+            })
+        })
+        .collect())
+}
+
 /// The files of one stash.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StashFiles {

@@ -367,6 +367,9 @@ Use a scratch repository with a few changed files and one new file.
   - Notes:
 - [ ] **Drop…** asks, naming the stash; after Drop it is gone from the list.
   - Notes:
+- [ ] The graph labels the commit each stash was made on `stash@{n}` (amber, box icon); a stash
+      made in a terminal appears there within a second, the older labels renumbered.
+  - Notes:
 - [ ] Make a stash in a terminal while NoBlame shows the list, then drop the old `stash@{0}`
       from NoBlame without refreshing: it refuses ("changed since the list was shown").
   - Notes:

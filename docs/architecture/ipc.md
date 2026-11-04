@@ -61,7 +61,7 @@ returned by `open_repository`; a session lives as long as its tab.
 | `load_graph`               | yes   | `Result<GraphSummary>`          | Builds the graph on a blocking thread (cached; `reload` forces a rebuild)                                      |
 | `get_graph_block`          | yes   | `Result<unknown>` (ArrayBuffer) | One block of 256 rows in the binary format below                                                               |
 | `get_ancestry_block`       | yes   | `Result<unknown>` (ArrayBuffer) | Highlight overlay of one block for the history of `row` (format below)                                         |
-| `get_commit_rows`          | yes   | `Result<CommitRowDto[]>`        | Text columns (id, summary, author, date, refs) for up to 500 rows                                              |
+| `get_commit_rows`          | yes   | `Result<CommitRowDto[]>`        | Text columns (id, summary, author, date, refs, stashes made on it) for up to 500 rows                          |
 | `reload_graph`             | yes   | `Result<ReloadedGraph>`         | Rebuilds the graph; maps the selected `row` to that commit's new row                                           |
 | `set_graph_filter`         | yes   | `Result<ReloadedGraph>`         | Shows only what a `GraphFilterDto` keeps (ADR 0021); maps `row` like a reload                                  |
 | `find_commit`              | yes   | `Result<FoundCommit>`           | Match of a query after/before a row, wrapping; `{ row, position, total }`                                      |

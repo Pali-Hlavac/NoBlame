@@ -7,9 +7,11 @@ use std::time::Duration;
 use git_core::cli::Git;
 use git_core::graph::{BLOCK_ROWS, Graph, commit_rows};
 use git_core::repo::Repository;
+use git_core::stash::stash_bases;
 use tokio_util::sync::CancellationToken;
 
 use super::filter_types::relative_to;
+use super::graph_types::StashLabel;
 use super::recent::{self, RecentStore};
 use super::sessions::Session;
 use super::{
@@ -166,8 +168,39 @@ pub async fn rows(
     let session = sessions.get(id)?;
     let graph = session.graph(false).await?;
     let repo = session.repo.clone();
-    let rows = blocking(move || commit_rows(&repo.local(), &graph, start, count)).await??;
-    Ok(rows.into_iter().map(CommitRowDto::from).collect())
+    let (rows, stashes) = blocking(move || {
+        let repo = repo.local();
+        let rows = commit_rows(&repo, &graph, start, count)?;
+        // Labels only: a stash that cannot be read must not cost the commit list.
+        let stashes = stash_bases(&repo).unwrap_or_else(|error| {
+            tracing::warn!(%error, "reading the stashes for their labels failed");
+            Vec::new()
+        });
+        Ok::<_, RepositoryError>((rows, stashes))
+    })
+    .await??;
+    let stashes: Vec<(String, StashLabel)> = stashes
+        .into_iter()
+        .map(|stash| {
+            let label = StashLabel {
+                index: stash.index,
+                message: stash.message,
+            };
+            (stash.base.to_string(), label)
+        })
+        .collect();
+    Ok(rows
+        .into_iter()
+        .map(|row| {
+            let mut dto = CommitRowDto::from(row);
+            dto.stashes = stashes
+                .iter()
+                .filter(|(base, _)| *base == dto.id)
+                .map(|(_, label)| label.clone())
+                .collect();
+            dto
+        })
+        .collect())
 }
 
 /// Writes the commit-graph file with `git commit-graph write`, then reloads the summary.

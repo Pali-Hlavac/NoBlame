@@ -6,7 +6,7 @@ Architecture: [commit-graph.md](../architecture/commit-graph.md). User guide:
 
 Status: graph, columns, labels, selection, keyboard navigation, working tree rows, highlight and
 live reloads are done (M2, M2.5). Filters are in progress (M3 slice 4): branch, first parent, no
-merges, message, author and path are done. Stash labels are not done.
+merges, message, author and path are done. Stash labels are done (M4 slice 5).
 
 ## Columns
 
@@ -54,6 +54,15 @@ Rows whose text is still loading show a grey placeholder bar.
 The branch HEAD points to is bold and outlined. Labels are sorted: detached HEAD, local
 branches, remote branches, tags. The tooltip names the kind and the full short name. Labels are
 truncated when the column is narrow.
+
+**Stash labels** (`StashBadge`): an amber outlined `stash@{n}` with a box icon on the commit each
+stash was made on (its first parent), after the reference labels; the tooltip has the stash's
+message. They are not references: the stash commits themselves (and their index and untracked
+commits) are not rows, stashes are not tips of the walk, and Branches, filters, Contained in, the
+commit menu and find ignore them. `get_commit_rows` adds them to each page (`CommitRowDto.stashes`)
+from the `refs/stash` reflog and each stash's first parent (`stash_bases`), so a stash made or
+dropped in a terminal shows after the watcher's reload. The stash itself is shown in the Stash tab
+([stashes.md](stashes.md)).
 
 ## Nodes and lines
 
@@ -271,5 +280,5 @@ Not yet: committer and date range, regular expressions, following renames.
 
 ## Not yet
 
-Stash labels, staging from the working tree rows (M4), committer and date filters, more columns
+Staging from the working tree rows (M4), committer and date filters, more columns
 (committer, committer date, e-mail).

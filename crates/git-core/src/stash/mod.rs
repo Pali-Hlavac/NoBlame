@@ -13,7 +13,7 @@ use gix::bstr::ByteSlice;
 use crate::cli::GitError;
 use crate::diff::DiffError;
 
-pub use files::{StashCommits, StashFiles, stash_commits, stash_files};
+pub use files::{StashBase, StashCommits, StashFiles, stash_bases, stash_commits, stash_files};
 pub use partial::apply_stash_files;
 pub use write::{ApplyOutcome, StashOptions, apply_stash, drop_stash, push_stash};
 

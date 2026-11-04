@@ -44,6 +44,8 @@ back; the stash stays as it is. The chosen files must not have changes of their 
 them if they do). If your branch has moved on since you stashed, the changes are merged into the
 files as they are now, so nothing that was committed meanwhile is undone.
 
+In the commit graph, a `stash@{n}` label marks the commit each stash was made on.
+
 ## Dropping a stash
 
 **Drop…** (in the Stash tab or the **…** menu) deletes a stash after asking. Its changes are gone

@@ -103,8 +103,8 @@ Next: M2. Start with the spike (history walk with `gix` + commit-graph on
       "streamed over channels" to on-demand 256-row blocks re-laid-out from checkpoints (ADR 0008).
 - [~] Virtualized canvas graph: row heights, HiDPI, selection, keyboard navigation done; 60 fps
   and fast scrolling not measured yet, keyboard navigation not tried in the running app.
-- [~] Columns: graph, message, author, date, hash; ref labels for branches, remotes, tags and
-  HEAD done. Stash label moved to M4 (stash list).
+- [x] Columns: graph, message, author, date, hash; ref labels for branches, remotes, tags and
+      HEAD done. Stash labels done in M4 slice 5.
 - [x] "Artificial" rows for working tree and index changes at the top (as Git Extensions does);
       a setting chooses where they show (graph rows, a summary in the repository header, or
       hidden), owner request 2026-10-28. Status comes from `git status --porcelain=v2`; the file
@@ -430,7 +430,13 @@ files applied with a three-way merge (`git apply --3way`, then unstaged) instead
 `stash@{n}` is still the stash shown. Clicked through in the dev app on a scratch repository:
 showing a stash and a file's diff, applying a file with local changes (refused, named),
 stashing one of two files with a message, applying one chosen file, dropping with the
-confirmation. The stash label in the graph follows.
+confirmation.
+
+Then the label: `stash@{n}` on the commit each stash was made on, added to the row text by commit
+id (not a ref or tip, so its index and untracked commits stay out of the graph, the branch lists
+and the filters). Clicked through: the label on the base commit, and a stash made in a terminal
+labelled at once with the older one renumbered. Next: slice 6 (`.gitignore` helper, external diff
+tool, compare with the working tree).
 
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
@@ -658,10 +664,10 @@ The Branches module gets the same entries for its rows.
       the app (keeping its state when closed) until **Dock** puts it back (owner request
       2026-11-04)
 - [x] Commit message history and recent-message reuse (slice 4)
-- [~] Stash: create from selected files (checkbox list, message, keep index, include untracked),
-  list (Stashes module), show (files and diffs in the dock), apply/pop a whole stash or only
-  selected files, drop with confirmation; stash label in the graph. All but the label done
-  (slice 5); a stash shows in its own Stash tab
+- [x] Stash: create from selected files (checkbox list, message, keep index, include untracked),
+      list (Stashes module), show (files and diffs in the dock), apply/pop a whole stash or only
+      selected files, drop with confirmation; stash label in the graph (slice 5; a stash shows in its
+      own Stash tab, its label on the commit it was made on)
 - [ ] `.gitignore` helper: ignore file/extension/folder from the status list
 - [ ] Open a file's diff in an external diff tool from the diff tab (`git difftool` settings, or
       a preset such as VS Code `code --wait --diff`)
@@ -683,7 +689,7 @@ Slices, in order (planned 2026-11-02):
 4. The message: recent messages, `commit.template`, author override, summary length hints
    (done 2026-11-04).
 5. Stash: create (selected files, message, keep index, untracked), show, apply or pop (whole or
-   selected files), drop; the stash label in the graph. Done 2026-11-04 except the label.
+   selected files), drop; the stash label in the graph. Done 2026-11-04.
 6. `.gitignore` helper, external diff tool from the diff tab, compare with the working tree
    (left from M3 slice 9).
 7. Repositories module counts (measured first).

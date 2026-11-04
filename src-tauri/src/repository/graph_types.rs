@@ -109,6 +109,18 @@ pub struct CommitRowDto {
     pub parent_count: u32,
     /// References pointing here.
     pub refs: Vec<RefLabel>,
+    /// Stashes made on this commit (it is their base), newest first.
+    pub stashes: Vec<StashLabel>,
+}
+
+/// A stash made on a commit, labelled on that commit's row.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct StashLabel {
+    /// `n` in `stash@{n}`.
+    pub index: u32,
+    /// The message as `git stash list` shows it.
+    pub message: String,
 }
 
 impl From<CommitRow> for CommitRowDto {
@@ -124,6 +136,7 @@ impl From<CommitRow> for CommitRowDto {
             author_time: row.author_time as f64,
             parent_count: row.parent_count,
             refs: row.refs.iter().map(RefLabel::from).collect(),
+            stashes: Vec::new(),
         }
     }
 }

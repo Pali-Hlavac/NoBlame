@@ -20,8 +20,8 @@ Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 > files, commit, amend, sign-off; slice 2), hunks and lines staged, unstaged and discarded from the
 > diff, files discarded (slice 3); any module can be popped out into a modal popup in the app;
 > the commit message (recent messages, `commit.template`, author override, summary hints; slice 4);
-> stashes (make, show in the Stash tab, apply, pop, drop, apply chosen files; slice 5).
-> Next: the stash label in the graph.
+> stashes (make, show in the Stash tab, apply, pop, drop, apply chosen files, labels in the graph;
+> slice 5). Next: slice 6 (`.gitignore` helper, external diff tool, compare with the working tree).
 > Parts marked _(later)_ below are planned and do not exist yet.
 
 ## Architecture

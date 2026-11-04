@@ -4,7 +4,7 @@
 mod support;
 
 use git_core::repo::Repository;
-use git_core::stash::list_stashes;
+use git_core::stash::{list_stashes, stash_bases};
 use support::Fixture;
 
 #[test]
@@ -42,4 +42,32 @@ fn stashes_match_git_stash_list() {
     assert_eq!(stashes[0].message, "On main: second stash");
     assert_eq!(stashes[0].branch.as_deref(), Some("main"));
     assert!(stashes[1].message.starts_with("WIP on main: "));
+}
+
+#[test]
+fn each_stash_is_labelled_on_the_commit_it_was_made_on() {
+    let fixture = Fixture::new();
+    let file = fixture.path().join("file.txt");
+    std::fs::write(&file, "one").unwrap();
+    fixture.git(&["add", "file.txt"]);
+    let first = fixture.commit("first");
+    std::fs::write(&file, "stashed on first").unwrap();
+    fixture.git(&["stash", "push", "--quiet", "-m", "on first"]);
+    let second = fixture.commit("second");
+    std::fs::write(&file, "stashed on second").unwrap();
+    fixture.git(&["stash", "push", "--quiet", "-m", "on second"]);
+
+    let repo = Repository::discover(&fixture.path()).unwrap().local();
+    let bases: Vec<(u32, String, String)> = stash_bases(&repo)
+        .unwrap()
+        .into_iter()
+        .map(|stash| (stash.index, stash.message, stash.base.to_string()))
+        .collect();
+    assert_eq!(
+        bases,
+        [
+            (0, "On main: on second".to_owned(), second),
+            (1, "On main: on first".to_owned(), first),
+        ]
+    );
 }

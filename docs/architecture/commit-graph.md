@@ -1,7 +1,8 @@
 # Commit graph
 
 How NoBlame turns a repository's history into the graph on screen. Status: **implemented in M2**
-(engine, IPC, canvas view, working tree rows, reloads, index cache). Not yet: stash labels.
+(engine, IPC, canvas view, working tree rows, reloads, index cache). Stash labels are added to
+the row text, not the graph (M4 slice 5, see below).
 Decisions: [ADR 0008](../adr/0008-binary-graph-blocks.md) (binary blocks),
 [ADR 0009](../adr/0009-canvas-graph-and-lane-layout.md) (canvas and lanes),
 [ADR 0010](../adr/0010-on-disk-graph-cache.md) (index reuse and cache).
@@ -26,9 +27,15 @@ thread, once per repository session, and the result is kept until the tab closes
 `collect_refs` (`refs.rs`) reads every local branch (`refs/heads/*`), remote-tracking branch
 (`refs/remotes/*`) and tag (`refs/tags/*`), peeling annotated tags to their commit. Symbolic
 remote refs such as `origin/HEAD` are skipped, and so are other namespaces (`refs/stash`, notes,
-replace). A detached HEAD gets its own `HEAD` label; otherwise the branch HEAD points to is
-marked `is_head`. A ref that cannot be resolved is logged and skipped. HEAD's commit is always a
+replace): stash labels are not refs (below). A detached HEAD gets its own `HEAD` label;
+otherwise the branch HEAD points to is marked `is_head`. A ref that cannot be resolved is logged and skipped. HEAD's commit is always a
 tip, so a detached HEAD without any ref still shows.
+
+Stash labels: each page of `get_commit_rows` also reads the stash list (`stash_bases`: the
+`refs/stash` reflog and each stash's first parent) and labels the rows whose commit a stash was
+made on. Making stashes tips would add their index and untracked commits as rows and put them in
+the branch lists, filters and "contained in"; a label by commit id needs none of that and works in
+every view (filters) unchanged. A repository without stashes pays one missing-ref lookup per page.
 
 ## 2. Commit index
 
@@ -196,4 +203,3 @@ Measured on Windows 11 with the synthetic repositories (details and method in
 
 - Caching order and layout as well (ADR 0010, option 3), if reloads of huge graphs need it.
 - File watcher refreshing refs.
-- Stash labels (`refs/stash` is not a tip yet).

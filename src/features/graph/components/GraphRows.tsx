@@ -9,6 +9,7 @@ import { ROW_HEIGHT_PX } from "../lib/constants";
 import type { DisplayRows } from "../lib/displayRows";
 import { formatCommitDate, formatRelativeDate, shortId } from "../lib/format";
 import { RefBadge } from "./RefBadge";
+import { StashBadge } from "./StashBadge";
 
 interface GraphRowsProps {
   /** Visible rows as display indexes (working tree rows first, then commits). */
@@ -54,6 +55,9 @@ function CommitCell({ id, text, byAuthor, dateDisplay, nowMs }: CommitCellProps)
         <span className="flex min-w-0 items-center gap-1.5 overflow-hidden">
           {text.refs.map((label) => (
             <RefBadge key={`${label.kind}:${label.name}`} label={label} />
+          ))}
+          {text.stashes.map((stash) => (
+            <StashBadge key={stash.index} stash={stash} />
           ))}
           <span className="truncate">{text.summary}</span>
         </span>

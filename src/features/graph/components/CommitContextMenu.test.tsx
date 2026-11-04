@@ -14,6 +14,7 @@ const COMMIT: CommitRowDto = {
   authorTime: 0,
   parentCount: 1,
   refs: [],
+  stashes: [],
 };
 
 function renderMenu(commit: CommitRowDto | undefined, onToggleHighlight = vi.fn()) {

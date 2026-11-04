@@ -1,6 +1,7 @@
 # Stashes
 
-The Stashes module (`stashes`, Alt+4) and the Stash tab (M4 slice 5). User guide:
+The Stashes module (`stashes`, Alt+4), the Stash tab and the stash labels in the graph (M4
+slice 5). User guide:
 [stashing.md](../user-guide/stashing.md). Design: [design/workbench.md](../design/workbench.md#stashes).
 
 ## Stashes module
@@ -84,6 +85,5 @@ changed in them since; the three-way patch keeps those changes.
 
 ## Not yet
 
-- The stash label in the graph (next).
 - `git stash push --staged` (stash only what is staged), `git stash branch`.
 - Choosing several stashes at once.

@@ -14,6 +14,7 @@ function commit(refs: RefLabel[] = []): CommitRowDto {
     authorTime: 0,
     parentCount: 1,
     refs,
+    stashes: [],
   };
 }
 
