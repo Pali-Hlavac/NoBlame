@@ -1,45 +1,64 @@
 /** The toolbar's actions for the active repository, left to right (shown in the title bar). */
-import {
-  ArchiveIcon,
-  ArrowDownToLineIcon,
-  ArrowUpFromLineIcon,
-  GitCommitVerticalIcon,
-} from "lucide-react";
+import { ArchiveIcon, ArrowDownToLineIcon, GitCommitVerticalIcon } from "lucide-react";
 import { useMemo } from "react";
 
 import { openModule, type ToolbarAction } from "@/features/workbench";
 
 import { openCommit } from "./commit";
-import { FETCHES, useStartFetch, type StartFetch } from "./fetch";
-import { REMOTE_MILESTONE } from "./milestones";
+import { FETCHES, PULLS, PUSH_ICON, useRemoteActions, type RemoteActions } from "./remote";
 import { MODULES } from "./modules";
 
 const STASHES_MODULE = MODULES.find((module) => module.id === "stashes");
 
 /**
- * The toolbar's actions; the Commit button opens the Commit module (or its popup). The Pull
- * button's menu fetches with `startFetch` (no repository open: disabled).
+ * The toolbar's actions; the Commit button opens the Commit module (or its popup). Pull, Push
+ * and their menus use `remote` (no repository open, or no branch checked out: disabled).
  */
-export function toolbarActions(startFetch: StartFetch | undefined): readonly ToolbarAction[] {
+export function toolbarActions(remote: RemoteActions | undefined): readonly ToolbarAction[] {
+  const onBranch = remote?.branch !== undefined ? remote : undefined;
   return [
     {
       id: "pull",
       label: "Pull",
       icon: ArrowDownToLineIcon,
       kind: "branches",
-      milestone: REMOTE_MILESTONE,
+      run:
+        onBranch &&
+        (() => {
+          onBranch.pull("default");
+        }),
       menu: [
-        { id: "pull", label: "Pull", icon: ArrowDownToLineIcon, milestone: REMOTE_MILESTONE },
+        ...PULLS.map((pull): ToolbarAction => ({
+          id: pull.id,
+          label: pull.label,
+          icon: pull.icon,
+          run:
+            onBranch &&
+            (() => {
+              onBranch.pull(pull.value);
+            }),
+        })),
         ...FETCHES.map((fetch): ToolbarAction => ({
           id: fetch.id,
           label: fetch.label,
           icon: fetch.icon,
-          run: startFetch
-            ? () => {
-                startFetch(fetch.target, fetch.prune);
-              }
-            : undefined,
+          run:
+            remote &&
+            (() => {
+              remote.fetch(fetch.value);
+            }),
         })),
+      ],
+    },
+    {
+      id: "push",
+      label: "Push",
+      icon: PUSH_ICON,
+      kind: "branches",
+      run: onBranch?.push,
+      menu: [
+        { id: "push", label: "Push", icon: PUSH_ICON, run: onBranch?.push },
+        { id: "push-options", label: "Push…", icon: PUSH_ICON, run: onBranch?.pushWithOptions },
       ],
     },
     ...OTHER_ACTIONS,
@@ -48,18 +67,11 @@ export function toolbarActions(startFetch: StartFetch | undefined): readonly Too
 
 /** The toolbar's actions for the active repository. */
 export function useToolbarActions(): readonly ToolbarAction[] {
-  const startFetch = useStartFetch();
-  return useMemo(() => toolbarActions(startFetch), [startFetch]);
+  const remote = useRemoteActions();
+  return useMemo(() => toolbarActions(remote), [remote]);
 }
 
 const OTHER_ACTIONS: readonly ToolbarAction[] = [
-  {
-    id: "push",
-    label: "Push",
-    icon: ArrowUpFromLineIcon,
-    kind: "branches",
-    milestone: REMOTE_MILESTONE,
-  },
   {
     id: "commit",
     label: "Commit",

@@ -123,3 +123,16 @@ pub async fn set_upstream(
 ) -> CommandResult<String> {
     Ok(upstream::set(&sessions, id, request).await?)
 }
+
+/// Commits on `revision` that `not_in` lacks: what a force push of `not_in` over the remote
+/// branch `revision` would take off it (for the confirmation).
+#[tauri::command]
+#[specta::specta]
+pub async fn get_missing_commits(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    revision: String,
+    not_in: String,
+) -> CommandResult<UniqueCommitsDto> {
+    Ok(upstream::missing(&sessions, id, revision, not_in).await?)
+}

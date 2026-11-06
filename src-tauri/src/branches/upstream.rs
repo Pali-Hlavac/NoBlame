@@ -2,11 +2,13 @@
 //! once (cheap); ahead and behind are counted only for the branches the UI asks for (the rows
 //! on screen), because counting all of thousands of diverged branches takes seconds.
 
-use git_core::branch::{BranchError, ahead_behind, set_upstream, unset_upstream, upstreams};
+use git_core::branch::{
+    BranchError, ahead_behind, commits_not_in, set_upstream, unset_upstream, upstreams,
+};
 use tokio_util::sync::CancellationToken;
 
 use super::service::{git, git_dir_or_work_tree};
-use super::types::{BranchTrackingDto, SetUpstreamRequestDto, UpstreamDto};
+use super::types::{BranchTrackingDto, SetUpstreamRequestDto, UniqueCommitsDto, UpstreamDto};
 use crate::repository::{RepoId, RepoSessions, RepositoryError};
 
 /// At most this many branches are counted per request (a screenful is about 50); more are
@@ -66,4 +68,18 @@ pub async fn set(
         None => unset_upstream(&git, &dir, &request.branch, &cancel).await?,
     };
     Ok(output)
+}
+
+/// Commits on `revision` that `not_in` lacks (what forcing `not_in` over it removes).
+pub async fn missing(
+    sessions: &RepoSessions,
+    id: RepoId,
+    revision: String,
+    not_in: String,
+) -> Result<UniqueCommitsDto, RepositoryError> {
+    let session = sessions.get(id)?;
+    let dir = git_dir_or_work_tree(&session.repo);
+    let cancel = CancellationToken::new();
+    let commits = commits_not_in(&git()?, &dir, &revision, &not_in, &cancel).await?;
+    Ok(commits.into())
 }

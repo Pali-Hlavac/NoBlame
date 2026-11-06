@@ -70,8 +70,8 @@ Groups have orange folders, repositories blue icons and submodules purple ones.
 Point at a repository (open, in a group, or a downloaded submodule) to see its **…** button:
 **Copy path** works, **Open** opens it if it is not open yet, **Close** closes its tab, and in a
 group **Remove from group** takes it out. **Commit…** shows the repository and opens the commit
-window. **Fetch** downloads what is new on its remote ([Fetching](remotes.md)). Pull and Push are
-listed but come in later versions. A grey submodule has not been downloaded yet ("initialized"); NoBlame cannot
+window. **Fetch** downloads what is new on its remote ([Fetching, pulling and pushing](remotes.md)).
+Pull and Push are listed but come in a later version. A grey submodule has not been downloaded yet ("initialized"); NoBlame cannot
 initialize submodules in this version.
 
 Click the title of a section (**Open**, **Groups**, **Recent**) to fold or unfold it. Drag a
@@ -132,10 +132,10 @@ pop or drop it. See [Stashing](stashing.md).
 The toolbar sits in the title bar and acts on the active repository. That repository's name and
 current branch are shown on the right of the title bar.
 
-- **Pull** ▾ opens **Fetch**, **Fetch all remotes** and **Fetch and prune**
-  ([Fetching](remotes.md)). Pull itself and **Push** are greyed out: they arrive in a later
-  version. Hover over them to see which. While something is fetched, the status bar shows its
-  progress; click it to see the jobs.
+- **Pull** brings in what is new on your branch's remote; its ▾ menu pulls by merging, by
+  rebasing or only when it is a fast-forward, and fetches. **Push** sends your branch; its ▾
+  menu opens **Push…** with more choices ([Fetching, pulling and pushing](remotes.md)). While
+  something runs, the status bar shows its progress; click it to see the jobs.
 - **Commit** opens the Commit module, in the sidebar or in its popup if you popped it out
   ([Committing](committing.md)).
 - **Stashes** opens the Stashes module.

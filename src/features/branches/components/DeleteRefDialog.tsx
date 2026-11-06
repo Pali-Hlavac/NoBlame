@@ -6,6 +6,7 @@ import type { RefTargetDto, UniqueCommitsDto } from "@/shared/ipc/bindings";
 import { toIpcError } from "@/shared/ipc/client";
 
 import { useDeleteRef, useUniqueCommits } from "../api/branches";
+import { CommitList } from "./CommitList";
 
 interface DeleteRefDialogProps {
   repoId: number;
@@ -20,24 +21,12 @@ function Loss({ unique, what }: { unique: UniqueCommitsDto; what: string }) {
   if (unique.count === 0) {
     return <>Every commit on it stays on another branch or tag; only the name goes.</>;
   }
-  const more = unique.count - unique.newest.length;
   return (
     <>
       {unique.count === 1
         ? `1 commit is on no other branch or tag. Without the ${what} it is no longer shown:`
         : `${unique.count.toLocaleString()} commits are on no other branch or tag. Without the ${what} they are no longer shown:`}
-      <span className="mt-2 block rounded-md border border-border p-2 font-mono text-xs text-foreground">
-        {unique.newest.map((commit) => (
-          <span key={commit.id} className="block truncate">
-            {shortId(commit.id)} {commit.summary}
-          </span>
-        ))}
-        {more > 0 && (
-          <span className="block text-muted-foreground">
-            and {more.toLocaleString()} older {more === 1 ? "commit" : "commits"}
-          </span>
-        )}
-      </span>
+      <CommitList commits={unique} />
       <span className="mt-2 block">
         Git keeps them for a while; until then a new branch at {shortId(unique.newest[0]?.id ?? "")}{" "}
         brings them back.

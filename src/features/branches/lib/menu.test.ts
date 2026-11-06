@@ -16,6 +16,9 @@ function actions(): RefActions & Record<string, ReturnType<typeof vi.fn>> {
     createTag: vi.fn(),
     renameBranch: vi.fn(),
     deleteRef: vi.fn(),
+    pushBranch: vi.fn(),
+    pushTag: vi.fn(),
+    deleteOnRemote: vi.fn(),
   };
 }
 
@@ -32,6 +35,7 @@ describe("branchMenu", () => {
       "create-tag",
       "rename",
       "delete",
+      "push",
       "copy-name",
     ]);
     // The checked-out branch: no checking out again, never deleted.
@@ -39,17 +43,21 @@ describe("branchMenu", () => {
       "create-branch",
       "create-tag",
       "rename",
+      "push",
       "copy-name",
     ]);
     expect(ids(branchMenu(entry("remote", "origin/x"), actions(), copy))).toEqual([
       "checkout",
       "create-branch",
       "create-tag",
+      "delete-remote",
       "copy-name",
     ]);
     expect(ids(branchMenu(entry("tag", "v1"), actions(), copy))).toEqual([
       "create-branch",
       "delete",
+      "push",
+      "delete-remote",
       "copy-name",
     ]);
     expect(branchMenu(entry("head", "HEAD", true), actions(), copy)).toEqual([]);

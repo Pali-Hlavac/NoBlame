@@ -5,7 +5,7 @@ import { MENU_MILESTONES, item, refItem, separator, type MenuEntry } from "./men
 import type { RefActions } from "./refActions";
 import { refRevision } from "./revision";
 
-const { branches, history } = MENU_MILESTONES;
+const { history } = MENU_MILESTONES;
 
 /** What a reference's entries do. */
 export interface RefMenuActions {
@@ -17,7 +17,7 @@ export interface RefMenuActions {
 }
 
 /** The actions that take the reference itself. */
-type TargetAction = "renameBranch" | "deleteRef" | "checkoutRemote";
+type TargetAction = "renameBranch" | "deleteRef" | "checkoutRemote" | "deleteOnRemote";
 
 /** Entries for the reference `ref` on `commit`. */
 export function refEntries(
@@ -61,7 +61,14 @@ export function refEntries(
         refItem("rename", "Rename…", act("renameBranch")),
         // git never deletes the branch that is checked out.
         ...(ref.isHead ? [] : [refItem("delete", "Delete…", act("deleteRef"))]),
-        item("push", "Push", branches),
+        refItem(
+          "push",
+          "Push…",
+          refs &&
+            (() => {
+              refs.pushBranch(ref.name);
+            }),
+        ),
         separator("sep-copy"),
         copyName,
       ];
@@ -71,15 +78,23 @@ export function refEntries(
         item("merge", "Merge into the current branch…", history),
         item("rebase", "Rebase the current branch onto it…", history),
         compare,
-        item("delete", "Delete on the remote…", branches),
+        refItem("delete", "Delete on the remote…", act("deleteOnRemote")),
         separator("sep-copy"),
         copyName,
       ];
     case "tag":
       return [
         compare,
-        item("push", "Push", branches),
+        refItem(
+          "push",
+          "Push…",
+          refs &&
+            (() => {
+              refs.pushTag(ref.name);
+            }),
+        ),
         refItem("delete", "Delete…", act("deleteRef")),
+        refItem("delete-remote", "Delete on a remote…", act("deleteOnRemote")),
         separator("sep-copy"),
         copyName,
       ];

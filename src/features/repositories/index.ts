@@ -6,6 +6,7 @@ export { RepositoryView } from "./components/RepositoryView";
 export { WithActiveRepository } from "./components/WithActiveRepository";
 export { useActiveRepository, type ActiveRepository } from "./hooks/useActiveRepository";
 export { useRepositoryChanges } from "./hooks/useRepositoryChanges";
+export { useRepositoryPath } from "./hooks/useRepositoryPath";
 export { useSessionCleanup } from "./hooks/useSessionCleanup";
 export {
   openRepositories,

@@ -735,9 +735,9 @@ Slices, in order (planned 2026-11-02):
       Slice 1 (2026-11-06), upstreams slice 2 (2026-11-06)
 - [x] Ahead/behind counts per branch; actions in the Branches module (checkout, create, rename,
       delete, track). Slices 1 and 2, 2026-11-06. (Submodules and Worktrees modules: M7)
-- [~] Toolbar operations: Fetch, Fetch all, Fetch and prune (`git fetch --prune`), Pull
-  (merge/rebase/ff-only), Push (incl. tags, force-with-lease behind confirmation) as background
-  jobs with progress. Fetch, Fetch all and Fetch and prune done (slice 3, 2026-11-06)
+- [x] Toolbar operations: Fetch, Fetch all, Fetch and prune (`git fetch --prune`), Pull
+      (merge/rebase/ff-only), Push (incl. tags, force-with-lease behind confirmation) as background
+      jobs with progress. Fetch (slice 3) and pull and push (slice 5), 2026-11-06
 - [ ] Quick Pull button on repository rows in the Repositories module, behind a setting (owner
       request 2026-10-28; quick Merge follows with merging in M6); the "…" menu's Pull, Fetch and
       Push become real. Settings choose which buttons show: Pull and Push on each repository,
@@ -778,7 +778,8 @@ working branch model; the job registry comes before anything that talks to a rem
    2026-11-06 ([features/remotes.md](features/remotes.md#credentials)).
 5. **Pull and Push**: pull (merge, rebase, fast-forward only), push (new branches get an
    upstream, tags, force-with-lease behind a confirmation), push and delete a branch or tag on
-   the remote from the menus.
+   the remote from the menus. Done 2026-11-06 ([features/remotes.md](features/remotes.md#push));
+   the lease names the commit the dialog showed, not just "where the last fetch saw it".
 6. **Repositories module buttons**: Pull and Push on each repository, Pull all and Push all on
    each group (one job per repository), each shown by a setting; the "…" menu's entries real.
 7. **Git output window**: the console-like popup streaming a job's output, behind a setting.

@@ -5,6 +5,8 @@ import { CreateBranchDialog } from "./CreateBranchDialog";
 import { CreateTagDialog } from "./CreateTagDialog";
 import { DeleteRefDialog } from "./DeleteRefDialog";
 import { RenameBranchDialog } from "./RenameBranchDialog";
+import { PushDialog } from "./PushDialog";
+import { RemoteRefDialog } from "./RemoteRefDialog";
 import { SetUpstreamDialog } from "./SetUpstreamDialog";
 
 /** Shows the branch or tag dialog asked for (mounted once, in the main window). */
@@ -73,6 +75,15 @@ export function BranchDialogs() {
           commit={request.commit}
           onClose={closeBranchDialog}
         />
+      );
+    case "push-branch":
+      return (
+        <PushDialog key={key} repoId={repoId} branch={request.branch} onClose={closeBranchDialog} />
+      );
+    case "push-tag":
+    case "delete-on-remote":
+      return (
+        <RemoteRefDialog key={key} repoId={repoId} request={request} onClose={closeBranchDialog} />
       );
     case "set-upstream":
       return (

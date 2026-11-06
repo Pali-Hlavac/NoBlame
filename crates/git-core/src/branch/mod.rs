@@ -16,7 +16,7 @@ use gix::bstr::BStr;
 use crate::cli::{GitError, GitOutput};
 
 pub use tag::{create_tag, delete_tag};
-pub use unique::{UniqueCommits, unique_commits};
+pub use unique::{UniqueCommits, commits_not_in, unique_commits};
 pub use upstream::{
     BranchUpstream, Tracking, ahead_behind, set_upstream, unset_upstream, upstreams,
 };

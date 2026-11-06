@@ -157,6 +157,13 @@ All notable changes to NoBlame are documented here. The format follows
 - External diff tool (M4 slice 6): **Open in diff tool** beside the file name in every diff opens
   the two versions in Git's `diff.tool`, Visual Studio Code or a command of your own
   (Settings → Diff), through `git difftool --no-index`.
+- Pull and push (M5 slice 5): **Pull** (as configured, or choose merge, rebase or fast-forward
+  only) and **Push** in the toolbar and the command palette, as background jobs. Push sends the
+  current branch to its upstream, or asks where when it has none. **Push…** chooses the remote,
+  the name there, the upstream, tags, and **force**: it lists the commits that would be removed
+  first, and replaces the branch only if it is still where it was shown. Push tags and delete
+  branches or tags on a remote from the Branches module and the graph's menus. Refusals come
+  with the next step in plain words.
 - Credentials (M5 slice 4): when Git's credential helpers and SSH agents have nothing, a
   fetch asks in the app for the user name and password (or token), the SSH key passphrase, or
   whether to trust an unknown SSH server. Nothing is stored by NoBlame; Git saves what you

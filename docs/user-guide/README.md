@@ -18,7 +18,7 @@ buttons and the task windows are labelled placeholders.
 | [Committing](committing.md)                     | Staging files and committing them            |
 | [Stashing](stashing.md)                         | Putting changes aside and bringing them back |
 | [Branches and tags](branches.md)                | Checking out, creating, renaming, deleting   |
-| [Fetching](remotes.md)                          | Downloading what is new on remotes           |
+| [Fetching, pulling and pushing](remotes.md)     | Sharing your work with remotes               |
 | [Browsing files](browsing-files.md)             | Every file of a commit; saving one           |
 | [File history](file-history.md)                 | Every commit that changed a file             |
 | [Blame](blame.md)                               | Who last changed each line of a file         |

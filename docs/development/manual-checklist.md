@@ -172,6 +172,21 @@ Use `target\debug\noblame.exe` while the dev app runs.
 - [ ] (new, M5 slice 1) **F2** on a branch renames it (typing an existing name is refused at
       once). **Delete** on a branch with commits of its own lists them before deleting.
   - Notes:
+- [ ] (new, M5 slice 5) With a commit on the remote: **Pull** fast-forwards (the toast says so).
+      With commits on both sides: Pull follows `pull.rebase`; **Pull (fast-forward only)**
+      refuses with a hint; **Pull (merge)** merges without opening an editor.
+  - Notes:
+- [ ] (new, M5 slice 5) **Push** sends the current branch to its upstream; a new branch opens the
+      dialog (upstream ticked) and afterwards `git branch -vv` shows the upstream. Behind the
+      remote, Push is refused with "Pull first".
+  - Notes:
+- [ ] (new, M5 slice 5) After rewriting a pushed commit: **Push… → Force** lists the commits that
+      would be removed; if someone pushed meanwhile (not fetched), Force push is refused and their
+      commit stays. After a fetch, it replaces the branch.
+  - Notes:
+- [ ] (new, M5 slice 5) Push… on a tag; Delete on the remote… on a remote branch (the local
+      branch's upstream then shows _gone_); Delete on a remote… on a tag.
+  - Notes:
 - [ ] (new, M5 slice 4) Fetch from an HTTPS remote that needs a login with no credential
       helper (`git -c credential.helper= …` is not possible from the app; use a repository
       whose remote has no stored login): NoBlame asks for the user name, then the password;

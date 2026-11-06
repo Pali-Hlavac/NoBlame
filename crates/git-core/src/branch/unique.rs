@@ -66,6 +66,45 @@ pub async fn unique_commits(
     })
 }
 
+/// Commits reachable from `revision` but not from `not_in` (both validated revisions): what a
+/// force push of `not_in` over `revision` takes off that branch. Read-only.
+pub async fn commits_not_in(
+    git: &Git,
+    dir: &Path,
+    revision: &str,
+    not_in: &str,
+    cancel: &CancellationToken,
+) -> Result<UniqueCommits, BranchError> {
+    let range = |command: &[&'static str]| {
+        git.command()
+            .current_dir(dir)
+            .read_only()
+            .args(command.iter().copied())
+            .revision(revision)?
+            .arg("--not")
+            .revision(not_in)
+    };
+    let count_output = range(&["rev-list", "--count"])?.output(cancel).await?;
+    let count = checked(&count_output)?
+        .trim()
+        .parse::<u32>()
+        .map_err(|_| BranchError::Parse(count_output.stdout_lossy()))?;
+    if count == 0 {
+        return Ok(UniqueCommits {
+            count,
+            newest: Vec::new(),
+        });
+    }
+    let log = range(&["log", "-z"])?
+        .option("--format", "%H%x1f%s")
+        .option("--max-count", NEWEST_LISTED);
+    let output = log.output(cancel).await?;
+    Ok(UniqueCommits {
+        count,
+        newest: parse_log(&checked(&output)?),
+    })
+}
+
 /// `git <command> <tip> --not <every other ref> [HEAD]`, read-only. `--exclude` leaves out
 /// the reference itself from the next `--branches`, `--tags` or `--remotes`.
 fn range(

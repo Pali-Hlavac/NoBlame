@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { openRepositories, type RepositoryAction } from "@/features/repositories";
 import { useTabsStore } from "@/features/workspace";
 import { openCommit } from "./commit";
-import { fetchRepository } from "./fetch";
+import { fetchRepository } from "./remote";
 import { REMOTE_MILESTONE } from "./milestones";
 
 /** Pulling, fetching and pushing are about branches and remotes. */

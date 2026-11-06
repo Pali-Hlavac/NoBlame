@@ -80,6 +80,9 @@ export function branchMenu(
                 actions.deleteRef(target);
               }),
             ]),
+        item("push", "Push…", () => {
+          actions.pushBranch(target.name);
+        }),
         ...(upstream
           ? [
               { type: "separator", id: "sep-upstream" } as const,
@@ -99,6 +102,10 @@ export function branchMenu(
           actions.checkoutRemote(target);
         }),
         ...create,
+        { type: "separator", id: "sep-change" },
+        item("delete-remote", "Delete on the remote…", () => {
+          actions.deleteOnRemote(target);
+        }),
         ...tail,
       ];
     case "tag":
@@ -107,6 +114,12 @@ export function branchMenu(
         { type: "separator", id: "sep-change" },
         item("delete", "Delete…", () => {
           actions.deleteRef(target);
+        }),
+        item("push", "Push…", () => {
+          actions.pushTag(target.name);
+        }),
+        item("delete-remote", "Delete on a remote…", () => {
+          actions.deleteOnRemote(target);
         }),
         ...tail,
       ];

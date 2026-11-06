@@ -1,9 +1,13 @@
-# Fetching from remotes
+# Fetching, pulling and pushing
 
 A remote is a copy of the repository somewhere else, such as on GitHub (usually called
-`origin`). **Fetching** downloads what is new there: new commits, branches and tags. It does
-not change your branches or your files; your branches show how far behind they are (see
-[Branches and tags](branches.md#upstreams)).
+`origin`).
+
+- **Fetching** downloads what is new there: new commits, branches and tags. It does not change
+  your branches or your files; your branches show how far behind they are (see
+  [Branches and tags](branches.md#upstreams)).
+- **Pulling** fetches and then brings the new commits into your current branch.
+- **Pushing** sends your commits to the remote.
 
 ## How to fetch
 
@@ -15,16 +19,48 @@ not change your branches or your files; your branches show how far behind they a
 - In the Repositories module, a repository's **…** menu has **Fetch**, even for repositories
   that are not open.
 
+## Pulling
+
+**Pull** (in the toolbar) fetches and then brings the new commits into your current branch.
+If you and others both made commits, Git joins them the way your settings say. The menu next
+to Pull lets you choose for once:
+
+- **Pull (merge)**: adds a merge commit that joins both;
+- **Pull (rebase)**: puts your new commits on top of theirs;
+- **Pull (fast-forward only)**: only when you have no commits of your own; otherwise it stops.
+
+If Git cannot pull (for example because of uncommitted changes, or conflicting changes in the
+same lines), the message says why and what to do next.
+
+## Pushing
+
+**Push** sends the commits of your current branch to its remote. If the branch has never been
+pushed, NoBlame asks where to: the remote, the name there, and whether to remember it as the
+branch's upstream (so the next Push goes there directly).
+
+**Push…** (in Push's menu, or on any branch in the Branches list) shows these choices every
+time, and also:
+
+- **Also push annotated tags on these commits**;
+- **Force: replace the branch there**: for when you rewrote commits you had already pushed.
+  NoBlame first lists the commits on the remote that would disappear from the branch. If
+  someone pushed something new since your last fetch, nothing is replaced, so you cannot
+  remove their work by accident.
+
+On a tag, **Push…** sends the tag. **Delete on the remote…** (on a remote branch such as
+`origin/feature`) or **Delete on a remote…** (on a tag) removes it on the remote for everyone,
+after asking.
+
 ## While it runs
 
 You can keep working. The status bar at the bottom shows what is running and how far it got.
 Click it to see all recent jobs:
 
-- **Cancel** stops the fetch completely.
+- **Cancel** stops it completely.
 - **Log** shows everything Git printed.
 - **Copy command** copies the Git command, so you can run it yourself in a terminal.
 
-When the fetch ends, a message tells you what changed, or why it failed.
+When it ends, a message tells you what changed, or why it failed and what to do.
 
 ## Passwords and keys
 
@@ -40,7 +76,7 @@ Otherwise NoBlame asks, in a small window:
   with the one the server's owner publishes, then choose **Trust and connect**.
 
 NoBlame passes what you type to Git and does not keep it. Git may save it with your credential
-manager, so you are not asked again. **Cancel** stops the fetch.
+manager, so you are not asked again. **Cancel** stops what was running.
 
 ## If it fails
 

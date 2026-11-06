@@ -7,7 +7,7 @@ mod support;
 use std::fs;
 
 use git_core::branch::{
-    BranchUpstream, Tracking, ahead_behind, set_upstream, unset_upstream, upstreams,
+    BranchUpstream, Tracking, ahead_behind, commits_not_in, set_upstream, unset_upstream, upstreams,
 };
 use git_core::cli::Git;
 use support::Fixture;
@@ -154,4 +154,30 @@ async fn refuses_an_upstream_that_does_not_exist() {
     .await
     .unwrap_err();
     assert!(error.to_string().contains("nope"), "{error}");
+}
+
+#[tokio::test]
+async fn names_what_a_force_push_would_remove() {
+    let fixture = diverged();
+    let lost = commits_not_in(
+        &git(),
+        &fixture.path(),
+        "refs/remotes/origin/main",
+        "refs/heads/main",
+        &cancel(),
+    )
+    .await
+    .unwrap();
+    assert_eq!(lost.count, 1);
+    assert_eq!(lost.newest[0].1, "theirs");
+    let none = commits_not_in(
+        &git(),
+        &fixture.path(),
+        "refs/heads/main",
+        "refs/heads/main",
+        &cancel(),
+    )
+    .await
+    .unwrap();
+    assert_eq!(none.count, 0);
 }

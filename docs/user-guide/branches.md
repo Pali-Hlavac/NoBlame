@@ -51,7 +51,8 @@ pulling and pushing use. In the Branches list, a branch with an upstream shows:
 
 Hover over the branch to read it in words. The numbers are as of the last fetch.
 
-Right-click a branch → **Set upstream…** to connect it (type or pick the remote branch), or
+Right-click a branch → **Push…** to send it to a remote ([Pushing](remotes.md#pushing)), or
+**Set upstream…** to connect it (type or pick the remote branch), or
 **Remove upstream** to disconnect it. Neither changes any commits.
 
 If someone changed the branch or tag in the meantime (for example in a terminal), NoBlame does

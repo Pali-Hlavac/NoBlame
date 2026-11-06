@@ -4,7 +4,12 @@
  */
 import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 
-import type { FetchRequestDto, JobDto } from "@/shared/ipc/bindings";
+import type {
+  FetchRequestDto,
+  JobDto,
+  PullRequestDto,
+  PushRequestDto,
+} from "@/shared/ipc/bindings";
 import { commands, unwrap } from "@/shared/ipc/client";
 
 export const jobKeys = {
@@ -46,6 +51,16 @@ export function useCancelJob() {
  */
 export function startFetch(request: FetchRequestDto): Promise<number> {
   return unwrap(commands.fetchRepository(request));
+}
+
+/** Starts `git pull` of the current branch, like `startFetch`. */
+export function startPull(request: PullRequestDto): Promise<number> {
+  return unwrap(commands.pullRepository(request));
+}
+
+/** Starts `git push` (a branch, a tag, or deleting one on the remote), like `startFetch`. */
+export function startPush(request: PushRequestDto): Promise<number> {
+  return unwrap(commands.pushRepository(request));
 }
 
 /** `jobs` with `job` put in its place (or in front, when new). */

@@ -1,7 +1,7 @@
 # Background jobs
 
-Status: **M5 slice 3 (2026-11-06)**: the job registry and Fetch. Pull, push and clone become
-jobs in slices 5 and 8; credentials (ADR 0012) in slice 4. Decision:
+Status: **M5 slices 3–5 (2026-11-06)**: the job registry; fetch, pull and push; credentials
+(ADR 0012). Clone becomes a job in slice 8. Decision:
 [ADR 0011](../adr/0011-background-jobs.md).
 
 ## Running git
@@ -33,7 +33,7 @@ the tree (used by `get_git_info`, 10 s).
 | Field                     | Meaning                                                                              |
 | ------------------------- | ------------------------------------------------------------------------------------ |
 | `id`                      | Counts up from 1 for the app run                                                     |
-| `kind`                    | `fetch` (later `pull`, `push`, `clone`)                                              |
+| `kind`                    | `fetch`, `pull`, `push` (later `clone`)                                              |
 | `title`                   | `Fetch`, `Fetch origin`, `Fetch all remotes and prune`                               |
 | `repoPath`                | The path the job was started with (the repository need not be open)                  |
 | `command`                 | The equivalent command line (`GitCommand::display`)                                  |
@@ -47,6 +47,9 @@ the tree (used by `get_git_info`, 10 s).
   Tauri runtime; it returns the id at once.
 - Each line: parsed with `git_core::remote::parse_progress`; finished lines go to the log.
   `JobUpdated` is sent at most every 100 ms per job while it prints.
+- A failure's message is the job's hint when one applies (`JobSpec::hint`: `pull_hint`,
+  `push_hint`), then git's `fatal:`/`error:` lines from both streams (pull reports conflicts on
+  standard output).
 - At the end: state and message set, `JobUpdated` sent, and finished jobs beyond the 30
   newest forgotten (running jobs are never dropped).
 - `cancel(id)` cancels the job's token; the run kills the tree and ends as `cancelled`.

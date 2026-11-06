@@ -27,6 +27,12 @@ export interface RefActions {
   renameBranch: (branch: RefTargetDto) => void;
   /** Asks first, naming the commits only it holds. */
   deleteRef: (reference: RefTargetDto) => void;
+  /** Opens the push dialog for a local branch. */
+  pushBranch: (branch: string) => void;
+  /** Asks which remote, then pushes the tag. */
+  pushTag: (tag: string) => void;
+  /** Asks first, then deletes a remote branch or a tag on a remote. */
+  deleteOnRemote: (reference: RefTargetDto) => void;
 }
 
 /** A hook giving the actions for a repository; the default offers none (stubs stay labelled). */

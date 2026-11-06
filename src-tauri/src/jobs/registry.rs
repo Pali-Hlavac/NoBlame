@@ -34,7 +34,12 @@ pub struct JobSpec {
     pub repo_path: String,
     pub command: GitCommand,
     pub describe: Describe,
+    /// A next step for a failure, from git's output (`Pull first, then push.`).
+    pub hint: Option<Hint>,
 }
+
+/// Finds a plain-language next step in a failed job's output.
+pub type Hint = fn(&str) -> Option<&'static str>;
 
 struct Entry {
     job: JobDto,
@@ -114,12 +119,12 @@ impl JobRegistry {
         for (name, value) in self.askpass.env_for(id) {
             command = command.env(name, value);
         }
-        let describe = spec.describe;
+        let (describe, hint) = (spec.describe, spec.hint);
         tauri::async_runtime::spawn(async move {
             let result = command
                 .stream(&cancel, |line| registry.on_line(id, line))
                 .await;
-            registry.finish(id, result, describe);
+            registry.finish(id, result, describe, hint);
         });
         id
     }
@@ -161,15 +166,18 @@ impl JobRegistry {
         }
     }
 
-    fn finish(&self, id: JobId, result: Result<GitOutput, GitError>, describe: Describe) {
+    fn finish(
+        &self,
+        id: JobId,
+        result: Result<GitOutput, GitError>,
+        describe: Describe,
+        hint: Option<Hint>,
+    ) {
         // Prompts still open belong to a git that is gone.
         self.askpass.unregister(id);
         let (state, message) = match result {
             Ok(output) if output.success() => (JobStateDto::Succeeded, describe(&output)),
-            Ok(output) => (
-                JobStateDto::Failed,
-                failure_message(&redact_credentials(&output.stderr_lossy())),
-            ),
+            Ok(output) => (JobStateDto::Failed, failed(&output, hint)),
             Err(GitError::Cancelled { .. }) => (JobStateDto::Cancelled, "Cancelled".to_owned()),
             Err(error) => (JobStateDto::Failed, error.to_string()),
         };
@@ -239,6 +247,18 @@ fn forget_old(jobs: &mut Vec<Entry>) {
             true
         }
     });
+}
+
+/// The job's hint when one applies, then git's reasons (from both streams: pull reports
+/// conflicts on standard output). The hint goes first: git's lines can be long (a remote's
+/// whole path).
+fn failed(output: &GitOutput, hint: Option<Hint>) -> String {
+    let text = redact_credentials(&output.combined());
+    let message = failure_message(&text);
+    match hint.and_then(|hint| hint(&text)) {
+        Some(hint) => format!("{hint}\n{message}"),
+        None => message,
+    }
 }
 
 /// git's explanation of a failure: its `fatal:` and `error:` lines, else its last lines.

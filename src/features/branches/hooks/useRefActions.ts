@@ -46,6 +46,15 @@ export function useRefActions(repoId: number): RefActions {
       renameBranch: (branch) => {
         openBranchDialog({ kind: "rename-branch", repoId, branch });
       },
+      pushBranch: (branch) => {
+        openBranchDialog({ kind: "push-branch", repoId, branch });
+      },
+      pushTag: (tag) => {
+        openBranchDialog({ kind: "push-tag", repoId, tag });
+      },
+      deleteOnRemote: (reference) => {
+        openBranchDialog({ kind: "delete-on-remote", repoId, reference });
+      },
       deleteRef: (reference) => {
         openBranchDialog({ kind: "delete", repoId, reference });
       },

@@ -1,31 +1,22 @@
 //! Starting fetch jobs. The repository is opened first (refused when untrusted, like any
 //! other), but it need not be open in a tab: the Repositories module fetches closed ones too.
 
-use std::path::PathBuf;
 use std::sync::Arc;
 
-use git_core::cli::Git;
 use git_core::remote::{FetchOptions, FetchTarget, fetch_command, summarize_fetch};
-use git_core::repo::{RepoKind, Repository};
 
 use super::registry::{JobRegistry, JobSpec};
+use super::target::JobTarget;
 use super::types::{FetchRequestDto, FetchTargetDto, JobId, JobKindDto};
 use crate::git_env::GitEnvError;
-use crate::repository::{RepositoryError, blocking};
+use crate::repository::RepositoryError;
 
 /// Starts `git fetch` as a job and returns its id.
 pub async fn start(
     registry: &Arc<JobRegistry>,
     request: FetchRequestDto,
 ) -> Result<JobId, RepositoryError> {
-    let path = PathBuf::from(&request.path);
-    let repo = blocking(move || Repository::discover(&path)).await??;
-    let info = repo.info();
-    let dir = match (&info.work_dir, info.kind) {
-        (Some(work_dir), kind) if kind != RepoKind::Bare => work_dir.clone(),
-        _ => info.git_dir.clone(),
-    };
-    let git = Git::locate().map_err(GitEnvError::from)?;
+    let target_repo = JobTarget::open(&request.path).await?;
     let target = match request.target {
         FetchTargetDto::Default => FetchTarget::Default,
         FetchTargetDto::All => FetchTarget::All,
@@ -36,13 +27,15 @@ pub async fn start(
         target,
         prune: request.prune,
     };
-    let command = fetch_command(&git, &dir, &options).map_err(GitEnvError::from)?;
+    let command =
+        fetch_command(&target_repo.git, &target_repo.dir, &options).map_err(GitEnvError::from)?;
     Ok(registry.start(JobSpec {
         kind: JobKindDto::Fetch,
         title,
         repo_path: request.path,
         command,
         describe: Box::new(|output| describe(&output.stderr_lossy())),
+        hint: None,
     }))
 }
 

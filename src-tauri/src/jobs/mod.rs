@@ -1,10 +1,12 @@
 //! Background jobs (ADR 0011): git commands that talk to remotes run in the background with
-//! progress, a log and cancel (git's whole process tree is killed). Fetch is the first;
-//! pull, push and clone follow. See `docs/architecture/background-jobs.md`.
+//! progress, a log and cancel (git's whole process tree is killed): fetch, pull and push;
+//! clone follows. See `docs/architecture/background-jobs.md`.
 
 pub mod commands;
 mod fetch;
 mod registry;
+mod sync;
+mod target;
 mod types;
 
 use std::sync::Arc;

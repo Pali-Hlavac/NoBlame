@@ -134,7 +134,7 @@ Details:
   - Submodules that are not initialized are dimmed and cannot be opened; initializing them is M7.
   - Each open repository (and each open submodule) has a **…** button, shown on hover or focus,
     with its actions: **Copy path**, **Close**, **Fetch** ([remotes.md](remotes.md)) and
-    **Commit…** work; **Pull** and **Push** (M5) are listed disabled with their milestone. The app shell supplies the
+    **Commit…** work; **Pull** and **Push** (M5 slice 6) are listed disabled with their milestone. The app shell supplies the
     actions (`src/app/workbench/repositoryActions.ts`) through `RepositoryActionsContext`, so
     the Repositories module does not depend on the features that implement them. Settings can
     hide the button.
@@ -174,15 +174,15 @@ Modules that work on the active repository share one frame (`WithActiveRepositor
 
 ## Toolbar (in the title bar)
 
-| Button  | Does                                                                   |
-| ------- | ---------------------------------------------------------------------- |
-| Pull ▾  | Menu: Pull (M5), Fetch, Fetch all remotes, Fetch and prune (jobs)      |
-| Push    | M5                                                                     |
-| Commit  | Opens the Commit module, docked or popped out ([commit.md](commit.md)) |
-| Stashes | Opens the Stashes module                                               |
+| Button  | Does                                                                                                                      |
+| ------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Pull ▾  | Pull; menu: Pull (merge, rebase, fast-forward only), Fetch, Fetch all remotes, Fetch and prune ([remotes.md](remotes.md)) |
+| Push ▾  | Push the current branch (to its upstream, else the dialog); menu: Push…                                                   |
+| Commit  | Opens the Commit module, docked or popped out ([commit.md](commit.md))                                                    |
+| Stashes | Opens the Stashes module                                                                                                  |
 
-The placeholder buttons look dimmed but stay focusable, so their tooltip ("Push: arrives in M5")
-can also be read with the keyboard.
+Placeholder buttons look dimmed but stay focusable, so their tooltip ("…: arrives in M6") can
+also be read with the keyboard. Pull and Push are disabled while no branch is checked out.
 
 ## Layout persistence
 

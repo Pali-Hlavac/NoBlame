@@ -25,6 +25,12 @@ export type BranchDialogRequest = Target &
     | { kind: "checkout-commit"; commit: StartPoint }
     /** Choose the upstream of a local branch (`current`: its full name, if it has one). */
     | { kind: "set-upstream"; branch: string; current: string | null }
+    /** Push a local branch (remote, name there, upstream, tags, force). */
+    | { kind: "push-branch"; branch: string }
+    /** Push a tag to a remote. */
+    | { kind: "push-tag"; tag: string }
+    /** Delete a remote branch (`origin/x`) or a tag on a remote, after confirming. */
+    | { kind: "delete-on-remote"; reference: RefTargetDto }
   );
 
 interface BranchDialogState {

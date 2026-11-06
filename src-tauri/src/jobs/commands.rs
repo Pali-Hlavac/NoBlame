@@ -1,12 +1,13 @@
-//! Tauri boundary for background jobs: listing, logs, cancelling, and starting a fetch.
+//! Tauri boundary for background jobs: listing, logs, cancelling; starting fetch, pull and
+//! push; the remotes to push to.
 
 use std::sync::Arc;
 
 use tauri::State;
 
-use super::fetch;
 use super::registry::JobRegistry;
-use super::types::{FetchRequestDto, JobDto, JobId};
+use super::types::{FetchRequestDto, JobDto, JobId, PullRequestDto, PushRequestDto};
+use super::{fetch, sync};
 use crate::error::CommandResult;
 
 /// Running and recent jobs, newest first.
@@ -39,4 +40,31 @@ pub async fn fetch_repository(
     request: FetchRequestDto,
 ) -> CommandResult<JobId> {
     Ok(fetch::start(&registry, request).await?)
+}
+
+/// Starts `git pull` of the current branch; progress and the result come as `JobUpdated`.
+#[tauri::command]
+#[specta::specta]
+pub async fn pull_repository(
+    registry: State<'_, Arc<JobRegistry>>,
+    request: PullRequestDto,
+) -> CommandResult<JobId> {
+    Ok(sync::pull(&registry, request).await?)
+}
+
+/// Starts `git push` (a branch, a tag, or deleting one on the remote).
+#[tauri::command]
+#[specta::specta]
+pub async fn push_repository(
+    registry: State<'_, Arc<JobRegistry>>,
+    request: PushRequestDto,
+) -> CommandResult<JobId> {
+    Ok(sync::push(&registry, request).await?)
+}
+
+/// The remotes of the repository at `path`, sorted.
+#[tauri::command]
+#[specta::specta]
+pub async fn list_remotes(path: String) -> CommandResult<Vec<String>> {
+    Ok(sync::remotes(path).await?)
 }

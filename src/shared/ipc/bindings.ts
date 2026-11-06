@@ -174,6 +174,11 @@ export const commands = {
 	getAheadBehind: (id: number, branches: string[]) => typedError<BranchTrackingDto[], AppError>(__TAURI_INVOKE("get_ahead_behind", { id, branches })),
 	/**  Sets the upstream of a local branch, or removes it. */
 	setUpstream: (id: number, request: SetUpstreamRequestDto) => typedError<string, AppError>(__TAURI_INVOKE("set_upstream", { id, request })),
+	/**
+	 *  Commits on `revision` that `not_in` lacks: what a force push of `not_in` over the remote
+	 *  branch `revision` would take off it (for the confirmation).
+	 */
+	getMissingCommits: (id: number, revision: string, notIn: string) => typedError<UniqueCommitsDto, AppError>(__TAURI_INVOKE("get_missing_commits", { id, revision, notIn })),
 	/**  Running and recent jobs, newest first. */
 	listJobs: () => __TAURI_INVOKE<JobDto[]>("list_jobs"),
 	/**  A job's output so far, line by line (progress updates left out). */
@@ -185,6 +190,12 @@ export const commands = {
 	cancelJob: (id: number) => __TAURI_INVOKE<boolean>("cancel_job", { id }),
 	/**  Starts `git fetch` in the background; progress and the result come as `JobUpdated`. */
 	fetchRepository: (request: FetchRequestDto) => typedError<number, AppError>(__TAURI_INVOKE("fetch_repository", { request })),
+	/**  Starts `git pull` of the current branch; progress and the result come as `JobUpdated`. */
+	pullRepository: (request: PullRequestDto) => typedError<number, AppError>(__TAURI_INVOKE("pull_repository", { request })),
+	/**  Starts `git push` (a branch, a tag, or deleting one on the remote). */
+	pushRepository: (request: PushRequestDto) => typedError<number, AppError>(__TAURI_INVOKE("push_repository", { request })),
+	/**  The remotes of the repository at `path`, sorted. */
+	listRemotes: (path: string) => typedError<string[], AppError>(__TAURI_INVOKE("list_remotes", { path })),
 	/**  Prompts waiting for an answer, oldest first (read on start and on `CredentialRequested`). */
 	listCredentialRequests: () => __TAURI_INVOKE<CredentialRequestDto[]>("list_credential_requests"),
 	/**  Answers a prompt; `null` cancels it (git then fails). False when it no longer waits. */
@@ -1158,7 +1169,11 @@ export type JobDto = {
 /**  What a job does. */
 export type JobKindDto = 
 /**  `git fetch`. */
-"fetch";
+"fetch" | 
+/**  `git pull`. */
+"pull" | 
+/**  `git push`. */
+"push";
 
 /**  How far a running job got, from git's last progress line. */
 export type JobProgressDto = {
@@ -1237,6 +1252,67 @@ export type PathChangeDto =
 "renamed" | 
 /**  A merge that differs from every parent at the path. */
 "merge";
+
+/**  How a pull joins the upstream's commits with the branch's own. */
+export type PullModeDto = 
+/**  As the user's config says (`pull.rebase`, `pull.ff`). */
+"default" | 
+/**  Merge. */
+"merge" | 
+/**  Rebase the branch's own commits onto the upstream. */
+"rebase" | 
+/**  Only fast-forward. */
+"fastForwardOnly";
+
+/**  A pull of the current branch from its upstream. */
+export type PullRequestDto = {
+	/**  The repository's work tree; it need not be open. */
+	path: string,
+	mode: PullModeDto,
+};
+
+/**  A local branch to push. */
+export type PushBranchDto = {
+	/**  The local branch. */
+	local: string,
+	/**  The branch on the remote it goes to. */
+	remoteBranch: string,
+	/**  Make it the local branch's upstream. */
+	setUpstream: boolean,
+	/**  Also push annotated tags on the pushed commits. */
+	followTags: boolean,
+	/**  Replace the remote branch even when that removes commits from it. */
+	force: boolean,
+	/**
+	 *  With `force`: the full id the remote branch had when shown (its remote-tracking
+	 *  branch); it is replaced only if still there. `null`: it must not exist yet.
+	 */
+	expected: string | null,
+};
+
+/**  A push to start. */
+export type PushRequestDto = {
+	/**  The repository; it need not be open. */
+	path: string,
+	/**  The remote's name. */
+	remote: string,
+	what: PushWhatDto,
+};
+
+/**  What to push. */
+export type PushWhatDto = 
+/**  A local branch. */
+{
+	type: "branch",
+} & PushBranchDto | 
+/**  A tag, by name. */
+({ type: "tag"; 
+/**  The tag (`v1.0`). */
+name: string }) & { reference?: never } | 
+/**  Delete a branch or tag on the remote. */
+({ type: "delete"; 
+/**  Its full name on the remote: `refs/heads/x` or `refs/tags/v1`. */
+reference: string }) & { name?: never };
 
 /**  One entry of the list as the UI sees it. */
 export type RecentRepository = {
