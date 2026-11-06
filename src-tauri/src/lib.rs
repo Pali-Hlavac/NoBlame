@@ -8,6 +8,7 @@ pub mod error;
 mod git_env;
 mod inspect;
 mod ipc;
+mod jobs;
 mod logging;
 mod repository;
 mod settings;
@@ -41,6 +42,7 @@ pub fn run(request: LaunchRequest) {
             settings::init(app)?;
             repository::init(app)?;
             workbench::init(app)?;
+            jobs::init(app);
             windows::init(app);
             windows::launch(app.handle(), request)?;
             Ok(())

@@ -1,4 +1,5 @@
 import { BranchDialogs, useRefActions } from "@/features/branches";
+import { useJobEvents } from "@/features/jobs";
 import { CommandPalette } from "@/features/command-palette";
 import { RefActionsContext } from "@/features/graph";
 import {
@@ -42,6 +43,7 @@ function MainWorkbench({ saved }: { saved: SavedLayout | null }) {
   useRepositoryRequests(openRepositories);
   useSessionCleanup();
   useRepositoryChanges();
+  useJobEvents();
   useTabHotkeys();
   useHistoryHotkeys();
 

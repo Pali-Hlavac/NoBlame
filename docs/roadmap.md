@@ -735,9 +735,9 @@ Slices, in order (planned 2026-11-02):
       Slice 1 (2026-11-06), upstreams slice 2 (2026-11-06)
 - [x] Ahead/behind counts per branch; actions in the Branches module (checkout, create, rename,
       delete, track). Slices 1 and 2, 2026-11-06. (Submodules and Worktrees modules: M7)
-- [ ] Toolbar operations: Fetch, Fetch all, Fetch and prune (`git fetch --prune`), Pull
-      (merge/rebase/ff-only), Push (incl. tags, force-with-lease behind confirmation) as background
-      jobs with progress
+- [~] Toolbar operations: Fetch, Fetch all, Fetch and prune (`git fetch --prune`), Pull
+  (merge/rebase/ff-only), Push (incl. tags, force-with-lease behind confirmation) as background
+  jobs with progress. Fetch, Fetch all and Fetch and prune done (slice 3, 2026-11-06)
 - [ ] Quick Pull button on repository rows in the Repositories module, behind a setting (owner
       request 2026-10-28; quick Merge follows with merging in M6); the "…" menu's Pull, Fetch and
       Push become real. Settings choose which buttons show: Pull and Push on each repository,
@@ -770,7 +770,8 @@ working branch model; the job registry comes before anything that talks to a rem
    Done 2026-11-06: upstreams are listed at once, ahead/behind counted for the rows on screen.
 3. **Job registry and Fetch** (ADR 0011): jobs with progress, cancel (whole process tree),
    logs and the equivalent command; a jobs list in the status bar; Fetch, Fetch all remotes,
-   Fetch and prune from the toolbar and the "…" menu.
+   Fetch and prune from the toolbar and the "…" menu. Done 2026-11-06 (ADR 0011,
+   [features/remotes.md](features/remotes.md)); the "…" menu fetches closed repositories too.
 4. **Credentials** (ADR 0012): git's credential helpers as they are; an in-app askpass for user
    names, passwords and SSH passphrases when nothing else answers.
 5. **Pull and Push**: pull (merge, rebase, fast-forward only), push (new branches get an

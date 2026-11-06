@@ -46,8 +46,8 @@ and closed when the tab is closed. Reopening the repository later opens a new se
 
 In the Repositories module, every repository row has a **…** button (on hover or focus): open
 repositories, repositories in groups (open or not) and initialized submodules. It offers Copy
-path, Open (only when not open) and Close (only when open), plus Pull, Fetch, Push and Commit…
-as labelled placeholders until M4/M5; in a group also **Remove from group**. The app shell
+path, Open (only when not open) and Close (only when open), **Fetch** (a background job, open or
+not; [remotes.md](remotes.md)), Commit…, and Pull and Push as labelled placeholders until M5; in a group also **Remove from group**. The app shell
 supplies the actions (`src/app/workbench/repositoryActions.ts`, `when: "open" | "closed"`,
 filtered by `actionsFor`); a row adds its own items with `extra`. **Settings → Repositories**
 hides the button. See [workbench.md](workbench.md#modules).

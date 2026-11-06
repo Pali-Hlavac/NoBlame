@@ -172,6 +172,18 @@ Use `target\debug\noblame.exe` while the dev app runs.
 - [ ] (new, M5 slice 1) **F2** on a branch renames it (typing an existing name is refused at
       once). **Delete** on a branch with commits of its own lists them before deleting.
   - Notes:
+- [ ] (new, M5 slice 3) Toolbar **Pull ▾ → Fetch** on a repository with a reachable remote: the
+      status bar shows the phase and percent, then a toast says what changed; the graph shows
+      the new remote branches. **Fetch and prune** after deleting a branch on the remote removes
+      it here.
+  - Notes:
+- [ ] (new, M5 slice 3) Fetch a large remote (or a slow one) and click **Cancel** in the jobs
+      list: it ends as cancelled and no `git-remote-https` or `ssh` process is left (Task
+      Manager / `ps`). **Log** and **Copy command** show what ran.
+  - Notes:
+- [ ] (new, M5 slice 3) Repositories module, **…** on a closed repository → **Fetch** works; a
+      remote needing a password fails with git's message and **Show log**.
+  - Notes:
 - [ ] (new, M5 slice 2) A branch behind and ahead of its upstream shows ↑ and ↓ counts in the
       Branches module; scroll a long list (synthetic-1m) and the counts fill in for the rows
       shown. Right-click → **Set upstream…** (the field suggests `origin/<name>`), then

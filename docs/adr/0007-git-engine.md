@@ -84,13 +84,12 @@ Bad:
 
 - Two implementations of Git semantics; tests must check that gix reads match git's view.
 - Users must install git; the app explains how when it is missing or too old.
-- **Known gap**: cancelling kills only the direct `git` child. Helpers it started (ssh,
-  credential helpers, alias shells) keep running and can hold its output pipes open. Process-tree
-  termination (job objects on Windows, process groups on Unix) arrives with the job model in M5
-  (ADR 0011).
+- **Known gap (closed 2026-11-06)**: cancelling killed only the direct `git` child; since ADR
+  [0011](0011-background-jobs.md) every git command runs in its own job object (Windows) or
+  process group (Unix), and cancelling kills the whole tree.
 
 ## Links
 
-- [ADR 0002](0002-rust-owns-git-access.md), [ADR 0011 (planned)](README.md)
+- [ADR 0002](0002-rust-owns-git-access.md), [ADR 0011](0011-background-jobs.md)
 - [../architecture/git-engine.md](../architecture/git-engine.md),
   [../architecture/security.md](../architecture/security.md)

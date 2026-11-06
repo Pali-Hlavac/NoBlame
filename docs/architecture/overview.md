@@ -85,10 +85,11 @@ and one webview per window that renders the UI in React. Decisions: [ADR 0001](.
   cannot start (inotify limit) is logged; focus refresh still works.
 - **Window creation** happens in the setup hook, the single-instance callback or an `async`
   command. Creating a window inside a sync command deadlocks on Windows.
-- **Child processes** (`git`) are spawned by Tokio with piped output and `kill_on_drop`. A
-  `CancellationToken` cancels them. On Windows Tokio reads child pipes on blocking threads, so a
-  grandchild that keeps a pipe open (for example `ssh` under `git fetch`) holds a blocking thread
-  until it exits; the M5 job model kills whole process trees.
+- **Child processes** (`git`) are spawned by Tokio with piped output and `kill_on_drop`, each in
+  its own job object (Windows) or process group (Unix). A `CancellationToken` cancels them and
+  kills the whole tree, so no grandchild (`ssh` under `git fetch`) keeps a pipe or a blocking
+  thread. Fetch and later pull, push and clone run as background jobs
+  ([background-jobs.md](background-jobs.md)).
 - The **webview** never blocks on the backend: every call is a promise, rendered through
   loading, error and empty states.
 

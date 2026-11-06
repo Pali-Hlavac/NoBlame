@@ -15,6 +15,7 @@ pub mod difftool;
 pub mod graph;
 pub mod history;
 pub mod ignore;
+pub mod remote;
 pub mod repo;
 pub mod signing;
 pub mod stash;

@@ -1631,6 +1631,7 @@ dependencies = [
  "noblame-repo-gen",
  "notify",
  "notify-debouncer-mini",
+ "rustix",
  "syntect",
  "tempfile",
  "thiserror 2.0.21",
@@ -1638,6 +1639,7 @@ dependencies = [
  "tokio-util",
  "tracing",
  "two-face",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]

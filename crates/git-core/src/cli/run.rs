@@ -3,10 +3,11 @@
 use std::process::Stdio;
 
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWriteExt};
-use tokio::process::Command;
+use tokio::process::{Child, Command};
 use tokio_util::sync::CancellationToken;
 
 use super::command::{CLEARED_ENV, FIXED_ENV};
+use super::tree::{self, ProcessTree};
 use super::{GitCommand, GitError, GitOutput};
 
 /// Windows `CREATE_NO_WINDOW`: git is a console program and would otherwise flash a
@@ -17,20 +18,15 @@ const CREATE_NO_WINDOW: u32 = 0x0800_0000;
 impl GitCommand {
     /// Runs the command and returns its output whatever the exit status.
     ///
-    /// When `cancel` fires, the process is killed and [`GitError::Cancelled`] is returned.
-    /// Only the direct child is killed; helpers it started (ssh, credential helpers) are
-    /// handled by the background job model (M5).
+    /// When `cancel` fires, the process and everything it started (ssh, credential helpers)
+    /// are killed and [`GitError::Cancelled`] is returned.
     pub async fn output(&self, cancel: &CancellationToken) -> Result<GitOutput, GitError> {
         if cancel.is_cancelled() {
             return Err(self.cancelled());
         }
-        let mut child = self
-            .to_tokio_command()
-            .spawn()
-            .map_err(|source| GitError::Spawn {
-                program: self.program.clone(),
-                source,
-            })?;
+        let mut child = self.spawn()?;
+        // Dropped with the future on cancellation, killing the tree.
+        let mut tree = ProcessTree::attach(&child);
         let stdin = child.stdin.take();
         let stdout = child.stdout.take();
         let stderr = child.stderr.take();
@@ -56,11 +52,23 @@ impl GitCommand {
             })
         };
 
-        tokio::select! {
+        let output = tokio::select! {
             biased;
-            () = cancel.cancelled() => Err(self.cancelled()),
-            result = finished => Ok(result?),
-        }
+            () = cancel.cancelled() => return Err(self.cancelled()),
+            result = finished => result?,
+        };
+        tree.finish();
+        Ok(output)
+    }
+
+    /// Starts git with piped output, ready for [`ProcessTree::attach`].
+    pub(super) fn spawn(&self) -> Result<Child, GitError> {
+        self.to_tokio_command()
+            .spawn()
+            .map_err(|source| GitError::Spawn {
+                program: self.program.clone(),
+                source,
+            })
     }
 
     /// Runs the command and fails with [`GitError::Failed`] on a non-zero exit status.
@@ -106,10 +114,11 @@ impl GitCommand {
         }
         #[cfg(windows)]
         command.creation_flags(CREATE_NO_WINDOW);
+        tree::prepare(&mut command);
         command
     }
 
-    fn cancelled(&self) -> GitError {
+    pub(super) fn cancelled(&self) -> GitError {
         GitError::Cancelled {
             command: self.display(),
         }

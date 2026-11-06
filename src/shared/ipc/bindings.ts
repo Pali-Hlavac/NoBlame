@@ -174,6 +174,17 @@ export const commands = {
 	getAheadBehind: (id: number, branches: string[]) => typedError<BranchTrackingDto[], AppError>(__TAURI_INVOKE("get_ahead_behind", { id, branches })),
 	/**  Sets the upstream of a local branch, or removes it. */
 	setUpstream: (id: number, request: SetUpstreamRequestDto) => typedError<string, AppError>(__TAURI_INVOKE("set_upstream", { id, request })),
+	/**  Running and recent jobs, newest first. */
+	listJobs: () => __TAURI_INVOKE<JobDto[]>("list_jobs"),
+	/**  A job's output so far, line by line (progress updates left out). */
+	getJobLog: (id: number) => __TAURI_INVOKE<string[]>("get_job_log", { id }),
+	/**
+	 *  Cancels a running job, killing git and everything it started. False when the job is
+	 *  unknown or already over.
+	 */
+	cancelJob: (id: number) => __TAURI_INVOKE<boolean>("cancel_job", { id }),
+	/**  Starts `git fetch` in the background; progress and the result come as `JobUpdated`. */
+	fetchRepository: (request: FetchRequestDto) => typedError<number, AppError>(__TAURI_INVOKE("fetch_repository", { request })),
 	/**
 	 *  The working tree status: counts, staged files and unstaged ones (`null` for a bare
 	 *  repository).
@@ -269,6 +280,7 @@ export const commands = {
 
 /** Events */
 export const events = {
+	jobUpdated: makeEvent<JobUpdated, JobUpdated>("job-updated"),
 	repositoriesRequested: makeEvent<RepositoriesRequested, RepositoriesRequested>("repositories-requested"),
 	repositoryChanged: makeEvent<RepositoryChanged, RepositoryChanged>("repository-changed"),
 };
@@ -804,6 +816,25 @@ export type ExternalDiffToolKind =
 /**  The command in [`ExternalDiffTool::command`]. */
 "custom";
 
+/**  A fetch to start. */
+export type FetchRequestDto = {
+	/**  The repository (its work tree or `.git` folder); it need not be open. */
+	path: string,
+	/**  Which remotes. */
+	target: FetchTargetDto,
+	/**  Remove remote branches deleted on the remote. */
+	prune: boolean,
+};
+
+/**  Which remotes a fetch talks to. */
+export type FetchTargetDto = 
+/**  What plain `git fetch` picks: the current branch's remote, else `origin`. */
+{ type: "default" } | 
+/**  Every remote. */
+{ type: "all" } | 
+/**  One remote by name. */
+{ type: "remote"; name: string };
+
 /**  What the diff tab needs before it asks for rows. */
 export type FileDiffDto = {
 	/**  How the file was compared. */
@@ -1041,6 +1072,70 @@ export type IgnoreRequestDto = {
 	pattern: string,
 	/**  Which file to add it to. */
 	file: IgnoreFileDto,
+};
+
+/**  A background job as the UI shows it. */
+export type JobDto = {
+	/**  Its id. */
+	id: number,
+	/**  What it does. */
+	kind: JobKindDto,
+	/**  A short title (`Fetch origin`, `Fetch all remotes and prune`). */
+	title: string,
+	/**  The repository it works on, as given when it started. */
+	repoPath: string,
+	/**  The equivalent command line, to run it by hand. */
+	command: string,
+	/**  Running, or how it ended. */
+	state: JobStateDto,
+	/**  The last progress line while running. */
+	progress: JobProgressDto | null,
+	/**  How it ended in words (`2 new, 1 updated`, git's error); `null` while running. */
+	message: string | null,
+	/**
+	 *  Lines in its log so far (progress updates excluded); the UI refetches the log when it
+	 *  grows.
+	 */
+	logLines: number,
+	/**  Start time, seconds since the Unix epoch. */
+	startedAt: number | null,
+	/**  End time, seconds since the Unix epoch; `null` while running. */
+	finishedAt: number | null,
+};
+
+/**  What a job does. */
+export type JobKindDto = 
+/**  `git fetch`. */
+"fetch";
+
+/**  How far a running job got, from git's last progress line. */
+export type JobProgressDto = {
+	/**  What git is doing (`Receiving objects`); `remote: ` phases are the server's. */
+	phase: string,
+	/**  Percent of this phase, when git knows the total. */
+	percent: number | null,
+	/**  The rest of the line: counts, size and speed. */
+	detail: string,
+};
+
+/**  Where a job is in its life. */
+export type JobStateDto = 
+/**  git is running. */
+"running" | 
+/**  git finished with status 0. */
+"succeeded" | 
+/**  git failed (or could not run); `message` says why. */
+"failed" | 
+/**  The user cancelled it; git and everything it started were killed. */
+"cancelled";
+
+/**
+ *  A job started, made progress or ended. Sent at most every 100 ms per job while it runs,
+ *  and always when it ends.
+ */
+export type JobUpdated = {
+	/**  The job as it is now. */
+	job: JobDto,
 };
 
 /**

@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { openRepositories, type RepositoryAction } from "@/features/repositories";
 import { useTabsStore } from "@/features/workspace";
 import { openCommit } from "./commit";
+import { fetchRepository } from "./fetch";
 import { REMOTE_MILESTONE } from "./milestones";
 
 /** Pulling, fetching and pushing are about branches and remotes. */
@@ -32,7 +33,10 @@ export const REPOSITORY_ACTIONS: readonly RepositoryAction[] = [
     label: "Fetch",
     icon: RefreshCwIcon,
     kind: BRANCHES,
-    milestone: REMOTE_MILESTONE,
+    // Open or not: the job only needs the folder.
+    run: ({ path }) => {
+      fetchRepository(path, { type: "default" }, false);
+    },
   },
   {
     id: "push",

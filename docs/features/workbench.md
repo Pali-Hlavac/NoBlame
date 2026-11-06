@@ -133,8 +133,8 @@ Details:
     the active repository. It is not listed again as a repository of its own.
   - Submodules that are not initialized are dimmed and cannot be opened; initializing them is M7.
   - Each open repository (and each open submodule) has a **…** button, shown on hover or focus,
-    with its actions: **Copy path**, **Close** and **Commit…** work; **Pull**, **Fetch** and
-    **Push** (M5) are listed disabled with their milestone. The app shell supplies the
+    with its actions: **Copy path**, **Close**, **Fetch** ([remotes.md](remotes.md)) and
+    **Commit…** work; **Pull** and **Push** (M5) are listed disabled with their milestone. The app shell supplies the
     actions (`src/app/workbench/repositoryActions.ts`) through `RepositoryActionsContext`, so
     the Repositories module does not depend on the features that implement them. Settings can
     hide the button.
@@ -176,7 +176,7 @@ Modules that work on the active repository share one frame (`WithActiveRepositor
 
 | Button  | Does                                                                   |
 | ------- | ---------------------------------------------------------------------- |
-| Pull ▾  | Menu: Pull, Fetch, Fetch all remotes, Fetch and prune (M5)             |
+| Pull ▾  | Menu: Pull (M5), Fetch, Fetch all remotes, Fetch and prune (jobs)      |
 | Push    | M5                                                                     |
 | Commit  | Opens the Commit module, docked or popped out ([commit.md](commit.md)) |
 | Stashes | Opens the Stashes module                                               |

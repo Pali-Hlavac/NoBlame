@@ -94,9 +94,10 @@ returns any exit status for commands where non-zero is meaningful (`diff --exit-
 `display()` gives the command as a user would type it, for logs and the "equivalent command"
 shown with background jobs.
 
-Known gap: cancelling kills only the direct `git` child. Helpers it started (ssh, credential
-helpers, `sh` for aliases) keep running until they exit. The M5 job model kills process trees
-(job objects on Windows, process groups elsewhere).
+Cancelling kills git and every process it started (ssh, credential helpers, `sh` for aliases):
+each command runs in its own job object on Windows or process group on Unix (`cli/tree.rs`,
+ADR 0011). `stream()` hands output over line by line for background jobs
+([background-jobs.md](background-jobs.md)).
 
 Writes (staging, committing) hold the session's write lock (`Session::lock_writes`), so the
 app never runs two of them at once in one repository and they never race for `index.lock`.
