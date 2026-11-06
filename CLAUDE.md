@@ -15,14 +15,15 @@ Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 > message, author, path; views of the graph, ADR 0021), commit context menu, find and go to
 > commit, the Files module (tree of a commit, file tab, save as), file history following
 > renames and blame (ADR 0022), comparing two revisions (ADR 0023), commit details with
-> children and signature status, graph columns (choose, order, width, relative dates). M4 in
-> progress: working tree files and their diffs (slice 1), the Commit module and dialog (staging
+> children and signature status, graph columns (choose, order, width, relative dates). M4
+> done: working tree files and their diffs (slice 1), the Commit module and dialog (staging
 > files, commit, amend, sign-off; slice 2), hunks and lines staged, unstaged and discarded from the
 > diff, files discarded (slice 3); any module can be popped out into a modal popup in the app;
 > the commit message (recent messages, `commit.template`, author override, summary hints; slice 4);
 > stashes (make, show in the Stash tab, apply, pop, drop, apply chosen files, labels in the graph;
 > slice 5); compare with the working tree, the `.gitignore` helper and the external diff tool
-> (slice 6). Next: slice 7 (Repositories module counts).
+> (slice 6); uncommitted file counts in the Repositories module (slice 7). Next: M5 (branches,
+> tags and remotes).
 > Parts marked _(later)_ below are planned and do not exist yet.
 
 ## Architecture

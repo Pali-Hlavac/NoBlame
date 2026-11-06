@@ -76,6 +76,7 @@ pub fn builder() -> Builder<tauri::Wry> {
             inspect::commands::list_stashes,
             inspect::commands::list_submodules,
             worktree::commands::get_status,
+            worktree::commands::get_change_counts,
             worktree::commands::get_worktree_file_id,
             worktree::commands::get_worktree_file_contents,
             worktree::commands::stage_files,

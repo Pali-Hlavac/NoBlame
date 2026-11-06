@@ -8,6 +8,7 @@ import { Button } from "@/shared/ui/button";
 import { useRemoveRecentRepository } from "../api/recent";
 import { openRepositories } from "../hooks/useOpenRepository";
 import { startRepositoryDrag } from "../lib/dragData";
+import { RepositoryChangeCounts } from "./ChangeCounts";
 import { RepositoryActions } from "./RepositoryActionsMenu";
 import { RepositoryContextMenu } from "./RepositoryContextMenu";
 import { RepositoryTreeRow } from "./RepositoryTreeRow";
@@ -39,6 +40,7 @@ export function OpenRepository({ tab, active, submodules }: OpenRepositoryProps)
             useTabsStore.getState().activateTab(tab.id);
           }}
           current={active}
+          badge={<RepositoryChangeCounts path={tab.path} sessionPath={tab.path} />}
           draggable
           onDragStart={(event) => {
             startRepositoryDrag(event, { path: tab.path });
@@ -72,6 +74,13 @@ export function RecentItem({ entry }: { entry: RecentRepository }) {
             openRepositories([entry.path]);
           }}
           dimmed={!entry.exists}
+          badge={
+            <RepositoryChangeCounts
+              path={entry.path}
+              sessionPath={undefined}
+              available={entry.exists}
+            />
+          }
           draggable
           onDragStart={(event) => {
             startRepositoryDrag(event, { path: entry.path });

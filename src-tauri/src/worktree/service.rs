@@ -7,14 +7,20 @@ use git_core::cli::Git;
 use git_core::diff::{DiffError, parse_object_id, read_worktree_file, worktree_version};
 use git_core::repo::{RepoKind, Repository};
 use git_core::status::{UntrackedFiles, working_tree_status};
+use tokio::sync::Semaphore;
 use tokio_util::sync::CancellationToken;
 
-use super::WorkingTreeStatusDto;
+use super::{ChangeCountsDto, WorkingTreeStatusDto};
 use crate::git_env::GitEnvError;
 use crate::repository::{RawBytes, RepoId, RepoSessions, RepositoryError, blocking};
 
 /// Previews (images) read at most this much of a file.
 const MAX_PREVIEW_BYTES: u64 = 32 << 20;
+
+/// `git status` runs for closed repositories at once at most: the Repositories module asks for
+/// every grouped and recent repository together, and each run reads its whole working tree.
+const COUNT_RUNS: usize = 4;
+static COUNT_PERMITS: Semaphore = Semaphore::const_new(COUNT_RUNS);
 
 /// The status of the working tree; `None` for a bare repository. Runs `git status` every
 /// time: the working tree changes outside the app.
@@ -31,6 +37,25 @@ pub async fn status(
     let git = Git::locate().map_err(GitEnvError::from)?;
     let status = working_tree_status(&git, &work_dir, untracked, &CancellationToken::new()).await?;
     Ok(Some(status.into()))
+}
+
+/// The uncommitted files of the repository at `path` (no session: it need not be open), counted
+/// once each; `None` for a bare repository. One `git status`, at most [`COUNT_RUNS`] at a time.
+pub async fn change_counts(path: String) -> Result<Option<ChangeCountsDto>, RepositoryError> {
+    let (work_dir, untracked) = blocking(move || {
+        let repo = Repository::discover(&PathBuf::from(path))?;
+        let untracked = UntrackedFiles::configured(&repo.local());
+        Ok::<_, RepositoryError>((work_dir(&repo), untracked))
+    })
+    .await??;
+    let Some(work_dir) = work_dir else {
+        return Ok(None);
+    };
+    let git = Git::locate().map_err(GitEnvError::from)?;
+    // Never closed, so acquiring only fails if it were; then run without waiting.
+    let _permit = COUNT_PERMITS.acquire().await.ok();
+    let status = working_tree_status(&git, &work_dir, untracked, &CancellationToken::new()).await?;
+    Ok(Some(status.summary.changes.into()))
 }
 
 /// The working tree of `repo`; `None` for a bare repository.

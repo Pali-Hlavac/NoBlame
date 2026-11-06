@@ -10,7 +10,8 @@ use git_core::cli::Git;
 use git_core::diff::{DiffOptions, LineKind, read_worktree_file, worktree_diff};
 use git_core::repo::Repository;
 use git_core::status::{
-    FileState, StatusFile, StatusSummary, UntrackedFiles, WorkingTreeStatus, working_tree_status,
+    ChangeCounts, FileState, StatusFile, StatusSummary, UntrackedFiles, WorkingTreeStatus,
+    working_tree_status,
 };
 use gix::ObjectId;
 use support::Fixture;
@@ -56,6 +57,50 @@ fn changed_fixture() -> Fixture {
 }
 
 #[tokio::test]
+async fn counts_new_changed_and_deleted_files_once_each() {
+    let fixture = Fixture::new();
+    for name in ["a.txt", "b.txt", "c.txt"] {
+        write(
+            &fixture, name, "x
+",
+        );
+    }
+    fixture.git(&["add", "."]);
+    fixture.commit("base");
+    fs::remove_file(fixture.path().join("a.txt")).unwrap();
+    fixture.git(&["rm", "-q", "b.txt"]);
+    write(
+        &fixture, "c.txt", "y
+",
+    );
+    fixture.git(&["add", "c.txt"]);
+    write(
+        &fixture, "c.txt", "z
+",
+    );
+    write(
+        &fixture, "d.txt", "new
+",
+    );
+    fixture.git(&["add", "d.txt"]);
+    write(
+        &fixture,
+        "e.txt",
+        "untracked
+",
+    );
+    let status = status(&fixture, UntrackedFiles::All).await;
+    assert_eq!(
+        status.summary.changes,
+        ChangeCounts {
+            added: 2,
+            changed: 1,
+            deleted: 2
+        }
+    );
+}
+
+#[tokio::test]
 async fn lists_staged_changed_and_untracked_files() {
     let fixture = changed_fixture();
     let status = status(&fixture, UntrackedFiles::All).await;
@@ -65,7 +110,12 @@ async fn lists_staged_changed_and_untracked_files() {
             staged: 1,
             unstaged: 2,
             untracked: 3,
-            conflicted: 0
+            conflicted: 0,
+            changes: ChangeCounts {
+                added: 3,
+                changed: 2,
+                deleted: 0
+            }
         }
     );
     let staged = find(&status.staged, "a.txt");

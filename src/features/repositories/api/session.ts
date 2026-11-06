@@ -9,6 +9,7 @@ import { useSelectionStore } from "@/features/selection";
 import type { RepoSummary } from "@/shared/ipc/bindings";
 import { call, commands, unwrap } from "@/shared/ipc/client";
 
+import { changeCountKeys } from "./changeCounts";
 import { recentKeys } from "./recent";
 
 export const sessionKeys = {
@@ -42,6 +43,8 @@ export async function closeRepositorySession(
   const summary = queryClient.getQueryData<RepoSummary>(sessionKeys.byPath(path));
   queryClient.removeQueries({ queryKey: sessionKeys.byPath(path) });
   useSelectionStore.getState().clear(path);
+  // Counted from the session's status while open; closed, it runs `git status` again.
+  void queryClient.invalidateQueries({ queryKey: changeCountKeys.byPath(path) });
   if (!summary) return;
   queryClient.removeQueries({ queryKey: graphKeys.all(summary.id) });
   await call(commands.closeRepository(summary.id));

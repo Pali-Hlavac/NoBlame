@@ -37,7 +37,13 @@ function file(path: string, status: WorkingFileDto["status"]): WorkingFileDto {
 }
 
 const STATUS: WorkingTreeStatusDto = {
-  summary: { staged: 1, unstaged: 1, untracked: 0, conflicted: 1 },
+  summary: {
+    staged: 1,
+    unstaged: 1,
+    untracked: 0,
+    conflicted: 1,
+    changes: { added: 0, changed: 0, deleted: 0 },
+  },
   staged: [
     { ...file("src/new.ts", "renamed"), previousPath: "src/old.ts", newId: ID, worktree: false },
   ],

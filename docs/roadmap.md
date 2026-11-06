@@ -32,7 +32,7 @@ Legend: `[x]` done · `[ ]` to do · `[~]` partially done / deferred (see note)
 | Whole history indexed in the background        | < 30 s, UI responsive throughout     | 9–13 s without a commit-graph file; the UI waits (not background yet) |
 | Scrolling the graph                            | 60 fps, no blank rows on fast scroll | not measured yet                                                      |
 | Memory for the graph                           | < 200 bytes per commit               | 88 bytes per commit                                                   |
-| Working tree status, 100k files (fsmonitor on) | < 1 s                                | 170 ms for 40,000 files; 100k not measured yet                        |
+| Working tree status, 100k files (fsmonitor on) | < 1 s                                | about 110 ms for 120,000 files (warm, fsmonitor off; 2026-11-06)      |
 
 The first open without a commit-graph file misses the target by far. Options: offer to write
 the file earlier (it took 11 s for Linux), or show rows while indexing. Decide in M3.
@@ -460,6 +460,16 @@ custom command (a script standing in for a tool) receiving both versions, its fi
 after it closed. VS Code itself was not opened (it would have appeared on the owner's screen).
 Next: slice 7, the Repositories module counts (measured first).
 
+Slice 7 (2026-11-06): measured first ([performance.md](development/performance.md#repositories-module-counts-m4-slice-7-2026-11-06)):
+one `git status` per closed repository costs 60–130 ms warm (288 ms for the Linux clone's
+97,310 entries, 110 ms for a checked-out tree of 120,000 files), so closed repositories run
+it, at most 4 at a time; open ones reuse their session's status. Rows show `+new ~changed
+−deleted`, each file counted once against `HEAD`, behind a setting that is off by default.
+Clicked through in the dev app: the owner's repositories (counts matching `git status`), an
+open demo repository following a deleted file at once, a restored tab not shown yet (counted
+by path until its session opens; found in the click-through and fixed), and a closed one
+counted again on focus. **M4 is done.** Next: M5 (branches, tags and remotes).
+
 Decided (owner, 2026-10-28): a fresh clone of a huge repository without a commit-graph file
 takes 10.9 s to show its first rows (Linux). Option 1 now: the commit-graph offer is
 highlighted after a slow first load and names both costs (done). Option 2 later: show rows while
@@ -695,9 +705,10 @@ The Branches module gets the same entries for its rows.
 - [x] Open a file's diff in an external diff tool from the diff tab (`git difftool` settings, or
       a preset such as VS Code `code --wait --diff`). Slice 6: Git's `diff.tool`, VS Code or a
       command of one's own, all through `git difftool --no-index`
-- [ ] Repositories module: the number of added, changed and deleted files beside each
+- [x] Repositories module: the number of added, changed and deleted files beside each
       repository, behind a setting (owner request 2026-11-02). Open repositories have their
-      status already; closed ones need a `git status` each, so that is measured first
+      status already; closed ones need a `git status` each, so that is measured first. Slice 7:
+      `+3 ~2 −1` on Open, Groups and Recent rows, off by default
 
 Slices, in order (planned 2026-11-02):
 
@@ -716,7 +727,7 @@ Slices, in order (planned 2026-11-02):
    selected files), drop; the stash label in the graph. Done 2026-11-04.
 6. `.gitignore` helper, external diff tool from the diff tab, compare with the working tree
    (left from M3 slice 9). Done 2026-11-04.
-7. Repositories module counts (measured first).
+7. Repositories module counts (measured first). Done 2026-11-06.
 
 ### M5: Branches, tags and remotes
 

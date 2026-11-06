@@ -38,7 +38,12 @@ fn counts_each_kind_of_record() {
             staged: 3,
             unstaged: 2,
             untracked: 1,
-            conflicted: 1
+            conflicted: 1,
+            changes: ChangeCounts {
+                added: 1,
+                changed: 5,
+                deleted: 0
+            }
         }
     );
     assert_eq!(status.staged.len(), 3);
@@ -117,4 +122,30 @@ fn empty_output_is_clean() {
 fn rejects_other_formats() {
     assert!(WorkingTreeStatus::parse(b" M file.txt\0").is_err());
     assert!(WorkingTreeStatus::parse(b"1 M. N... 100644\0").is_err());
+}
+
+#[test]
+fn counts_each_file_once_by_what_happened_since_head() {
+    let status = parse(&[
+        format!("1 A. N... 000000 100644 100644 {NULL} {INDEX} added.txt"),
+        format!("1 AM N... 000000 100644 100644 {NULL} {INDEX} added then changed.txt"),
+        format!("1 .A N... 000000 000000 100644 {NULL} {NULL} intent to add.txt"),
+        format!("1 D. N... 100644 000000 000000 {HEAD} {NULL} removed.txt"),
+        format!("1 .D N... 100644 100644 000000 {HEAD} {HEAD} gone.txt"),
+        format!("1 MD N... 100644 100644 000000 {HEAD} {INDEX} changed then gone.txt"),
+        format!("1 MM N... 100644 100644 100644 {HEAD} {INDEX} changed twice.txt"),
+        format!("1 .T N... 100644 100644 120000 {HEAD} {HEAD} now a link"),
+        format!("2 RM N... 100644 100644 100644 {HEAD} {INDEX} R90 moved.txt"),
+        "old.txt".into(),
+        format!("u AA N... 000000 100644 100644 100644 {NULL} {INDEX} {HEAD} both added.txt"),
+        "? new.txt".into(),
+    ]);
+    assert_eq!(
+        status.summary.changes,
+        ChangeCounts {
+            added: 4,
+            changed: 4,
+            deleted: 3
+        }
+    );
 }

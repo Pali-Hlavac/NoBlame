@@ -3,6 +3,7 @@
 //! discarding, committing (with what the message box offers), stashing, and ignoring files.
 
 pub mod commands;
+mod counts;
 mod ignore;
 pub mod ignore_commands;
 mod message;
@@ -14,4 +15,5 @@ pub mod stash_commands;
 mod stash_types;
 mod types;
 
+pub use counts::ChangeCountsDto;
 pub use types::WorkingTreeStatusDto;

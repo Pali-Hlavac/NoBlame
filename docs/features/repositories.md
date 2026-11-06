@@ -99,6 +99,33 @@ cached. Deleting the folder is always safe.
 - Stored in `recent-repositories.json` in the platform config directory. If the file cannot be
   written, the repository still opens and a warning is logged.
 
+## Uncommitted file counts
+
+Owner request 2026-11-02, M4 slice 7. With **Settings → Repositories → Show the number of
+uncommitted files beside repositories** (off by default), each repository row in the
+Repositories module (Open, Groups, Recent; not submodules) shows its uncommitted files at the
+right end: `+3 ~2 −1` for new, changed and deleted files, zeros left out, nothing when the
+working tree is clean or the repository is bare. Pointing at it says "3 new, 2 changed and 1
+deleted files not committed"; screen readers read that after the name.
+
+- Each file counts once, staged or not, by what happened to it since `HEAD`: new (untracked,
+  added, or added with `--intent-to-add`), deleted (from the index or the working tree), or
+  changed (modified, type changed, renamed, copied, conflicted). A file added and then changed
+  again is new. Counted while parsing `git status` (`ChangeCounts` in
+  `git_core::status::summary`), so all files count, not only the 5,000 listed.
+- **Open repositories** use their session's status (`get_status`, `summary.changes`): no extra
+  `git status`, and the file watcher keeps it current. A group's repository that is open does
+  the same.
+- **Closed repositories** (in a group or under Recent) run `get_change_counts(path)`: one
+  `git status --porcelain=v2 -z` with the repository's `status.showUntrackedFiles`, no session.
+  At most 4 run at once (`COUNT_RUNS`), so twenty recent repositories never start twenty gits.
+  They are counted when the module shows them and again when the window regains focus, if the
+  counts are older than 15 s (`CLOSED_COUNTS_STALE_MS`); closing a repository's tab counts it
+  again. A failure (an untrusted repository, a broken one) shows no counts; a missing folder is
+  not read.
+- With the setting off nothing runs. Timings are in
+  [performance.md](../development/performance.md#repositories-module-counts-m4-slice-7-2026-11-06).
+
 ## Sections
 
 The module has three sections: **Open**, **Groups** and **Recent** (Recent only when a recent

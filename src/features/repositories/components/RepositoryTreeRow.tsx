@@ -29,6 +29,8 @@ interface RepositoryTreeRowProps extends Omit<ComponentProps<"div">, "title" | "
   dimmed?: boolean;
   /** Shown at the right end, e.g. a remove button. */
   actions?: ReactNode;
+  /** Shown after the name, right-aligned, e.g. the uncommitted file counts. */
+  badge?: ReactNode;
   /** Replaces the name, e.g. with a field to rename it. */
   labelSlot?: ReactNode;
 }
@@ -48,6 +50,7 @@ export function RepositoryTreeRow(props: RepositoryTreeRowProps) {
     emphasized,
     dimmed,
     actions,
+    badge,
     labelSlot,
     className,
     style,
@@ -94,6 +97,7 @@ export function RepositoryTreeRow(props: RepositoryTreeRowProps) {
         >
           <Icon className={cn("size-4 shrink-0", KIND_ICON_CLASSES[iconKind])} aria-hidden />
           <span className={cn("truncate", emphasized && "font-medium")}>{label}</span>
+          {badge}
         </button>
       )}
       {actions}

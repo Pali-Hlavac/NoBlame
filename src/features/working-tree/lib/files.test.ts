@@ -3,7 +3,13 @@ import type { WorkingTreeStatusDto } from "@/shared/ipc/bindings";
 import { filesOf, totalOf } from "./files";
 
 const STATUS: WorkingTreeStatusDto = {
-  summary: { staged: 2, unstaged: 3, untracked: 4, conflicted: 1 },
+  summary: {
+    staged: 2,
+    unstaged: 3,
+    untracked: 4,
+    conflicted: 1,
+    changes: { added: 0, changed: 0, deleted: 0 },
+  },
   staged: [],
   unstaged: [],
 };

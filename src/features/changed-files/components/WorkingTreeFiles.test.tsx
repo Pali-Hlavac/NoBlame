@@ -25,7 +25,13 @@ function file(path: string, status: WorkingFileDto["status"], worktree = true): 
 }
 
 const STATUS: WorkingTreeStatusDto = {
-  summary: { staged: 1, unstaged: 1, untracked: 1, conflicted: 1 },
+  summary: {
+    staged: 1,
+    unstaged: 1,
+    untracked: 1,
+    conflicted: 1,
+    changes: { added: 0, changed: 0, deleted: 0 },
+  },
   staged: [{ ...file("src/staged.ts", "added", false), oldId: null, newId: INDEX }],
   unstaged: [
     file("src/both.ts", "conflicted"),

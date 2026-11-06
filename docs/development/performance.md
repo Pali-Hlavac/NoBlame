@@ -178,8 +178,8 @@ new files about 40 ms; the Linux kernel clone (no files checked out, so all 97,3
 staged deletions; the list keeps 5,000) about 260 ms (780 ms cold). Reading a changed file as
 git would store it takes about 35 ms the first time (gix loads the index and `.gitattributes`
 for the filter pipeline) and under 1 ms after that; diffing small files is microseconds. A
-checked-out 100k+ file tree is still to be measured, and gix status to be benchmarked against
-git there.
+checked-out tree of 120,000 files: see the Repositories module counts below. gix status is
+still to be benchmarked against git.
 
 ### Staging and committing (M4 slice 2, 2026-11-03)
 
@@ -208,6 +208,28 @@ Recent messages (M4 slice 4, 2026-11-04, release `status_spike`): the worst case
 with no commits, so all 2,000 commits are read. Linux kernel: 32 ms warm, 0.51 s on the first
 read of the pack after a restart; 20 messages of anyone 10 ms. synthetic-1m: 0.43 s cold. They
 are read only when the **Recent** menu opens, on a blocking thread.
+
+### Repositories module counts (M4 slice 7, 2026-11-06)
+
+Measured before building the counts: each closed repository costs one
+`git --no-optional-locks status --porcelain=v2 -z --untracked-files=all` (Windows 11, git
+2.56.0, warm, best of 3; about 50 ms of each is starting git on Windows):
+
+| Repository                                                 | One run    | Notes                                                                                       |
+| ---------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------- |
+| NoBlame (this repository, 42 changed files)                | 62 ms      |                                                                                             |
+| git.git shared clone (4,857 files)                         | 132 ms     |                                                                                             |
+| synthetic-10k / synthetic-1m (2,000 / 40,000 files)        | 90 / 79 ms |                                                                                             |
+| Linux clone, nothing checked out (97,310 staged deletions) | 288 ms     | 780 ms cold                                                                                 |
+| 120,000 committed files in 1,200 folders, checked out      | 110 ms     | the same with fsmonitor and the untracked cache off (Git for Windows' `core.fscache` is on) |
+
+The six repositories of the first rows at once took 334 ms; four runs on the 120,000-file
+tree at once 199 ms. `--untracked-files=normal` was no faster on these trees. So the counts
+run for every closed repository, at most 4 at a time (`COUNT_RUNS`), when the module shows
+them and on window focus (if older than 15 s); open repositories reuse their session's status
+and cost nothing extra. Parsing counts all files, not only the 5,000 listed. Cold disks and
+much larger trees will be slower; the setting is off by default for that reason. The
+120,000-file tree took 946 s to `git add` once (Defender scanning each new file).
 
 ### Ignore preview (M4 slice 6, 2026-11-04)
 

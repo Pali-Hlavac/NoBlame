@@ -125,6 +125,12 @@ Use `target\debug\noblame.exe` while the dev app runs.
   - Notes:
 - [ ] Settings → switch off the **…** button: it disappears.
   - Notes:
+- [ ] (new, M4 slice 7) Settings → Repositories → **Show the number of uncommitted files beside
+      repositories**. Edit a file and create one in an open repository: its row shows `+1 ~1`
+      within a moment. Change a file of a repository under Recent or in a group in a terminal,
+      switch back to NoBlame: its count appears. Pointing at the numbers names them. Switch the
+      setting off: the numbers go.
+  - Notes:
 - [ ] **(new)** Click a section title (Open, Groups, Recent): it folds. Drag a title onto
       another section to reorder; Alt+Up / Alt+Down on a title does the same. Restart: kept.
   - Notes:

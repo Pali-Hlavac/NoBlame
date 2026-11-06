@@ -35,7 +35,13 @@ function file(path: string, overrides: Partial<WorkingFileDto>): WorkingFileDto 
 }
 
 const STATUS: WorkingTreeStatusDto = {
-  summary: { staged: 1, unstaged: 2, untracked: 0, conflicted: 0 },
+  summary: {
+    staged: 1,
+    unstaged: 2,
+    untracked: 0,
+    conflicted: 0,
+    changes: { added: 0, changed: 0, deleted: 0 },
+  },
   staged: [file("a.txt", { oldId: HEAD, newId: INDEX, worktree: false })],
   unstaged: [file("a.txt", {}), file("gone.txt", { status: "deleted", worktree: false })],
 };

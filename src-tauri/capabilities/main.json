@@ -57,6 +57,7 @@
     "allow-list-refs",
     "allow-list-stashes",
     "allow-get-status",
+    "allow-get-change-counts",
     "allow-get-worktree-file-id",
     "allow-get-worktree-file-contents",
     "allow-stage-files",

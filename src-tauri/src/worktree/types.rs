@@ -5,6 +5,8 @@ use git_core::status::{FileState, StatusFile, StatusSummary, WorkingTreeStatus};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
+use super::ChangeCountsDto;
+
 /// Number of files in each state; a file staged and changed again counts in both.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Type)]
 #[serde(rename_all = "camelCase")]
@@ -17,6 +19,8 @@ pub struct StatusSummaryDto {
     pub untracked: u32,
     /// Files with merge conflicts.
     pub conflicted: u32,
+    /// The same files counted once each: new, changed or deleted since `HEAD`.
+    pub changes: ChangeCountsDto,
 }
 
 impl From<StatusSummary> for StatusSummaryDto {
@@ -26,6 +30,7 @@ impl From<StatusSummary> for StatusSummaryDto {
             unstaged: summary.unstaged,
             untracked: summary.untracked,
             conflicted: summary.conflicted,
+            changes: summary.changes.into(),
         }
     }
 }

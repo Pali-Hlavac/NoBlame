@@ -151,6 +151,11 @@ export const commands = {
 	 */
 	getStatus: (id: number) => typedError<WorkingTreeStatusDto | null, AppError>(__TAURI_INVOKE("get_status", { id })),
 	/**
+	 *  The uncommitted files of the repository at `path`, open or not, counted once each as new,
+	 *  changed or deleted (`null` for a bare repository). Runs `git status`.
+	 */
+	getChangeCounts: (path: string) => typedError<ChangeCountsDto | null, AppError>(__TAURI_INVOKE("get_change_counts", { path })),
+	/**
 	 *  The blob id the working tree file at `path` would have (`git hash-object`); `null` when
 	 *  nothing or a folder is there. Diffs and previews of the file name it by this id.
 	 */
@@ -359,6 +364,16 @@ export type BranchSort =
 export type BranchesSettings = {
 	/**  Order of the branches and tags in each section. */
 	sort?: BranchSort,
+};
+
+/**  Uncommitted files counted once each, staged or not (the Repositories module's counts). */
+export type ChangeCountsDto = {
+	/**  New files: untracked or added. */
+	added: number,
+	/**  Changed, renamed, copied or conflicted files. */
+	changed: number,
+	/**  Deleted files. */
+	deleted: number,
 };
 
 /**  How a file changed. */
@@ -1122,6 +1137,11 @@ export type RepositoriesSection =
 export type RepositoriesSettings = {
 	/**  Each repository row has a "…" button with its actions. */
 	showActionsMenu?: boolean,
+	/**
+	 *  Each repository shows how many files are new, changed and deleted but not committed
+	 *  (closed repositories run `git status` for it, so it is off by default).
+	 */
+	showChangeCounts?: boolean,
 	/**  Order of the module's sections, top to bottom (the UI adds any that are missing). */
 	sections?: RepositoriesSection[],
 	/**  Sections shown folded. */
@@ -1333,6 +1353,8 @@ export type StatusSummaryDto = {
 	untracked: number,
 	/**  Files with merge conflicts. */
 	conflicted: number,
+	/**  The same files counted once each: new, changed or deleted since `HEAD`. */
+	changes: ChangeCountsDto,
 };
 
 /**  A submodule and its own submodules. */

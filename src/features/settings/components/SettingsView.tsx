@@ -131,6 +131,17 @@ export function SettingsView() {
               }));
             }}
           />
+          <Toggle
+            label="Show the number of uncommitted files beside repositories"
+            description="New, changed and deleted files, counted again when NoBlame regains focus. Closed repositories run git status for it, which takes longer on very large working trees."
+            checked={settings.repositories.showChangeCounts}
+            onChange={(checked) => {
+              change((current) => ({
+                ...current,
+                repositories: { ...current.repositories, showChangeCounts: checked },
+              }));
+            }}
+          />
         </Section>
         <Section title="Keyboard shortcuts">
           <p className="text-sm text-muted-foreground">

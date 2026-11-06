@@ -32,6 +32,7 @@ impl WorkingTreeStatus {
                 Some(b'?') => {
                     let path = record.get(2..).ok_or_else(|| invalid(record))?;
                     status.summary.untracked += 1;
+                    status.summary.changes.added += 1;
                     status.unstaged.push(StatusFile {
                         path: path.into(),
                         previous_path: None,
@@ -66,6 +67,7 @@ impl WorkingTreeStatus {
             return Err(invalid(record));
         };
         let (head_id, index_id) = (object_id(head_id, record)?, object_id(index_id, record)?);
+        self.summary.changes.count_change(index, work_tree);
         if index != b'.' {
             self.summary.staged += 1;
             self.staged.push(StatusFile {
@@ -99,6 +101,7 @@ impl WorkingTreeStatus {
     fn add_conflict(&mut self, record: &[u8]) -> Result<(), StatusError> {
         let (fields, path) = split_record(record, UNMERGED_FIELDS)?;
         self.summary.conflicted += 1;
+        self.summary.changes.changed += 1;
         self.unstaged.push(StatusFile {
             path: path.into(),
             previous_path: None,

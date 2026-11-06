@@ -19,6 +19,7 @@ import {
 import { placeRepository, removeRepository, repositoryDropIndex } from "../lib/groups";
 import { repositoryName, repositoryTab } from "../lib/path";
 import { OpenTabsContext } from "./openTabsContext";
+import { RepositoryChangeCounts } from "./ChangeCounts";
 import { RepositoryActions } from "./RepositoryActionsMenu";
 import { RepositoryContextMenu } from "./RepositoryContextMenu";
 import { RepositoryTreeRow } from "./RepositoryTreeRow";
@@ -41,7 +42,7 @@ interface GroupedRepositoryProps {
  */
 export function GroupedRepository({ group, path, missing }: GroupedRepositoryProps) {
   const edit = useEditGroups();
-  const { ids, activeId } = useContext(OpenTabsContext);
+  const { ids, paths, activeId } = useContext(OpenTabsContext);
   const tabId = repositoryTab(path).id;
   const name = repositoryName(path);
   // Read from the folder, so they show without opening the repository (as in Open).
@@ -77,6 +78,13 @@ export function GroupedRepository({ group, path, missing }: GroupedRepositoryPro
           current={activeId === tabId}
           emphasized={ids.has(tabId)}
           dimmed={missing}
+          badge={
+            <RepositoryChangeCounts
+              path={path}
+              sessionPath={paths.get(tabId)}
+              available={!missing}
+            />
+          }
           draggable
           onDragStart={(event) => {
             startRepositoryDrag(event, { path, fromGroup: group.id });

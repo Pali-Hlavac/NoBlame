@@ -16,7 +16,7 @@ use tokio_util::sync::CancellationToken;
 
 use crate::cli::{Git, GitError};
 
-pub use summary::StatusSummary;
+pub use summary::{ChangeCounts, StatusSummary};
 
 /// Files listed at most in each list; the summary still counts them all.
 pub const MAX_STATUS_FILES: usize = 5_000;

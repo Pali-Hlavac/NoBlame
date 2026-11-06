@@ -109,6 +109,7 @@ export function RepositoriesModule() {
   const createRepository = useCreateRepository();
   const open = tabs.filter((tab): tab is RepositoryTab => tab.kind === "repository");
   const openIds = new Set(open.map((tab) => tab.id));
+  const openPaths = new Map(open.map((tab) => [tab.id, tab.path]));
   const trees = useSubmoduleTrees(open.map((tab) => tab.path)).map((query) => query.data ?? []);
   // Open submodules appear inside their parent's tree, not as repositories of their own.
   const nested = submoduleTabIds(trees);
@@ -149,7 +150,9 @@ export function RepositoriesModule() {
           onClick={() => void createRepository.create()}
         />
       </div>
-      <OpenTabsContext.Provider value={{ ids: openIds, activeId: activeRepositoryTabId }}>
+      <OpenTabsContext.Provider
+        value={{ ids: openIds, paths: openPaths, activeId: activeRepositoryTabId }}
+      >
         <div className="min-h-0 flex-1 space-y-2 overflow-auto p-1">
           <ModuleSections
             open={

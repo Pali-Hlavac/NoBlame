@@ -5,7 +5,7 @@ use tauri::State;
 use super::partial::{self, LineAction};
 use super::staging::{self, Scope};
 use super::types::{CommitDefaultsDto, CommitRequestDto, CommitResultDto, LineChangeDto};
-use super::{WorkingTreeStatusDto, message, service};
+use super::{ChangeCountsDto, WorkingTreeStatusDto, message, service};
 use crate::error::CommandResult;
 use crate::repository::{RawBytes, RepoId, RepoSessions};
 
@@ -18,6 +18,14 @@ pub async fn get_status(
     id: RepoId,
 ) -> CommandResult<Option<WorkingTreeStatusDto>> {
     Ok(service::status(&sessions, id).await?)
+}
+
+/// The uncommitted files of the repository at `path`, open or not, counted once each as new,
+/// changed or deleted (`null` for a bare repository). Runs `git status`.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_change_counts(path: String) -> CommandResult<Option<ChangeCountsDto>> {
+    Ok(service::change_counts(path).await?)
 }
 
 /// The blob id the working tree file at `path` would have (`git hash-object`); `null` when

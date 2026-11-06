@@ -61,6 +61,9 @@ pub enum BranchSort {
 pub struct RepositoriesSettings {
     /// Each repository row has a "…" button with its actions.
     pub show_actions_menu: bool,
+    /// Each repository shows how many files are new, changed and deleted but not committed
+    /// (closed repositories run `git status` for it, so it is off by default).
+    pub show_change_counts: bool,
     /// Order of the module's sections, top to bottom (the UI adds any that are missing).
     pub sections: Vec<RepositoriesSection>,
     /// Sections shown folded.
@@ -71,6 +74,7 @@ impl Default for RepositoriesSettings {
     fn default() -> Self {
         Self {
             show_actions_menu: true,
+            show_change_counts: false,
             sections: vec![
                 RepositoriesSection::Open,
                 RepositoriesSection::Groups,

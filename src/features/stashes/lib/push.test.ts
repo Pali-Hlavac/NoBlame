@@ -15,7 +15,13 @@ function file(path: string, status: WorkingFileDto["status"], previousPath?: str
 }
 
 const STATUS: WorkingTreeStatusDto = {
-  summary: { staged: 2, unstaged: 1, untracked: 1, conflicted: 0 },
+  summary: {
+    staged: 2,
+    unstaged: 1,
+    untracked: 1,
+    conflicted: 0,
+    changes: { added: 0, changed: 0, deleted: 0 },
+  },
   staged: [file("b.txt", "modified"), file("new/c.txt", "renamed", "old/c.txt")],
   unstaged: [file("b.txt", "modified"), file("a.txt", "untracked")],
 };

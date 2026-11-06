@@ -94,6 +94,7 @@ Settings shown there (stored in `settings.json`, see `src-tauri/src/settings/typ
 | Commit graph | Highlight the selected commit                                 | on      |
 | Commit graph | Show uncommitted changes as (rows, header summary, not shown) | rows    |
 | Repositories | Show the actions button (…) on repositories                   | on      |
+| Repositories | Show the number of uncommitted files beside repositories      | off     |
 
 **Keyboard shortcuts** are listed as arriving in M7 (configurable shortcuts).
 

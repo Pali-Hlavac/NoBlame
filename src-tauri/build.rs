@@ -51,6 +51,7 @@ const APP_COMMANDS: &[&str] = &[
     "list_stashes",
     "list_submodules",
     "get_status",
+    "get_change_counts",
     "get_worktree_file_id",
     "get_worktree_file_contents",
     "stage_files",
