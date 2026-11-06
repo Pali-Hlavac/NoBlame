@@ -56,6 +56,15 @@ pub enum BranchError {
     /// git printed something this module could not read.
     #[error("unexpected output from git: {0}")]
     Parse(String),
+    /// HEAD is not on a branch (detached), so there is no current branch to push or pull.
+    #[error("HEAD is not on a branch")]
+    Detached,
+    /// The branch has no upstream on a named remote, so a plain push does not know where to go.
+    #[error("{branch} has no upstream on a remote")]
+    NoRemoteUpstream {
+        /// The branch (`feature/x`).
+        branch: String,
+    },
 }
 
 /// What kind of name is checked (the prefix it gets under `refs/`).

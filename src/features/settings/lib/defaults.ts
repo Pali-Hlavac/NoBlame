@@ -40,6 +40,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   repositories: {
     showActionsMenu: true,
     showChangeCounts: false,
+    buttons: [],
     sections: ["open", "groups", "recent"],
     collapsedSections: [],
   },

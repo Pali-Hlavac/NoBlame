@@ -194,6 +194,11 @@ export const commands = {
 	pullRepository: (request: PullRequestDto) => typedError<number, AppError>(__TAURI_INVOKE("pull_repository", { request })),
 	/**  Starts `git push` (a branch, a tag, or deleting one on the remote). */
 	pushRepository: (request: PushRequestDto) => typedError<number, AppError>(__TAURI_INVOKE("push_repository", { request })),
+	/**
+	 *  Starts `git push` of the current branch of the repository at `path` to its upstream (open or
+	 *  not); refused when HEAD is detached or the branch has no upstream on a remote.
+	 */
+	pushCurrentBranch: (path: string) => typedError<number, AppError>(__TAURI_INVOKE("push_current_branch", { path })),
 	/**  The remotes of the repository at `path`, sorted. */
 	listRemotes: (path: string) => typedError<string[], AppError>(__TAURI_INVOKE("list_remotes", { path })),
 	/**  Prompts waiting for an answer, oldest first (read on start and on `CredentialRequested`). */
@@ -1463,11 +1468,24 @@ export type RepositoriesSettings = {
 	 *  (closed repositories run `git status` for it, so it is off by default).
 	 */
 	showChangeCounts?: boolean,
+	/**  Quick buttons shown on repository and group rows (on hover or focus); none by default. */
+	buttons?: RepositoryButton[],
 	/**  Order of the module's sections, top to bottom (the UI adds any that are missing). */
 	sections?: RepositoriesSection[],
 	/**  Sections shown folded. */
 	collapsedSections?: RepositoriesSection[],
 };
+
+/**  A quick button on the rows of the Repositories module. */
+export type RepositoryButton = 
+/**  Pull on each repository. */
+"pull" | 
+/**  Push (the current branch to its upstream) on each repository. */
+"push" | 
+/**  Pull all on each group. */
+"pullAll" | 
+/**  Push all on each group. */
+"pushAll";
 
 /**
  *  A repository changed outside the app. The frontend reloads the graph (and everything read

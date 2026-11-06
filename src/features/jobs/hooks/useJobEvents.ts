@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { events, type JobDto } from "@/shared/ipc/bindings";
 
 import { jobKeys, withJob } from "../api/jobs";
+import { batchJobEnded } from "../lib/batch";
 import { repositoryName } from "../lib/format";
 import { showJobs } from "../store/panel";
 
@@ -47,7 +48,10 @@ export function useJobEvents(): void {
         .getQueryData<JobDto[]>(jobKeys.list())
         ?.find((other) => other.id === job.id);
       queryClient.setQueryData<JobDto[]>(jobKeys.list(), (jobs) => withJob(jobs, job));
-      if (job.state !== "running" && before?.state !== job.state) announce(job);
+      // A batch's jobs are summed up together when its last one ends.
+      if (job.state !== "running" && before?.state !== job.state && !batchJobEnded(job)) {
+        announce(job);
+      }
     });
     return () => {
       void unlisten.then((stop) => {

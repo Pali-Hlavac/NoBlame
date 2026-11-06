@@ -34,6 +34,16 @@ pub(super) fn branch_error(error: BranchError) -> AppError {
             format!("{name} changed since it was shown, so nothing was done."),
         )
         .with_hint("The graph and the Branches module show it as it is now; try again there."),
+        BranchError::Detached => AppError::new(
+            ErrorCode::InvalidInput,
+            "HEAD is not on a branch, so there is nothing to push.",
+        )
+        .with_hint("Check out a branch first, or push a commit with Push… on a branch."),
+        BranchError::NoRemoteUpstream { branch } => AppError::new(
+            ErrorCode::InvalidInput,
+            format!("{branch} has no upstream on a remote, so Push does not know where to send it."),
+        )
+        .with_hint("With the repository active, choose Push… (beside Push in the toolbar) to pick the remote and make it the upstream."),
         error @ BranchError::Parse(_) => {
             tracing::error!(%error, "rev-list output not understood");
             AppError::new(

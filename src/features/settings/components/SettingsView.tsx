@@ -8,6 +8,7 @@ import { THEME_OPTIONS } from "../lib/theme";
 import { ContextStepper } from "./ContextStepper";
 import { ExternalToolSetting } from "./ExternalToolSetting";
 import { GraphColumnsSetting } from "./GraphColumnsSetting";
+import { RepositoryButtonsSetting } from "./RepositoryButtonsSetting";
 import { Choice, Section, Toggle } from "./SettingControls";
 
 /** Milestone that makes keyboard shortcuts configurable (shown in the UI as planned). */
@@ -142,6 +143,7 @@ export function SettingsView() {
               }));
             }}
           />
+          <RepositoryButtonsSetting />
         </Section>
         <Section title="Keyboard shortcuts">
           <p className="text-sm text-muted-foreground">

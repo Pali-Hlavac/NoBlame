@@ -1,4 +1,8 @@
-/** Actions in the "…" menu of the repositories in the Repositories module (open and grouped). */
+/**
+ * Actions in the "…" menu and quick buttons of the repositories in the Repositories module (open,
+ * grouped and recent), and on its groups. Pull, Fetch and Push work on closed repositories too:
+ * their jobs only need the folder.
+ */
 import {
   ArrowDownToLineIcon,
   ArrowUpFromLineIcon,
@@ -10,11 +14,11 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { openRepositories, type RepositoryAction } from "@/features/repositories";
+import { startBatch, startJob, startPull, startPushCurrent } from "@/features/jobs";
+import { openRepositories, type GroupAction, type RepositoryAction } from "@/features/repositories";
 import { useTabsStore } from "@/features/workspace";
 import { openCommit } from "./commit";
 import { fetchRepository } from "./remote";
-import { REMOTE_MILESTONE } from "./milestones";
 
 /** Pulling, fetching and pushing are about branches and remotes. */
 const BRANCHES = "branches";
@@ -26,7 +30,12 @@ export const REPOSITORY_ACTIONS: readonly RepositoryAction[] = [
     label: "Pull",
     icon: ArrowDownToLineIcon,
     kind: BRANCHES,
-    milestone: REMOTE_MILESTONE,
+    button: "pull",
+    job: "pull",
+    // As the toolbar's Pull: the way the repository's config says.
+    run: ({ path }) => {
+      startJob(startPull({ path, mode: "default" }), "pull");
+    },
   },
   {
     id: "fetch",
@@ -43,7 +52,12 @@ export const REPOSITORY_ACTIONS: readonly RepositoryAction[] = [
     label: "Push",
     icon: ArrowUpFromLineIcon,
     kind: BRANCHES,
-    milestone: REMOTE_MILESTONE,
+    button: "push",
+    job: "push",
+    // The current branch to its upstream; without one the toast says to use Push… instead.
+    run: ({ path }) => {
+      startJob(startPushCurrent(path), "push");
+    },
   },
   {
     id: "commit",
@@ -85,6 +99,40 @@ export const REPOSITORY_ACTIONS: readonly RepositoryAction[] = [
     when: "open",
     run: ({ tabId }) => {
       useTabsStore.getState().closeTab(tabId);
+    },
+  },
+];
+
+/** Every repository of a group, one job each, summed up in one toast when all have ended. */
+export const GROUP_ACTIONS: readonly GroupAction[] = [
+  {
+    id: "pull-all",
+    label: "Pull all",
+    icon: ArrowDownToLineIcon,
+    kind: BRANCHES,
+    button: "pullAll",
+    job: "pull",
+    // Merging, as asked for: a rebase stopped by conflicts in one of many repositories is
+    // harder to notice and finish than a merge.
+    run: ({ name, paths }) => {
+      startBatch(
+        `Pull all in ${name}`,
+        paths.map((path) => ({ path, start: () => startPull({ path, mode: "merge" }) })),
+      );
+    },
+  },
+  {
+    id: "push-all",
+    label: "Push all",
+    icon: ArrowUpFromLineIcon,
+    kind: BRANCHES,
+    button: "pushAll",
+    job: "push",
+    run: ({ name, paths }) => {
+      startBatch(
+        `Push all in ${name}`,
+        paths.map((path) => ({ path, start: () => startPushCurrent(path) })),
+      );
     },
   },
 ];

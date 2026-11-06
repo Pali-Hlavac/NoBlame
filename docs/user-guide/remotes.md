@@ -51,6 +51,21 @@ On a tag, **Push…** sends the tag. **Delete on the remote…** (on a remote br
 `origin/feature`) or **Delete on a remote…** (on a tag) removes it on the remote for everyone,
 after asking.
 
+## In the Repositories module
+
+You can pull and push repositories without opening them:
+
+- A repository's **…** menu has **Pull** and **Push**. Pull works like the toolbar's Pull;
+  Push sends the current branch to its upstream. If the branch has none yet, NoBlame says so:
+  open the repository and use **Push…** once to choose where.
+- A group's **…** menu has **Pull all** and **Push all**: every repository in the group at
+  once. Pull all always merges. When all of them have finished, one message sums it up, for
+  example "Pull all in Work: 3 done, 1 failed", with the failed ones first and what to do about
+  them.
+- To have buttons for these on the rows themselves, choose them in **Settings → Repositories →
+  Quick buttons**. They appear when you point at a row, and show a spinning circle while the
+  pull or push runs.
+
 ## While it runs
 
 You can keep working. The status bar at the bottom shows what is running and how far it got.

@@ -7,7 +7,7 @@ use std::sync::Arc;
 use git_core::branch::{RefNamespace, validate_name};
 use git_core::remote::{
     Lease, PullMode, PushOptions, PushWhat, describe_pull, describe_push, pull_command, pull_hint,
-    push_command, push_hint, remote_names, summarize_push,
+    push_command, push_hint, remote_names, summarize_push, upstream_push,
 };
 
 use super::registry::{JobRegistry, JobSpec};
@@ -63,13 +63,11 @@ pub async fn push(
         PushWhatDto::Branch(branch) => {
             validate_name(RefNamespace::Branch, &branch.local)?;
             validate_name(RefNamespace::Branch, &branch.remote_branch)?;
-            let to = if branch.remote_branch == branch.local {
-                remote.clone()
-            } else {
-                format!("{remote}/{}", branch.remote_branch)
-            };
             let force = if branch.force { " (force)" } else { "" };
-            let title = format!("Push {} to {to}{force}", branch.local);
+            let title = format!(
+                "{}{force}",
+                branch_title(&branch.local, &remote, &branch.remote_branch)
+            );
             let force = if branch.force {
                 Some(match branch.expected {
                     Some(id) => Lease::At(parse_object_id(&id)?),
@@ -110,16 +108,64 @@ pub async fn push(
             (PushWhat::Delete(reference), title)
         }
     };
-    let options = PushOptions { remote, what };
+    start_push(
+        registry,
+        &target,
+        request.path,
+        PushOptions { remote, what },
+        title,
+    )
+}
+
+/// Starts `git push` of the current branch to its upstream: the repository's quick Push and
+/// Push all, which have no dialog to ask where.
+pub async fn push_current(
+    registry: &Arc<JobRegistry>,
+    path: String,
+) -> Result<JobId, RepositoryError> {
+    let target = JobTarget::open(&path).await?;
+    let repo = target.repo.clone();
+    let upstream = blocking(move || upstream_push(&repo.local())).await??;
+    let title = branch_title(&upstream.branch, &upstream.remote, &upstream.remote_branch);
+    let what = PushWhat::Branch {
+        local: upstream.branch,
+        remote_branch: upstream.remote_branch,
+        set_upstream: false,
+        follow_tags: false,
+        force: None,
+    };
+    let options = PushOptions {
+        remote: upstream.remote,
+        what,
+    };
+    start_push(registry, &target, path, options, title)
+}
+
+fn start_push(
+    registry: &Arc<JobRegistry>,
+    target: &JobTarget,
+    path: String,
+    options: PushOptions,
+    title: String,
+) -> Result<JobId, RepositoryError> {
     let command = push_command(&target.git, &target.dir, &options).map_err(GitEnvError::from)?;
     Ok(registry.start(JobSpec {
         kind: JobKindDto::Push,
         title,
-        repo_path: request.path,
+        repo_path: path,
         command,
         describe: Box::new(|output| describe_push(summarize_push(&output.stdout_lossy()))),
         hint: Some(push_hint),
     }))
+}
+
+/// `Push main to origin`, or `Push main to origin/release` when the names differ.
+fn branch_title(local: &str, remote: &str, remote_branch: &str) -> String {
+    if remote_branch == local {
+        format!("Push {local} to {remote}")
+    } else {
+        format!("Push {local} to {remote}/{remote_branch}")
+    }
 }
 
 /// The repository's remotes, sorted.

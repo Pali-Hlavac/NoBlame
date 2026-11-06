@@ -146,17 +146,6 @@ describe("repository groups", () => {
     });
   });
 
-  it("lists pulling and pushing a whole group as coming in M5", async () => {
-    const user = userEvent.setup();
-    renderModule([WORK]);
-    await user.click(await screen.findByRole("button", { name: "Actions for the group Work" }));
-    expect(screen.getByRole("menuitem", { name: /Pull all/ })).toHaveAttribute(
-      "aria-disabled",
-      "true",
-    );
-    expect(screen.getByRole("menuitem", { name: /Push all.*M5/ })).toBeVisible();
-  });
-
   it("removes a repository from its group with the … button", async () => {
     const user = userEvent.setup();
     renderModule([WORK]);

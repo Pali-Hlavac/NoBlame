@@ -46,11 +46,27 @@ and closed when the tab is closed. Reopening the repository later opens a new se
 
 In the Repositories module, every repository row has a **…** button (on hover or focus): open
 repositories, repositories in groups (open or not) and initialized submodules. It offers Copy
-path, Open (only when not open) and Close (only when open), **Fetch** (a background job, open or
-not; [remotes.md](remotes.md)), Commit…, and Pull and Push as labelled placeholders until M5; in a group also **Remove from group**. The app shell
-supplies the actions (`src/app/workbench/repositoryActions.ts`, `when: "open" | "closed"`,
-filtered by `actionsFor`); a row adds its own items with `extra`. **Settings → Repositories**
-hides the button. See [workbench.md](workbench.md#modules).
+path, Open (only when not open) and Close (only when open), **Pull**, **Fetch** and **Push**
+(background jobs, open or not; [remotes.md](remotes.md#repositories-module)), Commit…; in a
+group also **Remove from group**. The app shell supplies the actions
+(`src/app/workbench/repositoryActions.ts`, `when: "open" | "closed"`, filtered by
+`actionsFor`); a row adds its own items with `extra`. **Settings → Repositories** hides the
+button. See [workbench.md](workbench.md#modules).
+
+## Quick buttons
+
+Owner requests 2026-10-28 and 2026-11-02, M5 slice 6. **Settings → Repositories → Quick
+buttons** (`repositories.buttons`, none by default) adds icon buttons before the **…** button,
+shown on hover or focus like it:
+
+- **Pull** and **Push** on each repository row (Open, Groups and Recent; not submodules or
+  missing folders): the same actions as in the **…** menu (`button: "pull" | "push"` on a
+  `RepositoryAction`).
+- **Pull all** and **Push all** on each group row (`GroupAction`s from `GroupActionsContext`,
+  also listed in the group's menu after Open all; disabled for an empty group).
+- While a job of the button's kind runs on that repository (or any repository of the group), the
+  button shows a spinner, stays visible and is disabled (`useJobRunning`), so a second pull
+  cannot start on top of the first. Named "Pull api", "Push all in Work" (with "(running)").
 
 Icons take the kind colours used across the app ([workbench.md](workbench.md#colours-by-kind-of-work)):
 groups and the group entries of menus `groups` (orange), repositories, Open and Create
@@ -153,9 +169,9 @@ Open and Recent). Owner request 2026-11-02.
   with `list_submodules`, so the repository need not be open; foldable).
 - A grouped repository opens (or shows) its tab on click, is bold while open, and dimmed when
   its folder is gone. Right-click → **Move to group** or **Remove from group**.
-- The group's menu: **Open all**, **Pull all** and **Push all** (shown disabled, M5), Rename,
-  Move up/down, **Delete group…** (asks first when it holds repositories; the repositories
-  themselves are not touched).
+- The group's menu: **Open all**, **Pull all** and **Push all** (one job per repository;
+  [remotes.md](remotes.md#repositories-module)), Rename, Move up/down, **Delete group…** (asks
+  first when it holds repositories; the repositories themselves are not touched).
 - Stored in `repository-groups.json` in the platform config directory:
   `get_repository_groups` and `save_repository_groups` (the whole list; small). Saving cleans the
   list up (repeated ids and paths dropped, names trimmed to 100 characters, an empty name becomes

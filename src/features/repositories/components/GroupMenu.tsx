@@ -1,7 +1,5 @@
 import {
   ArrowDownIcon,
-  ArrowDownToLineIcon,
-  ArrowUpFromLineIcon,
   ArrowUpIcon,
   EllipsisIcon,
   FolderOpenIcon,
@@ -28,10 +26,8 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
 
-/** Milestone that brings pulling and pushing (the entries are shown disabled until then). */
-const REMOTE_MILESTONE = "M5";
-
-interface Entry {
+/** An entry of a group's menu. */
+export interface GroupMenuEntry {
   id: string;
   label: string;
   icon: LucideIcon;
@@ -45,9 +41,13 @@ interface Entry {
   startsSection?: boolean;
 }
 
+type Entry = GroupMenuEntry;
+
 export interface GroupMenuActions {
   /** Whether the group holds repositories (Open all needs some). */
   hasRepositories: boolean;
+  /** Entries after Open all, supplied by the app shell (Pull all, Push all). */
+  forAll: readonly GroupMenuEntry[];
   canMoveUp: boolean;
   canMoveDown: boolean;
   onOpenAll: () => void;
@@ -66,20 +66,7 @@ function entries(actions: GroupMenuActions): Entry[] {
       onSelect: actions.onOpenAll,
       disabled: !actions.hasRepositories,
     },
-    {
-      id: "pull-all",
-      label: "Pull all",
-      icon: ArrowDownToLineIcon,
-      kind: "branches",
-      milestone: REMOTE_MILESTONE,
-    },
-    {
-      id: "push-all",
-      label: "Push all",
-      icon: ArrowUpFromLineIcon,
-      kind: "branches",
-      milestone: REMOTE_MILESTONE,
-    },
+    ...actions.forAll,
     {
       id: "rename",
       label: "Rename",

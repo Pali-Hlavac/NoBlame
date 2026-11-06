@@ -88,13 +88,14 @@ document tab like any other (`kind: "settings"`, at most one), restored with the
 
 Settings shown there (stored in `settings.json`, see `src-tauri/src/settings/types.rs`):
 
-| Section      | Setting                                                       | Default |
-| ------------ | ------------------------------------------------------------- | ------- |
-| Appearance   | Theme (System, Light, Dark)                                   | System  |
-| Commit graph | Highlight the selected commit                                 | on      |
-| Commit graph | Show uncommitted changes as (rows, header summary, not shown) | rows    |
-| Repositories | Show the actions button (…) on repositories                   | on      |
-| Repositories | Show the number of uncommitted files beside repositories      | off     |
+| Section      | Setting                                                                 | Default |
+| ------------ | ----------------------------------------------------------------------- | ------- |
+| Appearance   | Theme (System, Light, Dark)                                             | System  |
+| Commit graph | Highlight the selected commit                                           | on      |
+| Commit graph | Show uncommitted changes as (rows, header summary, not shown)           | rows    |
+| Repositories | Show the actions button (…) on repositories                             | on      |
+| Repositories | Show the number of uncommitted files beside repositories                | off     |
+| Repositories | Quick buttons: Pull, Push on repositories; Pull all, Push all on groups | none    |
 
 **Keyboard shortcuts** are listed as arriving in M7 (configurable shortcuts).
 

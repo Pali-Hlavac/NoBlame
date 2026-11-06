@@ -1,5 +1,5 @@
 /**
- * Background jobs (fetch now; pull, push and clone later): the list is read once and then kept
+ * Background jobs (fetch, pull and push; clone later): the list is read once and then kept
  * current by `JobUpdated` events (`useJobEvents`); a job's log is read when it is shown.
  */
 import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
@@ -7,6 +7,7 @@ import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import type {
   FetchRequestDto,
   JobDto,
+  JobKindDto,
   PullRequestDto,
   PushRequestDto,
 } from "@/shared/ipc/bindings";
@@ -61,6 +62,24 @@ export function startPull(request: PullRequestDto): Promise<number> {
 /** Starts `git push` (a branch, a tag, or deleting one on the remote), like `startFetch`. */
 export function startPush(request: PushRequestDto): Promise<number> {
   return unwrap(commands.pushRepository(request));
+}
+
+/**
+ * Starts `git push` of the current branch of the repository at `path` to its upstream (open or
+ * not), like `startFetch`; refused when there is no upstream on a remote.
+ */
+export function startPushCurrent(path: string): Promise<number> {
+  return unwrap(commands.pushCurrentBranch(path));
+}
+
+/** Whether a job of `kind` runs on any of `paths` (paths as given when the jobs started). */
+export function useJobRunning(paths: readonly string[], kind: JobKindDto): boolean {
+  const { data } = useJobs();
+  return (
+    data?.some(
+      (job) => job.state === "running" && job.kind === kind && paths.includes(job.repoPath),
+    ) ?? false
+  );
 }
 
 /** `jobs` with `job` put in its place (or in front, when new). */

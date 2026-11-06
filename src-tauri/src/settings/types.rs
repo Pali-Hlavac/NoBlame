@@ -64,6 +64,8 @@ pub struct RepositoriesSettings {
     /// Each repository shows how many files are new, changed and deleted but not committed
     /// (closed repositories run `git status` for it, so it is off by default).
     pub show_change_counts: bool,
+    /// Quick buttons shown on repository and group rows (on hover or focus); none by default.
+    pub buttons: Vec<RepositoryButton>,
     /// Order of the module's sections, top to bottom (the UI adds any that are missing).
     pub sections: Vec<RepositoriesSection>,
     /// Sections shown folded.
@@ -75,6 +77,7 @@ impl Default for RepositoriesSettings {
         Self {
             show_actions_menu: true,
             show_change_counts: false,
+            buttons: Vec::new(),
             sections: vec![
                 RepositoriesSection::Open,
                 RepositoriesSection::Groups,
@@ -83,6 +86,20 @@ impl Default for RepositoriesSettings {
             collapsed_sections: Vec::new(),
         }
     }
+}
+
+/// A quick button on the rows of the Repositories module.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub enum RepositoryButton {
+    /// Pull on each repository.
+    Pull,
+    /// Push (the current branch to its upstream) on each repository.
+    Push,
+    /// Pull all on each group.
+    PullAll,
+    /// Push all on each group.
+    PushAll,
 }
 
 /// A section of the Repositories module.
@@ -126,5 +143,6 @@ mod tests {
             RepositoriesSettings::default().sections
         );
         assert!(settings.repositories.collapsed_sections.is_empty());
+        assert!(settings.repositories.buttons.is_empty());
     }
 }

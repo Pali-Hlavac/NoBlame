@@ -1,5 +1,5 @@
 //! Talking to remotes: fetch (`fetch.rs`), pull (`pull.rs`), push (`push.rs`), the remote
-//! names (`remotes.rs`), reading git's progress lines (`progress.rs`) and
+//! names and where the current branch pushes (`remotes.rs`), reading git's progress lines (`progress.rs`) and
 //! what an askpass prompt asks for (`prompt.rs`), hiding credentials in URLs (`redact.rs`).
 //! These commands run as background jobs: the caller streams the command
 //! ([`GitCommand::stream`](crate::cli::GitCommand::stream)), feeds each line to
@@ -22,4 +22,4 @@ pub use push::{
     summarize_push,
 };
 pub use redact::redact_credentials;
-pub use remotes::remote_names;
+pub use remotes::{UpstreamPush, remote_names, upstream_push};

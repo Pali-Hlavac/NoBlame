@@ -14,7 +14,10 @@ export {
   useOpenRepository,
 } from "./hooks/useOpenRepository";
 export {
+  GroupActionsContext,
   RepositoryActionsContext,
+  type GroupAction,
+  type GroupTarget,
   type RepositoryAction,
   type RepositoryTarget,
 } from "./lib/actions";

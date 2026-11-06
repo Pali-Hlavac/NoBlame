@@ -157,6 +157,11 @@ All notable changes to NoBlame are documented here. The format follows
 - External diff tool (M4 slice 6): **Open in diff tool** beside the file name in every diff opens
   the two versions in Git's `diff.tool`, Visual Studio Code or a command of your own
   (Settings → Diff), through `git difftool --no-index`.
+- Pull and push in the Repositories module (M5 slice 6): a repository's **…** menu pulls and
+  pushes it, open or not (Push sends the current branch to its upstream), and a group's menu
+  has **Pull all** (merge) and **Push all**, one job per repository with one summary toast at
+  the end. **Settings → Repositories → Quick buttons** adds Pull and Push buttons to repository
+  rows and Pull all and Push all to group rows; a button spins while its job runs.
 - Pull and push (M5 slice 5): **Pull** (as configured, or choose merge, rebase or fast-forward
   only) and **Push** in the toolbar and the command palette, as background jobs. Push sends the
   current branch to its upstream, or asks where when it has none. **Push…** chooses the remote,

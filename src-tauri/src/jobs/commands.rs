@@ -62,6 +62,17 @@ pub async fn push_repository(
     Ok(sync::push(&registry, request).await?)
 }
 
+/// Starts `git push` of the current branch of the repository at `path` to its upstream (open or
+/// not); refused when HEAD is detached or the branch has no upstream on a remote.
+#[tauri::command]
+#[specta::specta]
+pub async fn push_current_branch(
+    registry: State<'_, Arc<JobRegistry>>,
+    path: String,
+) -> CommandResult<JobId> {
+    Ok(sync::push_current(&registry, path).await?)
+}
+
 /// The remotes of the repository at `path`, sorted.
 #[tauri::command]
 #[specta::specta]

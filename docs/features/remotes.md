@@ -16,7 +16,8 @@ managing remotes are slice 8 ([roadmap](../roadmap.md#m5-branches-tags-and-remot
 | Toolbar: **Push** and its ▾ menu               | Push (the current branch), Push… (the dialog)                                                          |
 | Command palette, group "Remote"                | The same, while a repository is active (pull and push only on a branch)                                |
 | Branches module and the graph's branch menus   | Local branch: Push…; remote branch: Delete on the remote…; tag: Push…, Delete on a remote…             |
-| Repositories module: a repository's **…** menu | Fetch (open or closed repositories); Pull and Push there are slice 6                                   |
+| Repositories module: a repository's **…** menu | Pull, Fetch, Push (open or closed repositories); also quick buttons, by setting                        |
+| Repositories module: a group's menu            | Pull all, Push all (one job per repository); also quick buttons, by setting                            |
 
 ## Behaviour
 
@@ -99,6 +100,28 @@ refs/heads/<name>`; the remote-tracking branch goes too. A tag's **Delete on a r
   messages.
 - Needs OpenSSH 8.4 or later for ssh prompts (`SSH_ASKPASS_REQUIRE=force`).
 
+## Repositories module
+
+M5 slice 6. The **…** menu of a repository and its quick buttons
+([repositories.md](repositories.md#quick-buttons)) work without opening it:
+
+- **Pull** pulls the current branch as configured (`pull_repository`, mode `default`), like the
+  toolbar's Pull.
+- **Push** sends the current branch to its upstream (`push_current_branch`): the backend reads
+  `branch.<name>.remote` and `branch.<name>.merge` with gix (`upstream_push`) and runs the same
+  explicit push as the toolbar (`refs/heads/a:refs/heads/b`). There is no dialog to ask where,
+  so a detached HEAD or a branch without an upstream on a named remote (none, a local one, a
+  URL) is refused before git runs, with the hint to use **Push…** in the toolbar.
+- **Pull all** on a group pulls every repository of the group with **merge** (as the owner
+  asked: a rebase stopped by conflicts in one of many repositories is harder to notice and
+  finish), **Push all** pushes each one's current branch to its upstream. One job per
+  repository, all started at once (`startBatch` in `src/features/jobs/lib/batch.ts`). Their
+  jobs do not toast one by one: when the last one ends, one toast sums them up ("Pull all in
+  Work: 3 done, 1 failed"), failures first with their first line (the hint, when there is
+  one), at most six lines and "and N more", with **Show jobs**. A repository whose job could not
+  start (missing folder, no upstream) counts as failed. Every job is in the jobs list with its
+  own log.
+
 ## Code
 
 - `crates/git-core/src/remote/`: `fetch.rs` (`fetch_command`, `summarize_fetch`),
@@ -116,9 +139,12 @@ refs/heads/<name>`; the remote-tracking branch goes too. A tag's **Delete on a r
 - `src/features/credentials/` (`CredentialPrompt`, mounted in the main window).
 - `src-tauri/src/jobs/`: `registry.rs`, `fetch.rs` (opens the repository, builds the title and
   the result message), `commands.rs`, `types.rs` (`JobDto`, `JobUpdated`).
-- `src-tauri/src/jobs/sync.rs` (`pull_repository`, `push_repository`, `list_remotes`),
-  `target.rs` (opening the repository of a job).
-- `src/features/jobs/` (`startFetch`, `startPull`, `startPush`, `startJob`);
+- `src-tauri/src/jobs/sync.rs` (`pull_repository`, `push_repository`, `push_current_branch`,
+  `list_remotes`), `target.rs` (opening the repository of a job). `remote/remotes.rs`
+  (`upstream_push`; test `finds_where_the_current_branch_pushes`).
+- `src/features/jobs/` (`startFetch`, `startPull`, `startPush`, `startPushCurrent`, `startJob`,
+  `startBatch`, `useJobRunning`); `src/app/workbench/repositoryActions.ts` (`REPOSITORY_ACTIONS`,
+  `GROUP_ACTIONS`); `src/features/repositories/components/QuickButtons.tsx`;
   `src/features/branches/components/PushDialog.tsx`, `ForceWarning.tsx`, `RemoteRefDialog.tsx`,
   `lib/pushCurrent.ts`, `lib/remotes.ts`, `api/remotes.ts`; `src/app/workbench/remote.ts` and
   `remoteCommands.ts` (toolbar, palette, "…" menu).

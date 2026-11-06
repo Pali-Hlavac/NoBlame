@@ -70,8 +70,8 @@ Groups have orange folders, repositories blue icons and submodules purple ones.
 Point at a repository (open, in a group, or a downloaded submodule) to see its **…** button:
 **Copy path** works, **Open** opens it if it is not open yet, **Close** closes its tab, and in a
 group **Remove from group** takes it out. **Commit…** shows the repository and opens the commit
-window. **Fetch** downloads what is new on its remote ([Fetching, pulling and pushing](remotes.md)).
-Pull and Push are listed but come in a later version. A grey submodule has not been downloaded yet ("initialized"); NoBlame cannot
+window. **Pull**, **Fetch** and **Push** work even when the repository is not open
+([Fetching, pulling and pushing](remotes.md#in-the-repositories-module)). A grey submodule has not been downloaded yet ("initialized"); NoBlame cannot
 initialize submodules in this version.
 
 Click the title of a section (**Open**, **Groups**, **Recent**) to fold or unfold it. Drag a
@@ -85,8 +85,8 @@ Under **Groups** you can sort repositories into folders of your own, like bookma
   Its submodules show below it in the group, as under Open.
 - Drag repositories within a group, or groups among themselves, to change their order.
 - Click a group to fold or unfold it. Press F2 or use its **…** menu to rename it.
-- The **…** menu also opens every repository of the group at once, or deletes the group (your
-  repositories stay where they are). Pulling or pushing a whole group comes in a later version.
+- The **…** menu also opens every repository of the group at once, pulls or pushes them all
+  (**Pull all**, **Push all**), or deletes the group (your repositories stay where they are).
 
 Under **Recent** are the repositories you opened before. Hover over one and click **×** to remove
 it from the list. The buttons at the top open or create a repository.

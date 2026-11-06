@@ -7,10 +7,11 @@ mod support;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+use git_core::branch::BranchError;
 use git_core::cli::{Git, GitOutput};
 use git_core::remote::{
-    Lease, PullMode, PushOptions, PushWhat, describe_pull, describe_push, pull_command, pull_hint,
-    push_command, push_hint, summarize_push,
+    Lease, PullMode, PushOptions, PushWhat, UpstreamPush, describe_pull, describe_push,
+    pull_command, pull_hint, push_command, push_hint, summarize_push, upstream_push,
 };
 use support::Fixture;
 use tokio_util::sync::CancellationToken;
@@ -190,4 +191,37 @@ async fn force_with_lease_keeps_commits_it_has_not_seen() {
         .run(&s.work, &["commit", "--quiet", "--amend", "-m", "again"]);
     let absent = run(push(&s.work, branch("main", false, Some(Lease::Absent)))).await;
     assert!(!absent.success());
+}
+
+/// A plain Push goes to the upstream on its remote; without one (or detached) it must ask.
+#[test]
+fn finds_where_the_current_branch_pushes() {
+    let s = setup();
+    let open = || gix::open(&s.work).unwrap();
+    assert_eq!(
+        upstream_push(&open()).unwrap(),
+        UpstreamPush {
+            branch: "main".into(),
+            remote: "origin".into(),
+            remote_branch: "main".into(),
+        }
+    );
+
+    s.origin
+        .run(&s.work, &["switch", "--quiet", "--create", "local/x"]);
+    assert!(matches!(
+        upstream_push(&open()),
+        Err(BranchError::NoRemoteUpstream { branch }) if branch == "local/x"
+    ));
+    // A local upstream (`.`) is not a remote either.
+    s.origin
+        .run(&s.work, &["branch", "--quiet", "--set-upstream-to=main"]);
+    assert!(matches!(
+        upstream_push(&open()),
+        Err(BranchError::NoRemoteUpstream { .. })
+    ));
+
+    s.origin
+        .run(&s.work, &["switch", "--quiet", "--detach", "main"]);
+    assert!(matches!(upstream_push(&open()), Err(BranchError::Detached)));
 }

@@ -1,5 +1,5 @@
 import { FolderClosedIcon, FolderOpenIcon } from "lucide-react";
-import { useState } from "react";
+import { useContext, useState } from "react";
 
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import type { RepositoryGroup } from "@/shared/ipc/bindings";
@@ -24,10 +24,12 @@ import {
   renameGroup,
   setCollapsed,
 } from "../lib/groups";
+import { GroupActionsContext, type GroupTarget } from "../lib/actions";
 import { useGroupsUiStore } from "../store/groups";
 import { DROP_TARGET_CLASSES, GroupedRepository } from "./GroupedRepository";
 import { GroupActionsButton, GroupContextMenu, type GroupMenuActions } from "./GroupMenu";
 import { GroupNameField } from "./GroupNameField";
+import { GroupQuickButtons } from "./QuickButtons";
 import { RepositoryTreeRow } from "./RepositoryTreeRow";
 
 interface GroupItemProps {
@@ -71,8 +73,20 @@ export function GroupItem({ group, index, count, missing }: GroupItemProps) {
   const remove = (): void => {
     edit((groups) => removeGroup(groups, group.id));
   };
+  const target: GroupTarget = { name: group.name, paths: group.repositories };
+  const forAll = useContext(GroupActionsContext).map((action) => ({
+    id: action.id,
+    label: action.label,
+    icon: action.icon,
+    kind: action.kind,
+    onSelect: () => {
+      action.run(target);
+    },
+    disabled: group.repositories.length === 0,
+  }));
   const actions: GroupMenuActions = {
     hasRepositories: group.repositories.length > 0,
+    forAll,
     canMoveUp: index > 0,
     canMoveDown: index < count - 1,
     onOpenAll: () => {
@@ -133,6 +147,7 @@ export function GroupItem({ group, index, count, missing }: GroupItemProps) {
           }
           actions={
             <>
+              <GroupQuickButtons group={target} />
               <span className="px-1 text-xs text-muted-foreground tabular-nums">
                 {group.repositories.length}
               </span>

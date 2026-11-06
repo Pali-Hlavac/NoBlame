@@ -8,9 +8,11 @@ import { Button } from "@/shared/ui/button";
 import { useRemoveRecentRepository } from "../api/recent";
 import { openRepositories } from "../hooks/useOpenRepository";
 import { startRepositoryDrag } from "../lib/dragData";
+import { repositoryTab } from "../lib/path";
 import { RepositoryChangeCounts } from "./ChangeCounts";
 import { RepositoryActions } from "./RepositoryActionsMenu";
 import { RepositoryContextMenu } from "./RepositoryContextMenu";
+import { RepositoryQuickButtons } from "./QuickButtons";
 import { RepositoryTreeRow } from "./RepositoryTreeRow";
 import { SubmoduleList } from "./SubmoduleTree";
 
@@ -45,15 +47,22 @@ export function OpenRepository({ tab, active, submodules }: OpenRepositoryProps)
           onDragStart={(event) => {
             startRepositoryDrag(event, { path: tab.path });
           }}
-          actions={
-            <RepositoryActions
-              repository={{ path: tab.path, tabId: tab.id, title: tab.title, open: true }}
-            />
-          }
+          actions={<OpenRepositoryActions tab={tab} />}
         />
       </RepositoryContextMenu>
       {expanded && submodules.length > 0 && <SubmoduleList submodules={submodules} depth={1} />}
     </li>
+  );
+}
+
+/** An open repository's quick buttons and "…" menu. */
+function OpenRepositoryActions({ tab }: { tab: RepositoryTab }) {
+  const repository = { path: tab.path, tabId: tab.id, title: tab.title, open: true };
+  return (
+    <>
+      <RepositoryQuickButtons repository={repository} />
+      <RepositoryActions repository={repository} />
+    </>
   );
 }
 
@@ -86,17 +95,29 @@ export function RecentItem({ entry }: { entry: RecentRepository }) {
             startRepositoryDrag(event, { path: entry.path });
           }}
           actions={
-            <Button
-              variant="ghost"
-              size="icon"
-              className="mr-1 size-6 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
-              aria-label={`Remove ${entry.name} from recent repositories`}
-              onClick={() => {
-                remove.mutate(entry.path);
-              }}
-            >
-              <XIcon aria-hidden />
-            </Button>
+            <>
+              {entry.exists && (
+                <RepositoryQuickButtons
+                  repository={{
+                    path: entry.path,
+                    tabId: repositoryTab(entry.path).id,
+                    title: entry.name,
+                    open: false,
+                  }}
+                />
+              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="mr-1 size-6 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+                aria-label={`Remove ${entry.name} from recent repositories`}
+                onClick={() => {
+                  remove.mutate(entry.path);
+                }}
+              >
+                <XIcon aria-hidden />
+              </Button>
+            </>
           }
         />
       </RepositoryContextMenu>

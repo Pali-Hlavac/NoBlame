@@ -22,6 +22,7 @@ import { OpenTabsContext } from "./openTabsContext";
 import { RepositoryChangeCounts } from "./ChangeCounts";
 import { RepositoryActions } from "./RepositoryActionsMenu";
 import { RepositoryContextMenu } from "./RepositoryContextMenu";
+import { RepositoryQuickButtons } from "./QuickButtons";
 import { RepositoryTreeRow } from "./RepositoryTreeRow";
 import { SubmoduleList } from "./SubmoduleTree";
 
@@ -45,6 +46,7 @@ export function GroupedRepository({ group, path, missing }: GroupedRepositoryPro
   const { ids, paths, activeId } = useContext(OpenTabsContext);
   const tabId = repositoryTab(path).id;
   const name = repositoryName(path);
+  const repository = { path, tabId, title: name, open: ids.has(tabId) };
   // Read from the folder, so they show without opening the repository (as in Open).
   const submodules = useSubmodules(path, !missing).data ?? [];
   const [expanded, setExpanded] = useState(true);
@@ -92,19 +94,22 @@ export function GroupedRepository({ group, path, missing }: GroupedRepositoryPro
           className={cn(drop.over && DROP_TARGET_CLASSES)}
           {...drop.props}
           actions={
-            <RepositoryActions
-              repository={{ path, tabId, title: name, open: ids.has(tabId) }}
-              extra={
-                <DropdownMenuItem
-                  onSelect={() => {
-                    edit((groups) => removeRepository(groups, group.id, path));
-                  }}
-                >
-                  <FolderMinusIcon className={KIND_ICON_CLASSES.groups} aria-hidden />
-                  Remove from group
-                </DropdownMenuItem>
-              }
-            />
+            <>
+              {!missing && <RepositoryQuickButtons repository={repository} />}
+              <RepositoryActions
+                repository={repository}
+                extra={
+                  <DropdownMenuItem
+                    onSelect={() => {
+                      edit((groups) => removeRepository(groups, group.id, path));
+                    }}
+                  >
+                    <FolderMinusIcon className={KIND_ICON_CLASSES.groups} aria-hidden />
+                    Remove from group
+                  </DropdownMenuItem>
+                }
+              />
+            </>
           }
         />
       </RepositoryContextMenu>

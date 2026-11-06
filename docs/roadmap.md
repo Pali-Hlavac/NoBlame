@@ -738,15 +738,15 @@ Slices, in order (planned 2026-11-02):
 - [x] Toolbar operations: Fetch, Fetch all, Fetch and prune (`git fetch --prune`), Pull
       (merge/rebase/ff-only), Push (incl. tags, force-with-lease behind confirmation) as background
       jobs with progress. Fetch (slice 3) and pull and push (slice 5), 2026-11-06
-- [ ] Quick Pull button on repository rows in the Repositories module, behind a setting (owner
+- [x] Quick Pull button on repository rows in the Repositories module, behind a setting (owner
       request 2026-10-28; quick Merge follows with merging in M6); the "…" menu's Pull, Fetch and
       Push become real. Settings choose which buttons show: Pull and Push on each repository,
-      Pull all and Push all on each group (owner request 2026-11-02)
+      Pull all and Push all on each group (owner request 2026-11-02). Slice 6, 2026-11-06
 - [x] Repository groups in the Repositories module (owner request 2026-11-02): folders like
       bookmarks, to sort repositories into, collapse and expand. Done early, on 2026-11-02
       ([features/repositories.md](features/repositories.md#groups)).
-- [ ] **Pull all** (merge) and **Push all** on a group, one job per repository (listed disabled
-      in the group's menu today)
+- [x] **Pull all** (merge) and **Push all** on a group, one job per repository, summed up in one
+      toast (slice 6, 2026-11-06)
 - [x] Credentials: git credential helpers; `GIT_ASKPASS`/`SSH_ASKPASS` helper that asks in the app — ADR 0012
       (slice 4, 2026-11-06)
 - [ ] Manage remotes; clone dialog (shallow, single branch, partial clone, recursive submodules)
@@ -782,6 +782,8 @@ working branch model; the job registry comes before anything that talks to a rem
    the lease names the commit the dialog showed, not just "where the last fetch saw it".
 6. **Repositories module buttons**: Pull and Push on each repository, Pull all and Push all on
    each group (one job per repository), each shown by a setting; the "…" menu's entries real.
+   Done 2026-11-06 ([features/remotes.md](features/remotes.md#repositories-module)); Push
+   without a dialog goes to the upstream only (`push_current_branch`), else says to use Push….
 7. **Git output window**: the console-like popup streaming a job's output, behind a setting.
 8. **Remotes and clone**: add, rename, remove a remote and change its URL; the clone dialog
    (shallow, single branch, partial clone, recursive submodules).

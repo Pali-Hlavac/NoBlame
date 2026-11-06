@@ -69,6 +69,7 @@ const APP_COMMANDS: &[&str] = &[
     "fetch_repository",
     "pull_repository",
     "push_repository",
+    "push_current_branch",
     "list_remotes",
     "list_credential_requests",
     "answer_credential",

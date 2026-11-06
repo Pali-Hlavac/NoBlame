@@ -147,8 +147,20 @@ Use `target\debug\noblame.exe` while the dev app runs.
       to reorder (or **…** → Move up / Move down). Click a group to fold it; restart: everything
       is kept.
   - Notes:
-- [ ] **(new)** A group's **…** → **Open all**; **Pull all** / **Push all** are greyed out (M5);
-      **Delete group…** asks first and leaves the repositories alone.
+- [ ] **(new)** A group's **…** → **Open all**; **Delete group…** asks first and leaves the
+      repositories alone.
+  - Notes:
+- [ ] (new, M5 slice 6) A closed repository's **…** → **Pull**, then **Push**: each runs as a
+      job (status bar, toast). On a branch without an upstream, Push says so and points to
+      Push….
+  - Notes:
+- [ ] (new, M5 slice 6) A group with several repositories (one behind its remote, one without
+      an upstream): **…** → **Pull all**, then **Push all**: one toast each at the end, failures
+      first; the jobs list has every job.
+  - Notes:
+- [ ] (new, M5 slice 6) **Settings → Repositories → Quick buttons**: tick each one; the buttons
+      appear on hover on repository and group rows; while a pull runs its button spins and
+      cannot be clicked.
   - Notes:
 
 ## 7. Branches module (Alt+2)

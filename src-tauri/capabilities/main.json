@@ -75,6 +75,7 @@
     "allow-fetch-repository",
     "allow-pull-repository",
     "allow-push-repository",
+    "allow-push-current-branch",
     "allow-list-remotes",
     "allow-list-credential-requests",
     "allow-answer-credential",

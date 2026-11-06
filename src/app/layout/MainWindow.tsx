@@ -4,6 +4,7 @@ import { CommandPalette } from "@/features/command-palette";
 import { CredentialPrompt } from "@/features/credentials";
 import { RefActionsContext } from "@/features/graph";
 import {
+  GroupActionsContext,
   RepositoryActionsContext,
   openRepositories,
   useRepositoryChanges,
@@ -22,7 +23,7 @@ import { LoadingState } from "@/shared/components/LoadingState";
 import { useAppCommands } from "../commands/useAppCommands";
 import { useHistoryHotkeys } from "../commands/useHistoryHotkeys";
 import { DEFAULT_MODULE_LAYOUT, MODULES } from "../workbench/modules";
-import { REPOSITORY_ACTIONS } from "../workbench/repositoryActions";
+import { GROUP_ACTIONS, REPOSITORY_ACTIONS } from "../workbench/repositoryActions";
 import { MainTitleBar } from "./MainTitleBar";
 import { renderTab } from "./renderTab";
 import { SettingsButton } from "./SettingsButton";
@@ -52,15 +53,17 @@ function MainWorkbench({ saved }: { saved: SavedLayout | null }) {
     <div className="flex h-screen flex-col bg-background text-foreground" inert={popupOpen}>
       <MainTitleBar />
       <RepositoryActionsContext.Provider value={REPOSITORY_ACTIONS}>
-        <RefActionsContext.Provider value={useRefActions}>
-          <Workbench
-            modules={MODULES}
-            defaultModuleLayout={DEFAULT_MODULE_LAYOUT}
-            renderTab={renderTab}
-            saved={saved}
-            activityBarFooter={<SettingsButton />}
-          />
-        </RefActionsContext.Provider>
+        <GroupActionsContext.Provider value={GROUP_ACTIONS}>
+          <RefActionsContext.Provider value={useRefActions}>
+            <Workbench
+              modules={MODULES}
+              defaultModuleLayout={DEFAULT_MODULE_LAYOUT}
+              renderTab={renderTab}
+              saved={saved}
+              activityBarFooter={<SettingsButton />}
+            />
+          </RefActionsContext.Provider>
+        </GroupActionsContext.Provider>
       </RepositoryActionsContext.Provider>
       <StatusBar />
       <CommandPalette commands={commands} />

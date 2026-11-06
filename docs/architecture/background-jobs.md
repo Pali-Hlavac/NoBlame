@@ -72,7 +72,13 @@ failure messages pass through `redact_credentials`. See
 - `api/jobs.ts`: the list (`list_jobs` once, then events), a job's log (read again when
   `logLines` grows), cancel, `startFetch`.
 - `hooks/useJobEvents.ts`: mounted once in the main window; merges `JobUpdated` into the list
-  and toasts how a job ended (failures with **Show log**).
+  and toasts how a job ended (failures with **Show log**), except jobs of a batch.
+- `lib/batch.ts`: `startBatch(title, starts)` starts one job per repository (Pull all, Push
+  all) and remembers which job ids belong to it; when the last one ends (or could not start),
+  one summary toast replaces theirs (`batchSummary`: counts, failures first). Nothing changes in
+  the backend: a batch is only how the UI reports its jobs.
+- `useJobRunning(paths, kind)`: whether a job of `kind` runs on any of `paths` (the quick
+  buttons of the Repositories module spin and wait while one does).
 - `components/JobsIndicator.tsx`: the status bar entry (hidden until a job ran): the running
   job with its phase and percent, else **Jobs**; a popover lists jobs with a progress bar,
   **Cancel**, **Copy command** and the log.

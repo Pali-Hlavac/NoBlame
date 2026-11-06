@@ -100,6 +100,7 @@ pub fn builder() -> Builder<tauri::Wry> {
             jobs::commands::fetch_repository,
             jobs::commands::pull_repository,
             jobs::commands::push_repository,
+            jobs::commands::push_current_branch,
             jobs::commands::list_remotes,
             askpass::commands::list_credential_requests,
             askpass::commands::answer_credential,
