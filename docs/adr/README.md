@@ -17,7 +17,7 @@ decision changes, write a new ADR that supersedes the old one and update the old
 | [0009](0009-canvas-graph-and-lane-layout.md)     | Canvas graph rendering and lane layout                           | M2        | Accepted |
 | [0010](0010-on-disk-graph-cache.md)              | Reuse the commit index between builds; cache it on disk          | M2        | Accepted |
 | [0011](0011-background-jobs.md)                  | Background jobs: registry, streamed git, process trees killed    | M5        | Accepted |
-| 0012                                             | Credentials and askpass                                          | M5        | Planned  |
+| [0012](0012-credentials-and-askpass.md)          | Credentials: git's helpers first, then `noblame` as askpass      | M5        | Accepted |
 | [0013](0013-diff-viewer.md)                      | Diff viewer: diffs computed in Rust, rows paged                  | M3        | Accepted |
 | 0014                                             | Conflict resolution UI                                           | M6        | Planned  |
 | [0015](0015-cli-single-instance-task-windows.md) | CLI, single instance and task windows                            | M1        | Accepted |

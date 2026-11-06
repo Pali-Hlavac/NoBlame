@@ -54,6 +54,14 @@ the tree (used by `get_git_info`, 10 s).
 Commands: `list_jobs`, `get_job_log`, `cancel_job`, `fetch_repository` (see
 [ipc.md](ipc.md)). Jobs live in memory only.
 
+## Credentials
+
+`start` registers the job with the askpass service (`src-tauri/src/askpass/`) and adds its
+environment to the command (`GIT_ASKPASS`, `SSH_ASKPASS`, the listener's address, the token,
+the job id); `finish` unregisters it, closing any prompt still open. Lines, the command and
+failure messages pass through `redact_credentials`. See
+[ADR 0012](../adr/0012-credentials-and-askpass.md) and [security.md](security.md#credentials).
+
 ## Frontend
 
 `src/features/jobs/`:

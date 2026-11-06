@@ -185,6 +185,10 @@ export const commands = {
 	cancelJob: (id: number) => __TAURI_INVOKE<boolean>("cancel_job", { id }),
 	/**  Starts `git fetch` in the background; progress and the result come as `JobUpdated`. */
 	fetchRepository: (request: FetchRequestDto) => typedError<number, AppError>(__TAURI_INVOKE("fetch_repository", { request })),
+	/**  Prompts waiting for an answer, oldest first (read on start and on `CredentialRequested`). */
+	listCredentialRequests: () => __TAURI_INVOKE<CredentialRequestDto[]>("list_credential_requests"),
+	/**  Answers a prompt; `null` cancels it (git then fails). False when it no longer waits. */
+	answerCredential: (id: number, answer: string | null) => __TAURI_INVOKE<boolean>("answer_credential", { id, answer }),
 	/**
 	 *  The working tree status: counts, staged files and unstaged ones (`null` for a bare
 	 *  repository).
@@ -280,6 +284,8 @@ export const commands = {
 
 /** Events */
 export const events = {
+	credentialClosed: makeEvent<CredentialClosed, CredentialClosed>("credential-closed"),
+	credentialRequested: makeEvent<CredentialRequested, CredentialRequested>("credential-requested"),
 	jobUpdated: makeEvent<JobUpdated, JobUpdated>("job-updated"),
 	repositoriesRequested: makeEvent<RepositoriesRequested, RepositoriesRequested>("repositories-requested"),
 	repositoryChanged: makeEvent<RepositoryChanged, RepositoryChanged>("repository-changed"),
@@ -652,6 +658,52 @@ export type CreateTagRequestDto = {
 	target: string,
 	/**  With a message the tag is annotated; empty or `null` makes a lightweight tag. */
 	message: string | null,
+};
+
+/**  A prompt was answered, cancelled, timed out, or its job ended: close its dialog. */
+export type CredentialClosed = {
+	/**  The prompt's id. */
+	id: number,
+};
+
+/**  What a prompt asks for. */
+export type CredentialKindDto = 
+/**  A user name. */
+"username" | 
+/**  A password (or a token used as one). */
+"password" | 
+/**  The passphrase of an SSH key. */
+"passphrase" | 
+/**  ssh does not know the server's key yet: answer `yes` or `no`. */
+"hostKey" | 
+/**  Something else (a PIN, a code); treated as secret. */
+"other";
+
+/**  git or ssh, running for a job, waits for an answer. */
+export type CredentialRequestDto = {
+	/**  Identifies this prompt for `answer_credential`. */
+	id: number,
+	/**  The job whose git asks. */
+	jobId: number,
+	/**  That job's title (`Fetch origin`). */
+	jobTitle: string,
+	/**  That job's repository. */
+	repoPath: string,
+	/**  git's or ssh's own words, trimmed (`Password for 'https://ada@example.com':`). */
+	prompt: string,
+	/**  What it asks for. */
+	kind: CredentialKindDto,
+	/**  Hide the answer while it is typed. */
+	secret: boolean,
+};
+
+/**
+ *  A prompt waits for an answer. The list (`list_credential_requests`) is the source of truth;
+ *  this says when to read it.
+ */
+export type CredentialRequested = {
+	/**  The prompt. */
+	request: CredentialRequestDto,
 };
 
 /**  How dates are shown in the commit list. */

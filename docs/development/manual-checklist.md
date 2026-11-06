@@ -172,6 +172,14 @@ Use `target\debug\noblame.exe` while the dev app runs.
 - [ ] (new, M5 slice 1) **F2** on a branch renames it (typing an existing name is refused at
       once). **Delete** on a branch with commits of its own lists them before deleting.
   - Notes:
+- [ ] (new, M5 slice 4) Fetch from an HTTPS remote that needs a login with no credential
+      helper (`git -c credential.helper= …` is not possible from the app; use a repository
+      whose remote has no stored login): NoBlame asks for the user name, then the password;
+      the fetch succeeds. **Cancel** instead: the fetch fails with git's message.
+  - Notes:
+- [ ] (new, M5 slice 4) Fetch over SSH with a passphrase-protected key and no agent: the
+      passphrase dialog appears; a new host shows its fingerprint with **Trust and connect**.
+  - Notes:
 - [ ] (new, M5 slice 3) Toolbar **Pull ▾ → Fetch** on a repository with a reachable remote: the
       status bar shows the phase and percent, then a toast says what changed; the graph shows
       the new remote branches. **Fetch and prune** after deleting a branch on the remote removes

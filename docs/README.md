@@ -42,7 +42,7 @@ One page per user-facing feature: behaviour, edge cases and status.
 - [commit.md](features/commit.md): the Commit module and dialog: staging and committing
 - [branches.md](features/branches.md): checking out; creating, renaming and deleting branches and
   tags
-- [remotes.md](features/remotes.md): fetching as background jobs, the jobs list (pull, push, clone
+- [remotes.md](features/remotes.md): fetching as background jobs, the jobs list, credential prompts (pull, push, clone
   later)
 - [stashes.md](features/stashes.md): the Stashes module and the Stash tab: stashing, applying
   (also chosen files) and dropping

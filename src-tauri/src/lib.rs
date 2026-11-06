@@ -2,6 +2,7 @@
 //! See `docs/architecture/overview.md`.
 
 mod app_info;
+mod askpass;
 mod branches;
 pub mod cli;
 pub mod error;
@@ -18,6 +19,13 @@ mod workbench;
 mod worktree;
 
 use cli::LaunchRequest;
+
+/// When this process was started by git or ssh as the askpass program of a job, answers the
+/// prompt through the running app and returns the exit code; `None` for a normal launch.
+/// Called first thing in `main`, before the command line is parsed.
+pub fn askpass_helper() -> Option<i32> {
+    askpass::run_if_helper()
+}
 
 /// Starts the desktop application for `request`, or forwards `request` to an instance that
 /// is already running and returns. Blocks until the last window closes.

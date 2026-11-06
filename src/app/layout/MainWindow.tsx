@@ -1,6 +1,7 @@
 import { BranchDialogs, useRefActions } from "@/features/branches";
 import { useJobEvents } from "@/features/jobs";
 import { CommandPalette } from "@/features/command-palette";
+import { CredentialPrompt } from "@/features/credentials";
 import { RefActionsContext } from "@/features/graph";
 import {
   RepositoryActionsContext,
@@ -64,6 +65,7 @@ function MainWorkbench({ saved }: { saved: SavedLayout | null }) {
       <StatusBar />
       <CommandPalette commands={commands} />
       <BranchDialogs />
+      <CredentialPrompt />
     </div>
   );
 }

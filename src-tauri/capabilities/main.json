@@ -72,6 +72,8 @@
     "allow-get-job-log",
     "allow-cancel-job",
     "allow-fetch-repository",
+    "allow-list-credential-requests",
+    "allow-answer-credential",
     "allow-get-worktree-file-id",
     "allow-get-worktree-file-contents",
     "allow-stage-files",

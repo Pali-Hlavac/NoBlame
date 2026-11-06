@@ -21,6 +21,8 @@ tauri-build = { version = "2.7", features = [] }
 
 [dependencies]
 clap.workspace = true
+# MIT OR Apache-2.0: the per-run askpass token (ADR 0012).
+getrandom = "0.3"
 git-core = { path = "../crates/git-core" }
 serde.workspace = true
 serde_json.workspace = true

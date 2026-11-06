@@ -6,10 +6,12 @@ use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use git_core::cli::{GitCommand, GitError, GitOutput, OutputLine};
-use git_core::remote::parse_progress;
+use git_core::remote::{parse_progress, redact_credentials};
 use tauri::AppHandle;
 use tauri_specta::Event;
 use tokio_util::sync::CancellationToken;
+
+use crate::askpass::Askpass;
 
 use super::types::{JobDto, JobId, JobKindDto, JobProgressDto, JobStateDto, JobUpdated};
 
@@ -51,13 +53,16 @@ struct Inner {
 /// Every job of this app run. Managed as `Arc<JobRegistry>`.
 pub struct JobRegistry {
     app: AppHandle,
+    /// Lets job commands ask the user for credentials.
+    askpass: Arc<Askpass>,
     inner: Mutex<Inner>,
 }
 
 impl JobRegistry {
-    pub fn new(app: AppHandle) -> Self {
+    pub fn new(app: AppHandle, askpass: Arc<Askpass>) -> Self {
         Self {
             app,
+            askpass,
             inner: Mutex::new(Inner::default()),
         }
     }
@@ -84,7 +89,7 @@ impl JobRegistry {
                 kind: spec.kind,
                 title: spec.title,
                 repo_path: spec.repo_path,
-                command: spec.command.display(),
+                command: redact_credentials(&spec.command.display()),
                 state: JobStateDto::Running,
                 progress: None,
                 message: None,
@@ -102,9 +107,14 @@ impl JobRegistry {
         };
         let id = job.id;
         tracing::info!(id, command = %job.command, "job started");
+        self.askpass.register(id, &job.title, &job.repo_path);
         self.send(job);
         let registry = Arc::clone(self);
-        let (command, describe) = (spec.command, spec.describe);
+        let mut command = spec.command;
+        for (name, value) in self.askpass.env_for(id) {
+            command = command.env(name, value);
+        }
+        let describe = spec.describe;
         tauri::async_runtime::spawn(async move {
             let result = command
                 .stream(&cancel, |line| registry.on_line(id, line))
@@ -114,7 +124,9 @@ impl JobRegistry {
         id
     }
 
-    fn on_line(&self, id: JobId, line: OutputLine) {
+    fn on_line(&self, id: JobId, mut line: OutputLine) {
+        // Kept and shown: never with a password written into a URL.
+        line.text = redact_credentials(&line.text);
         let update = {
             let mut inner = self.lock();
             let Some(entry) = inner.jobs.iter_mut().find(|entry| entry.job.id == id) else {
@@ -150,9 +162,14 @@ impl JobRegistry {
     }
 
     fn finish(&self, id: JobId, result: Result<GitOutput, GitError>, describe: Describe) {
+        // Prompts still open belong to a git that is gone.
+        self.askpass.unregister(id);
         let (state, message) = match result {
             Ok(output) if output.success() => (JobStateDto::Succeeded, describe(&output)),
-            Ok(output) => (JobStateDto::Failed, failure_message(&output.stderr_lossy())),
+            Ok(output) => (
+                JobStateDto::Failed,
+                failure_message(&redact_credentials(&output.stderr_lossy())),
+            ),
             Err(GitError::Cancelled { .. }) => (JobStateDto::Cancelled, "Cancelled".to_owned()),
             Err(error) => (JobStateDto::Failed, error.to_string()),
         };

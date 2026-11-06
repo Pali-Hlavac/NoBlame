@@ -66,6 +66,8 @@ const APP_COMMANDS: &[&str] = &[
     "get_job_log",
     "cancel_job",
     "fetch_repository",
+    "list_credential_requests",
+    "answer_credential",
     "get_worktree_file_id",
     "get_worktree_file_contents",
     "stage_files",

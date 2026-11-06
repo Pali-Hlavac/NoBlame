@@ -39,10 +39,18 @@ Repository configuration can make git run programs (`core.fsmonitor`, `core.sshC
 
 ## Credentials
 
-NoBlame never stores credentials. Git's own credential helpers handle them; an askpass helper
-that asks inside the app follows in M5 (ADR 0012). Secrets must never appear in logs: the
-"equivalent command" display shows arguments only, and remote URLs with embedded credentials
-must be redacted before display (M5).
+NoBlame never stores credentials ([ADR 0012](../adr/0012-credentials-and-askpass.md)):
+
+- Git's own credential helpers and ssh agents answer first, as configured by the user.
+- When they have nothing, git or ssh runs its askpass program. For background jobs (and only
+  for them) that is `noblame` itself, through `GIT_ASKPASS` / `SSH_ASKPASS`; it relays the
+  prompt to the running app over `127.0.0.1` with a random per-run token, compared in constant
+  time, and only for jobs that are running. The environment variable also overrides a
+  repository's `core.askPass`.
+- The answer goes from the dialog to git and nowhere else: it is not logged, stored or kept in
+  the job. git hands it to the user's credential helper when the operation succeeds.
+- Job logs, the equivalent command and failure messages have credentials written into URLs
+  (`https://user:token@host`) replaced by `***` (`git_core::remote::redact_credentials`).
 
 ## Configuration
 

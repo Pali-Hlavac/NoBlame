@@ -26,11 +26,25 @@ Click it to see all recent jobs:
 
 When the fetch ends, a message tells you what changed, or why it failed.
 
+## Passwords and keys
+
+If Git already remembers your login (for example with Git Credential Manager, the keychain or
+an SSH agent), nothing changes: fetching just works.
+
+Otherwise NoBlame asks, in a small window:
+
+- your **user name** and **password** (for GitHub and similar sites, a personal access token
+  is the password);
+- the **passphrase** of your SSH key;
+- whether to **trust a server** NoBlame has not connected to before. Compare the fingerprint
+  with the one the server's owner publishes, then choose **Trust and connect**.
+
+NoBlame passes what you type to Git and does not keep it. Git may save it with your credential
+manager, so you are not asked again. **Cancel** stops the fetch.
+
 ## If it fails
 
 The message shows what Git said. Common reasons:
 
-- the remote asks for a user name and password, or an SSH key passphrase: NoBlame cannot ask
-  for these yet (coming soon). If Git already remembers them (a credential manager or an SSH
-  agent), fetching works;
+- a wrong password or token, or the login was cancelled;
 - there is no network, or the remote's address is wrong.

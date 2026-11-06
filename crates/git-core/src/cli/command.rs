@@ -37,6 +37,8 @@ pub struct GitCommand {
     pub(super) args: Vec<OsString>,
     pub(super) read_only: bool,
     pub(super) no_lazy_fetch: bool,
+    /// Extra environment for git (the askpass helper of a job).
+    pub(super) env: Vec<(&'static str, OsString)>,
     /// Options for git itself, placed before the subcommand (`--literal-pathspecs`).
     pub(super) global_flags: Vec<&'static str>,
     pub(super) stdin: Option<Vec<u8>>,
@@ -51,6 +53,7 @@ impl GitCommand {
             args: Vec::new(),
             read_only: false,
             no_lazy_fetch: false,
+            env: Vec::new(),
             global_flags: Vec::new(),
             stdin: None,
             has_separator: false,
@@ -69,6 +72,14 @@ impl GitCommand {
     #[must_use]
     pub fn read_only(mut self) -> Self {
         self.read_only = true;
+        self
+    }
+
+    /// Sets an environment variable for git and the programs it starts (`GIT_ASKPASS`).
+    /// Names are fixed in code; the variables cleared for safety stay cleared.
+    #[must_use]
+    pub fn env(mut self, name: &'static str, value: impl Into<OsString>) -> Self {
+        self.env.push((name, value.into()));
         self
     }
 

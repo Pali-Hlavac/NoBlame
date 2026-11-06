@@ -747,7 +747,8 @@ Slices, in order (planned 2026-11-02):
       ([features/repositories.md](features/repositories.md#groups)).
 - [ ] **Pull all** (merge) and **Push all** on a group, one job per repository (listed disabled
       in the group's menu today)
-- [ ] Credentials: git credential helpers; `GIT_ASKPASS`/`SSH_ASKPASS` helper that asks in the app — ADR 0012
+- [x] Credentials: git credential helpers; `GIT_ASKPASS`/`SSH_ASKPASS` helper that asks in the app — ADR 0012
+      (slice 4, 2026-11-06)
 - [ ] Manage remotes; clone dialog (shallow, single branch, partial clone, recursive submodules)
 - [ ] Background job registry: progress, cancel, logs, "equivalent command" shown — ADR 0011
 - [ ] Git output window (owner request 2026-10-30):
@@ -773,7 +774,8 @@ working branch model; the job registry comes before anything that talks to a rem
    Fetch and prune from the toolbar and the "…" menu. Done 2026-11-06 (ADR 0011,
    [features/remotes.md](features/remotes.md)); the "…" menu fetches closed repositories too.
 4. **Credentials** (ADR 0012): git's credential helpers as they are; an in-app askpass for user
-   names, passwords and SSH passphrases when nothing else answers.
+   names, passwords and SSH passphrases when nothing else answers. Done
+   2026-11-06 ([features/remotes.md](features/remotes.md#credentials)).
 5. **Pull and Push**: pull (merge, rebase, fast-forward only), push (new branches get an
    upstream, tags, force-with-lease behind a confirmation), push and delete a branch or tag on
    the remote from the menus.
@@ -894,8 +896,8 @@ The owner's idea inbox (with where each idea is planned) is in
 | 0008 | Binary graph blocks on demand (was: stream over channels)           | M2        | Accepted |
 | 0009 | Canvas graph rendering and lane layout                              | M2        | Accepted |
 | 0010 | On-disk graph cache (commit index reused and cached)                | M2        | Accepted |
-| 0011 | Background job model                                                | M5        | Planned  |
-| 0012 | Credentials and askpass                                             | M5        | Planned  |
+| 0011 | Background job model                                                | M5        | Accepted |
+| 0012 | Credentials and askpass                                             | M5        | Accepted |
 | 0013 | Diff viewer: diffs computed in Rust, rows paged                     | M3        | Accepted |
 | 0014 | Conflict resolution UI                                              | M6        | Planned  |
 | 0015 | CLI, single instance and task windows                               | M1        | Accepted |

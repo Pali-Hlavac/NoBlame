@@ -5,6 +5,10 @@
 use noblame_lib::cli;
 
 fn main() {
+    // git or ssh asking for a password for a job: answer and exit, nothing else.
+    if let Some(code) = noblame_lib::askpass_helper() {
+        std::process::exit(code);
+    }
     let cwd = std::env::current_dir().unwrap_or_default();
     match cli::parse(std::env::args_os(), &cwd) {
         Ok(request) => noblame_lib::run(request),

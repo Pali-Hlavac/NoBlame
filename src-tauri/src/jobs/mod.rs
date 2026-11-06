@@ -11,10 +11,14 @@ use std::sync::Arc;
 
 use tauri::{App, Manager};
 
+use crate::askpass::Askpass;
+
 pub use registry::JobRegistry;
 pub use types::JobUpdated;
 
-/// Makes the job registry available to commands.
+/// Starts the askpass service and makes it and the job registry available to commands.
 pub fn init(app: &App) {
-    app.manage(Arc::new(JobRegistry::new(app.handle().clone())));
+    let askpass = Askpass::start(app.handle().clone());
+    app.manage(Arc::clone(&askpass));
+    app.manage(Arc::new(JobRegistry::new(app.handle().clone(), askpass)));
 }

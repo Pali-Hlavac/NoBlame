@@ -11,7 +11,8 @@ use specta_typescript::Typescript;
 use tauri_specta::{Builder, collect_commands, collect_events};
 
 use crate::{
-    app_info, branches, git_env, inspect, jobs, repository, settings, windows, workbench, worktree,
+    app_info, askpass, branches, git_env, inspect, jobs, repository, settings, windows, workbench,
+    worktree,
 };
 
 /// Location of the generated bindings, relative to the crate root.
@@ -30,7 +31,9 @@ pub fn builder() -> Builder<tauri::Wry> {
         .events(collect_events![
             windows::RepositoriesRequested,
             repository::RepositoryChanged,
-            jobs::JobUpdated
+            jobs::JobUpdated,
+            askpass::CredentialRequested,
+            askpass::CredentialClosed
         ])
         .commands(collect_commands![
             app_info::commands::get_app_info,
@@ -92,6 +95,8 @@ pub fn builder() -> Builder<tauri::Wry> {
             jobs::commands::get_job_log,
             jobs::commands::cancel_job,
             jobs::commands::fetch_repository,
+            askpass::commands::list_credential_requests,
+            askpass::commands::answer_credential,
             worktree::commands::get_status,
             worktree::commands::get_change_counts,
             worktree::commands::get_worktree_file_id,

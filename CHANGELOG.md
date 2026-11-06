@@ -157,6 +157,11 @@ All notable changes to NoBlame are documented here. The format follows
 - External diff tool (M4 slice 6): **Open in diff tool** beside the file name in every diff opens
   the two versions in Git's `diff.tool`, Visual Studio Code or a command of your own
   (Settings → Diff), through `git difftool --no-index`.
+- Credentials (M5 slice 4): when Git's credential helpers and SSH agents have nothing, a
+  fetch asks in the app for the user name and password (or token), the SSH key passphrase, or
+  whether to trust an unknown SSH server. Nothing is stored by NoBlame; Git saves what you
+  typed with your credential helper as usual. Credentials written into remote URLs are shown
+  as `***` in job logs and messages.
 - Fetch (M5 slice 3): **Fetch**, **Fetch all remotes** and **Fetch and prune** from the
   toolbar's Pull menu, the command palette and the Repositories module's "…" menu (open or
   closed repositories). Fetches run as background jobs: the status bar shows progress, and a
