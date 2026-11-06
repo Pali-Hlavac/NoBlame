@@ -148,7 +148,8 @@ Details:
     whole history's commit index, so a filter does not hide them.
   - A right click (Shift+F10, Menu key) on a row opens its actions: check out, create a branch
     or tag there, rename, delete, copy the name; **F2** renames and **Delete** deletes the
-    active row ([branches.md](branches.md)). Upstreams and ahead/behind are M5 slice 2.
+    active row ([branches.md](branches.md)). Local branches show ↑ commits to push and ↓ to
+    pull against their upstream (counted for the rows on screen), or _gone_.
 - **Commit details**:
   - "Contained in" comes from the graph, not from `git branch --contains`. It is exact for every
     ref the graph knows (branches, remote branches, tags) and takes 5.5 ms for the oldest of a

@@ -8,10 +8,13 @@ import { useBranchSort } from "@/features/settings";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { VirtualList } from "@/shared/components/VirtualList";
+import type { RefEntry } from "@/shared/ipc/bindings";
 
+import { useBranchTracking } from "../hooks/useBranchTracking";
 import { useRefActions } from "../hooks/useRefActions";
 import { targetOf } from "../lib/menu";
 import { buildRows } from "../lib/rows";
+import { trackingText } from "../lib/tracking";
 import { BranchContextMenu } from "./BranchContextMenu";
 import { BranchRowView } from "./BranchRowView";
 
@@ -29,6 +32,7 @@ function Branches({ repoId, repoPath }: { repoId: number; repoPath: string }) {
     () => buildRows(refs.data ?? [], filter, collapsed, sort),
     [refs.data, filter, collapsed, sort],
   );
+  const { onRangeChange, trackingOf } = useBranchTracking(repoId, rows);
   const byDate = sort === "lastCommit";
   const SortIcon = byDate ? CalendarClockIcon : ArrowDownAZIcon;
 
@@ -46,6 +50,9 @@ function Branches({ repoId, repoPath }: { repoId: number; repoPath: string }) {
 
   const activeRow = active === undefined ? undefined : rows[active];
   const activeEntry = activeRow?.type === "ref" ? activeRow.entry : undefined;
+  /** A local branch's upstream and counts (other rows have none). */
+  const trackingAt = (entry: RefEntry) =>
+    entry.label.kind === "branch" ? trackingOf(entry.label.name) : undefined;
 
   /** F2 renames the active branch, Delete deletes it (or the tag), both asking first. */
   const onKey = (key: string): boolean => {
@@ -113,7 +120,11 @@ function Branches({ repoId, repoPath }: { repoId: number; repoPath: string }) {
       {rows.length === 0 ? (
         <p className="p-3 text-sm text-muted-foreground">No branch or tag matches.</p>
       ) : (
-        <BranchContextMenu repoId={repoId} entry={activeEntry}>
+        <BranchContextMenu
+          repoId={repoId}
+          entry={activeEntry}
+          upstream={(activeEntry && trackingAt(activeEntry)?.upstream) ?? null}
+        >
           {/* The menu's trigger needs an element that takes its props; the list does not. */}
           <div className="flex min-h-0 flex-1 flex-col">
             <VirtualList
@@ -130,13 +141,27 @@ function Branches({ repoId, repoPath }: { repoId: number; repoPath: string }) {
                 if (row.type === "section") {
                   return `${row.title}, ${row.count}, ${row.collapsed ? "collapsed" : "expanded"}`;
                 }
-                return `${row.entry.label.name}${row.entry.label.isHead ? ", current branch" : ""}`;
+                const tracking = trackingAt(row.entry);
+                return [
+                  row.entry.label.name,
+                  ...(row.entry.label.isHead ? ["current branch"] : []),
+                  ...(tracking ? [trackingText(tracking)] : []),
+                ].join(", ");
               }}
               renderRow={(index, isActive) => {
                 const row = rows[index];
-                return row ? <BranchRowView row={row} active={isActive} showDate={byDate} /> : null;
+                if (!row) return null;
+                return (
+                  <BranchRowView
+                    row={row}
+                    active={isActive}
+                    showDate={byDate}
+                    tracking={row.type === "ref" ? trackingAt(row.entry) : undefined}
+                  />
+                );
               }}
               onKey={onKey}
+              onRangeChange={onRangeChange}
             />
           </div>
         </BranchContextMenu>

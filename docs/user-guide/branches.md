@@ -40,5 +40,19 @@ and no name that exists already.
   only the name goes. You cannot delete the branch you are on.
 - Deleting a tag removes it from your computer only; a copy pushed to a remote stays there.
 
+## Upstreams
+
+A branch's upstream is the remote branch it is connected to (such as `origin/main`): the one
+pulling and pushing use. In the Branches list, a branch with an upstream shows:
+
+- **↑ 2**: two commits you have that the upstream doesn't (to push);
+- **↓ 3**: three commits the upstream has that you don't (to pull);
+- nothing when both are the same, and **gone** when the upstream was deleted on the remote.
+
+Hover over the branch to read it in words. The numbers are as of the last fetch.
+
+Right-click a branch → **Set upstream…** to connect it (type or pick the remote branch), or
+**Remove upstream** to disconnect it. Neither changes any commits.
+
 If someone changed the branch or tag in the meantime (for example in a terminal), NoBlame does
 nothing and asks you to look again.

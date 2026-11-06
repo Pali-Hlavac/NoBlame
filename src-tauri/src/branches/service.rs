@@ -22,7 +22,7 @@ use crate::git_env::GitEnvError;
 use crate::repository::{RepoId, RepoSessions, RepositoryError, blocking};
 
 /// Where git runs: the work tree, or the repository itself when it is bare.
-fn git_dir_or_work_tree(repo: &Repository) -> PathBuf {
+pub(super) fn git_dir_or_work_tree(repo: &Repository) -> PathBuf {
     let info = repo.info();
     match (&info.work_dir, info.kind) {
         (Some(work_dir), kind) if kind != RepoKind::Bare => work_dir.clone(),
@@ -39,7 +39,7 @@ fn work_tree(repo: &Repository) -> Result<PathBuf, RepositoryError> {
         .ok_or(RepositoryError::Bare)
 }
 
-fn git() -> Result<Git, RepositoryError> {
+pub(super) fn git() -> Result<Git, RepositoryError> {
     Ok(Git::locate().map_err(GitEnvError::from)?)
 }
 

@@ -23,6 +23,8 @@ export type BranchDialogRequest = Target &
     | { kind: "rename-branch"; branch: RefTargetDto }
     | { kind: "delete"; reference: RefTargetDto }
     | { kind: "checkout-commit"; commit: StartPoint }
+    /** Choose the upstream of a local branch (`current`: its full name, if it has one). */
+    | { kind: "set-upstream"; branch: string; current: string | null }
   );
 
 interface BranchDialogState {

@@ -55,6 +55,25 @@ describe("branchMenu", () => {
     expect(branchMenu(entry("head", "HEAD", true), actions(), copy)).toEqual([]);
   });
 
+  it("sets, changes and removes a local branch's upstream", () => {
+    const upstream = { has: false, set: vi.fn(), unset: vi.fn() };
+    const without = branchMenu(entry("branch", "topic"), actions(), vi.fn(), upstream);
+    expect(ids(without)).toContain("set-upstream");
+    expect(ids(without)).not.toContain("unset-upstream");
+    const set = without.find((item) => item.type === "item" && item.id === "set-upstream");
+    expect(set?.type === "item" && set.label).toBe("Set upstream…");
+    const tracked = branchMenu(entry("branch", "topic"), actions(), vi.fn(), {
+      ...upstream,
+      has: true,
+    });
+    const unset = tracked.find((item) => item.type === "item" && item.id === "unset-upstream");
+    if (unset?.type === "item") unset.run();
+    expect(upstream.unset).toHaveBeenCalledOnce();
+    expect(tracked.some((item) => item.type === "item" && item.label === "Change upstream…")).toBe(
+      true,
+    );
+  });
+
   it("starts new branches at the full reference name", () => {
     const refActions = actions();
     const menu = branchMenu(entry("remote", "origin/x"), refActions, vi.fn());

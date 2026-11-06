@@ -21,6 +21,8 @@ pub struct RepositoryChanged {
     pub refs: bool,
     /// A file in the working tree or the index changed.
     pub work_tree: bool,
+    /// The repository's config changed (upstreams of branches, remotes).
+    pub config: bool,
 }
 
 /// Starts watching `repo` for session `id`. Failing to watch (for example the inotify limit
@@ -35,6 +37,7 @@ pub fn start(app: &AppHandle, id: RepoId, repo: &Repository) -> Option<RepoWatch
                 id,
                 refs: changes.refs,
                 work_tree: changes.work_tree,
+                config: changes.config,
             };
             if let Err(error) = event.emit(&app) {
                 tracing::warn!(%error, "could not report a repository change");

@@ -21,6 +21,13 @@ fn refs_and_head_are_ref_changes() {
 }
 
 #[test]
+fn the_config_is_a_config_change() {
+    assert_eq!(kind("/repo/.git/config"), Some(ChangeKind::Config));
+    assert_eq!(kind("/repo/.git/config.worktree"), Some(ChangeKind::Config));
+    assert_eq!(kind("/repo/.git/config.lock"), None);
+}
+
+#[test]
 fn the_index_and_files_are_work_tree_changes() {
     assert_eq!(kind("/repo/.git/index"), Some(ChangeKind::WorkTree));
     assert_eq!(kind("/repo/src/main.rs"), Some(ChangeKind::WorkTree));

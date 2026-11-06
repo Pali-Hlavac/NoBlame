@@ -731,10 +731,10 @@ Slices, in order (planned 2026-11-02):
 
 ### M5: Branches, tags and remotes
 
-- [~] Branches and tags: create, rename, delete (unmerged warning), checkout/switch, track upstream.
-  Slice 1 (2026-11-06): all but tracking an upstream, which is slice 2
-- [ ] Ahead/behind counts per branch; actions in the Branches module (checkout, create, rename,
-      delete, track); Submodules and Worktrees modules
+- [x] Branches and tags: create, rename, delete (unmerged warning), checkout/switch, track upstream.
+      Slice 1 (2026-11-06), upstreams slice 2 (2026-11-06)
+- [x] Ahead/behind counts per branch; actions in the Branches module (checkout, create, rename,
+      delete, track). Slices 1 and 2, 2026-11-06. (Submodules and Worktrees modules: M7)
 - [ ] Toolbar operations: Fetch, Fetch all, Fetch and prune (`git fetch --prune`), Pull
       (merge/rebase/ff-only), Push (incl. tags, force-with-lease behind confirmation) as background
       jobs with progress
@@ -767,6 +767,7 @@ working branch model; the job registry comes before anything that talks to a rem
    what git said. Done 2026-11-06 ([features/branches.md](features/branches.md)).
 2. **Upstreams and ahead/behind**: each local branch shows its upstream and ahead/behind in the
    Branches module (measured on thousands of branches first); set and unset the upstream.
+   Done 2026-11-06: upstreams are listed at once, ahead/behind counted for the rows on screen.
 3. **Job registry and Fetch** (ADR 0011): jobs with progress, cancel (whole process tree),
    logs and the equivalent command; a jobs list in the status bar; Fetch, Fetch all remotes,
    Fetch and prune from the toolbar and the "…" menu.

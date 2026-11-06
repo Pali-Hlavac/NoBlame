@@ -172,6 +172,12 @@ Use `target\debug\noblame.exe` while the dev app runs.
 - [ ] (new, M5 slice 1) **F2** on a branch renames it (typing an existing name is refused at
       once). **Delete** on a branch with commits of its own lists them before deleting.
   - Notes:
+- [ ] (new, M5 slice 2) A branch behind and ahead of its upstream shows ↑ and ↓ counts in the
+      Branches module; scroll a long list (synthetic-1m) and the counts fill in for the rows
+      shown. Right-click → **Set upstream…** (the field suggests `origin/<name>`), then
+      **Remove upstream**; `git branch -vv` agrees. `git branch -u origin/x` in a terminal shows
+      up without reopening.
+  - Notes:
 - [ ] (new, M5 slice 1) In the graph's commit menu: **Create a branch here…**, **Create a tag
       here…** (with a message: annotated), **Check out this commit…** (explains detached HEAD).
   - Notes:

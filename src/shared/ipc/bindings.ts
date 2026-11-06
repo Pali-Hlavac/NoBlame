@@ -165,6 +165,15 @@ export const commands = {
 	deleteRef: (id: number, reference: RefTargetDto) => typedError<string, AppError>(__TAURI_INVOKE("delete_ref", { id, reference })),
 	/**  Creates a tag: annotated with a message, lightweight without. */
 	createTag: (id: number, request: CreateTagRequestDto) => typedError<string, AppError>(__TAURI_INVOKE("create_tag", { id, request })),
+	/**  Every local branch with an upstream (without counting ahead and behind). */
+	getUpstreams: (id: number) => typedError<UpstreamDto[], AppError>(__TAURI_INVOKE("get_upstreams", { id })),
+	/**
+	 *  Ahead and behind for these branches (at most 256; pass the ones shown). Branches without
+	 *  an upstream are left out.
+	 */
+	getAheadBehind: (id: number, branches: string[]) => typedError<BranchTrackingDto[], AppError>(__TAURI_INVOKE("get_ahead_behind", { id, branches })),
+	/**  Sets the upstream of a local branch, or removes it. */
+	setUpstream: (id: number, request: SetUpstreamRequestDto) => typedError<string, AppError>(__TAURI_INVOKE("set_upstream", { id, request })),
 	/**
 	 *  The working tree status: counts, staged files and unstaged ones (`null` for a bare
 	 *  repository).
@@ -379,6 +388,18 @@ export type BranchSort =
 "name" | 
 /**  Newest commit first. */
 "lastCommit";
+
+/**  How far a branch is from its upstream. */
+export type BranchTrackingDto = {
+	/**  The branch. */
+	branch: string,
+	/**  Commits on the branch only (to push). */
+	ahead: number,
+	/**  Commits on the upstream only (to pull). */
+	behind: number,
+	/**  The upstream is missing; `ahead` and `behind` are 0. */
+	gone: boolean,
+};
 
 /**  Branches module preferences. */
 export type BranchesSettings = {
@@ -1237,6 +1258,8 @@ export type RepositoryChanged = {
 	refs: boolean,
 	/**  A file in the working tree or the index changed. */
 	workTree: boolean,
+	/**  The repository's config changed (upstreams of branches, remotes). */
+	config: boolean,
 };
 
 /**  One group, in the order the user arranged. */
@@ -1257,6 +1280,17 @@ export type RepositoryGroupsDto = {
 	groups: RepositoryGroup[],
 	/**  Grouped paths whose folder no longer exists (checked when the list is read). */
 	missing: string[],
+};
+
+/**  Sets or removes the upstream of a local branch. */
+export type SetUpstreamRequestDto = {
+	/**  The local branch. */
+	branch: string,
+	/**
+	 *  The new upstream's full name (`refs/remotes/origin/x` or `refs/heads/y`); `null`
+	 *  removes it.
+	 */
+	upstream: string | null,
 };
 
 /**
@@ -1557,6 +1591,16 @@ export type UniqueCommitsDto = {
 	count: number,
 	/**  The newest few, newest first. */
 	newest: CommitLineDto[],
+};
+
+/**  A local branch with an upstream configured. */
+export type UpstreamDto = {
+	/**  The branch (`feature/x`). */
+	branch: string,
+	/**  The upstream's full name: `refs/remotes/origin/x`, or `refs/heads/y` for a local one. */
+	upstream: string,
+	/**  Configured but missing (deleted on the remote and pruned, or never fetched). */
+	gone: boolean,
 };
 
 /**  Which whitespace changes the diff shows, as git's options name them. */

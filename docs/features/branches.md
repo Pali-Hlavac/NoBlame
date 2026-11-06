@@ -1,8 +1,9 @@
 # Branches and tags
 
-Status: **M5 slice 1 done (2026-11-06)**: check out a branch, a commit or a remote branch;
-create, rename and delete branches; create and delete tags. Upstreams and ahead/behind are
-slice 2; pushing and deleting on a remote are slice 5 ([roadmap](../roadmap.md#m5-branches-tags-and-remotes)).
+Status: **M5 slices 1 and 2 done (2026-11-06)**: check out a branch, a commit or a remote
+branch; create, rename and delete branches; create and delete tags; each local branch's upstream
+and how far ahead or behind it is; set, change and remove the upstream. Pushing and deleting on
+a remote are slice 5 ([roadmap](../roadmap.md#m5-branches-tags-and-remotes)).
 
 The Branches module itself (sections, filter, sort) is described in
 [workbench.md](workbench.md#modules).
@@ -16,11 +17,11 @@ The Branches module itself (sections, filter, sort) is described in
   (M5 slice 5, M6).
 - **The Branches module**: right click a row (or Shift+F10 / Menu key on the active row):
 
-  | Row           | Entries                                                                                                                   |
-  | ------------- | ------------------------------------------------------------------------------------------------------------------------- |
-  | Local branch  | Check out (not the current one), Create a branch here, Create a tag here, Rename, Delete (not the current one), Copy name |
-  | Remote branch | Check out as a new local branch, Create a branch here, Create a tag here, Copy name                                       |
-  | Tag           | Create a branch here, Delete, Copy name                                                                                   |
+  | Row           | Entries                                                                                                                                                                               |
+  | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+  | Local branch  | Check out (not the current one), Create a branch here, Create a tag here, Rename, Delete (not the current one), Set upstream / Change upstream, Remove upstream (with one), Copy name |
+  | Remote branch | Check out as a new local branch, Create a branch here, Create a tag here, Copy name                                                                                                   |
+  | Tag           | Create a branch here, Delete, Copy name                                                                                                                                               |
 
   **F2** renames the active branch, **Delete** deletes the active branch or tag (both open
   their dialog). A click still selects the commit.
@@ -61,20 +62,39 @@ The Branches module itself (sections, filter, sort) is described in
   parts), against existing branches or tags, and against names that would clash as a file and
   a folder (`topic` and `topic/old`). The backend checks again (`validate_name`, gix's
   reference name validation), and git has the last word: its message shows in the dialog.
+- **Upstreams**: each local branch with an upstream shows ↑ commits to push and ↓ commits to
+  pull at the right of its row (nothing when even), or _gone_ when the upstream is configured
+  but missing (deleted on the remote and pruned). The row's tooltip and its accessible name say
+  it in words ("Tracks origin/main: 2 commits to push"). **Set upstream…** asks for a remote
+  branch (`origin/main`, offered as you type; a local branch works too), suggesting the
+  current upstream or the remote branch of the same name, and runs `git branch
+--set-upstream-to=<full name> <branch>`. **Remove upstream** runs `git branch
+--unset-upstream` at once (a toast names the old one).
+- **Counting only what is shown**: every branch's upstream comes from one `git for-each-ref
+--format=%(refname)%00%(upstream)` (`get_upstreams`); ahead/behind from `git for-each-ref
+--format=…%(upstream:track,nobracket) refs/heads/<each shown branch>` (`get_ahead_behind`),
+  for the rows on screen once scrolling has stopped for 150 ms (at most 256 per call). The
+  previous counts stay while new ones load.
+- Upstreams live in the repository's config, so the file watcher now reports `config` changes
+  too (`.git/config`, `config.worktree`): an upstream set in a terminal shows without a reload
+  of the graph.
 - All changes hold the session's write lock. The file watcher reports the changed refs, which
   reloads the graph, the Branches module and the title bar's branch.
 
 ## Code
 
 - `crates/git-core/src/branch/`: `write.rs` (switch, create, rename, delete), `tag.rs`,
-  `unique.rs` (the commits only one reference holds), `mod.rs` (`validate_name`, `check_ref`,
-  `head_commit`, `BranchError`). Tests: `tests/branch_write.rs`.
+  `unique.rs` (the commits only one reference holds), `upstream.rs` (list, count, set, unset),
+  `mod.rs` (`validate_name`, `check_ref`, `head_commit`, `BranchError`). Tests:
+  `tests/branch_write.rs`, `tests/branch_upstream.rs`.
 - `src-tauri/src/branches/`: commands `checkout_branch`, `checkout_commit`, `create_branch`,
-  `rename_branch`, `get_unique_commits`, `delete_ref`, `create_tag`; errors in
-  `repository/branch_error.rs`.
+  `rename_branch`, `get_unique_commits`, `delete_ref`, `create_tag`, and in `upstream.rs`
+  `get_upstreams`, `get_ahead_behind`, `set_upstream`; errors in `repository/branch_error.rs`.
 - `src/features/branches/`: `api/branches.ts`, `hooks/useRefActions.ts` (the actions),
   `store/dialog.ts` (the dialog asked for), `components/BranchDialogs.tsx` (mounted once in the
-  main window) and one component per dialog, `lib/menu.ts` (the module's menu).
+  main window) and one component per dialog, `lib/menu.ts` (the module's menu);
+  `api/upstreams.ts`, `hooks/useBranchTracking.ts` (counts for the rows shown),
+  `lib/tracking.ts`, `components/SetUpstreamDialog.tsx`.
 - The graph does not depend on the branches feature: it declares `RefActions` and
   `RefActionsContext` (`features/graph/lib/refActions.ts`); `MainWindow` provides
   `useRefActions`. Without a provider (task windows) the entries stay labelled stubs.
@@ -85,3 +105,10 @@ Counting the commits only a reference holds is one `git rev-list --count` (and a
 -n 3` when there are any): 0.1–0.4 s on the Linux kernel (957 refs) and synthetic-1m (10,570
 refs), 0.8 s at worst (the oldest tag of Linux). The dialog says "Counting…" meanwhile. See
 [performance.md](../development/performance.md#branch-and-tag-actions-m5-slice-1-2026-11-06).
+
+Ahead/behind costs a history walk per branch. On synthetic-1m (5,065 local branches) with every
+branch tracking a _different_ remote branch (diverged by up to ~1,400 commits), one `git
+for-each-ref` counting them all took 13–21 s; with each tracking its own (even) remote branch,
+0.7–0.9 s. So only the rows on screen are counted: 40 of them take 0.17 s, and listing all
+5,065 upstreams without counting 0.11 s. See
+[performance.md](../development/performance.md#upstreams-and-aheadbehind-m5-slice-2-2026-11-06).

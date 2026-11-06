@@ -1,13 +1,14 @@
 //! Tauri boundary for checking out, and for creating, renaming and deleting branches and tags
-//! (the list is `list_refs`).
+//! (the list is `list_refs`), and for their upstreams.
 
 use tauri::State;
 
 use super::service;
 use super::types::{
-    CreateBranchRequestDto, CreateTagRequestDto, RefTargetDto, RenameBranchRequestDto,
-    UniqueCommitsDto,
+    BranchTrackingDto, CreateBranchRequestDto, CreateTagRequestDto, RefTargetDto,
+    RenameBranchRequestDto, SetUpstreamRequestDto, UniqueCommitsDto, UpstreamDto,
 };
+use super::upstream;
 use crate::error::CommandResult;
 use crate::repository::{RepoId, RepoSessions};
 
@@ -88,4 +89,37 @@ pub async fn create_tag(
     request: CreateTagRequestDto,
 ) -> CommandResult<String> {
     Ok(service::tag(&sessions, id, request).await?)
+}
+
+/// Every local branch with an upstream (without counting ahead and behind).
+#[tauri::command]
+#[specta::specta]
+pub async fn get_upstreams(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+) -> CommandResult<Vec<UpstreamDto>> {
+    Ok(upstream::list(&sessions, id).await?)
+}
+
+/// Ahead and behind for these branches (at most 256; pass the ones shown). Branches without
+/// an upstream are left out.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_ahead_behind(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    branches: Vec<String>,
+) -> CommandResult<Vec<BranchTrackingDto>> {
+    Ok(upstream::counts(&sessions, id, branches).await?)
+}
+
+/// Sets the upstream of a local branch, or removes it.
+#[tauri::command]
+#[specta::specta]
+pub async fn set_upstream(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    request: SetUpstreamRequestDto,
+) -> CommandResult<String> {
+    Ok(upstream::set(&sessions, id, request).await?)
 }

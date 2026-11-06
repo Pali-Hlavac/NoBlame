@@ -209,6 +209,24 @@ with no commits, so all 2,000 commits are read. Linux kernel: 32 ms warm, 0.51 s
 read of the pack after a restart; 20 messages of anyone 10 ms. synthetic-1m: 0.43 s cold. They
 are read only when the **Recent** menu opens, on a blocking thread.
 
+### Upstreams and ahead/behind (M5 slice 2, 2026-11-06)
+
+synthetic-1m has 5,065 local branches and 5,056 remote branches but no upstreams, so they were
+configured for the measurement in a throwaway config passed with `GIT_CONFIG_GLOBAL` (the
+repository and the user's config were not changed). `git --no-optional-locks for-each-ref
+refs/heads` (Windows 11, git 2.56.0, warm):
+
+| What                                                                 | Time        |
+| -------------------------------------------------------------------- | ----------- |
+| All upstream names, no counting (`%(upstream)`)                      | 111 ms      |
+| All, counted, each branch tracking its own remote branch (even)      | 677–944 ms  |
+| All, counted, each tracking the next branch (diverged, up to ~1,400) | 12.8–21.2 s |
+| 40 branches named on the command line, diverged (a screenful)        | 162–174 ms  |
+| One `rev-list --left-right --count` of a diverged pair               | 166 ms      |
+
+Counting everything is out of the question for large repositories, so the Branches module lists
+all upstreams at once and counts only the rows on screen after scrolling stops.
+
 ### Branch and tag actions (M5 slice 1, 2026-11-06)
 
 Before a branch or tag is deleted, its confirmation counts the commits only it holds:

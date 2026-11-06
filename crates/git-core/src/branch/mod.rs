@@ -3,9 +3,11 @@
 //! config apply. Before a rename or a delete the reference is checked with gix: it must still
 //! point at the commit the user saw (`check_ref`). Deleting asks first how many commits no other
 //! branch or tag holds (`unique.rs`), so the confirmation can name what would be lost.
+//! `upstream.rs` lists, counts, sets and unsets the upstreams of local branches.
 
 mod tag;
 mod unique;
+mod upstream;
 mod write;
 
 use gix::ObjectId;
@@ -15,6 +17,9 @@ use crate::cli::{GitError, GitOutput};
 
 pub use tag::{create_tag, delete_tag};
 pub use unique::{UniqueCommits, unique_commits};
+pub use upstream::{
+    BranchUpstream, Tracking, ahead_behind, set_upstream, unset_upstream, upstreams,
+};
 pub use write::{
     CreateBranch, create_branch, delete_branch, rename_branch, switch_branch, switch_detached,
 };

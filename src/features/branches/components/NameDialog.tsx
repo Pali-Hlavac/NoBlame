@@ -29,6 +29,8 @@ interface NameDialogProps {
   error: unknown;
   onSubmit: (name: string) => void;
   onClose: () => void;
+  /** Names offered while typing (an existing branch to pick). */
+  suggestions?: readonly string[];
   /** More fields under the name (options, a message). */
   children?: ReactNode;
 }
@@ -71,6 +73,7 @@ export function NameDialog(props: NameDialogProps) {
               value={name}
               spellCheck={false}
               autoComplete="off"
+              list={props.suggestions ? `${id}-suggestions` : undefined}
               aria-invalid={shownProblem !== null}
               aria-describedby={shownProblem ? `${id}-problem` : undefined}
               className="h-8 rounded-md border border-border bg-background px-2 font-mono text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring aria-invalid:border-destructive"
@@ -82,6 +85,13 @@ export function NameDialog(props: NameDialogProps) {
                 setTouched(true);
               }}
             />
+            {props.suggestions && (
+              <datalist id={`${id}-suggestions`}>
+                {props.suggestions.map((suggestion) => (
+                  <option key={suggestion} value={suggestion} />
+                ))}
+              </datalist>
+            )}
             {shownProblem && (
               <p id={`${id}-problem`} className="text-xs text-destructive">
                 {shownProblem}

@@ -1,7 +1,7 @@
 import { useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 
-import { reloadGraph } from "@/features/graph";
+import { refKeys, reloadGraph } from "@/features/graph";
 import { statusKeys } from "@/features/working-tree";
 import { events, type RepoSummary, type RepositoryChanged } from "@/shared/ipc/bindings";
 import { commands, unwrap } from "@/shared/ipc/client";
@@ -23,6 +23,10 @@ async function applyChange(queryClient: QueryClient, change: RepositoryChanged):
   if (path === undefined) return;
   // A commit or checkout changes the index too, so refs changes re-read the status as well.
   void queryClient.invalidateQueries({ queryKey: statusKeys.all(change.id) });
+  // The config holds the branches' upstreams (the Branches module keeps them under the refs).
+  if (change.config && !change.refs) {
+    void queryClient.invalidateQueries({ queryKey: refKeys.all(change.id) });
+  }
   if (!change.refs) return;
   const summary = await unwrap(commands.refreshRepository(change.id));
   queryClient.setQueryData(sessionKeys.byPath(path), summary);

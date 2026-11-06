@@ -5,6 +5,14 @@ import type { RefEntry, RefTargetDto } from "@/shared/ipc/bindings";
 export type BranchMenuEntry =
   { type: "item"; id: string; label: string; run: () => void } | { type: "separator"; id: string };
 
+/** Upstream entries of a local branch's menu. */
+export interface UpstreamMenuActions {
+  /** The branch has an upstream (so it can be removed). */
+  has: boolean;
+  set: () => void;
+  unset: () => void;
+}
+
 const PREFIX = { branch: "refs/heads/", remote: "refs/remotes/", tag: "refs/tags/" } as const;
 
 /** The reference as the actions take it; `null` for a detached HEAD. */
@@ -18,11 +26,12 @@ function startOf(target: RefTargetDto): StartPoint {
   return { revision: `${PREFIX[target.namespace]}${target.name}`, label: target.name };
 }
 
-/** The entries for `entry`; `copy` copies its name. */
+/** The entries for `entry`; `copy` copies its name. Local branches get `upstream`'s entries. */
 export function branchMenu(
   entry: RefEntry,
   actions: RefActions,
   copy: (name: string) => void,
+  upstream?: UpstreamMenuActions,
 ): BranchMenuEntry[] {
   const target = targetOf(entry);
   if (!target) return [];
@@ -71,6 +80,17 @@ export function branchMenu(
                 actions.deleteRef(target);
               }),
             ]),
+        ...(upstream
+          ? [
+              { type: "separator", id: "sep-upstream" } as const,
+              item(
+                "set-upstream",
+                upstream.has ? "Change upstream…" : "Set upstream…",
+                upstream.set,
+              ),
+              ...(upstream.has ? [item("unset-upstream", "Remove upstream", upstream.unset)] : []),
+            ]
+          : []),
         ...tail,
       ];
     case "remote":

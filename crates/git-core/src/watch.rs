@@ -2,7 +2,8 @@
 //! saving a file, a fetch).
 //!
 //! File system events are debounced, then sorted by [`classify`] into "refs changed" (the graph,
-//! branches and stashes need reloading) and "working tree changed" (the status needs reading).
+//! branches and stashes need reloading), "working tree changed" (the status needs reading) and
+//! "config changed" (upstreams of branches).
 //! Changes to ignored files are dropped using the repository's own `.gitignore` rules, so a
 //! build writing into `target/` or `node_modules/` does not cause status runs.
 
@@ -23,6 +24,8 @@ pub struct Changes {
     pub refs: bool,
     /// A file in the working tree or the index changed.
     pub work_tree: bool,
+    /// The repository's config changed (upstreams of branches, remotes).
+    pub config: bool,
 }
 
 impl Changes {
@@ -30,11 +33,12 @@ impl Changes {
         match kind {
             ChangeKind::Refs => self.refs = true,
             ChangeKind::WorkTree => self.work_tree = true,
+            ChangeKind::Config => self.config = true,
         }
     }
 
     fn any(self) -> bool {
-        self.refs || self.work_tree
+        self.refs || self.work_tree || self.config
     }
 }
 
@@ -45,6 +49,8 @@ pub enum ChangeKind {
     Refs,
     /// The index or a file in the working tree (not yet checked against `.gitignore`).
     WorkTree,
+    /// `config` or `config.worktree` in `.git`.
+    Config,
 }
 
 /// The folders of one repository.
@@ -111,6 +117,8 @@ fn classify_git_file(relative: &Path) -> Option<ChangeKind> {
         Some(ChangeKind::WorkTree)
     } else if first == "HEAD" || first == "packed-refs" || first == "refs" {
         Some(ChangeKind::Refs)
+    } else if first == "config" || first == "config.worktree" {
+        Some(ChangeKind::Config)
     } else {
         None
     }

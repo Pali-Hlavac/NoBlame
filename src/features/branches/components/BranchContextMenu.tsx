@@ -12,23 +12,32 @@ import {
 } from "@/shared/ui/context-menu";
 
 import { useRefActions } from "../hooks/useRefActions";
+import { useUpstreamActions } from "../hooks/useUpstreamActions";
 import { branchMenu } from "../lib/menu";
 
 interface BranchContextMenuProps {
   repoId: number;
   /** The active row's reference; no menu on section headers. */
   entry: RefEntry | undefined;
+  /** The entry's upstream (full name) when it is a local branch with one. */
+  upstream: string | null;
   /** The list; right-clicking a row makes it active first, so the menu is that row's. */
   children: ReactNode;
 }
 
 /** The context menu of the Branches module's active row (right click, Shift+F10, Menu key). */
-export function BranchContextMenu({ repoId, entry, children }: BranchContextMenuProps) {
+export function BranchContextMenu({ repoId, entry, upstream, children }: BranchContextMenuProps) {
   const actions = useRefActions(repoId);
+  const upstreamActions = useUpstreamActions(repoId);
   const entries = entry
-    ? branchMenu(entry, actions, (name) => {
-        copyToClipboard(name, "Name");
-      })
+    ? branchMenu(
+        entry,
+        actions,
+        (name) => {
+          copyToClipboard(name, "Name");
+        },
+        entry.label.kind === "branch" ? upstreamActions(entry.label.name, upstream) : undefined,
+      )
     : [];
   return (
     <ContextMenu modal={false}>

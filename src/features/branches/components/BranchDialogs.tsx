@@ -5,6 +5,7 @@ import { CreateBranchDialog } from "./CreateBranchDialog";
 import { CreateTagDialog } from "./CreateTagDialog";
 import { DeleteRefDialog } from "./DeleteRefDialog";
 import { RenameBranchDialog } from "./RenameBranchDialog";
+import { SetUpstreamDialog } from "./SetUpstreamDialog";
 
 /** Shows the branch or tag dialog asked for (mounted once, in the main window). */
 export function BranchDialogs() {
@@ -70,6 +71,16 @@ export function BranchDialogs() {
           key={key}
           repoId={repoId}
           commit={request.commit}
+          onClose={closeBranchDialog}
+        />
+      );
+    case "set-upstream":
+      return (
+        <SetUpstreamDialog
+          key={key}
+          repoId={repoId}
+          branch={request.branch}
+          current={request.current}
           onClose={closeBranchDialog}
         />
       );
