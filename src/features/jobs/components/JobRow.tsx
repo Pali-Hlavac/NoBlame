@@ -5,6 +5,7 @@ import {
   CircleSlashIcon,
   CopyIcon,
   LoaderCircleIcon,
+  SquareTerminalIcon,
   XCircleIcon,
 } from "lucide-react";
 
@@ -13,9 +14,10 @@ import { copyToClipboard } from "@/shared/lib/clipboard";
 import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/button";
 
-import { useCancelJob, useJobLog } from "../api/jobs";
+import { useCancelJob, useJobOutput } from "../api/jobs";
 import { durationLabel, progressLabel, repositoryName } from "../lib/format";
-import { toggleJobLog } from "../store/panel";
+import { showOutput } from "../store/output";
+import { setJobsOpen, toggleJobLog } from "../store/panel";
 
 const STATE_ICONS: Record<JobStateDto, typeof CheckCircle2Icon> = {
   running: LoaderCircleIcon,
@@ -47,7 +49,7 @@ interface JobRowProps {
 /** One job: what, where, how far or how it ended; cancel, the command line and its log. */
 export function JobRow({ job, expanded, nowSeconds }: JobRowProps) {
   const cancel = useCancelJob();
-  const log = useJobLog(job, expanded);
+  const log = useJobOutput(job, expanded);
   const Icon = STATE_ICONS[job.state];
   const running = job.state === "running";
   const percent = job.progress?.percent ?? null;
@@ -136,6 +138,19 @@ export function JobRow({ job, expanded, nowSeconds }: JobRowProps) {
           <CopyIcon className="size-3.5" aria-hidden />
           Copy command
         </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-6 gap-1 px-1 text-xs"
+          aria-label={`Show the output of ${job.title} in a window`}
+          onClick={() => {
+            setJobsOpen(false);
+            showOutput(job.id, "select");
+          }}
+        >
+          <SquareTerminalIcon className="size-3.5" aria-hidden />
+          Output window
+        </Button>
       </div>
       {expanded && (
         <pre
@@ -144,7 +159,7 @@ export function JobRow({ job, expanded, nowSeconds }: JobRowProps) {
         >
           <span className="text-muted-foreground">$ {job.command}</span>
           {"\n"}
-          {log.data ? log.data.join("\n") : "…"}
+          {log.data ? log.data.lines.join("\n") : "…"}
         </pre>
       )}
     </li>

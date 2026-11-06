@@ -3,7 +3,7 @@ export { useSettings } from "./api/settings";
 export { SettingsView } from "./components/SettingsView";
 export { ThemeController } from "./components/ThemeController";
 export { ThemeMenu } from "./components/ThemeMenu";
-export { useAppSettings } from "./hooks/useAppSettings";
+export { useAppSettings, useChangeSettings } from "./hooks/useAppSettings";
 export { useBranchSort } from "./hooks/useBranchSort";
 export { useDiffSettings } from "./hooks/useDiffSettings";
 export { useGraphColumns } from "./hooks/useGraphColumns";

@@ -70,7 +70,7 @@
     "allow-set-upstream",
     "allow-get-missing-commits",
     "allow-list-jobs",
-    "allow-get-job-log",
+    "allow-get-job-output",
     "allow-cancel-job",
     "allow-fetch-repository",
     "allow-pull-repository",

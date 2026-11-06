@@ -54,7 +54,12 @@ the tree (used by `get_git_info`, 10 s).
   newest forgotten (running jobs are never dropped).
 - `cancel(id)` cancels the job's token; the run kills the tree and ends as `cancelled`.
 
-Commands: `list_jobs`, `get_job_log`, `cancel_job`, `fetch_repository` (see
+- The log keeps the newest 5,000 lines; `JobDto.logLines` counts every line written (dropped
+  ones too), and `get_job_output(id, from)` returns the lines from line `from` on (with the
+  number of the first one returned, later than `from` when older lines were dropped), so a
+  window streaming the output reads only what is new.
+
+Commands: `list_jobs`, `get_job_output`, `cancel_job`, `fetch_repository` (see
 [ipc.md](ipc.md)). Jobs live in memory only.
 
 ## Credentials
@@ -77,6 +82,13 @@ failure messages pass through `redact_credentials`. See
   all) and remembers which job ids belong to it; when the last one ends (or could not start),
   one summary toast replaces theirs (`batchSummary`: counts, failures first). Nothing changes in
   the backend: a batch is only how the UI reports its jobs.
+- `useJobOutput(job, enabled)`: one TanStack Query entry per job holding the lines read so far
+  (`lib/output.ts`, `appendOutput`); when `logLines` grows past what it holds, it reads the new
+  lines only. The jobs list's **Log** and the output window use it.
+- `components/OutputWindow.tsx` and `OutputConsole.tsx`: the Git output window
+  ([features/remotes.md](../features/remotes.md#git-output-window)); `store/output.ts` holds
+  whether it is open, its jobs and the one on screen. `useJobEvents` opens it for every new job
+  while `jobs.showOutputWindow` is on.
 - `useJobRunning(paths, kind)`: whether a job of `kind` runs on any of `paths` (the quick
   buttons of the Repositories module spin and wait while one does).
 - `components/JobsIndicator.tsx`: the status bar entry (hidden until a job ran): the running

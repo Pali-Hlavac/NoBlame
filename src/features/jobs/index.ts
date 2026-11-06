@@ -9,5 +9,6 @@ export {
 export { startBatch } from "./lib/batch";
 export { startJob } from "./lib/start";
 export { JobsIndicator } from "./components/JobsIndicator";
+export { OutputWindow } from "./components/OutputWindow";
 export { useJobEvents } from "./hooks/useJobEvents";
 export { showJobs } from "./store/panel";

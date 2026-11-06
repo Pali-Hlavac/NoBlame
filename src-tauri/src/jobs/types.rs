@@ -64,13 +64,24 @@ pub struct JobDto {
     pub progress: Option<JobProgressDto>,
     /// How it ended in words (`2 new, 1 updated`, git's error); `null` while running.
     pub message: Option<String>,
-    /// Lines in its log so far (progress updates excluded); the UI refetches the log when it
-    /// grows.
+    /// Lines written to its log so far, dropped ones included (progress updates excluded); the
+    /// UI reads the new ones (`get_job_output`) when it grows.
     pub log_lines: u32,
     /// Start time, seconds since the Unix epoch.
     pub started_at: f64,
     /// End time, seconds since the Unix epoch; `null` while running.
     pub finished_at: Option<f64>,
+}
+
+/// Lines of a job's log, from line `from` (counting from its first line) on.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct JobOutputDto {
+    /// The number of the first line returned: the one asked for, or later when the older
+    /// lines were dropped (a job keeps its newest 5,000).
+    pub from: u32,
+    /// The lines, oldest first.
+    pub lines: Vec<String>,
 }
 
 /// A job started, made progress or ended. Sent at most every 100 ms per job while it runs,

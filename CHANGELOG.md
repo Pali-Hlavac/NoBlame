@@ -157,6 +157,11 @@ All notable changes to NoBlame are documented here. The format follows
 - External diff tool (M4 slice 6): **Open in diff tool** beside the file name in every diff opens
   the two versions in Git's `diff.tool`, Visual Studio Code or a command of your own
   (Settings → Diff), through `git difftool --no-index`.
+- Git output window (M5 slice 7, owner request 2026-10-30): with **Settings → Fetch, pull and
+  push → Show git's output in a window**, fetches, pulls and pushes open a console beside your
+  work that streams what git prints, its progress and the result, with Cancel and Copy output.
+  It closes by itself when they all succeeded (a setting) and stays open on a failure. Any job
+  in the jobs list can be shown in it. Job logs are now read a few new lines at a time.
 - Pull and push in the Repositories module (M5 slice 6): a repository's **…** menu pulls and
   pushes it, open or not (Push sends the current branch to its upstream), and a group's menu
   has **Pull all** (merge) and **Push all**, one job per repository with one summary toast at

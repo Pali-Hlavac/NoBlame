@@ -13,7 +13,10 @@ use tokio_util::sync::CancellationToken;
 
 use crate::askpass::Askpass;
 
-use super::types::{JobDto, JobId, JobKindDto, JobProgressDto, JobStateDto, JobUpdated};
+use super::failure::failed;
+use super::types::{
+    JobDto, JobId, JobKindDto, JobOutputDto, JobProgressDto, JobStateDto, JobUpdated,
+};
 
 /// Progress events per job are sent at most this often; state changes always go out.
 const PROGRESS_INTERVAL: Duration = Duration::from_millis(100);
@@ -21,8 +24,6 @@ const PROGRESS_INTERVAL: Duration = Duration::from_millis(100);
 const MAX_LOG_LINES: usize = 5_000;
 /// Finished jobs kept for the jobs list; older ones are forgotten.
 const MAX_FINISHED_JOBS: usize = 30;
-/// Lines of git's error output a failed job's message keeps.
-const FAILURE_LINES: usize = 6;
 
 /// Turns a successful job's output into its message (`2 new, 1 updated`).
 pub type Describe = Box<dyn FnOnce(&GitOutput) -> String + Send>;
@@ -45,6 +46,8 @@ struct Entry {
     job: JobDto,
     cancel: CancellationToken,
     log: VecDeque<String>,
+    /// Lines dropped from the front of `log` (the log keeps the newest [`MAX_LOG_LINES`]).
+    dropped: u32,
     last_sent: Instant,
 }
 
@@ -106,6 +109,7 @@ impl JobRegistry {
                 job: job.clone(),
                 cancel: cancel.clone(),
                 log: VecDeque::new(),
+                dropped: 0,
                 last_sent: Instant::now(),
             });
             job
@@ -152,9 +156,10 @@ impl JobRegistry {
             if !line.progress {
                 if entry.log.len() == MAX_LOG_LINES {
                     entry.log.pop_front();
+                    entry.dropped = entry.dropped.saturating_add(1);
                 }
                 entry.log.push_back(line.text);
-                entry.job.log_lines = u32::try_from(entry.log.len()).unwrap_or(u32::MAX);
+                entry.job.log_lines = entry.job.log_lines.saturating_add(1);
             }
             (entry.last_sent.elapsed() >= PROGRESS_INTERVAL).then(|| {
                 entry.last_sent = Instant::now();
@@ -208,14 +213,18 @@ impl JobRegistry {
             .collect()
     }
 
-    /// A job's log (progress updates left out); empty for an unknown job.
-    pub fn log(&self, id: JobId) -> Vec<String> {
-        self.lock()
-            .jobs
-            .iter()
-            .find(|entry| entry.job.id == id)
-            .map(|entry| entry.log.iter().cloned().collect())
-            .unwrap_or_default()
+    /// A job's log lines from line `from` on (counting from its first line; progress updates
+    /// left out). Lines already dropped are skipped: `from` in the result says where the lines
+    /// start. Empty for an unknown job.
+    pub fn output(&self, id: JobId, from: u32) -> JobOutputDto {
+        let inner = self.lock();
+        let Some(entry) = inner.jobs.iter().find(|entry| entry.job.id == id) else {
+            return JobOutputDto {
+                from,
+                lines: Vec::new(),
+            };
+        };
+        lines_from(&entry.log, entry.dropped, from)
     }
 
     /// Cancels a running job; false when it is unknown or already over.
@@ -249,64 +258,36 @@ fn forget_old(jobs: &mut Vec<Entry>) {
     });
 }
 
-/// The job's hint when one applies, then git's reasons (from both streams: pull reports
-/// conflicts on standard output). The hint goes first: git's lines can be long (a remote's
-/// whole path).
-fn failed(output: &GitOutput, hint: Option<Hint>) -> String {
-    let text = redact_credentials(&output.combined());
-    let message = failure_message(&text);
-    match hint.and_then(|hint| hint(&text)) {
-        Some(hint) => format!("{hint}\n{message}"),
-        None => message,
-    }
-}
-
-/// git's explanation of a failure: its `fatal:` and `error:` lines, else its last lines.
-pub fn failure_message(stderr: &str) -> String {
-    let marked: Vec<&str> = stderr
-        .lines()
-        .filter_map(|line| {
-            line.strip_prefix("fatal: ")
-                .or_else(|| line.strip_prefix("error: "))
-        })
-        .collect();
-    let lines: Vec<&str> = if marked.is_empty() {
-        let all: Vec<&str> = stderr
-            .lines()
-            .filter(|line| !line.trim().is_empty())
-            .collect();
-        all[all.len().saturating_sub(FAILURE_LINES)..].to_vec()
-    } else {
-        marked.into_iter().take(FAILURE_LINES).collect()
-    };
-    if lines.is_empty() {
-        "git failed without saying why.".to_owned()
-    } else {
-        lines.join("\n")
-    }
-}
-
 fn now_seconds() -> f64 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map_or(0.0, |elapsed| elapsed.as_secs_f64())
 }
 
+/// The lines of `log` from line `from` on, where `log` lost its first `dropped` lines.
+fn lines_from(log: &VecDeque<String>, dropped: u32, from: u32) -> JobOutputDto {
+    let start = from.max(dropped);
+    let skip = usize::try_from(start - dropped).unwrap_or(usize::MAX);
+    JobOutputDto {
+        from: start,
+        lines: log.iter().skip(skip).cloned().collect(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::failure_message;
+    use std::collections::VecDeque;
+
+    use super::lines_from;
 
     #[test]
-    fn keeps_gits_reasons() {
-        let stderr = "fatal: 'nowhere' does not appear to be a git repository\n\
-                      fatal: Could not read from remote repository.\n\n\
-                      Please make sure you have the correct access rights\n\
-                      and the repository exists.";
-        assert_eq!(
-            failure_message(stderr),
-            "'nowhere' does not appear to be a git repository\nCould not read from remote repository."
-        );
-        assert_eq!(failure_message("odd\nthing\n"), "odd\nthing");
-        assert_eq!(failure_message(""), "git failed without saying why.");
+    fn reads_only_new_lines_and_skips_dropped_ones() {
+        let log: VecDeque<String> = ["c", "d", "e"].map(String::from).into();
+        // Lines 0 and 1 (a, b) were dropped.
+        let new = lines_from(&log, 2, 4);
+        assert_eq!((new.from, new.lines), (4, vec!["e".to_owned()]));
+        let late = lines_from(&log, 2, 0);
+        assert_eq!((late.from, late.lines.len()), (2, 3));
+        assert!(lines_from(&log, 2, 5).lines.is_empty());
     }
 }

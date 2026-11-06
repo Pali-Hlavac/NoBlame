@@ -55,7 +55,8 @@ Chosen: **option 1, with process trees killed through job objects and process gr
   cancelled), last progress, message, log (5,000 lines at most), times. It keeps running jobs
   and the 30 newest finished ones. `JobUpdated { job }` goes out when a job starts, at most
   every 100 ms while it prints, and when it ends. Commands: `fetch_repository` (returns the id
-  at once), `list_jobs`, `get_job_log`, `cancel_job`.
+  at once), `list_jobs`, `get_job_log`, `cancel_job` (`get_job_log` became `get_job_output`,
+  reading only new lines, with the output window in M5 slice 7).
 - The repository is opened with `Repository::discover` before a fetch starts, so an untrusted
   repository is refused exactly as when opening it; no session is needed.
 - Frontend `features/jobs`: the list is a TanStack Query entry kept current from events

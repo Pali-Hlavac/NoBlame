@@ -13,7 +13,8 @@ type Listener = (event: { payload: { job: JobDto } }) => void;
 
 const ipc = vi.hoisted(() => ({
   listJobs: vi.fn(),
-  getJobLog: vi.fn(),
+  getJobOutput: vi.fn(),
+  getSettings: vi.fn(() => Promise.resolve({ status: "ok", data: {} })),
   cancelJob: vi.fn(),
   listeners: [] as ((event: { payload: { job: unknown } }) => void)[],
 }));
@@ -84,7 +85,7 @@ describe("JobsIndicator", () => {
   it("shows the running job's progress, cancels it and shows its log", async () => {
     const user = userEvent.setup();
     ipc.listJobs.mockResolvedValue([job()]);
-    ipc.getJobLog.mockResolvedValue(["From https://example.com/app"]);
+    ipc.getJobOutput.mockResolvedValue({ from: 0, lines: ["From https://example.com/app"] });
     ipc.cancelJob.mockResolvedValue(true);
     renderIndicator();
     const button = await screen.findByRole("button", {
@@ -99,7 +100,7 @@ describe("JobsIndicator", () => {
     expect(ipc.cancelJob).toHaveBeenCalledWith(7);
     await user.click(screen.getByRole("button", { name: /Log \(1\)/ }));
     expect(await screen.findByText(/From https:\/\/example.com\/app/)).toBeVisible();
-    expect(ipc.getJobLog).toHaveBeenCalledWith(7);
+    expect(ipc.getJobOutput).toHaveBeenCalledWith(7, 0);
   });
 
   it("follows job events and announces how a job ended", async () => {

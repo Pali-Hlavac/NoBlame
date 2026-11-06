@@ -95,7 +95,7 @@ pub fn builder() -> Builder<tauri::Wry> {
             branches::commands::set_upstream,
             branches::commands::get_missing_commits,
             jobs::commands::list_jobs,
-            jobs::commands::get_job_log,
+            jobs::commands::get_job_output,
             jobs::commands::cancel_job,
             jobs::commands::fetch_repository,
             jobs::commands::pull_repository,

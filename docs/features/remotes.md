@@ -100,6 +100,33 @@ refs/heads/<name>`; the remote-tracking branch goes too. A tag's **Delete on a r
   messages.
 - Needs OpenSSH 8.4 or later for ssh prompts (`SSH_ASKPASS_REQUIRE=force`).
 
+## Git output window
+
+Owner request 2026-10-30, M5 slice 7. With **Settings → Fetch, pull and push → Show git's
+output in a window while they run** (`jobs.showOutputWindow`, off by default), every job that
+starts (toolbar, palette, menus, dialogs, Pull all) opens the **Git output** window: a console
+at the top right, beside the work. It is not modal: the app stays usable, clicking elsewhere
+does not close it, and it does not take the focus when it opens. Each job in the jobs list
+also has **Output window**, which opens it on that job whatever the setting.
+
+- It shows `$ <command>`, every line git printed (both streams, credentials in URLs hidden),
+  the line git keeps rewriting (progress, dimmed) while it runs, and at the end "Done: 2 new",
+  "Failed: <hint and git's reasons>" or "Cancelled". It follows new output while scrolled to
+  the end; scrolled up, it stays put. It reads only the new lines (`get_job_output`).
+- A job that starts while another in the window still runs joins it (Pull all lists every
+  repository, the first stays on screen); a **Job** list chooses among them. Once they all
+  ended, the next job starts the window afresh with only itself.
+- **Fetch all remotes** with more than one remote shows no progress line (nor does the status
+  bar): `git fetch --all` runs a fetch per remote and does not show their progress when its
+  output is not a terminal (git 2.56; checked on the command line: 0 progress lines for two
+  remotes, 408 for one). The window shows "Fetching origin", each remote's updates and the
+  result. Running one fetch per remote ourselves would fix it; noted for slice 8.
+- **Cancel** (while running), **Copy output**, and **×** or Escape to close it: the jobs go on
+  in the background and their toasts still come.
+- **Close when they succeed** (`jobs.closeOutputOnSuccess`, on by default; in the window and in
+  Settings): once every job in it succeeded, it closes after 1.5 s. If one failed it stays, so
+  the reason can be read. A finished job opened from the jobs list does not close it.
+
 ## Repositories module
 
 M5 slice 6. The **…** menu of a repository and its quick buttons
@@ -142,6 +169,8 @@ M5 slice 6. The **…** menu of a repository and its quick buttons
 - `src-tauri/src/jobs/sync.rs` (`pull_repository`, `push_repository`, `push_current_branch`,
   `list_remotes`), `target.rs` (opening the repository of a job). `remote/remotes.rs`
   (`upstream_push`; test `finds_where_the_current_branch_pushes`).
+- `src/features/jobs/components/OutputWindow.tsx`, `OutputConsole.tsx`, `store/output.ts`,
+  `lib/output.ts` (the output window); tests `OutputWindow.test.tsx`, `lib/output.test.ts`.
 - `src/features/jobs/` (`startFetch`, `startPull`, `startPush`, `startPushCurrent`, `startJob`,
   `startBatch`, `useJobRunning`); `src/app/workbench/repositoryActions.ts` (`REPOSITORY_ACTIONS`,
   `GROUP_ACTIONS`); `src/features/repositories/components/QuickButtons.tsx`;

@@ -6,7 +6,7 @@ use std::sync::Arc;
 use tauri::State;
 
 use super::registry::JobRegistry;
-use super::types::{FetchRequestDto, JobDto, JobId, PullRequestDto, PushRequestDto};
+use super::types::{FetchRequestDto, JobDto, JobId, JobOutputDto, PullRequestDto, PushRequestDto};
 use super::{fetch, sync};
 use crate::error::CommandResult;
 
@@ -17,11 +17,12 @@ pub fn list_jobs(registry: State<'_, Arc<JobRegistry>>) -> Vec<JobDto> {
     registry.list()
 }
 
-/// A job's output so far, line by line (progress updates left out).
+/// A job's log from line `from` on (progress updates left out), so a window streaming it reads
+/// only what is new.
 #[tauri::command]
 #[specta::specta]
-pub fn get_job_log(registry: State<'_, Arc<JobRegistry>>, id: JobId) -> Vec<String> {
-    registry.log(id)
+pub fn get_job_output(registry: State<'_, Arc<JobRegistry>>, id: JobId, from: u32) -> JobOutputDto {
+    registry.output(id, from)
 }
 
 /// Cancels a running job, killing git and everything it started. False when the job is

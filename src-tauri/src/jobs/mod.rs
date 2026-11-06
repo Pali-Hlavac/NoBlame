@@ -3,6 +3,7 @@
 //! clone follows. See `docs/architecture/background-jobs.md`.
 
 pub mod commands;
+mod failure;
 mod fetch;
 mod registry;
 mod sync;

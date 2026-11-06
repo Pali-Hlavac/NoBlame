@@ -750,12 +750,15 @@ Slices, in order (planned 2026-11-02):
 - [x] Credentials: git credential helpers; `GIT_ASKPASS`/`SSH_ASKPASS` helper that asks in the app — ADR 0012
       (slice 4, 2026-11-06)
 - [ ] Manage remotes; clone dialog (shallow, single branch, partial clone, recursive submodules)
-- [ ] Background job registry: progress, cancel, logs, "equivalent command" shown — ADR 0011
-- [ ] Git output window (owner request 2026-10-30):
+- [x] Background job registry: progress, cancel, logs, "equivalent command" shown — ADR 0011
+      (slice 3, 2026-11-06)
+- [x] Git output window (owner request 2026-10-30):
   - a console-like popup that streams the output of pull, push, fetch, clone and other long
     operations while they run;
   - a setting, off by default; the operations then run in the background, with their output
     kept in the job log.
+  - Slice 7, 2026-11-06: a non-modal window at the top right, closing itself after a success
+    (a second setting), any job openable in it from the jobs list.
 
 Slices, in order (planned 2026-11-06). Local work first, so the network parts start on a
 working branch model; the job registry comes before anything that talks to a remote:
@@ -785,6 +788,7 @@ working branch model; the job registry comes before anything that talks to a rem
    Done 2026-11-06 ([features/remotes.md](features/remotes.md#repositories-module)); Push
    without a dialog goes to the upstream only (`push_current_branch`), else says to use Push….
 7. **Git output window**: the console-like popup streaming a job's output, behind a setting.
+   Done 2026-11-06 ([features/remotes.md](features/remotes.md#git-output-window)).
 8. **Remotes and clone**: add, rename, remove a remote and change its URL; the clone dialog
    (shallow, single branch, partial clone, recursive submodules).
 

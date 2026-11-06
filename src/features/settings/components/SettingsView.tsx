@@ -8,6 +8,7 @@ import { THEME_OPTIONS } from "../lib/theme";
 import { ContextStepper } from "./ContextStepper";
 import { ExternalToolSetting } from "./ExternalToolSetting";
 import { GraphColumnsSetting } from "./GraphColumnsSetting";
+import { JobsSection } from "./JobsSection";
 import { RepositoryButtonsSetting } from "./RepositoryButtonsSetting";
 import { Choice, Section, Toggle } from "./SettingControls";
 
@@ -145,6 +146,7 @@ export function SettingsView() {
           />
           <RepositoryButtonsSetting />
         </Section>
+        <JobsSection />
         <Section title="Keyboard shortcuts">
           <p className="text-sm text-muted-foreground">
             Changing shortcuts arrives in {SHORTCUTS_MILESTONE}. Until then, the command palette

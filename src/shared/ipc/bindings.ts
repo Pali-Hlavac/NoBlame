@@ -181,8 +181,11 @@ export const commands = {
 	getMissingCommits: (id: number, revision: string, notIn: string) => typedError<UniqueCommitsDto, AppError>(__TAURI_INVOKE("get_missing_commits", { id, revision, notIn })),
 	/**  Running and recent jobs, newest first. */
 	listJobs: () => __TAURI_INVOKE<JobDto[]>("list_jobs"),
-	/**  A job's output so far, line by line (progress updates left out). */
-	getJobLog: (id: number) => __TAURI_INVOKE<string[]>("get_job_log", { id }),
+	/**
+	 *  A job's log from line `from` on (progress updates left out), so a window streaming it reads
+	 *  only what is new.
+	 */
+	getJobOutput: (id: number, from: number) => __TAURI_INVOKE<JobOutputDto>("get_job_output", { id, from }),
 	/**
 	 *  Cancels a running job, killing git and everything it started. False when the job is
 	 *  unknown or already over.
@@ -1161,8 +1164,8 @@ export type JobDto = {
 	/**  How it ended in words (`2 new, 1 updated`, git's error); `null` while running. */
 	message: string | null,
 	/**
-	 *  Lines in its log so far (progress updates excluded); the UI refetches the log when it
-	 *  grows.
+	 *  Lines written to its log so far, dropped ones included (progress updates excluded); the
+	 *  UI reads the new ones (`get_job_output`) when it grows.
 	 */
 	logLines: number,
 	/**  Start time, seconds since the Unix epoch. */
@@ -1179,6 +1182,17 @@ export type JobKindDto =
 "pull" | 
 /**  `git push`. */
 "push";
+
+/**  Lines of a job's log, from line `from` (counting from its first line) on. */
+export type JobOutputDto = {
+	/**
+	 *  The number of the first line returned: the one asked for, or later when the older
+	 *  lines were dropped (a job keeps its newest 5,000).
+	 */
+	from: number,
+	/**  The lines, oldest first. */
+	lines: string[],
+};
 
 /**  How far a running job got, from git's last progress line. */
 export type JobProgressDto = {
@@ -1208,6 +1222,17 @@ export type JobStateDto =
 export type JobUpdated = {
 	/**  The job as it is now. */
 	job: JobDto,
+};
+
+/**  Background job preferences. */
+export type JobsSettings = {
+	/**
+	 *  Open the Git output window, streaming git's output, whenever a job starts. Off by
+	 *  default: jobs run in the background and keep their output in their log.
+	 */
+	showOutputWindow?: boolean,
+	/**  Close the Git output window by itself once its jobs all succeeded. */
+	closeOutputOnSuccess?: boolean,
 };
 
 /**
@@ -1549,6 +1574,8 @@ export type Settings = {
 	diff?: DiffSettings,
 	/**  Branches module. */
 	branches?: BranchesSettings,
+	/**  Background jobs (fetch, pull, push). */
+	jobs?: JobsSettings,
 };
 
 /**  The result of checking a commit's signature. */

@@ -1,8 +1,10 @@
 /**
  * Background jobs (fetch, pull and push; clone later): the list is read once and then kept
- * current by `JobUpdated` events (`useJobEvents`); a job's log is read when it is shown.
+ * current by `JobUpdated` events (`useJobEvents`); a job's output is read while it is shown,
+ * only the lines that are new each time.
  */
-import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 import type {
   FetchRequestDto,
@@ -13,10 +15,12 @@ import type {
 } from "@/shared/ipc/bindings";
 import { commands, unwrap } from "@/shared/ipc/client";
 
+import { EMPTY_OUTPUT, appendOutput, type JobOutput } from "../lib/output";
+
 export const jobKeys = {
   all: ["jobs"] as const,
   list: () => [...jobKeys.all, "list"] as const,
-  log: (id: number, lines: number) => [...jobKeys.all, "log", id, lines] as const,
+  output: (id: number) => [...jobKeys.all, "output", id] as const,
 };
 
 /** Running and recent jobs, newest first. */
@@ -28,15 +32,28 @@ export function useJobs() {
   });
 }
 
-/** A job's log; read again whenever it grew (`job.logLines`). */
-export function useJobLog(job: JobDto, enabled: boolean) {
-  return useQuery({
-    queryKey: jobKeys.log(job.id, job.logLines),
-    queryFn: () => commands.getJobLog(job.id),
+/**
+ * A job's output while `enabled`: read once, then only the new lines whenever the job wrote
+ * more (`job.logLines`), so a window streaming a long pull stays cheap.
+ */
+export function useJobOutput(job: JobDto, enabled: boolean) {
+  const queryClient = useQueryClient();
+  const { id, logLines } = job;
+  const query = useQuery({
+    queryKey: jobKeys.output(id),
+    queryFn: async (): Promise<JobOutput> => {
+      const before = queryClient.getQueryData<JobOutput>(jobKeys.output(id)) ?? EMPTY_OUTPUT;
+      return appendOutput(before, await commands.getJobOutput(id, before.next));
+    },
     enabled,
     staleTime: Infinity,
-    placeholderData: keepPreviousData,
   });
+  const behind = (query.data?.next ?? 0) < logLines;
+  const { isFetching, refetch } = query;
+  useEffect(() => {
+    if (enabled && behind && !isFetching) void refetch();
+  }, [behind, enabled, isFetching, refetch]);
+  return query;
 }
 
 /** Cancels a running job. */

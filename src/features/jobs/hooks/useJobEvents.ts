@@ -1,12 +1,14 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 
+import { useAppSettings } from "@/features/settings";
 import { events, type JobDto } from "@/shared/ipc/bindings";
 
 import { jobKeys, withJob } from "../api/jobs";
 import { batchJobEnded } from "../lib/batch";
 import { repositoryName } from "../lib/format";
+import { useOutputWindow, showOutput } from "../store/output";
 import { showJobs } from "../store/panel";
 
 /** Tells how a job ended: a toast naming the repository, with the log one click away. */
@@ -37,17 +39,31 @@ function announce(job: JobDto): void {
 }
 
 /**
- * Keeps the jobs list current from `JobUpdated` events and announces finished jobs. Mounted
- * once, in the main window.
+ * Keeps the jobs list current from `JobUpdated` events, opens the Git output window for new jobs
+ * when `showOutputWindow` (Settings), and announces finished jobs. Mounted once, in the main
+ * window.
  */
 export function useJobEvents(): void {
   const queryClient = useQueryClient();
+  const { showOutputWindow } = useAppSettings().jobs;
+  // Read by the listener, which is not set up again when the setting changes.
+  const showOutputRef = useRef(showOutputWindow);
+  useEffect(() => {
+    showOutputRef.current = showOutputWindow;
+  }, [showOutputWindow]);
   useEffect(() => {
     const unlisten = events.jobUpdated.listen(({ payload: { job } }) => {
-      const before = queryClient
-        .getQueryData<JobDto[]>(jobKeys.list())
-        ?.find((other) => other.id === job.id);
-      queryClient.setQueryData<JobDto[]>(jobKeys.list(), (jobs) => withJob(jobs, job));
+      const jobs = queryClient.getQueryData<JobDto[]>(jobKeys.list());
+      const before = jobs?.find((other) => other.id === job.id);
+      queryClient.setQueryData<JobDto[]>(jobKeys.list(), (list) => withJob(list, job));
+      if (before === undefined && job.state === "running" && showOutputRef.current) {
+        // Joins jobs still running (a batch); after they all ended, a new action starts afresh.
+        const { jobIds } = useOutputWindow.getState();
+        const running = jobs?.some(
+          (other) => jobIds.includes(other.id) && other.state === "running",
+        );
+        showOutput(job.id, running ? "add" : "replace");
+      }
       // A batch's jobs are summed up together when its last one ends.
       if (job.state !== "running" && before?.state !== job.state && !batchJobEnded(job)) {
         announce(job);

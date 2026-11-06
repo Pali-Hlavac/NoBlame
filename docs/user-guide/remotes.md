@@ -74,8 +74,23 @@ Click it to see all recent jobs:
 - **Cancel** stops it completely.
 - **Log** shows everything Git printed.
 - **Copy command** copies the Git command, so you can run it yourself in a terminal.
+- **Output window** shows Git's output in a window of its own.
 
 When it ends, a message tells you what changed, or why it failed and what to do.
+
+### Watching Git's output
+
+If you like to see what Git prints, as in a terminal, switch on **Settings → Fetch, pull and
+push → Show git's output in a window while they run**. From then on a **Git output** window
+opens at the top right whenever a fetch, pull or push starts. You can keep working while it
+is open. It shows the command, everything Git prints and how far it got, and at the end
+whether it worked.
+
+- **Cancel** stops Git, **Copy output** copies everything, **×** (or Escape) closes the window;
+  closing it does not stop anything.
+- When you start several at once (Pull all), choose which one to watch in the list at the top.
+- With **Close when they succeed** ticked, the window closes by itself when everything went
+  well, and stays open when something failed.
 
 ## Passwords and keys
 

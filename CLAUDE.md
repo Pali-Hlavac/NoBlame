@@ -28,7 +28,8 @@ Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 > background jobs (ADR 0011) and Fetch, Fetch all, Fetch and prune (slice 3); credentials asked
 > in the app through askpass (ADR 0012, slice 4); pull and push with force with lease, tags and
 > deleting on a remote (slice 5); Pull and Push in the Repositories module, Pull all and Push
-> all on groups, quick buttons by setting (slice 6). Next: slice 7 (Git output window).
+> all on groups, quick buttons by setting (slice 6); the Git output window (slice 7). Next:
+> slice 8 (remotes and clone).
 > Parts marked _(later)_ below are planned and do not exist yet.
 
 ## Architecture

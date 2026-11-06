@@ -34,6 +34,28 @@ pub struct Settings {
     pub diff: DiffSettings,
     /// Branches module.
     pub branches: BranchesSettings,
+    /// Background jobs (fetch, pull, push).
+    pub jobs: JobsSettings,
+}
+
+/// Background job preferences.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase", default)]
+pub struct JobsSettings {
+    /// Open the Git output window, streaming git's output, whenever a job starts. Off by
+    /// default: jobs run in the background and keep their output in their log.
+    pub show_output_window: bool,
+    /// Close the Git output window by itself once its jobs all succeeded.
+    pub close_output_on_success: bool,
+}
+
+impl Default for JobsSettings {
+    fn default() -> Self {
+        Self {
+            show_output_window: false,
+            close_output_on_success: true,
+        }
+    }
 }
 
 /// Branches module preferences.
@@ -128,6 +150,8 @@ mod tests {
         assert_eq!(settings.diff, DiffSettings::default());
         assert_eq!(settings.diff.context_lines, 3);
         assert_eq!(settings.branches.sort, BranchSort::Name);
+        assert!(!settings.jobs.show_output_window);
+        assert!(settings.jobs.close_output_on_success);
     }
 
     #[test]

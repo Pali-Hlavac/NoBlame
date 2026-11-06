@@ -1,5 +1,6 @@
 import type {
   BranchesSettings,
+  JobsSettings,
   DiffSettings,
   ExternalDiffTool,
   GraphSettings,
@@ -21,6 +22,7 @@ export interface AppSettings {
   repositories: Required<RepositoriesSettings>;
   diff: AppDiffSettings;
   branches: Required<BranchesSettings>;
+  jobs: Required<JobsSettings>;
 }
 
 /** The diff settings with every field present, the external tool's too. */
@@ -53,6 +55,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     externalTool: { kind: "git", command: "" },
   },
   branches: { sort: "name" },
+  jobs: { showOutputWindow: false, closeOutputOnSuccess: true },
 };
 
 /** Fills fields missing from `settings` with their defaults. */
@@ -67,6 +70,7 @@ export function withDefaults(settings: Settings | undefined): AppSettings {
       externalTool: { ...DEFAULT_SETTINGS.diff.externalTool, ...settings?.diff?.externalTool },
     }),
     branches: { ...DEFAULT_SETTINGS.branches, ...settings?.branches },
+    jobs: { ...DEFAULT_SETTINGS.jobs, ...settings?.jobs },
   };
 }
 

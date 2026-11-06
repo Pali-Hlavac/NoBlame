@@ -150,6 +150,15 @@ Use `target\debug\noblame.exe` while the dev app runs.
 - [ ] **(new)** A group's **…** → **Open all**; **Delete group…** asks first and leaves the
       repositories alone.
   - Notes:
+- [ ] (new, M5 slice 7) **Settings → Fetch, pull and push → Show git's output in a window**:
+      Fetch a repository with a large remote; the Git output window opens at the top right with
+      the command, git's lines and the progress line, without taking the focus. Scroll up while
+      it runs: it stays put. It closes 1.5 s after it ended (Close when they succeed).
+  - Notes:
+- [ ] (new, M5 slice 7) A failing push keeps the window open with "Failed:" and the hint;
+      **Pull all** on a group lists every repository in the window's Job list. With the setting
+      off, a job's **Output window** button in the jobs list opens it.
+  - Notes:
 - [ ] (new, M5 slice 6) A closed repository's **…** → **Pull**, then **Push**: each runs as a
       job (status bar, toast). On a branch without an upstream, Push says so and points to
       Push….

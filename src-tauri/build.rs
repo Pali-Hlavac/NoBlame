@@ -64,7 +64,7 @@ const APP_COMMANDS: &[&str] = &[
     "set_upstream",
     "get_missing_commits",
     "list_jobs",
-    "get_job_log",
+    "get_job_output",
     "cancel_job",
     "fetch_repository",
     "pull_repository",
