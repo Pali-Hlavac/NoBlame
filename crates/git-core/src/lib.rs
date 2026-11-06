@@ -6,6 +6,7 @@
 //! See `docs/architecture/git-engine.md`.
 
 pub mod blame;
+pub mod branch;
 pub mod cli;
 pub mod commit;
 pub mod compare;

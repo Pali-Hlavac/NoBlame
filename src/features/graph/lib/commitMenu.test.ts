@@ -137,4 +137,62 @@ describe("commitMenu", () => {
     expect(find(entries, "ref:tag:v1.0")).toBeDefined();
     expect(find(entries, "ref:head:HEAD")).toBeUndefined();
   });
+
+  it("runs branch and tag actions when the app provides them", () => {
+    const refs = {
+      checkoutBranch: vi.fn(),
+      checkoutCommit: vi.fn(),
+      checkoutRemote: vi.fn(),
+      createBranch: vi.fn(),
+      createTag: vi.fn(),
+      renameBranch: vi.fn(),
+      deleteRef: vi.fn(),
+    };
+    const handlers = { ...actions(), refs };
+    const row = commit([
+      { name: "main", kind: "branch", isHead: true },
+      { name: "topic", kind: "branch", isHead: false },
+      { name: "origin/topic", kind: "remote", isHead: false },
+      { name: "v1.0", kind: "tag", isHead: false },
+    ]);
+    const entries = commitMenu(row, handlers);
+    const run = (where: MenuEntry | undefined, id: string) => {
+      const entries = where?.type === "submenu" ? where.entries : [];
+      const entry = entries.find((candidate) => candidate.id === id);
+      if (entry?.type !== "item") throw new Error(`missing ${id}`);
+      expect(entry.milestone).toBeUndefined();
+      entry.run?.();
+    };
+    const here = { revision: row.id, label: "01234567 Fix the parser" };
+    for (const [id, action] of [
+      ["checkout", refs.checkoutCommit],
+      ["create-branch", refs.createBranch],
+      ["create-tag", refs.createTag],
+    ] as const) {
+      const entry = find(entries, id);
+      if (entry?.type !== "item") throw new Error("missing");
+      entry.run?.();
+      expect(action).toHaveBeenCalledWith(here);
+    }
+    run(find(entries, "ref:branch:topic"), "checkout");
+    expect(refs.checkoutBranch).toHaveBeenCalledWith("topic");
+    run(find(entries, "ref:branch:topic"), "rename");
+    const topic = { namespace: "branch", name: "topic", target: row.id };
+    expect(refs.renameBranch).toHaveBeenCalledWith(topic);
+    run(find(entries, "ref:branch:topic"), "delete");
+    expect(refs.deleteRef).toHaveBeenCalledWith(topic);
+    run(find(entries, "ref:remote:origin/topic"), "checkout");
+    expect(refs.checkoutRemote).toHaveBeenCalledWith({
+      namespace: "remote",
+      name: "origin/topic",
+      target: row.id,
+    });
+    run(find(entries, "ref:tag:v1.0"), "delete");
+    expect(refs.deleteRef).toHaveBeenCalledWith({ namespace: "tag", name: "v1.0", target: row.id });
+    // The checked-out branch can be renamed, never deleted.
+    const main = find(entries, "ref:branch:main");
+    if (main?.type !== "submenu") throw new Error("missing");
+    expect(main.entries.map((entry) => entry.id)).toContain("rename");
+    expect(main.entries.map((entry) => entry.id)).not.toContain("delete");
+  });
 });

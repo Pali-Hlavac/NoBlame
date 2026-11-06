@@ -1,4 +1,6 @@
+import { BranchDialogs, useRefActions } from "@/features/branches";
 import { CommandPalette } from "@/features/command-palette";
+import { RefActionsContext } from "@/features/graph";
 import {
   RepositoryActionsContext,
   openRepositories,
@@ -47,16 +49,19 @@ function MainWorkbench({ saved }: { saved: SavedLayout | null }) {
     <div className="flex h-screen flex-col bg-background text-foreground" inert={popupOpen}>
       <MainTitleBar />
       <RepositoryActionsContext.Provider value={REPOSITORY_ACTIONS}>
-        <Workbench
-          modules={MODULES}
-          defaultModuleLayout={DEFAULT_MODULE_LAYOUT}
-          renderTab={renderTab}
-          saved={saved}
-          activityBarFooter={<SettingsButton />}
-        />
+        <RefActionsContext.Provider value={useRefActions}>
+          <Workbench
+            modules={MODULES}
+            defaultModuleLayout={DEFAULT_MODULE_LAYOUT}
+            renderTab={renderTab}
+            saved={saved}
+            activityBarFooter={<SettingsButton />}
+          />
+        </RefActionsContext.Provider>
       </RepositoryActionsContext.Provider>
       <StatusBar />
       <CommandPalette commands={commands} />
+      <BranchDialogs />
     </div>
   );
 }

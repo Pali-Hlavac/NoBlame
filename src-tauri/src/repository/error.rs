@@ -1,6 +1,7 @@
 //! Repository errors and their mapping to [`AppError`].
 
 use git_core::blame::BlameError;
+use git_core::branch::BranchError;
 use git_core::commit::CommitError;
 use git_core::compare::CompareError;
 use git_core::diff::DiffError;
@@ -56,6 +57,9 @@ pub enum RepositoryError {
     /// Staging or committing failed.
     #[error(transparent)]
     Commit(#[from] CommitError),
+    /// Checking out, or changing a branch or tag, failed.
+    #[error(transparent)]
+    Branch(#[from] BranchError),
     /// Opening an external diff tool failed.
     #[error(transparent)]
     DiffTool(#[from] DiffToolError),
@@ -148,6 +152,7 @@ impl From<RepositoryError> for AppError {
             | RepositoryError::Blame(BlameError::Git(error))
             | RepositoryError::Signing(SigningError::Git(error)) => GitEnvError::from(error).into(),
             RepositoryError::Compare(error) => compare_error(error),
+            RepositoryError::Branch(error) => super::branch_error::branch_error(error),
             error @ (RepositoryError::Commit(_)
             | RepositoryError::Ignore(_)
             | RepositoryError::DiffTool(_)

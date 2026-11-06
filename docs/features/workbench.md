@@ -146,7 +146,9 @@ Details:
     last), with the button beside the filter or in Settings → Branches (`branches.sort`). By
     last commit, each row shows its commit's day. The times come with `list_refs` from the
     whole history's commit index, so a filter does not hide them.
-  - Read-only: checkout, create, rename, delete and the rest are M5.
+  - A right click (Shift+F10, Menu key) on a row opens its actions: check out, create a branch
+    or tag there, rename, delete, copy the name; **F2** renames and **Delete** deletes the
+    active row ([branches.md](branches.md)). Upstreams and ahead/behind are M5 slice 2.
 - **Commit details**:
   - "Contained in" comes from the graph, not from `git branch --contains`. It is exact for every
     ref the graph knows (branches, remote branches, tags) and takes 5.5 ms for the oldest of a

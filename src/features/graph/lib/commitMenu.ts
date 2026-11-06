@@ -5,30 +5,14 @@
  */
 import type { CommitRowDto, RefLabel } from "@/shared/ipc/bindings";
 
-import { refRevision } from "./revision";
+import { shortId } from "./format";
+import { MENU_MILESTONES, item, refItem, separator, type MenuEntry } from "./menuEntry";
+import { refEntries, type RefMenuActions } from "./refMenu";
 
-/** Milestones of the stubbed entries (docs/roadmap.md). */
-export const MENU_MILESTONES = {
-  branches: "M5",
-  history: "M6",
-  advanced: "M7",
-} as const;
-
-export type MenuEntry =
-  | {
-      type: "item";
-      id: string;
-      label: string;
-      /** Shown disabled with this milestone when set. */
-      milestone?: string;
-      run?: () => void;
-    }
-  | { type: "submenu"; id: string; label: string; entries: MenuEntry[] }
-  | { type: "separator"; id: string };
+export { MENU_MILESTONES, type MenuEntry };
 
 /** What the working entries do; the menu itself stays free of side effects. */
-export interface CommitMenuActions {
-  copy: (text: string, what: string) => void;
+export interface CommitMenuActions extends RefMenuActions {
   /** Copies the whole message (read from the backend). */
   copyMessage: () => void;
   /** Whether the commit's history is highlighted now; `undefined` when highlighting is off. */
@@ -40,68 +24,9 @@ export interface CommitMenuActions {
   compareWithHead: (() => void) | undefined;
   /** Compares the commit with the working tree; `undefined` in a bare repository. */
   compareWithWorkingTree: (() => void) | undefined;
-  /** Compares the current branch with a reference (its full name) on the commit. */
-  compareWithCurrent: (revision: string) => void;
 }
 
-const { branches, history, advanced } = MENU_MILESTONES;
-
-function item(id: string, label: string, milestone?: string, run?: () => void): MenuEntry {
-  return { type: "item", id, label, milestone, run };
-}
-
-function separator(id: string): MenuEntry {
-  return { type: "separator", id };
-}
-
-/** Entries for one reference on the commit. */
-function refEntries(ref: RefLabel, actions: CommitMenuActions): MenuEntry[] {
-  const copyName = item("copy-name", "Copy name", undefined, () => {
-    actions.copy(ref.name, "Name");
-  });
-  const compare = item("compare", "Compare with the current branch", undefined, () => {
-    actions.compareWithCurrent(refRevision(ref));
-  });
-  switch (ref.kind) {
-    case "branch":
-      return [
-        ...(ref.isHead
-          ? []
-          : [
-              item("checkout", "Check out", branches),
-              item("merge", "Merge into the current branch…", history),
-              item("rebase", "Rebase the current branch onto it…", history),
-              compare,
-              separator("sep-ref"),
-            ]),
-        item("rename", "Rename…", branches),
-        item("delete", "Delete…", branches),
-        item("push", "Push", branches),
-        separator("sep-copy"),
-        copyName,
-      ];
-    case "remote":
-      return [
-        item("checkout", "Check out as a new local branch…", branches),
-        item("merge", "Merge into the current branch…", history),
-        item("rebase", "Rebase the current branch onto it…", history),
-        compare,
-        item("delete", "Delete on the remote…", branches),
-        separator("sep-copy"),
-        copyName,
-      ];
-    case "tag":
-      return [
-        compare,
-        item("push", "Push", branches),
-        item("delete", "Delete…", branches),
-        separator("sep-copy"),
-        copyName,
-      ];
-    case "head":
-      return [];
-  }
-}
+const { history, advanced } = MENU_MILESTONES;
 
 const REF_KIND_WORDS: Record<RefLabel["kind"], string> = {
   branch: "Branch",
@@ -112,7 +37,8 @@ const REF_KIND_WORDS: Record<RefLabel["kind"], string> = {
 
 /** The menu for `commit`. */
 export function commitMenu(commit: CommitRowDto, actions: CommitMenuActions): MenuEntry[] {
-  const { copy } = actions;
+  const { copy, refs: refActions } = actions;
+  const here = { revision: commit.id, label: `${shortId(commit.id)} ${commit.summary}` };
   const refs = commit.refs.filter((ref) => ref.kind !== "head");
   const entries: MenuEntry[] = [
     {
@@ -158,9 +84,30 @@ export function commitMenu(commit: CommitRowDto, actions: CommitMenuActions): Me
       : []),
     item("browse", "Browse files at this commit", undefined, actions.browseFiles),
     separator("sep-branches"),
-    item("checkout", "Check out this commit…", branches),
-    item("create-branch", "Create a branch here…", branches),
-    item("create-tag", "Create a tag here…", branches),
+    refItem(
+      "checkout",
+      "Check out this commit…",
+      refActions &&
+        (() => {
+          refActions.checkoutCommit(here);
+        }),
+    ),
+    refItem(
+      "create-branch",
+      "Create a branch here…",
+      refActions &&
+        (() => {
+          refActions.createBranch(here);
+        }),
+    ),
+    refItem(
+      "create-tag",
+      "Create a tag here…",
+      refActions &&
+        (() => {
+          refActions.createTag(here);
+        }),
+    ),
     separator("sep-history"),
     item("merge", "Merge into the current branch…", history),
     item("rebase", "Rebase the current branch onto this…", history),
@@ -176,7 +123,7 @@ export function commitMenu(commit: CommitRowDto, actions: CommitMenuActions): Me
         type: "submenu",
         id: `ref:${ref.kind}:${ref.name}`,
         label: `${REF_KIND_WORDS[ref.kind]} ${ref.name}`,
-        entries: refEntries(ref, actions),
+        entries: refEntries(ref, commit, actions),
       });
     }
   }

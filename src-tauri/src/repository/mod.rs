@@ -1,6 +1,7 @@
 //! Open repositories, their commit graphs and the recent-repositories list.
 //! See `docs/architecture/commit-graph.md` and `docs/features/repositories.md`.
 
+mod branch_error;
 mod bytes;
 pub mod commands;
 mod diff_cache;

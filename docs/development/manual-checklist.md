@@ -162,6 +162,19 @@ Use `target\debug\noblame.exe` while the dev app runs.
   - Notes:
 - [ ] With a graph filter on (section 12), branches whose commit is hidden are dimmed.
   - Notes:
+- [ ] (new, M5 slice 1) Right-click a branch: **Check out** switches (the title bar follows).
+      Change a file that differs between two branches and check out the other: the toast shows
+      git's message and nothing changes.
+  - Notes:
+- [ ] (new, M5 slice 1) Right-click a remote branch → **Check out as a new local branch…**: the
+      name is suggested; afterwards `git branch -vv` shows it tracking the remote branch.
+  - Notes:
+- [ ] (new, M5 slice 1) **F2** on a branch renames it (typing an existing name is refused at
+      once). **Delete** on a branch with commits of its own lists them before deleting.
+  - Notes:
+- [ ] (new, M5 slice 1) In the graph's commit menu: **Create a branch here…**, **Create a tag
+      here…** (with a message: annotated), **Check out this commit…** (explains detached HEAD).
+  - Notes:
 
 ## 8. Commit details (Alt+3) and Stashes (Alt+4)
 

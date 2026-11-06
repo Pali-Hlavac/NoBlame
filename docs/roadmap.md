@@ -731,7 +731,8 @@ Slices, in order (planned 2026-11-02):
 
 ### M5: Branches, tags and remotes
 
-- [ ] Branches and tags: create, rename, delete (unmerged warning), checkout/switch, track upstream
+- [~] Branches and tags: create, rename, delete (unmerged warning), checkout/switch, track upstream.
+  Slice 1 (2026-11-06): all but tracking an upstream, which is slice 2
 - [ ] Ahead/behind counts per branch; actions in the Branches module (checkout, create, rename,
       delete, track); Submodules and Worktrees modules
 - [ ] Toolbar operations: Fetch, Fetch all, Fetch and prune (`git fetch --prune`), Pull
@@ -754,6 +755,34 @@ Slices, in order (planned 2026-11-02):
     operations while they run;
   - a setting, off by default; the operations then run in the background, with their output
     kept in the job log.
+
+Slices, in order (planned 2026-11-06). Local work first, so the network parts start on a
+working branch model; the job registry comes before anything that talks to a remote:
+
+1. **Branches and tags, locally**: check out a branch, a commit (detached, explained) or a
+   remote branch (as a new tracking branch); create a branch (optionally checking it out),
+   rename, delete (a confirmation naming the commits no other branch or tag holds); create a
+   tag (lightweight or annotated), delete one. From the commit menu, the branch labels' menus
+   and a context menu in the Branches module. Git refusing (local changes in the way) shows
+   what git said. Done 2026-11-06 ([features/branches.md](features/branches.md)).
+2. **Upstreams and ahead/behind**: each local branch shows its upstream and ahead/behind in the
+   Branches module (measured on thousands of branches first); set and unset the upstream.
+3. **Job registry and Fetch** (ADR 0011): jobs with progress, cancel (whole process tree),
+   logs and the equivalent command; a jobs list in the status bar; Fetch, Fetch all remotes,
+   Fetch and prune from the toolbar and the "…" menu.
+4. **Credentials** (ADR 0012): git's credential helpers as they are; an in-app askpass for user
+   names, passwords and SSH passphrases when nothing else answers.
+5. **Pull and Push**: pull (merge, rebase, fast-forward only), push (new branches get an
+   upstream, tags, force-with-lease behind a confirmation), push and delete a branch or tag on
+   the remote from the menus.
+6. **Repositories module buttons**: Pull and Push on each repository, Pull all and Push all on
+   each group (one job per repository), each shown by a setting; the "…" menu's entries real.
+7. **Git output window**: the console-like popup streaming a job's output, behind a setting.
+8. **Remotes and clone**: add, rename, remove a remote and change its URL; the clone dialog
+   (shallow, single branch, partial clone, recursive submodules).
+
+The Submodules and Worktrees modules named above move to M7 with their actions (submodules are
+listed in the Repositories module already).
 
 ### M6: Changing history and resolving conflicts
 

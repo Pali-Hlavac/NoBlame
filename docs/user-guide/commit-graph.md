@@ -45,8 +45,8 @@ Very wide histories are cut at 16 lines; the commits are all still there.
   - **Page Up / Page Down**: one screen up or down;
   - **Home / End**: newest or oldest commit.
 - Right-click a commit (or press **Shift+F10**) for its menu: copy its id, subject or message,
-  highlight its history, [compare it with HEAD](compare.md), or copy a branch or tag name. The menu also lists what is coming, such
-  as creating a branch or cherry-picking; those entries are greyed out and say in which version
+  highlight its history, [compare it with HEAD](compare.md), or copy a branch or tag name. It also checks out, creates and deletes
+  [branches and tags](branches.md). The menu also lists what is coming, such as cherry-picking; those entries are greyed out and say in which version
   they arrive.
 - Hold **Ctrl** (**Cmd** on macOS) and click a second commit to [compare](compare.md) it with
   the selected one. While you hold the key over another commit, a label at the pointer names

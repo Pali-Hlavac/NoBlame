@@ -209,6 +209,24 @@ with no commits, so all 2,000 commits are read. Linux kernel: 32 ms warm, 0.51 s
 read of the pack after a restart; 20 messages of anyone 10 ms. synthetic-1m: 0.43 s cold. They
 are read only when the **Recent** menu opens, on a blocking thread.
 
+### Branch and tag actions (M5 slice 1, 2026-11-06)
+
+Before a branch or tag is deleted, its confirmation counts the commits only it holds:
+`git --no-optional-locks rev-list --count <tip> --not --exclude=<name> --branches --tags
+--remotes HEAD` (Windows 11, git 2.56.0, warm):
+
+| Repository and reference                                   | Time   |
+| ---------------------------------------------------------- | ------ |
+| Linux (1.5M commits, 957 refs), tag v6.0                   | 270 ms |
+| Linux, the oldest tag (v2.6.12): the walk covers most refs | 829 ms |
+| Linux, remote branch with 10 commits of its own            | 100 ms |
+| Linux, master excluded (count from HEAD)                   | 102 ms |
+| synthetic-1m (10,570 refs), a branch                       | 368 ms |
+
+The first run on Linux was 771 ms (cold). Under a second in every case, so it runs each time
+the dialog opens ("Counting the commits only it holds…") with no cache. The other actions
+are one `git switch`, `git branch` or `git tag` each.
+
 ### Repositories module counts (M4 slice 7, 2026-11-06)
 
 Measured before building the counts: each closed repository costs one

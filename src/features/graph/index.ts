@@ -7,4 +7,10 @@ export { GraphView } from "./components/GraphView";
 export { RefBadge } from "./components/RefBadge";
 export { headNameOf, pickerSections } from "./lib/filter";
 export { refRevision } from "./lib/revision";
+export {
+  RefActionsContext,
+  type RefActions,
+  type StartPoint,
+  type UseRefActions,
+} from "./lib/refActions";
 export { formatCommitDate, shortId } from "./lib/format";

@@ -10,7 +10,9 @@ use std::path::{Path, PathBuf};
 use specta_typescript::Typescript;
 use tauri_specta::{Builder, collect_commands, collect_events};
 
-use crate::{app_info, git_env, inspect, repository, settings, windows, workbench, worktree};
+use crate::{
+    app_info, branches, git_env, inspect, repository, settings, windows, workbench, worktree,
+};
 
 /// Location of the generated bindings, relative to the crate root.
 #[cfg_attr(not(debug_assertions), allow(dead_code))]
@@ -75,6 +77,13 @@ pub fn builder() -> Builder<tauri::Wry> {
             inspect::commands::list_refs,
             inspect::commands::list_stashes,
             inspect::commands::list_submodules,
+            branches::commands::checkout_branch,
+            branches::commands::checkout_commit,
+            branches::commands::create_branch,
+            branches::commands::rename_branch,
+            branches::commands::get_unique_commits,
+            branches::commands::delete_ref,
+            branches::commands::create_tag,
             worktree::commands::get_status,
             worktree::commands::get_change_counts,
             worktree::commands::get_worktree_file_id,

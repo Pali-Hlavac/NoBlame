@@ -30,7 +30,8 @@ On macOS, use **⌘** where this page says **Ctrl**, except for switching tabs, 
 ## In the commit graph and other lists
 
 Click the list (the commits, or the branches in the Branches module) or move to it with **Tab**
-first. **Enter** in the Branches list selects the branch's commit or folds a section.
+first. **Enter** in the Branches list selects the branch's commit or folds a section; **F2** renames
+the chosen branch and **Delete** deletes the chosen branch or tag (both ask first).
 
 | Shortcut                        | Action                                     |
 | ------------------------------- | ------------------------------------------ |

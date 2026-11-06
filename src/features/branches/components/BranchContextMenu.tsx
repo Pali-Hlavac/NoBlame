@@ -1,0 +1,55 @@
+import type { ReactNode } from "react";
+
+import type { RefEntry } from "@/shared/ipc/bindings";
+import { copyToClipboard } from "@/shared/lib/clipboard";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuLabel,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "@/shared/ui/context-menu";
+
+import { useRefActions } from "../hooks/useRefActions";
+import { branchMenu } from "../lib/menu";
+
+interface BranchContextMenuProps {
+  repoId: number;
+  /** The active row's reference; no menu on section headers. */
+  entry: RefEntry | undefined;
+  /** The list; right-clicking a row makes it active first, so the menu is that row's. */
+  children: ReactNode;
+}
+
+/** The context menu of the Branches module's active row (right click, Shift+F10, Menu key). */
+export function BranchContextMenu({ repoId, entry, children }: BranchContextMenuProps) {
+  const actions = useRefActions(repoId);
+  const entries = entry
+    ? branchMenu(entry, actions, (name) => {
+        copyToClipboard(name, "Name");
+      })
+    : [];
+  return (
+    <ContextMenu modal={false}>
+      <ContextMenuTrigger asChild disabled={entries.length === 0}>
+        {children}
+      </ContextMenuTrigger>
+      {entry && entries.length > 0 && (
+        <ContextMenuContent aria-label={`Actions for ${entry.label.name}`}>
+          <ContextMenuLabel className="max-w-72 truncate">{entry.label.name}</ContextMenuLabel>
+          <ContextMenuSeparator />
+          {entries.map((item) =>
+            item.type === "separator" ? (
+              <ContextMenuSeparator key={item.id} />
+            ) : (
+              <ContextMenuItem key={item.id} onSelect={item.run}>
+                {item.label}
+              </ContextMenuItem>
+            ),
+          )}
+        </ContextMenuContent>
+      )}
+    </ContextMenu>
+  );
+}

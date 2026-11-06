@@ -157,6 +157,12 @@ All notable changes to NoBlame are documented here. The format follows
 - External diff tool (M4 slice 6): **Open in diff tool** beside the file name in every diff opens
   the two versions in Git's `diff.tool`, Visual Studio Code or a command of your own
   (Settings → Diff), through `git difftool --no-index`.
+- Branches and tags (M5 slice 1): check out a branch, a commit (detached HEAD, explained) or a
+  remote branch (as a new branch tracking it); create, rename and delete branches; create
+  (lightweight or annotated) and delete tags. From the graph's commit menu and a new right-click
+  menu in the Branches module (F2 renames, Delete deletes). Deleting names the commits no other
+  branch or tag holds; names are checked as they are typed; git's refusals are shown in its
+  words. Git's messages in dialogs and toasts keep their line breaks.
 - Uncommitted file counts in the Repositories module (M4 slice 7): with **Settings →
   Repositories → Show the number of uncommitted files beside repositories** (off by default),
   each repository shows `+new ~changed −deleted`. Open repositories use their live status;

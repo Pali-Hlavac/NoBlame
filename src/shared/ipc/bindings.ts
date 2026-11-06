@@ -146,6 +146,26 @@ export const commands = {
 	/**  Submodules of the repository containing `path`, nested recursively. */
 	listSubmodules: (path: string) => typedError<SubmoduleDto[], AppError>(__TAURI_INVOKE("list_submodules", { path })),
 	/**
+	 *  Checks out the local branch `name`; returns what git printed. git refuses when local
+	 *  changes would be overwritten.
+	 */
+	checkoutBranch: (id: number, name: string) => typedError<string, AppError>(__TAURI_INVOKE("checkout_branch", { id, name })),
+	/**  Checks out a commit without a branch (detached HEAD). */
+	checkoutCommit: (id: number, commit: string) => typedError<string, AppError>(__TAURI_INVOKE("checkout_commit", { id, commit })),
+	/**  Creates a branch, and checks it out when asked. */
+	createBranch: (id: number, request: CreateBranchRequestDto) => typedError<string, AppError>(__TAURI_INVOKE("create_branch", { id, request })),
+	/**  Renames a branch, checked first to still point where the user saw it. */
+	renameBranch: (id: number, request: RenameBranchRequestDto) => typedError<string, AppError>(__TAURI_INVOKE("rename_branch", { id, request })),
+	/**  The commits only this branch or tag holds, for the confirmation before deleting it. */
+	getUniqueCommits: (id: number, reference: RefTargetDto) => typedError<UniqueCommitsDto, AppError>(__TAURI_INVOKE("get_unique_commits", { id, reference })),
+	/**
+	 *  Deletes a local branch (merged or not) or a tag, checked first to still point where the
+	 *  user saw it.
+	 */
+	deleteRef: (id: number, reference: RefTargetDto) => typedError<string, AppError>(__TAURI_INVOKE("delete_ref", { id, reference })),
+	/**  Creates a tag: annotated with a message, lightweight without. */
+	createTag: (id: number, request: CreateTagRequestDto) => typedError<string, AppError>(__TAURI_INVOKE("create_tag", { id, request })),
+	/**
 	 *  The working tree status: counts, staged files and unstaged ones (`null` for a bare
 	 *  repository).
 	 */
@@ -460,6 +480,14 @@ export type CommitDetailsDto = {
 	containedInTotal: number,
 };
 
+/**  One commit by id and subject. */
+export type CommitLineDto = {
+	/**  Full id (hex). */
+	id: string,
+	/**  The message's first line. */
+	summary: string,
+};
+
 /**  A parent or child commit and its row, so the UI can jump to it. */
 export type CommitLinkDto = {
 	/**  Full commit id. */
@@ -569,6 +597,28 @@ export type ComparisonDto = {
 	exactRenamesOnly: boolean,
 	/**  The second side is the working tree. */
 	worktree: boolean,
+};
+
+/**  A branch to create. */
+export type CreateBranchRequestDto = {
+	/**  Its name. */
+	name: string,
+	/**  Where it starts: a commit id, or a branch, remote branch or tag name. */
+	start: string,
+	/**  Check it out afterwards. */
+	checkout: boolean,
+	/**  Make `start` (a remote branch) its upstream. */
+	track: boolean,
+};
+
+/**  A tag to create. */
+export type CreateTagRequestDto = {
+	/**  Its name. */
+	name: string,
+	/**  The commit it marks (an id or a name). */
+	target: string,
+	/**  With a message the tag is annotated; empty or `null` makes a lightweight tag. */
+	message: string | null,
 };
 
 /**  How dates are shown in the commit list. */
@@ -1068,12 +1118,31 @@ export type RefLabel = {
 	isHead: boolean,
 };
 
+/**  Where a reference lives. */
+export type RefNamespaceDto = 
+/**  A local branch (`refs/heads/`). */
+"branch" | 
+/**  A tag (`refs/tags/`). */
+"tag" | 
+/**  A remote branch (`refs/remotes/`, the name includes the remote). */
+"remote";
+
 /**  One reference, by kind and short name. */
 export type RefSelectorDto = {
 	/**  Branch, remote branch or tag. */
 	kind: RefKindDto,
 	/**  Short name (`main`, `origin/main`, `v1.0`). */
 	name: string,
+};
+
+/**  A branch or tag as the user saw it: checked to still point at `target` before it changes. */
+export type RefTargetDto = {
+	/**  Branch, tag or remote branch. */
+	namespace: RefNamespaceDto,
+	/**  Short name (`main`, `v1.0`, `origin/main`). */
+	name: string,
+	/**  Full id of the commit it pointed to (annotated tags peeled). */
+	target: string,
 };
 
 /**  The graph after a reload, and where the commit selected before it is now. */
@@ -1085,6 +1154,14 @@ export type ReloadedGraph = {
 	 *  nothing was selected.
 	 */
 	row: number | null,
+};
+
+/**  A branch to rename. */
+export type RenameBranchRequestDto = {
+	/**  The branch, as the user saw it. */
+	branch: RefTargetDto,
+	/**  Its new name. */
+	newName: string,
 };
 
 /**  How the repository is laid out on disk. */
@@ -1472,6 +1549,14 @@ export type TreeListingDto = {
 	entries: TreeEntryDto[],
 	/**  All entries, including those not listed. */
 	total: number,
+};
+
+/**  The commits only one branch or tag holds: what deleting it leaves unreachable. */
+export type UniqueCommitsDto = {
+	/**  How many. */
+	count: number,
+	/**  The newest few, newest first. */
+	newest: CommitLineDto[],
 };
 
 /**  Which whitespace changes the diff shows, as git's options name them. */

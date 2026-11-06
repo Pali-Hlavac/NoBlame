@@ -40,6 +40,8 @@ One page per user-facing feature: behaviour, edge cases and status.
 - [commit-graph.md](features/commit-graph.md): the commit graph and its columns
 - [changed-files.md](features/changed-files.md): the files the selected commit changed
 - [commit.md](features/commit.md): the Commit module and dialog: staging and committing
+- [branches.md](features/branches.md): checking out; creating, renaming and deleting branches and
+  tags
 - [stashes.md](features/stashes.md): the Stashes module and the Stash tab: stashing, applying
   (also chosen files) and dropping
 - [diff.md](features/diff.md): the diff tab (unified diff of the chosen file)

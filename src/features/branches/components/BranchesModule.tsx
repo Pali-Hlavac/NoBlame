@@ -9,7 +9,10 @@ import { ErrorState } from "@/shared/components/ErrorState";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { VirtualList } from "@/shared/components/VirtualList";
 
+import { useRefActions } from "../hooks/useRefActions";
+import { targetOf } from "../lib/menu";
 import { buildRows } from "../lib/rows";
+import { BranchContextMenu } from "./BranchContextMenu";
 import { BranchRowView } from "./BranchRowView";
 
 /** Height of one row of the list, in CSS pixels. */
@@ -21,6 +24,7 @@ function Branches({ repoId, repoPath }: { repoId: number; repoPath: string }) {
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(() => new Set());
   const [active, setActive] = useState<number>();
   const [sort, setSort] = useBranchSort();
+  const actions = useRefActions(repoId);
   const rows = useMemo(
     () => buildRows(refs.data ?? [], filter, collapsed, sort),
     [refs.data, filter, collapsed, sort],
@@ -39,6 +43,24 @@ function Branches({ repoId, repoPath }: { repoId: number; repoPath: string }) {
     );
   }
   if (!refs.data) return <LoadingState label="Reading branches…" className="h-full" />;
+
+  const activeRow = active === undefined ? undefined : rows[active];
+  const activeEntry = activeRow?.type === "ref" ? activeRow.entry : undefined;
+
+  /** F2 renames the active branch, Delete deletes it (or the tag), both asking first. */
+  const onKey = (key: string): boolean => {
+    const target = activeEntry ? targetOf(activeEntry) : null;
+    if (!target || !activeEntry) return false;
+    if (key === "F2" && target.namespace === "branch") {
+      actions.renameBranch(target);
+      return true;
+    }
+    if (key === "Delete" && target.namespace !== "remote" && !activeEntry.label.isHead) {
+      actions.deleteRef(target);
+      return true;
+    }
+    return false;
+  };
 
   const activate = (index: number): void => {
     const row = rows[index];
@@ -91,27 +113,33 @@ function Branches({ repoId, repoPath }: { repoId: number; repoPath: string }) {
       {rows.length === 0 ? (
         <p className="p-3 text-sm text-muted-foreground">No branch or tag matches.</p>
       ) : (
-        <VirtualList
-          className="flex-1"
-          label="Branches and tags"
-          count={rows.length}
-          rowHeight={ROW_HEIGHT_PX}
-          activeIndex={active !== undefined && active < rows.length ? active : undefined}
-          onActiveChange={setActive}
-          onActivate={activate}
-          rowLabel={(index) => {
-            const row = rows[index];
-            if (!row) return "";
-            if (row.type === "section") {
-              return `${row.title}, ${row.count}, ${row.collapsed ? "collapsed" : "expanded"}`;
-            }
-            return `${row.entry.label.name}${row.entry.label.isHead ? ", current branch" : ""}`;
-          }}
-          renderRow={(index, isActive) => {
-            const row = rows[index];
-            return row ? <BranchRowView row={row} active={isActive} showDate={byDate} /> : null;
-          }}
-        />
+        <BranchContextMenu repoId={repoId} entry={activeEntry}>
+          {/* The menu's trigger needs an element that takes its props; the list does not. */}
+          <div className="flex min-h-0 flex-1 flex-col">
+            <VirtualList
+              className="flex-1"
+              label="Branches and tags"
+              count={rows.length}
+              rowHeight={ROW_HEIGHT_PX}
+              activeIndex={active !== undefined && active < rows.length ? active : undefined}
+              onActiveChange={setActive}
+              onActivate={activate}
+              rowLabel={(index) => {
+                const row = rows[index];
+                if (!row) return "";
+                if (row.type === "section") {
+                  return `${row.title}, ${row.count}, ${row.collapsed ? "collapsed" : "expanded"}`;
+                }
+                return `${row.entry.label.name}${row.entry.label.isHead ? ", current branch" : ""}`;
+              }}
+              renderRow={(index, isActive) => {
+                const row = rows[index];
+                return row ? <BranchRowView row={row} active={isActive} showDate={byDate} /> : null;
+              }}
+              onKey={onKey}
+            />
+          </div>
+        </BranchContextMenu>
       )}
     </div>
   );

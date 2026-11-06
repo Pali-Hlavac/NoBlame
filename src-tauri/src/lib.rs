@@ -2,6 +2,7 @@
 //! See `docs/architecture/overview.md`.
 
 mod app_info;
+mod branches;
 pub mod cli;
 pub mod error;
 mod git_env;

@@ -16,7 +16,8 @@ export function InlineError({ error, className }: { error: unknown; className?: 
     >
       <AlertTriangleIcon className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden />
       <div className="grid gap-1">
-        <p>{message}</p>
+        {/* git output comes in lines; keep them. */}
+        <p className="whitespace-pre-line">{message}</p>
         {hint && <p className="text-muted-foreground">{hint}</p>}
       </div>
     </div>
