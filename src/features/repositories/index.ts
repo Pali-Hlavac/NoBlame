@@ -8,12 +8,15 @@ export { useActiveRepository, type ActiveRepository } from "./hooks/useActiveRep
 export { useRepositoryChanges } from "./hooks/useRepositoryChanges";
 export { useRepositoryPath } from "./hooks/useRepositoryPath";
 export { useSessionCleanup } from "./hooks/useSessionCleanup";
+export { useRecentRepositories } from "./api/recent";
 export {
   openRepositories,
+  pickFolder,
   useCreateRepository,
   useOpenRepository,
 } from "./hooks/useOpenRepository";
 export {
+  CloneRepositoryContext,
   GroupActionsContext,
   RepositoryActionsContext,
   type GroupAction,

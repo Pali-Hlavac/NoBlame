@@ -1,5 +1,11 @@
-import { FolderOpenIcon, FolderPlusIcon, ListPlusIcon, type LucideIcon } from "lucide-react";
-import type { ReactNode } from "react";
+import {
+  FolderDownIcon,
+  FolderOpenIcon,
+  FolderPlusIcon,
+  ListPlusIcon,
+  type LucideIcon,
+} from "lucide-react";
+import { useContext, type ReactNode } from "react";
 
 import { useRepositorySections } from "@/features/settings";
 import { useTabsStore, type RepositoryTab } from "@/features/workspace";
@@ -12,6 +18,7 @@ import { useEditGroups, useRepositoryGroups } from "../api/groups";
 import { useRecentRepositories } from "../api/recent";
 import { useSubmoduleTrees } from "../api/submodules";
 import { useCreateRepository, useOpenRepository } from "../hooks/useOpenRepository";
+import { CloneRepositoryContext } from "../lib/actions";
 import { addGroup, freeGroupName } from "../lib/groups";
 import { repositoryTab } from "../lib/path";
 import { moveSection, sectionDropIndex, sectionOrder } from "../lib/sections";
@@ -107,6 +114,7 @@ export function RepositoriesModule() {
   const editGroups = useEditGroups();
   const openRepository = useOpenRepository();
   const createRepository = useCreateRepository();
+  const cloneRepository = useContext(CloneRepositoryContext);
   const open = tabs.filter((tab): tab is RepositoryTab => tab.kind === "repository");
   const openIds = new Set(open.map((tab) => tab.id));
   const openPaths = new Map(open.map((tab) => [tab.id, tab.path]));
@@ -149,6 +157,14 @@ export function RepositoriesModule() {
           disabled={createRepository.pending}
           onClick={() => void createRepository.create()}
         />
+        {cloneRepository && (
+          <ToolbarButton
+            label="Clone repository…"
+            icon={FolderDownIcon}
+            kind="repositories"
+            onClick={cloneRepository}
+          />
+        )}
       </div>
       <OpenTabsContext.Provider
         value={{ ids: openIds, paths: openPaths, activeId: activeRepositoryTabId }}

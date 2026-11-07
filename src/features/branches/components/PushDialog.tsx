@@ -3,6 +3,7 @@ import { useId, useMemo, useState } from "react";
 import { useRefs } from "@/features/graph";
 
 import { startJob, startPush } from "@/features/jobs";
+import { openRemotes } from "@/features/remotes";
 import { useRepositoryPath } from "@/features/repositories";
 import { Button } from "@/shared/ui/button";
 import {
@@ -133,10 +134,20 @@ function PushForm(props: PushFormProps) {
             </DialogDescription>
           </DialogHeader>
           {props.remotes.length === 0 ? (
-            <p className="text-sm text-destructive">
-              This repository has no remote. Add one in a terminal (`git remote add origin
-              &lt;address&gt;`); managing remotes in NoBlame arrives later in M5.
-            </p>
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-sm text-destructive">This repository has no remote yet.</p>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  props.onClose();
+                  openRemotes(props.repoId, true);
+                }}
+              >
+                Add a remote…
+              </Button>
+            </div>
           ) : (
             <>
               <div className="grid grid-cols-[auto_1fr] items-center gap-x-3 gap-y-2">

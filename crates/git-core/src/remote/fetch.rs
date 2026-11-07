@@ -32,7 +32,19 @@ pub fn fetch_command(
     dir: &Path,
     options: &FetchOptions,
 ) -> Result<GitCommand, GitError> {
+    command_for(git, dir, options, false)
+}
+
+fn command_for(
+    git: &Git,
+    dir: &Path,
+    options: &FetchOptions,
+    append: bool,
+) -> Result<GitCommand, GitError> {
     let mut command = git.command().current_dir(dir).args(["fetch", "--progress"]);
+    if append {
+        command = command.arg("--append");
+    }
     if options.prune {
         command = command.arg("--prune");
     }
@@ -42,6 +54,56 @@ pub fn fetch_command(
         FetchTarget::Remote(name) => command = command.revision(name)?,
     }
     Ok(command)
+}
+
+/// The commands that run `options`, in order. Fetching every remote is one `git fetch <remote>`
+/// per remote (from [`fetch_all_remotes`]), the later ones with `--append` so `FETCH_HEAD` keeps
+/// them all, as `git fetch --all` does; but each shows its progress, which `--all` does not when
+/// its output is not a terminal. Without such remotes it is plain `--all` (which does nothing).
+pub fn fetch_commands(
+    git: &Git,
+    dir: &Path,
+    repo: &gix::Repository,
+    options: &FetchOptions,
+) -> Result<Vec<GitCommand>, GitError> {
+    let remotes = match options.target {
+        FetchTarget::All => fetch_all_remotes(repo),
+        _ => Vec::new(),
+    };
+    if remotes.is_empty() {
+        return Ok(vec![fetch_command(git, dir, options)?]);
+    }
+    remotes
+        .into_iter()
+        .enumerate()
+        .map(|(index, remote)| {
+            let single = FetchOptions {
+                target: FetchTarget::Remote(remote),
+                prune: options.prune,
+            };
+            command_for(git, dir, &single, index > 0)
+        })
+        .collect()
+}
+
+/// The remotes `git fetch --all` fetches, sorted: all but those with `remote.<name>.skipFetchAll`
+/// or `skipDefaultUpdate` set.
+pub fn fetch_all_remotes(repo: &gix::Repository) -> Vec<String> {
+    let config = repo.config_snapshot();
+    let file = config.plumbing();
+    repo.remote_names()
+        .into_iter()
+        .map(|name| name.to_string())
+        .filter(|name| {
+            let subsection = Some(gix::bstr::BStr::new(name.as_bytes()));
+            !["skipFetchAll", "skipDefaultUpdate"].iter().any(|key| {
+                file.boolean_by("remote", subsection, key)
+                    .ok()
+                    .flatten()
+                    .unwrap_or(false)
+            })
+        })
+        .collect()
 }
 
 /// What a fetch changed, counted from git's reference update lines.

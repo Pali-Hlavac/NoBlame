@@ -1,29 +1,37 @@
-# Remotes: fetch, pull and push (clone later)
+# Remotes: fetch, pull, push, managing remotes and clone
 
 Status: **M5 slice 3 done (2026-11-06)**: Fetch, Fetch all remotes and Fetch and prune as
 background jobs, with a jobs list in the status bar; **slice 4 (2026-11-06)**: asking for
 user names, passwords, SSH passphrases and unknown host keys in the app; **slice 5
 (2026-11-06)**: pull (as configured, merge, rebase, fast-forward only) and push (the current
-branch, any branch with options and force with lease, tags, deleting on a remote). Clone and
-managing remotes are slice 8 ([roadmap](../roadmap.md#m5-branches-tags-and-remotes)). The job model is
+branch, any branch with options and force with lease, tags, deleting on a remote); **slice 8
+(2026-11-07)**: managing remotes (add, edit, remove), clone as a job, and Fetch all remotes as
+one fetch per remote, so it shows progress. The job model is
 [architecture/background-jobs.md](../architecture/background-jobs.md) (ADR 0011).
 
 ## Where
 
-| Place                                          | Entries                                                                                                |
-| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Toolbar: **Pull** and its ▾ menu               | Pull, Pull (merge), Pull (rebase), Pull (fast-forward only), Fetch, Fetch all remotes, Fetch and prune |
-| Toolbar: **Push** and its ▾ menu               | Push (the current branch), Push… (the dialog)                                                          |
-| Command palette, group "Remote"                | The same, while a repository is active (pull and push only on a branch)                                |
-| Branches module and the graph's branch menus   | Local branch: Push…; remote branch: Delete on the remote…; tag: Push…, Delete on a remote…             |
-| Repositories module: a repository's **…** menu | Pull, Fetch, Push (open or closed repositories); also quick buttons, by setting                        |
-| Repositories module: a group's menu            | Pull all, Push all (one job per repository); also quick buttons, by setting                            |
+| Place                                                                   | Entries                                                                                                          |
+| ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Toolbar: **Pull** and its ▾ menu                                        | Pull, Pull (merge), Pull (rebase), Pull (fast-forward only), Fetch, Fetch all remotes, Fetch and prune, Remotes… |
+| Toolbar: **Push** and its ▾ menu                                        | Push (the current branch), Push… (the dialog)                                                                    |
+| Command palette, group "Remote"                                         | The same, while a repository is active (pull and push only on a branch)                                          |
+| Branches module and the graph's branch menus                            | Local branch: Push…; remote branch: Delete on the remote…; tag: Push…, Delete on a remote…                       |
+| Repositories module: a repository's **…** menu                          | Pull, Fetch, Push (open or closed repositories); also quick buttons, by setting                                  |
+| Repositories module: a group's menu                                     | Pull all, Push all (one job per repository); also quick buttons, by setting                                      |
+| Branches module: the cloud button; palette **Manage remotes…**          | The Remotes dialog (add, edit, remove, fetch a remote)                                                           |
+| Welcome tab, Repositories module toolbar, palette **Clone repository…** | The Clone dialog                                                                                                 |
 
 ## Behaviour
 
 - **Fetch** runs `git fetch --progress`: git picks the current branch's remote, else
-  `origin`. **Fetch all remotes** adds `--all`, **Fetch and prune** `--prune` (remote branches
-  deleted on the remote go too).
+  `origin`. **Fetch and prune** adds `--prune` (remote branches deleted on the remote go too).
+- **Fetch all remotes** is one job running `git fetch --progress <remote>` for each remote in
+  turn, the later ones with `--append` (so `FETCH_HEAD` keeps them all, as `git fetch --all`
+  does); remotes with `remote.<name>.skipFetchAll` or `skipDefaultUpdate` are left out
+  (`fetch_all_remotes`). Unlike `--all`, each fetch shows its progress. Its command reads `git
+fetch --progress a; git fetch --progress --append b`; its log has a `$ <command>` line before
+  each. A remote that fails does not stop the next one (the job fails); Cancel stops all.
 - Each fetch is a job: it starts at once and the UI stays usable. The status bar shows
   "Fetch: Receiving objects 45%" while it runs (with "+1" when more run); clicking it lists
   running and recent jobs: a progress bar with git's phase, size and speed, the time taken,
@@ -100,6 +108,61 @@ refs/heads/<name>`; the remote-tracking branch goes too. A tag's **Delete on a r
   messages.
 - Needs OpenSSH 8.4 or later for ssh prompts (`SSH_ASKPASS_REQUIRE=force`).
 
+## Managing remotes
+
+M5 slice 8. The **Remotes** dialog of the active repository (toolbar **Pull ▾ → Remotes…**,
+palette **Manage remotes…**, the cloud button in the Branches module, **Add a remote…** in the
+Push dialog of a repository without one) lists each remote: its name, URL, push URL when it
+differs, its remote branches here and the local branches tracking it. Passwords written into
+URLs are shown as `***`; the edit form shows the URL as configured.
+
+- **Add remote…**: name (`origin` when free) and URL: `git remote add -- <name> <url>`. **Fetch
+  its branches now** (on) then starts a fetch of it.
+- **Edit** (pencil): name, URL and push URL. Only what changed runs, in this order: `git remote
+set-url -- <name> <url>`, `git remote set-url --push -- <name> <url>` (an empty push URL:
+  `git config --local --unset-all remote.<name>.pushurl`), `git remote rename --no-progress --
+<old> <new>` (its remote branches move, the upstreams naming it follow). A remote with more
+  than one URL of a kind: the first is edited, the rest are counted ("1 more URL (edit those in
+  a terminal)").
+- **Remove** (bin): a confirmation names what goes from this repository (its remote branches,
+  and the local branches that lose their upstream) and the URL; nothing changes on the server.
+  Then `git remote remove -- <name>`.
+- **Fetch** (arrows): fetches that remote as a job.
+- Names are checked as git checks them (`refs/remotes/<name>/x` must be a valid reference name),
+  without spaces or a leading `-`; URLs must not be empty, start with `-` or hold control
+  characters. Anything else is git's to refuse, and the dialog shows what it said.
+- The list is read with gix from a fresh open of the repository (the session's copy of the
+  config is as it was when the tab opened). It lives under the refs' key, so a change, a fetch
+  or the watcher refreshes it, the Push dialog's remotes and the Branches module.
+
+## Clone
+
+M5 slice 8. **Clone repository…** (Welcome tab, the Repositories module's toolbar, the command
+palette) opens the Clone dialog:
+
+- **URL**, **Into** (the folder that will hold it: at first the folder of the newest recent
+  repository; **Browse…**) and **Folder name** (from the URL, as git names it, until changed).
+  "Clones into <path>" shows the result.
+- **Options**: **Branch** (`--branch`; empty: the remote's default); **Download**: Everything,
+  File contents when needed (`--filter=blob:none`) or Old commits' folders and files when needed
+  (`--filter=tree:0`); **Only the newest commits: N** (`--depth`); **Only that branch**
+  (`--single-branch`); **Submodules too** (`--recurse-submodules`, on); **Open it when done**
+  (on).
+- The folder is checked before git runs: a full path that does not exist (git creates it and
+  any missing folders above it) or an empty folder. Otherwise the dialog stays open with the
+  reason ("… already exists and is not empty").
+- The clone is a job (`clone_repository`): `git clone --progress [options] -- <url> <folder>`,
+  run in the nearest existing folder above it, with progress, the output window, Cancel and
+  askpass like the others. On success the toast says "Cloned into <folder>" and the repository
+  opens in a tab (`afterJob`, `src/features/jobs/lib/followUp.ts`, which also keeps a job's end
+  that arrives before the reply that started it). Failures get a hint first (`clone_hint`): no
+  repository at the URL, credentials or SSH key refused, unknown host, no such branch there,
+  folder not empty.
+- **Cancel** kills git's process tree, then removes what it wrote: the folder it made, or the
+  contents of the empty folder it was given ("Cancelled: The partly cloned folder was
+  removed."). After a failure git removes its own leftovers.
+- Not offered: bare and mirror clones, another name than `origin` (`--origin`).
+
 ## Git output window
 
 Owner request 2026-10-30, M5 slice 7. With **Settings → Fetch, pull and push → Show git's
@@ -116,11 +179,9 @@ also has **Output window**, which opens it on that job whatever the setting.
 - A job that starts while another in the window still runs joins it (Pull all lists every
   repository, the first stays on screen); a **Job** list chooses among them. Once they all
   ended, the next job starts the window afresh with only itself.
-- **Fetch all remotes** with more than one remote shows no progress line (nor does the status
-  bar): `git fetch --all` runs a fetch per remote and does not show their progress when its
-  output is not a terminal (git 2.56; checked on the command line: 0 progress lines for two
-  remotes, 408 for one). The window shows "Fetching origin", each remote's updates and the
-  result. Running one fetch per remote ourselves would fix it; noted for slice 8.
+- **Fetch all remotes** shows each remote's progress since slice 8 (one fetch per remote):
+  `git fetch --all` printed none when its output was not a terminal (git 2.56: 0 progress lines
+  for two remotes, 408 for one).
 - **Cancel** (while running), **Copy output**, and **×** or Escape to close it: the jobs go on
   in the background and their toasts still come.
 - **Close when they succeed** (`jobs.closeOutputOnSuccess`, on by default; in the window and in
@@ -169,6 +230,15 @@ M5 slice 6. The **…** menu of a repository and its quick buttons
 - `src-tauri/src/jobs/sync.rs` (`pull_repository`, `push_repository`, `push_current_branch`,
   `list_remotes`), `target.rs` (opening the repository of a job). `remote/remotes.rs`
   (`upstream_push`; test `finds_where_the_current_branch_pushes`).
+- `crates/git-core/src/remote/manage.rs` (`remote_details`, `add_remote`, `rename_remote`,
+  `remove_remote`, `set_remote_url`, `unset_push_url`), `validate.rs`, `clone.rs`
+  (`check_clone_target`, `clone_command`, `clone_hint`, `remove_partial_clone`), `fetch.rs`
+  (`fetch_commands`, `fetch_all_remotes`). Tests: `tests/remote_manage.rs`, `tests/remote_clone.rs`.
+- `src-tauri/src/branches/remotes.rs`, `remote_commands.rs`, `remote_types.rs`;
+  `src-tauri/src/jobs/clone.rs`, `steps.rs` (several commands in one job).
+- `src/features/remotes/` (`RemotesDialog`, `RemoteForm`, `RemoveRemoteDialog`, `CloneDialog`,
+  `CloneOptions`, `lib/clone.ts`, `lib/remotes.ts`, `openRemotes`, `openClone`); tests
+  `RemotesDialog.test.tsx`, `CloneDialog.test.tsx`, `lib/clone.test.ts`.
 - `src/features/jobs/components/OutputWindow.tsx`, `OutputConsole.tsx`, `store/output.ts`,
   `lib/output.ts` (the output window); tests `OutputWindow.test.tsx`, `lib/output.test.ts`.
 - `src/features/jobs/` (`startFetch`, `startPull`, `startPush`, `startPushCurrent`, `startJob`,
@@ -184,3 +254,11 @@ Fetching is bound by the network and the server. The app's share: one line callb
 of output and at most ten `JobUpdated` events per second per job. A clone of synthetic-10k
 over the pack protocol printed 411 progress lines in about a second, which the throttle turns
 into about ten updates.
+
+Slice 8 (2026-11-07, Windows 11, git 2.56, debug build):
+
+- Fetch all remotes into an empty repository from two local remotes (synthetic-100k, 772,382
+  objects, and a copy of synthetic-10k): 2,342 log lines, progress shown for both, "2323 new".
+- Renaming a remote with 2,025 remote branches (loose refs after a first fetch): about 5 s, all
+  of it `git remote rename` rewriting each reference; the Save button says "Saving…" meanwhile.
+- Listing remotes reads the config and walks `refs/remotes/` once (gix) for all of them.

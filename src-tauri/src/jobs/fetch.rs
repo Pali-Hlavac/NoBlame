@@ -3,7 +3,7 @@
 
 use std::sync::Arc;
 
-use git_core::remote::{FetchOptions, FetchTarget, fetch_command, summarize_fetch};
+use git_core::remote::{FetchOptions, FetchTarget, fetch_commands, summarize_fetch};
 
 use super::registry::{JobRegistry, JobSpec};
 use super::target::JobTarget;
@@ -27,15 +27,22 @@ pub async fn start(
         target,
         prune: request.prune,
     };
-    let command =
-        fetch_command(&target_repo.git, &target_repo.dir, &options).map_err(GitEnvError::from)?;
+    // Fetch all: one fetch per remote, so each shows its progress.
+    let steps = fetch_commands(
+        &target_repo.git,
+        &target_repo.dir,
+        &target_repo.repo.local(),
+        &options,
+    )
+    .map_err(GitEnvError::from)?;
     Ok(registry.start(JobSpec {
         kind: JobKindDto::Fetch,
         title,
         repo_path: request.path,
-        command,
+        steps,
         describe: Box::new(|output| describe(&output.stderr_lossy())),
         hint: None,
+        on_end: None,
     }))
 }
 

@@ -2,6 +2,7 @@
 import {
   CrosshairIcon,
   ExternalLinkIcon,
+  FolderDownIcon,
   FolderOpenIcon,
   FolderPlusIcon,
   GitBranchIcon,
@@ -21,6 +22,7 @@ import { APP_NAME } from "@/app.config";
 import { useAboutStore } from "@/features/about";
 import type { PaletteCommand } from "@/features/command-palette";
 import { useGitInfo } from "@/features/git-env";
+import { openClone } from "@/features/remotes";
 import { FIND_HOTKEY, GO_TO_HOTKEY, openFind, openGoTo } from "@/features/graph";
 import {
   useActiveRepository,
@@ -144,6 +146,15 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
       kind: "repositories",
       keywords: ["folder", "browse"],
       run: () => void openRepository(),
+    },
+    {
+      id: "repository.clone",
+      group: "Repository",
+      label: "Clone repository…",
+      icon: FolderDownIcon,
+      kind: "repositories",
+      keywords: ["download", "copy", "url", "remote"],
+      run: openClone,
     },
     {
       id: "repository.create",

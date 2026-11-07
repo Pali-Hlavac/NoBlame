@@ -30,6 +30,13 @@ When the folder is not inside a repository, the tab shows "… is not a Git repo
 with the user's git (creating the folder if needed) and opens it. Failures appear as a toast with
 git's message.
 
+## Cloning
+
+**Clone repository…** (Welcome tab, the module's toolbar, command palette) opens the Clone
+dialog; the clone runs as a job and the repository opens when it succeeded
+([remotes.md](remotes.md#clone)). The module gets the action through `CloneRepositoryContext`
+(supplied by the app shell, like the repository actions).
+
 ## Repository tab
 
 - **Header**: name, where HEAD points (branch name; "`<branch>` (no commits yet)" for a new

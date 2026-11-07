@@ -1,5 +1,5 @@
 /**
- * Background jobs (fetch, pull and push; clone later): the list is read once and then kept
+ * Background jobs (fetch, pull, push and clone): the list is read once and then kept
  * current by `JobUpdated` events (`useJobEvents`); a job's output is read while it is shown,
  * only the lines that are new each time.
  */
@@ -7,6 +7,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 
 import type {
+  CloneRequestDto,
   FetchRequestDto,
   JobDto,
   JobKindDto,
@@ -69,6 +70,11 @@ export function useCancelJob() {
  */
 export function startFetch(request: FetchRequestDto): Promise<number> {
   return unwrap(commands.fetchRepository(request));
+}
+
+/** Starts `git clone` into a new (or empty) folder, like `startFetch`. */
+export function startClone(request: CloneRequestDto): Promise<number> {
+  return unwrap(commands.cloneRepository(request));
 }
 
 /** Starts `git pull` of the current branch, like `startFetch`. */

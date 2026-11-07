@@ -749,7 +749,8 @@ Slices, in order (planned 2026-11-02):
       toast (slice 6, 2026-11-06)
 - [x] Credentials: git credential helpers; `GIT_ASKPASS`/`SSH_ASKPASS` helper that asks in the app — ADR 0012
       (slice 4, 2026-11-06)
-- [ ] Manage remotes; clone dialog (shallow, single branch, partial clone, recursive submodules)
+- [x] Manage remotes; clone dialog (shallow, single branch, partial clone, recursive submodules)
+      (slice 8, 2026-11-07)
 - [x] Background job registry: progress, cancel, logs, "equivalent command" shown — ADR 0011
       (slice 3, 2026-11-06)
 - [x] Git output window (owner request 2026-10-30):
@@ -790,10 +791,14 @@ working branch model; the job registry comes before anything that talks to a rem
 7. **Git output window**: the console-like popup streaming a job's output, behind a setting.
    Done 2026-11-06 ([features/remotes.md](features/remotes.md#git-output-window)).
 8. **Remotes and clone**: add, rename, remove a remote and change its URL; the clone dialog
-   (shallow, single branch, partial clone, recursive submodules).
+   (shallow, single branch, partial clone, recursive submodules). Done 2026-11-07
+   ([features/remotes.md](features/remotes.md#managing-remotes)); Fetch all remotes became one
+   fetch per remote, so it shows progress.
 
 The Submodules and Worktrees modules named above move to M7 with their actions (submodules are
 listed in the Repositories module already).
+
+**M5 is done (2026-11-07).** Next: M6 (changing history and resolving conflicts).
 
 ### M6: Changing history and resolving conflicts
 

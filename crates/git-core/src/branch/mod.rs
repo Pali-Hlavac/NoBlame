@@ -47,6 +47,12 @@ pub enum BranchError {
         /// Why, in words.
         reason: String,
     },
+    /// The text cannot be a remote's URL (empty, starts with `-`, control characters).
+    #[error("this URL cannot be used: {reason}")]
+    InvalidUrl {
+        /// Why, in words.
+        reason: String,
+    },
     /// The reference is gone or points elsewhere since the user saw it; nothing was done.
     #[error("{name} changed since it was shown")]
     Moved {
@@ -148,7 +154,7 @@ pub fn head_commit(repo: &gix::Repository) -> Option<ObjectId> {
 }
 
 /// Everything git printed, when it succeeded; otherwise the same text as the error.
-fn accepted(output: &GitOutput) -> Result<String, BranchError> {
+pub(crate) fn accepted(output: &GitOutput) -> Result<String, BranchError> {
     let text = output.combined();
     if output.success() {
         Ok(text)

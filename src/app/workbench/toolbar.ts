@@ -5,7 +5,14 @@ import { useMemo } from "react";
 import { openModule, type ToolbarAction } from "@/features/workbench";
 
 import { openCommit } from "./commit";
-import { FETCHES, PULLS, PUSH_ICON, useRemoteActions, type RemoteActions } from "./remote";
+import {
+  FETCHES,
+  PULLS,
+  PUSH_ICON,
+  REMOTES_ICON,
+  useRemoteActions,
+  type RemoteActions,
+} from "./remote";
 import { MODULES } from "./modules";
 
 const STASHES_MODULE = MODULES.find((module) => module.id === "stashes");
@@ -48,6 +55,7 @@ export function toolbarActions(remote: RemoteActions | undefined): readonly Tool
               remote.fetch(fetch.value);
             }),
         })),
+        { id: "remotes", label: "Remotes…", icon: REMOTES_ICON, run: remote?.manageRemotes },
       ],
     },
     {

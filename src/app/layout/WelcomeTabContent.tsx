@@ -1,7 +1,8 @@
-import { FolderOpenIcon, FolderPlusIcon } from "lucide-react";
+import { FolderDownIcon, FolderOpenIcon, FolderPlusIcon } from "lucide-react";
 
 import { PALETTE_HOTKEY } from "@/features/command-palette";
 import { GitNotice } from "@/features/git-env";
+import { openClone } from "@/features/remotes";
 import {
   RecentRepositories,
   useCreateRepository,
@@ -33,6 +34,10 @@ export function WelcomeTabContent() {
             >
               <FolderPlusIcon className={KIND_ICON_CLASSES.repositories} aria-hidden />
               Create repository…
+            </Button>
+            <Button variant="outline" onClick={openClone}>
+              <FolderDownIcon className={KIND_ICON_CLASSES.repositories} aria-hidden />
+              Clone repository…
             </Button>
           </>
         }

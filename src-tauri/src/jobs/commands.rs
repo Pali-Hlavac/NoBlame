@@ -1,13 +1,14 @@
-//! Tauri boundary for background jobs: listing, logs, cancelling; starting fetch, pull and
-//! push; the remotes to push to.
+//! Tauri boundary for background jobs: listing, logs, cancelling; starting fetch, pull, push
+//! and clone; the remotes to push to.
 
 use std::sync::Arc;
 
 use tauri::State;
 
+use super::clone::CloneRequestDto;
 use super::registry::JobRegistry;
 use super::types::{FetchRequestDto, JobDto, JobId, JobOutputDto, PullRequestDto, PushRequestDto};
-use super::{fetch, sync};
+use super::{clone, fetch, sync};
 use crate::error::CommandResult;
 
 /// Running and recent jobs, newest first.
@@ -72,6 +73,16 @@ pub async fn push_current_branch(
     path: String,
 ) -> CommandResult<JobId> {
     Ok(sync::push_current(&registry, path).await?)
+}
+
+/// Starts `git clone` into a new (or empty) folder; the UI opens it when the job succeeded.
+#[tauri::command]
+#[specta::specta]
+pub async fn clone_repository(
+    registry: State<'_, Arc<JobRegistry>>,
+    request: CloneRequestDto,
+) -> CommandResult<JobId> {
+    Ok(clone::start(&registry, request).await?)
 }
 
 /// The remotes of the repository at `path`, sorted.

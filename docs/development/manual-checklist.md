@@ -150,6 +150,18 @@ Use `target\debug\noblame.exe` while the dev app runs.
 - [ ] **(new)** A group's **…** → **Open all**; **Delete group…** asks first and leaves the
       repositories alone.
   - Notes:
+- [ ] (new, M5 slice 8) **Pull ▾ → Remotes…**: add a remote with **Fetch its branches now**; it
+      is fetched and listed with its branch count. Edit it: a new name moves its branches in the
+      Branches module; a push URL appears as "Push:" with any password as `***`. Remove it: the
+      confirmation names its branches and the branches tracking it.
+  - Notes:
+- [ ] (new, M5 slice 8) **Fetch all remotes** with two remotes: the output window and the status
+      bar show the progress of each, and the log has a `$ git fetch …` line per remote.
+  - Notes:
+- [ ] (new, M5 slice 8) **Clone repository…** (Welcome tab): the folder name follows the URL;
+      a shallow, blobless clone opens in a tab when done. Clone into a non-empty folder: the
+      dialog says so and stays open. Cancel a large clone: the folder is gone afterwards.
+  - Notes:
 - [ ] (new, M5 slice 7) **Settings → Fetch, pull and push → Show git's output in a window**:
       Fetch a repository with a large remote; the Git output window opens at the top right with
       the command, git's lines and the progress line, without taking the focus. Scroll up while

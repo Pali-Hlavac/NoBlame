@@ -1,7 +1,8 @@
-import { ArrowDownAZIcon, CalendarClockIcon, SearchIcon } from "lucide-react";
+import { ArrowDownAZIcon, CalendarClockIcon, CloudIcon, SearchIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { useRefs } from "@/features/graph";
+import { openRemotes } from "@/features/remotes";
 import { WithActiveRepository } from "@/features/repositories";
 import { selectRow } from "@/features/selection";
 import { useBranchSort } from "@/features/settings";
@@ -115,6 +116,17 @@ function Branches({ repoId, repoPath }: { repoId: number; repoPath: string }) {
           }}
         >
           <SortIcon className="size-3.5" aria-hidden />
+        </button>
+        <button
+          type="button"
+          aria-label="Remotes…"
+          title="Remotes: add, edit, remove"
+          className="flex size-6 shrink-0 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          onClick={() => {
+            openRemotes(repoId);
+          }}
+        >
+          <CloudIcon className="size-3.5" aria-hidden />
         </button>
       </div>
       {rows.length === 0 ? (

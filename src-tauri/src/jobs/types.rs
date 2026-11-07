@@ -16,6 +16,8 @@ pub enum JobKindDto {
     Pull,
     /// `git push`.
     Push,
+    /// `git clone`; its `repoPath` is the new repository's folder.
+    Clone,
 }
 
 /// Where a job is in its life.

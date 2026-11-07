@@ -46,9 +46,10 @@ pub async fn pull(
         kind: JobKindDto::Pull,
         title,
         repo_path: request.path,
-        command: pull_command(&target.git, &work_tree, mode),
+        steps: vec![pull_command(&target.git, &work_tree, mode)],
         describe: Box::new(|output| describe_pull(&output.stdout_lossy(), &output.stderr_lossy())),
         hint: Some(pull_hint),
+        on_end: None,
     }))
 }
 
@@ -153,9 +154,10 @@ fn start_push(
         kind: JobKindDto::Push,
         title,
         repo_path: path,
-        command,
+        steps: vec![command],
         describe: Box::new(|output| describe_push(summarize_push(&output.stdout_lossy()))),
         hint: Some(push_hint),
+        on_end: None,
     }))
 }
 

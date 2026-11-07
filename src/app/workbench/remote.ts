@@ -7,6 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowDownToLineIcon,
   ArrowUpFromLineIcon,
+  CloudIcon,
   RefreshCwIcon,
   ScissorsIcon,
   type LucideIcon,
@@ -16,6 +17,7 @@ import { toast } from "sonner";
 
 import { openBranchDialog, pushCurrentBranch } from "@/features/branches";
 import { startFetch, startJob, startPull } from "@/features/jobs";
+import { openRemotes } from "@/features/remotes";
 import { useActiveRepository } from "@/features/repositories";
 import type { FetchTargetDto, PullModeDto } from "@/shared/ipc/bindings";
 import { toIpcError } from "@/shared/ipc/client";
@@ -85,6 +87,7 @@ export const FETCHES: readonly RemoteCommand<FetchChoice>[] = [
 ];
 
 export const PUSH_ICON = ArrowUpFromLineIcon;
+export const REMOTES_ICON = CloudIcon;
 
 /** Fetches the repository at `path` (open or not). */
 export function fetchRepository(path: string, target: FetchTargetDto, prune: boolean): void {
@@ -99,6 +102,8 @@ export interface RemoteActions {
   push: () => void;
   /** Opens the Push dialog for the current branch. */
   pushWithOptions: () => void;
+  /** Opens the Remotes dialog (add, edit, remove remotes). */
+  manageRemotes: () => void;
   /** The current branch, when HEAD is on one (pull and push need it). */
   branch: string | undefined;
 }
@@ -128,6 +133,9 @@ export function useRemoteActions(): RemoteActions | undefined {
       },
       pushWithOptions: () => {
         if (branch !== undefined) openBranchDialog({ kind: "push-branch", repoId, branch });
+      },
+      manageRemotes: () => {
+        openRemotes(repoId);
       },
     };
   }, [branch, path, queryClient, repoId]);

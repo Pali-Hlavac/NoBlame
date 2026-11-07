@@ -14,6 +14,7 @@ use tokio_util::sync::CancellationToken;
 use crate::askpass::Askpass;
 
 use super::failure::failed;
+use super::steps::{display, lines_from, run_steps};
 use super::types::{
     JobDto, JobId, JobKindDto, JobOutputDto, JobProgressDto, JobStateDto, JobUpdated,
 };
@@ -28,15 +29,21 @@ const MAX_FINISHED_JOBS: usize = 30;
 /// Turns a successful job's output into its message (`2 new, 1 updated`).
 pub type Describe = Box<dyn FnOnce(&GitOutput) -> String + Send>;
 
+/// Runs once a job ended, before that is reported (a cancelled clone removes its folder); a
+/// message it returns replaces the job's.
+pub type OnEnd = Box<dyn FnOnce(JobStateDto) -> Option<String> + Send>;
+
 /// A job to start.
 pub struct JobSpec {
     pub kind: JobKindDto,
     pub title: String,
     pub repo_path: String,
-    pub command: GitCommand,
+    /// git commands run one after the other (usually one; Fetch all runs one per remote).
+    pub steps: Vec<GitCommand>,
     pub describe: Describe,
     /// A next step for a failure, from git's output (`Pull first, then push.`).
     pub hint: Option<Hint>,
+    pub on_end: Option<OnEnd>,
 }
 
 /// Finds a plain-language next step in a failed job's output.
@@ -97,7 +104,7 @@ impl JobRegistry {
                 kind: spec.kind,
                 title: spec.title,
                 repo_path: spec.repo_path,
-                command: redact_credentials(&spec.command.display()),
+                command: redact_credentials(&display(&spec.steps)),
                 state: JobStateDto::Running,
                 progress: None,
                 message: None,
@@ -119,16 +126,23 @@ impl JobRegistry {
         self.askpass.register(id, &job.title, &job.repo_path);
         self.send(job);
         let registry = Arc::clone(self);
-        let mut command = spec.command;
-        for (name, value) in self.askpass.env_for(id) {
-            command = command.env(name, value);
-        }
-        let (describe, hint) = (spec.describe, spec.hint);
+        let env = self.askpass.env_for(id);
+        let steps = spec
+            .steps
+            .into_iter()
+            .map(|step| {
+                env.iter()
+                    .fold(step, |step, (name, value)| step.env(name, value.clone()))
+            })
+            .collect();
+        let (describe, hint, on_end) = (spec.describe, spec.hint, spec.on_end);
         tauri::async_runtime::spawn(async move {
-            let result = command
-                .stream(&cancel, |line| registry.on_line(id, line))
-                .await;
-            registry.finish(id, result, describe, hint);
+            let result = run_steps(steps, &cancel, |line| registry.on_line(id, line)).await;
+            // Off the async threads: ending may remove files (a cancelled clone).
+            let finish = move || registry.finish(id, result, describe, hint, on_end);
+            if let Err(error) = tauri::async_runtime::spawn_blocking(finish).await {
+                tracing::error!(id, %error, "finishing a job failed");
+            }
         });
         id
     }
@@ -177,15 +191,19 @@ impl JobRegistry {
         result: Result<GitOutput, GitError>,
         describe: Describe,
         hint: Option<Hint>,
+        on_end: Option<OnEnd>,
     ) {
         // Prompts still open belong to a git that is gone.
         self.askpass.unregister(id);
-        let (state, message) = match result {
+        let (state, mut message) = match result {
             Ok(output) if output.success() => (JobStateDto::Succeeded, describe(&output)),
             Ok(output) => (JobStateDto::Failed, failed(&output, hint)),
             Err(GitError::Cancelled { .. }) => (JobStateDto::Cancelled, "Cancelled".to_owned()),
             Err(error) => (JobStateDto::Failed, error.to_string()),
         };
+        if let Some(replaced) = on_end.and_then(|on_end| on_end(state)) {
+            message = replaced;
+        }
         let job = {
             let mut inner = self.lock();
             let Some(entry) = inner.jobs.iter_mut().find(|entry| entry.job.id == id) else {
@@ -262,32 +280,4 @@ fn now_seconds() -> f64 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map_or(0.0, |elapsed| elapsed.as_secs_f64())
-}
-
-/// The lines of `log` from line `from` on, where `log` lost its first `dropped` lines.
-fn lines_from(log: &VecDeque<String>, dropped: u32, from: u32) -> JobOutputDto {
-    let start = from.max(dropped);
-    let skip = usize::try_from(start - dropped).unwrap_or(usize::MAX);
-    JobOutputDto {
-        from: start,
-        lines: log.iter().skip(skip).cloned().collect(),
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use std::collections::VecDeque;
-
-    use super::lines_from;
-
-    #[test]
-    fn reads_only_new_lines_and_skips_dropped_ones() {
-        let log: VecDeque<String> = ["c", "d", "e"].map(String::from).into();
-        // Lines 0 and 1 (a, b) were dropped.
-        let new = lines_from(&log, 2, 4);
-        assert_eq!((new.from, new.lines), (4, vec!["e".to_owned()]));
-        let late = lines_from(&log, 2, 0);
-        assert_eq!((late.from, late.lines.len()), (2, 3));
-        assert!(lines_from(&log, 2, 5).lines.is_empty());
-    }
 }

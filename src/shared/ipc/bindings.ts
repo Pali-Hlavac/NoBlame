@@ -204,6 +204,16 @@ export const commands = {
 	pushCurrentBranch: (path: string) => typedError<number, AppError>(__TAURI_INVOKE("push_current_branch", { path })),
 	/**  The remotes of the repository at `path`, sorted. */
 	listRemotes: (path: string) => typedError<string[], AppError>(__TAURI_INVOKE("list_remotes", { path })),
+	/**  Starts `git clone` into a new (or empty) folder; the UI opens it when the job succeeded. */
+	cloneRepository: (request: CloneRequestDto) => typedError<number, AppError>(__TAURI_INVOKE("clone_repository", { request })),
+	/**  The remotes with their URLs, remote branches and the local branches tracking them. */
+	listRemoteDetails: (id: number) => typedError<RemoteDto[], AppError>(__TAURI_INVOKE("list_remote_details", { id })),
+	/**  Adds a remote (`git remote add`); nothing is fetched yet. */
+	addRemote: (id: number, request: AddRemoteRequestDto) => typedError<string, AppError>(__TAURI_INVOKE("add_remote", { id, request })),
+	/**  Changes a remote's URL, push URL and name (only what differs). */
+	editRemote: (id: number, request: EditRemoteRequestDto) => typedError<string, AppError>(__TAURI_INVOKE("edit_remote", { id, request })),
+	/**  Removes a remote with its remote branches; branches tracking it lose their upstream. */
+	removeRemote: (id: number, name: string) => typedError<string, AppError>(__TAURI_INVOKE("remove_remote", { id, name })),
 	/**  Prompts waiting for an answer, oldest first (read on start and on `CredentialRequested`). */
 	listCredentialRequests: () => __TAURI_INVOKE<CredentialRequestDto[]>("list_credential_requests"),
 	/**  Answers a prompt; `null` cancels it (git then fails). False when it no longer waits. */
@@ -311,6 +321,12 @@ export const events = {
 };
 
 /* Types */
+/**  A remote to add. */
+export type AddRemoteRequestDto = {
+	name: string,
+	url: string,
+};
+
 /**  Commits one side has that the other lacks. */
 export type AheadBehindDto = {
 	/**  Commits of the target that the base lacks. */
@@ -494,6 +510,30 @@ export type ChangedFilesDto = {
 	total: number,
 	/**  Parents of the commit (more than one for a merge; 0 for the first commit). */
 	parentCount: number,
+};
+
+/**  How much of the history's contents to download up front. */
+export type CloneFilterDto = 
+/**  Everything. */
+"none" | 
+/**  File contents when needed (`--filter=blob:none`). */
+"blobless" | 
+/**  Folders and file contents of old commits when needed (`--filter=tree:0`). */
+"treeless";
+
+/**  A repository to clone and how. */
+export type CloneRequestDto = {
+	/**  The repository's address. */
+	url: string,
+	/**  The new repository's folder (full path): new, or empty. */
+	folder: string,
+	/**  The branch or tag to check out instead of the remote's default. */
+	branch: string | null,
+	/**  Only the newest commits (a shallow clone). */
+	depth: number | null,
+	singleBranch: boolean,
+	filter: CloneFilterDto,
+	recurseSubmodules: boolean,
 };
 
 /**
@@ -823,6 +863,18 @@ export type DiffSettings = {
 	syntaxHighlighting?: boolean,
 	/**  The program "Open in diff tool" starts. */
 	externalTool?: ExternalDiffTool,
+};
+
+/**  A remote's new name and URLs; what did not change is left alone. */
+export type EditRemoteRequestDto = {
+	/**  Its name now. */
+	name: string,
+	/**  Its name after (the same to keep it). */
+	newName: string,
+	/**  Where it fetches from. */
+	url: string,
+	/**  Where it pushes to; `None` (or empty) pushes where it fetches from. */
+	pushUrl: string | null,
 };
 
 /**  Stable, machine-readable error category the frontend can branch on. */
@@ -1181,7 +1233,9 @@ export type JobKindDto =
 /**  `git pull`. */
 "pull" | 
 /**  `git push`. */
-"push";
+"push" | 
+/**  `git clone`; its `repoPath` is the new repository's folder. */
+"clone";
 
 /**  Lines of a job's log, from line `from` (counting from its first line) on. */
 export type JobOutputDto = {
@@ -1428,6 +1482,26 @@ export type ReloadedGraph = {
 	 *  nothing was selected.
 	 */
 	row: number | null,
+};
+
+/**  A remote as the Remotes dialog shows it. */
+export type RemoteDto = {
+	/**  Its name (`origin`). */
+	name: string,
+	/**  Where it fetches from, as configured (for editing). */
+	url: string | null,
+	/**  Where it pushes to when that differs, as configured. */
+	pushUrl: string | null,
+	/**  `url` with any password written into it hidden (`***`), for showing. */
+	shownUrl: string | null,
+	/**  `push_url`, hidden the same way. */
+	shownPushUrl: string | null,
+	/**  URLs beyond the first of each kind (edited in a terminal). */
+	extraUrls: number,
+	/**  Its remote branches here. */
+	branches: number,
+	/**  Local branches whose upstream is on it. */
+	trackedBy: string[],
 };
 
 /**  A branch to rename. */

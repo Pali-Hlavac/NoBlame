@@ -1,7 +1,7 @@
 # Background jobs
 
 Status: **M5 slices 3–5 (2026-11-06)**: the job registry; fetch, pull and push; credentials
-(ADR 0012). Clone becomes a job in slice 8. Decision:
+(ADR 0012); slice 8 (2026-11-07): clone, and jobs of several commands (Fetch all). Decision:
 [ADR 0011](../adr/0011-background-jobs.md).
 
 ## Running git
@@ -33,7 +33,7 @@ the tree (used by `get_git_info`, 10 s).
 | Field                     | Meaning                                                                              |
 | ------------------------- | ------------------------------------------------------------------------------------ |
 | `id`                      | Counts up from 1 for the app run                                                     |
-| `kind`                    | `fetch`, `pull`, `push` (later `clone`)                                              |
+| `kind`                    | `fetch`, `pull`, `push`, `clone` (its `repoPath` is the new folder)                  |
 | `title`                   | `Fetch`, `Fetch origin`, `Fetch all remotes and prune`                               |
 | `repoPath`                | The path the job was started with (the repository need not be open)                  |
 | `command`                 | The equivalent command line (`GitCommand::display`)                                  |
@@ -45,13 +45,18 @@ the tree (used by `get_git_info`, 10 s).
 
 - `start(JobSpec)` records the job, sends `JobUpdated`, and spawns the streaming run on the
   Tauri runtime; it returns the id at once.
+- A job runs one or more git commands (`JobSpec::steps`, `jobs/steps.rs`): Fetch all remotes
+  runs one fetch per remote. With several, each starts with a `$ <command>` log line, a failing
+  one does not stop the next (the job fails, with the outputs joined), and Cancel stops all;
+  `command` lists them `;`-separated.
 - Each line: parsed with `git_core::remote::parse_progress`; finished lines go to the log.
   `JobUpdated` is sent at most every 100 ms per job while it prints.
 - A failure's message is the job's hint when one applies (`JobSpec::hint`: `pull_hint`,
   `push_hint`), then git's `fatal:`/`error:` lines from both streams (pull reports conflicts on
   standard output).
-- At the end: state and message set, `JobUpdated` sent, and finished jobs beyond the 30
-  newest forgotten (running jobs are never dropped).
+- At the end (on a blocking thread): `JobSpec::on_end` runs and may replace the message (a
+  cancelled clone removes the folder it wrote), then state and message are set, `JobUpdated`
+  sent, and finished jobs beyond the 30 newest forgotten (running jobs are never dropped).
 - `cancel(id)` cancels the job's token; the run kills the tree and ends as `cancelled`.
 
 - The log keeps the newest 5,000 lines; `JobDto.logLines` counts every line written (dropped
@@ -59,7 +64,8 @@ the tree (used by `get_git_info`, 10 s).
   number of the first one returned, later than `from` when older lines were dropped), so a
   window streaming the output reads only what is new.
 
-Commands: `list_jobs`, `get_job_output`, `cancel_job`, `fetch_repository` (see
+Commands: `list_jobs`, `get_job_output`, `cancel_job`, `fetch_repository`, `pull_repository`,
+`push_repository`, `push_current_branch`, `clone_repository` (see
 [ipc.md](ipc.md)). Jobs live in memory only.
 
 ## Credentials
@@ -78,6 +84,8 @@ failure messages pass through `redact_credentials`. See
   `logLines` grows), cancel, `startFetch`.
 - `hooks/useJobEvents.ts`: mounted once in the main window; merges `JobUpdated` into the list
   and toasts how a job ended (failures with **Show log**), except jobs of a batch.
+- `lib/followUp.ts`: `afterJob(id, onEnd)` runs something when a job ended (the Clone dialog
+  opens the new repository); ends that arrive before the start's reply are kept (20 at most).
 - `lib/batch.ts`: `startBatch(title, starts)` starts one job per repository (Pull all, Push
   all) and remembers which job ids belong to it; when the last one ends (or could not start),
   one summary toast replaces theirs (`batchSummary`: counts, failures first). Nothing changes in

@@ -71,7 +71,9 @@ Good:
 - Cancelling a fetch stops `git-remote-https` and `ssh` too, and no blocking thread is left
   waiting on Windows.
 - Pull, push and clone (slices 5, 8) are a new `JobSpec` each: a command and a way to
-  describe the result.
+  describe the result. Slice 8 let a job run several commands in turn (Fetch all remotes: one
+  fetch per remote, since `git fetch --all` shows no progress outside a terminal) and clean up
+  when it ends (a cancelled clone removes its folder).
 - The output window (slice 7) reads the same logs.
 
 Bad:

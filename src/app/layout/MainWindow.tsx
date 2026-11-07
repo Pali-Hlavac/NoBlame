@@ -2,8 +2,10 @@ import { BranchDialogs, useRefActions } from "@/features/branches";
 import { OutputWindow, useJobEvents } from "@/features/jobs";
 import { CommandPalette } from "@/features/command-palette";
 import { CredentialPrompt } from "@/features/credentials";
+import { RemoteDialogs, openClone } from "@/features/remotes";
 import { RefActionsContext } from "@/features/graph";
 import {
+  CloneRepositoryContext,
   GroupActionsContext,
   RepositoryActionsContext,
   openRepositories,
@@ -54,20 +56,23 @@ function MainWorkbench({ saved }: { saved: SavedLayout | null }) {
       <MainTitleBar />
       <RepositoryActionsContext.Provider value={REPOSITORY_ACTIONS}>
         <GroupActionsContext.Provider value={GROUP_ACTIONS}>
-          <RefActionsContext.Provider value={useRefActions}>
-            <Workbench
-              modules={MODULES}
-              defaultModuleLayout={DEFAULT_MODULE_LAYOUT}
-              renderTab={renderTab}
-              saved={saved}
-              activityBarFooter={<SettingsButton />}
-            />
-          </RefActionsContext.Provider>
+          <CloneRepositoryContext.Provider value={openClone}>
+            <RefActionsContext.Provider value={useRefActions}>
+              <Workbench
+                modules={MODULES}
+                defaultModuleLayout={DEFAULT_MODULE_LAYOUT}
+                renderTab={renderTab}
+                saved={saved}
+                activityBarFooter={<SettingsButton />}
+              />
+            </RefActionsContext.Provider>
+          </CloneRepositoryContext.Provider>
         </GroupActionsContext.Provider>
       </RepositoryActionsContext.Provider>
       <StatusBar />
       <CommandPalette commands={commands} />
       <BranchDialogs />
+      <RemoteDialogs />
       <CredentialPrompt />
       <OutputWindow />
     </div>

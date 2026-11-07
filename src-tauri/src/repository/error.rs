@@ -9,6 +9,7 @@ use git_core::difftool::DiffToolError;
 use git_core::graph::GraphError;
 use git_core::history::HistoryError;
 use git_core::ignore::IgnoreError;
+use git_core::remote::CloneError;
 use git_core::repo::RepoError;
 use git_core::signing::SigningError;
 use git_core::stash::StashError;
@@ -60,6 +61,9 @@ pub enum RepositoryError {
     /// Checking out, or changing a branch or tag, failed.
     #[error(transparent)]
     Branch(#[from] BranchError),
+    /// A clone could not start (the folder is not empty, the URL cannot be used).
+    #[error(transparent)]
+    Clone(#[from] CloneError),
     /// Opening an external diff tool failed.
     #[error(transparent)]
     DiffTool(#[from] DiffToolError),
@@ -153,6 +157,7 @@ impl From<RepositoryError> for AppError {
             | RepositoryError::Signing(SigningError::Git(error)) => GitEnvError::from(error).into(),
             RepositoryError::Compare(error) => compare_error(error),
             RepositoryError::Branch(error) => super::branch_error::branch_error(error),
+            RepositoryError::Clone(error) => super::branch_error::clone_error(error),
             error @ (RepositoryError::Commit(_)
             | RepositoryError::Ignore(_)
             | RepositoryError::DiffTool(_)

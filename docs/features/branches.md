@@ -27,6 +27,9 @@ The Branches module itself (sections, filter, sort) is described in
   **F2** renames the active branch, **Delete** deletes the active branch or tag (both open
   their dialog). A click still selects the commit.
 
+- **The Branches module's cloud button** (beside the sort button) opens the Remotes dialog: add,
+  edit, remove and fetch remotes ([remotes.md](remotes.md#managing-remotes)).
+
 ## Behaviour
 
 - **Check out a branch** runs at once: `git switch --no-guess <name>` (never creates a branch

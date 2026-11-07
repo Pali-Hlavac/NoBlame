@@ -137,13 +137,24 @@ impl GitCommand {
     /// Appends `--` (once) followed by `paths`. After `--` git treats every argument as a
     /// path, even one that starts with `-`.
     #[must_use]
-    pub fn paths<P: AsRef<Path>>(mut self, paths: impl IntoIterator<Item = P>) -> Self {
+    pub fn paths<P: AsRef<Path>>(self, paths: impl IntoIterator<Item = P>) -> Self {
+        self.operands(
+            paths
+                .into_iter()
+                .map(|path| path.as_ref().as_os_str().to_owned()),
+        )
+    }
+
+    /// Appends `--` (once) followed by `values`: names, URLs and folders that git must never
+    /// read as options (`git remote add -- <name> <url>`, `git clone -- <url> <folder>`).
+    #[must_use]
+    pub fn operands<S: AsRef<OsStr>>(mut self, values: impl IntoIterator<Item = S>) -> Self {
         if !self.has_separator {
             self.push("--");
             self.has_separator = true;
         }
-        for path in paths {
-            self.push(path.as_ref().as_os_str());
+        for value in values {
+            self.push(value.as_ref());
         }
         self
     }

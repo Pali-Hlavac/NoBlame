@@ -21,6 +21,11 @@ Click **Create repository…** on the Welcome tab (or run it from the command pa
 folder. NoBlame creates an empty Git repository there and opens it. If you open a folder that is
 not a repository, the tab offers **Create a repository here** as well.
 
+## Clone a repository
+
+Click **Clone repository…** on the Welcome tab to copy a repository from a server (or another
+folder) to your computer. See [Cloning a repository](remotes.md#cloning-a-repository).
+
 ## Recent repositories
 
 The Welcome tab lists the last 20 repositories you opened, newest first. A repository whose folder

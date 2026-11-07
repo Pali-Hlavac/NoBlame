@@ -12,7 +12,8 @@ export function openRepositories(paths: readonly string[]): void {
   for (const path of paths) openTab(repositoryTab(path));
 }
 
-async function pickFolder(title: string): Promise<string | null> {
+/** Asks for a folder; null when cancelled (or the picker failed, said in a toast). */
+export async function pickFolder(title: string): Promise<string | null> {
   try {
     const path = await open({ directory: true, title });
     return typeof path === "string" ? path : null;

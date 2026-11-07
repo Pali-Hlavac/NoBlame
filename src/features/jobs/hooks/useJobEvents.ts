@@ -7,6 +7,7 @@ import { events, type JobDto } from "@/shared/ipc/bindings";
 
 import { jobKeys, withJob } from "../api/jobs";
 import { batchJobEnded } from "../lib/batch";
+import { jobEnded } from "../lib/followUp";
 import { repositoryName } from "../lib/format";
 import { useOutputWindow, showOutput } from "../store/output";
 import { showJobs } from "../store/panel";
@@ -64,9 +65,10 @@ export function useJobEvents(): void {
         );
         showOutput(job.id, running ? "add" : "replace");
       }
-      // A batch's jobs are summed up together when its last one ends.
-      if (job.state !== "running" && before?.state !== job.state && !batchJobEnded(job)) {
-        announce(job);
+      if (job.state !== "running" && before?.state !== job.state) {
+        jobEnded(job);
+        // A batch's jobs are summed up together when its last one ends.
+        if (!batchJobEnded(job)) announce(job);
       }
     });
     return () => {

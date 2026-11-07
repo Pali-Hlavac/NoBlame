@@ -13,7 +13,7 @@ A remote is a copy of the repository somewhere else, such as on GitHub (usually 
 
 - In the toolbar, open the menu next to **Pull** (▾) and choose:
   - **Fetch**: from the remote of your current branch (usually `origin`);
-  - **Fetch all remotes**: from every remote;
+  - **Fetch all remotes**: from every remote, one after the other;
   - **Fetch and prune**: also removes the remote branches that were deleted on the remote.
 - Or press the command palette key and type "fetch".
 - In the Repositories module, a repository's **…** menu has **Fetch**, even for repositories
@@ -50,6 +50,42 @@ time, and also:
 On a tag, **Push…** sends the tag. **Delete on the remote…** (on a remote branch such as
 `origin/feature`) or **Delete on a remote…** (on a tag) removes it on the remote for everyone,
 after asking.
+
+## Adding, changing and removing remotes
+
+Open the menu next to **Pull** (▾) and choose **Remotes…** (or click the cloud button at the top
+of the Branches module, or type "remotes" in the command palette). The window lists each
+remote with its address and how many of its branches you have.
+
+- **Add remote…**: give it a name (`origin` for the main one, `upstream` for the project you
+  forked from) and its address, the same you would give `git clone`. Leave **Fetch its
+  branches now** ticked to download its branches straight away.
+- The pencil changes a remote's name or address. **Push URL** is for when you push somewhere
+  else than you fetch from; leave it empty otherwise. Renaming also renames its branches here.
+- The bin removes a remote. NoBlame first says what goes: its branches in this repository, and
+  which of your branches stop tracking it. Nothing changes on the server.
+- The arrows fetch that remote.
+
+## Cloning a repository
+
+Click **Clone repository…** on the Welcome tab or at the top of the Repositories module (or
+type "clone" in the command palette):
+
+1. Paste the repository's address into **URL**.
+2. **Into** is the folder that will hold it; **Folder name** is filled in from the address.
+   Below them NoBlame shows the full path it will create.
+3. Change the options if you like:
+   - **Branch**: check out another branch than the default one;
+   - **Download: File contents when needed**: a much smaller download for big repositories;
+     Git fetches a file's contents when you first need them;
+   - **Only the newest commits**: just the last few commits instead of the whole history;
+   - **Only that branch**: leave out the other branches;
+   - **Submodules too**: also clone the repositories it includes (on by default);
+   - **Open it when done**.
+4. Click **Clone**. It runs in the background like a fetch; **Cancel** stops it and removes the
+   half-finished folder. When it is done the repository opens in a new tab.
+
+The folder must be new or empty; NoBlame tells you before starting if it is not.
 
 ## In the Repositories module
 

@@ -73,3 +73,6 @@ export interface GroupAction {
 }
 
 export const GroupActionsContext = createContext<readonly GroupAction[]>([]);
+
+/** Opens the Clone dialog (supplied by the app shell; no Clone button without it). */
+export const CloneRepositoryContext = createContext<(() => void) | null>(null);
