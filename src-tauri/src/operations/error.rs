@@ -49,6 +49,14 @@ const HINTS: &[(&str, &str)] = &[
         "A merge is in progress. Finish it (Continue) or abort it first.",
     ),
     (
+        "cannot rebase",
+        "Your uncommitted changes are in the way. Commit or stash them, or let the rebase stash them meanwhile.",
+    ),
+    (
+        "already a rebase-merge directory",
+        "A rebase is in progress. Finish it (Continue) or abort it first.",
+    ),
+    (
         "is already in progress",
         "Another cherry-pick or revert is in progress. Finish it (Continue) or abort it first.",
     ),
@@ -66,6 +74,9 @@ impl From<OperationsError> for AppError {
     fn from(error: OperationsError) -> Self {
         match error {
             OperationsError::Repository(error) => error.into(),
+            OperationsError::Operation(OperationError::Branch(error)) => {
+                RepositoryError::Branch(error).into()
+            }
             OperationsError::Operation(OperationError::Git(error)) => {
                 GitEnvError::from(error).into()
             }

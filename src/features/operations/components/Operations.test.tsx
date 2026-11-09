@@ -85,7 +85,7 @@ describe("merging", () => {
   it("shows the merge in progress, waits for the conflicts, and aborts after asking", async () => {
     const user = userEvent.setup();
     ipc.getStatus.mockReturnValue(ok(status(MERGE, 2)));
-    ipc.stepOperation.mockReturnValue(ok(""));
+    ipc.stepOperation.mockReturnValue(ok("finished"));
     renderWith(<OperationBanner repoId={1} />);
     expect(await screen.findByText("Merging: Merge branch 'topic'")).toBeVisible();
     expect(screen.getByText(/2 files conflict/)).toBeVisible();
@@ -98,6 +98,23 @@ describe("merging", () => {
     expect(confirm).toHaveTextContent("before the merge");
     await user.click(within(confirm).getByRole("button", { name: "Abort" }));
     expect(ipc.stepOperation).toHaveBeenCalledWith(1, "abort");
+  });
+
+  it("says when continuing a rebase stopped at the next conflict", async () => {
+    const user = userEvent.setup();
+    const rebase: OperationDto = { kind: "rebase", detail: "topic", step: 2, steps: 3 };
+    ipc.getStatus.mockReturnValue(ok(status(rebase, 0)));
+    ipc.stepOperation.mockReturnValue(ok("conflicts"));
+    renderWith(<OperationBanner repoId={1} />);
+    expect(await screen.findByText("Rebasing topic (step 2 of 3)")).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    expect(ipc.stepOperation).toHaveBeenCalledWith(1, "continue");
+    await waitFor(() => {
+      expect(toast.warning).toHaveBeenCalledWith(
+        "The rebase stopped again: some files conflict",
+        expect.anything(),
+      );
+    });
   });
 
   it("names a rebase's branch and step", () => {

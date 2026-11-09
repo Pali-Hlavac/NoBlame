@@ -15,15 +15,15 @@ The Branches module itself (sections, filter, sort) is described in
   submenu **Check out**, **Rename…**, **Delete…** (branches), **Check out as a new local
   branch…** (remote branches), **Delete…** (tags), and **Push…** (branches, tags), **Delete on
   the remote…** (remote branches), **Delete on a remote…** (tags) ([remotes.md](remotes.md#push)).
-  **Merge into the current branch…** works (M6 slice 1, [operations.md](operations.md)); Rebase
-  stays a labelled stub.
+  **Merge into the current branch…** and **Rebase the current branch onto it…** work (M6 slices
+  1 and 3, [operations.md](operations.md)).
 - **The Branches module**: right click a row (or Shift+F10 / Menu key on the active row):
 
-  | Row           | Entries                                                                                                                                                                                      |
-  | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-  | Local branch  | Check out (not the current one), Create a branch here, Create a tag here, Rename, Delete (not the current one), Push…, Set upstream / Change upstream, Remove upstream (with one), Copy name |
-  | Remote branch | Check out as a new local branch, Create a branch here, Create a tag here, Delete on the remote…, Copy name                                                                                   |
-  | Tag           | Create a branch here, Delete, Push…, Delete on a remote…, Copy name                                                                                                                          |
+  | Row           | Entries                                                                                                                                                                                                                                                                        |
+  | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+  | Local branch  | Check out, Merge into the current branch, Rebase the current branch onto it (these three not for the current one), Create a branch here, Create a tag here, Rename, Delete (not the current one), Push…, Set upstream / Change upstream, Remove upstream (with one), Copy name |
+  | Remote branch | Check out as a new local branch, Merge, Rebase, Create a branch here, Create a tag here, Delete on the remote…, Copy name                                                                                                                                                      |
+  | Tag           | Merge, Rebase, Create a branch here, Delete, Push…, Delete on a remote…, Copy name                                                                                                                                                                                             |
 
   **F2** renames the active branch, **Delete** deletes the active branch or tag (both open
   their dialog). A click still selects the commit.

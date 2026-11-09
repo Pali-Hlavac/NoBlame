@@ -314,9 +314,9 @@ export const commands = {
 	mergeIntoCurrent: (id: number, request: MergeRequestDto) => typedError<MergeResultDto, AppError>(__TAURI_INVOKE("merge_into_current", { id, request })),
 	/**
 	 *  Continues, skips or aborts the operation in progress (merge, cherry-pick, revert, rebase,
-	 *  `git am`, bisect); returns what git printed.
+	 *  `git am`, bisect); says whether it finished, stopped at the next conflict, or goes on.
 	 */
-	stepOperation: (id: number, step: SequenceStepDto) => typedError<string, AppError>(__TAURI_INVOKE("step_operation", { id, step })),
+	stepOperation: (id: number, step: SequenceStepDto) => typedError<StepOutcomeDto, AppError>(__TAURI_INVOKE("step_operation", { id, step })),
 	/**
 	 *  Cherry-picks or reverts one commit onto the current branch. Conflicts come back as an
 	 *  outcome: the cherry-pick or revert is then in progress.
@@ -324,6 +324,13 @@ export const commands = {
 	pickCommit: (id: number, request: PickRequestDto) => typedError<PickResultDto, AppError>(__TAURI_INVOKE("pick_commit", { id, request })),
 	/**  Resets the current branch to a commit (soft, mixed, hard or keep); returns what git printed. */
 	resetCurrent: (id: number, request: ResetRequestDto) => typedError<string, AppError>(__TAURI_INVOKE("reset_current", { id, request })),
+	/**
+	 *  Rebases the current branch onto a branch, tag or commit. Conflicts come back as an outcome:
+	 *  the rebase is then in progress.
+	 */
+	rebaseCurrent: (id: number, request: RebaseRequestDto) => typedError<RebaseOutcomeDto, AppError>(__TAURI_INVOKE("rebase_current", { id, request })),
+	/**  What rebasing the current branch onto `onto` would replay, and how much of it was pushed. */
+	getRebasePreview: (id: number, onto: string) => typedError<RebasePreviewDto, AppError>(__TAURI_INVOKE("get_rebase_preview", { id, onto })),
 	/**
 	 *  Opens a file's two versions in the external diff tool chosen in Settings (through
 	 *  `git difftool --no-index`). Returns once the tool started; fails when it could not.
@@ -1516,6 +1523,38 @@ name: string }) & { reference?: never } |
 /**  Its full name on the remote: `refs/heads/x` or `refs/tags/v1`. */
 reference: string }) & { name?: never };
 
+/**  How a rebase ended. */
+export type RebaseOutcomeDto = 
+/**  The branch already contains it. */
+"upToDate" | 
+/**  The commits were replayed (or the branch moved forward). */
+"rebased" | 
+/**  Rebased; bringing back the stashed changes conflicted (they are also in the stash list). */
+"stashConflicts" | 
+/**  Stopped with conflicts; the rebase is in progress. */
+"conflicts";
+
+/**  What rebasing onto a commit would replay. */
+export type RebasePreviewDto = {
+	/**  The commits that get new ids. */
+	replayed: UniqueCommitsDto,
+	/**  How many of them a remote-tracking branch has (pushed already). */
+	published: number,
+};
+
+/**  A rebase of the current branch. */
+export type RebaseRequestDto = {
+	/**
+	 *  What to replay the branch's own commits on: a branch, remote branch or tag name, or a
+	 *  commit id.
+	 */
+	onto: string,
+	/**  Stash uncommitted changes first and bring them back afterwards. */
+	autostash: boolean,
+	/**  Keep merge commits instead of leaving them out. */
+	rebaseMerges: boolean,
+};
+
 /**  One entry of the list as the UI sees it. */
 export type RecentRepository = {
 	/**  Work tree (or bare repository) path. */
@@ -1954,6 +1993,15 @@ export type StatusSummaryDto = {
 	/**  The same files counted once each: new, changed or deleted since `HEAD`. */
 	changes: ChangeCountsDto,
 };
+
+/**  Where a step left the operation. */
+export type StepOutcomeDto = 
+/**  Nothing is in progress any more (finished or aborted). */
+"finished" | 
+/**  It went on and stopped at the next commit whose changes conflict. */
+"conflicts" | 
+/**  It is still in progress without conflicts (a bisect, a paused rebase). */
+"inProgress";
 
 /**  A submodule and its own submodules. */
 export type SubmoduleDto = {

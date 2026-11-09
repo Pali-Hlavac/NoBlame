@@ -168,6 +168,11 @@ All notable changes to NoBlame are documented here. The format follows
   left out, and conflicts bring up the bar. **Reset the current branch to here…** offers soft,
   mixed, keep my changes and hard, and names before it runs the commits that leave the branch
   and, for hard, how many files lose their uncommitted changes.
+- Rebase (M6 slice 3): **Rebase the current branch onto this…** on commits, branches, remote
+  branches and tags, in the graph and the Branches module. The dialog lists the commits that
+  are replayed, warns when some were pushed already, can stash uncommitted changes meanwhile and
+  keep merge commits. A rebase that stops on conflicts shows the bar with its step ("Rebasing
+  topic (step 2 of 3)"); Continue and Skip say whether it finished or stopped again.
 - A context menu on files in every list (owner request 2026-11-09): Changed files, the Commit
   module, Compare and the Stash tab offer **Show diff** (and Stage, Discard, Ignore in the Commit
   module), **Open working tree file** (refusing files that would run as programs), **Show in

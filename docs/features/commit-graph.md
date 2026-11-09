@@ -111,8 +111,9 @@ subject.
 | Check out this commit, Create a branch here, Create a tag here | Works ([branches.md](branches.md))     |
 | Merge into the current branch                                  | Works ([operations.md](operations.md)) |
 | Cherry-pick, Revert, Reset the current branch to here          | Works ([operations.md](operations.md)) |
-| Rebase, Interactive rebase                                     | Disabled, **M6**                       |
-| A submenu per branch or tag on the commit                      | See below; merge works, rebase M6      |
+| Rebase the current branch onto this                            | Works ([operations.md](operations.md)) |
+| Interactive rebase from here                                   | Disabled, **M6**                       |
+| A submenu per branch or tag on the commit                      | See below; merge and rebase work       |
 | More ▸ Bisect, Create a patch, Save an archive, Run a script   | Disabled, **M7**                       |
 
 Each disabled entry names the milestone that delivers it. A branch's submenu offers:
@@ -125,10 +126,10 @@ Each disabled entry names the milestone that delivers it. A branch's submenu off
 Remote branches offer:
 
 - Check out as a new local branch (works);
-- Merge, Rebase;
+- Merge, Rebase (work);
 - Delete on the remote… (works).
 
-Tags offer Push… and Delete on a remote… (work), Delete (works) and Copy name. The branch and tag actions come from
+Tags offer Merge and Rebase, Push… and Delete on a remote… (work), Delete (works) and Copy name. The branch and tag actions come from
 the branches feature through `RefActionsContext` ([branches.md](branches.md#code)).
 
 Working tree rows have no menu yet (M4). The entries are data (`lib/commitMenu.ts`); the menu

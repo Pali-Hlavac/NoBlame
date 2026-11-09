@@ -802,7 +802,7 @@ listed in the Repositories module already).
 
 ### M6: Changing history and resolving conflicts
 
-- [ ] Merge (ff/no-ff/squash) _(done, slice 1)_, rebase, cherry-pick, revert, reset (soft/mixed/hard behind confirmation) _(cherry-pick, revert, reset done, slice 2)_
+- [ ] Merge (ff/no-ff/squash) _(done, slice 1)_, rebase, cherry-pick, revert, reset (soft/mixed/hard behind confirmation) _(cherry-pick, revert, reset done, slice 2; rebase onto done, slice 3)_
 - [ ] Interactive rebase editor: reorder, squash, fixup, reword, edit, drop; autosquash
 - [x] In-progress operation banner (merge/rebase/cherry-pick/bisect) with continue/skip/abort
 - [ ] Conflict resolution: list, ours/theirs, built-in three-way merge view — ADR 0014
@@ -840,6 +840,18 @@ Slice 2 done (2026-11-09): cherry-pick, revert and reset ([features/operations.m
 - Checked in the running app on a scratch repository: a cherry-pick with `-x`, the same pick
   again (reported as nothing to do), a conflicting pick and Skip, a staged revert finished with
   Continue, a hard reset with a changed and an untracked file, a merge reverted against parent 1.
+
+Slice 3 done (2026-11-09): rebase onto ([features/operations.md](features/operations.md)).
+
+- **Rebase the current branch onto this… / onto it…** on commits, branches, remote branches and
+  tags (graph and Branches module). The dialog names the commits replayed and warns in red when
+  some were pushed already (on a remote-tracking branch); stash changes meanwhile
+  (`--autostash`, ticked when tracked files changed) and keep merge commits (`--rebase-merges`).
+- Continue and Skip now say where they left the operation: finished, stopped again at the next
+  conflict (no longer shown as an error), or still going.
+- Checked in the running app on a scratch repository with a local bare origin: rebasing a branch
+  with three commits (two pushed) and a changed file onto `origin/main`, the conflict at step 2
+  of 3, resolving in a shell, Continue ("The rebase is finished"), the stashed change back.
 
 ### M7: Advanced Git
 

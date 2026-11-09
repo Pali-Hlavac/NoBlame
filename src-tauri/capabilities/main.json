@@ -111,6 +111,8 @@
     "allow-step-operation",
     "allow-pick-commit",
     "allow-reset-current",
+    "allow-rebase-current",
+    "allow-get-rebase-preview",
     "allow-open-external-diff",
     "allow-list-submodules",
     "allow-get-workbench-layout",

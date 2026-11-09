@@ -65,7 +65,7 @@ describe("commitMenu", () => {
     const entries = commitMenu(commit(), actions());
     expect(find(entries, "create-branch")).toMatchObject({ milestone: "M5" });
     expect(find(entries, "cherry-pick")).toMatchObject({ milestone: "M5" });
-    expect(find(entries, "rebase")).toMatchObject({ milestone: "M6" });
+    expect(find(entries, "rebase-interactive")).toMatchObject({ milestone: "M6" });
   });
 
   it("compares with the working tree, except in a bare repository", () => {
@@ -154,6 +154,7 @@ describe("commitMenu", () => {
       merge: vi.fn(),
       cherryPick: vi.fn(),
       revert: vi.fn(),
+      rebase: vi.fn(),
       reset: vi.fn(),
     };
     const handlers = { ...actions(), refs };
@@ -177,6 +178,7 @@ describe("commitMenu", () => {
       ["create-branch", refs.createBranch],
       ["create-tag", refs.createTag],
       ["reset", refs.reset],
+      ["rebase", refs.rebase],
     ] as const) {
       const entry = find(entries, id);
       if (entry?.type !== "item") throw new Error("missing");

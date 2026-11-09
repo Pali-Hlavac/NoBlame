@@ -44,6 +44,8 @@ export interface RefActions {
   cherryPick: (commit: PickSource) => void;
   /** Asks how, then undoes the commit's changes in a new commit on the current branch. */
   revert: (commit: PickSource) => void;
+  /** Asks how, naming the commits that get new ids, then rebases the current branch onto it. */
+  rebase: (onto: StartPoint) => void;
   /** Asks how (soft, mixed, keep, hard), naming what is lost, then moves the current branch. */
   reset: (commit: StartPoint) => void;
 }

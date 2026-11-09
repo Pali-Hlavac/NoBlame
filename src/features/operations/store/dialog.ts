@@ -19,6 +19,12 @@ export type OperationDialogRequest =
       commit: PickSource;
     }
   | {
+      kind: "rebase";
+      repoId: number;
+      /** What the current branch's own commits are replayed on. */
+      onto: StartPoint;
+    }
+  | {
       kind: "reset";
       repoId: number;
       /** Where the current branch moves to. */
@@ -43,6 +49,11 @@ export function openMerge(repoId: number, source: StartPoint): void {
 /** Asks to cherry-pick or revert `commit` on the current branch of repository `repoId`. */
 export function openPick(repoId: number, kind: "cherryPick" | "revert", commit: PickSource): void {
   open({ kind, repoId, commit });
+}
+
+/** Asks how to rebase the current branch of repository `repoId` onto `onto`. */
+export function openRebase(repoId: number, onto: StartPoint): void {
+  open({ kind: "rebase", repoId, onto });
 }
 
 /** Asks how to reset the current branch of repository `repoId` to `commit`. */

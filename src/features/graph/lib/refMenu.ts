@@ -1,11 +1,9 @@
 /** The submenu of one branch, remote branch or tag on a commit, in the commit's context menu. */
 import type { CommitRowDto, RefLabel, RefTargetDto } from "@/shared/ipc/bindings";
 
-import { MENU_MILESTONES, item, refItem, separator, type MenuEntry } from "./menuEntry";
+import { item, refItem, separator, type MenuEntry } from "./menuEntry";
 import type { RefActions } from "./refActions";
 import { refRevision } from "./revision";
-
-const { history } = MENU_MILESTONES;
 
 /** What a reference's entries do. */
 export interface RefMenuActions {
@@ -47,6 +45,14 @@ export function refEntries(
         refs.merge({ revision: refRevision(ref), label: ref.name });
       }),
   );
+  const rebase = refItem(
+    "rebase",
+    "Rebase the current branch onto it…",
+    refs &&
+      (() => {
+        refs.rebase({ revision: refRevision(ref), label: ref.name });
+      }),
+  );
   switch (ref.kind) {
     case "branch":
       return [
@@ -62,7 +68,7 @@ export function refEntries(
                   }),
               ),
               merge,
-              item("rebase", "Rebase the current branch onto it…", history),
+              rebase,
               compare,
               separator("sep-ref"),
             ]),
@@ -84,7 +90,7 @@ export function refEntries(
       return [
         refItem("checkout", "Check out as a new local branch…", act("checkoutRemote")),
         merge,
-        item("rebase", "Rebase the current branch onto it…", history),
+        rebase,
         compare,
         refItem("delete", "Delete on the remote…", act("deleteOnRemote")),
         separator("sep-copy"),
@@ -93,6 +99,7 @@ export function refEntries(
     case "tag":
       return [
         merge,
+        rebase,
         compare,
         refItem(
           "push",

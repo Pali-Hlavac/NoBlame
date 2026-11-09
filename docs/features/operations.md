@@ -1,16 +1,17 @@
-# Changing history: merge, cherry-pick, revert, reset and the operation in progress
+# Changing history: merge, cherry-pick, revert, reset, rebase and the operation in progress
 
 M6 ([roadmap](../roadmap.md)). **Slice 1 (2026-11-09)**: merging into the current branch, and
 the bar above the commits while an operation is in progress (merge, cherry-pick, revert,
 rebase, `git am`, bisect) with Continue, Skip and Abort. **Slice 2 (2026-11-09)**: cherry-pick,
-revert and reset. Rebase, conflict resolution, the interactive rebase editor and the reflog
-follow in later slices.
+revert and reset. **Slice 3 (2026-11-09)**: rebasing the current branch onto a commit, branch or
+tag. Conflict resolution, the interactive rebase editor and the reflog follow in later slices.
 
 ## Where
 
 - **Merge into the current branch…** in the commit context menu (the commit), in the submenu of
   each branch, remote branch and tag on a commit, and in the Branches module's menu (local
   branches other than the current one, remote branches, tags).
+- **Rebase the current branch onto this…** / **onto it…** in the same places as merge.
 - **Cherry-pick…**, **Revert…** and **Reset the current branch to here…** in the commit context
   menu.
 - The bar appears at the top of the repository tab, under the header, whenever git has an
@@ -77,22 +78,47 @@ The dialog is the confirmation, and names what the reset takes before it runs:
   once) minus untracked files, which a hard reset keeps. The button turns red: "Reset and
   discard changes".
 
+## Rebase dialog
+
+"Rebase topic onto origin/main". Named before it runs (`get_rebase_preview`):
+
+- the commits replayed: HEAD's commits that `onto` lacks (count and the newest three); they get
+  new ids. None: "topic has no commits of its own since origin/main: it simply moves to it";
+- in red, when some of them are on a remote-tracking branch (`--remotes`): they were pushed, so
+  the branch must be force pushed afterwards and anyone who built on them has to rebase too.
+
+| Choice                                 | git                                                                      |
+| -------------------------------------- | ------------------------------------------------------------------------ |
+| Stash my uncommitted changes meanwhile | `--autostash` (ticked when tracked files changed), else `--no-autostash` |
+| Keep merge commits                     | `--rebase-merges`                                                        |
+
+`--no-autostash` is passed when unticked, so `rebase.autoStash` in the config does not overrule
+the dialog. Toasts: "Rebased topic onto origin/main" (with the force push advice when commits
+were pushed), "topic already contains origin/main", "Rebased topic, but your stashed changes
+conflict" (git exits 0, leaves conflict markers and keeps the stash), or "The rebase stopped:
+some files conflict" (the bar: "Rebasing topic (step 2 of 3)").
+
 ## The operation bar
 
 - Its title: "Merging: Merge branch 'topic'", "Cherry-picking: a1b2c3d4 Fix the parser",
   "Rebasing feature (step 3 of 7)", "Bisecting".
 - Under it: "2 files conflict: resolve and stage them, then continue", or "No conflicts left:
   continue to finish" (counted by the status).
-- **Continue** (disabled while files conflict): `git <merge|cherry-pick|revert|rebase|am>
---continue` with `GIT_EDITOR=true`, so the prepared message is taken.
+- **Continue** (disabled while files conflict): `git <verb> --continue` (merge, cherry-pick,
+  revert, rebase, am) with `GIT_EDITOR=true`, so the prepared message is taken.
 - **Skip** (cherry-pick, revert, rebase, `git am`): `--skip`.
+- After Continue or Skip, `step_operation` reads the state again and says where it is: finished
+  ("The rebase is finished"), stopped at the next conflict ("The rebase stopped again: some
+  files conflict"; `CONFLICT` or "could not apply" in git's output is a result, not an error),
+  or still going ("The rebase went on").
 - **Abort** (or **Stop bisecting**): asks first, naming what goes back and that conflict
   resolutions are lost; `--abort` (`git bisect reset`).
 - Errors stay in the bar with git's words.
 
 ## Code
 
-- `crates/git-core/src/operation/`: `pick.rs` (`pick` with `PickOptions { kind, mainline,
+- `crates/git-core/src/operation/`: `rebase.rs` (`rebase` with `RebaseOptions { autostash, rebase_merges }` → `RebaseResult`;
+  `rebase_preview` → `RebasePreview { replayed, published }`), `pick.rs` (`pick` with `PickOptions { kind, mainline,
 no_commit, record_origin }` → `PickResult`; `CONFLICT`, "could not apply" or "could not
   revert" is `Conflicts`, "is now empty" is skipped and `Empty`, "nothing to commit" is
   `Empty`), `reset.rs` (`reset` with `ResetMode`), `merge.rs` (`merge` → `MergeResult { outcome, output }`;
@@ -100,19 +126,21 @@ no_commit, record_origin }` → `PickResult`; `CONFLICT`, "could not apply" or "
   `Rejected`), `state.rs` (`operation_in_progress` from gix `Repository::state()`, plus
   `MERGE_MSG`, `CHERRY_PICK_HEAD`/`REVERT_HEAD` and `rebase-merge/` or `rebase-apply/` for the
   detail and step), `sequence.rs` (`run_step`).
-- `src-tauri/src/operations/`: `merge_into_current`, `pick_commit`, `reset_current`, `step_operation` (reads the kind itself, so a
+- `src-tauri/src/operations/`: `merge_into_current`, `pick_commit`, `reset_current`, `rebase_current`,
+  `get_rebase_preview` (`rebase.rs`), `step_operation` (reads the kind itself, so a
   stale UI cannot continue the wrong thing), each under the session's write lock; errors map to
   hints in `error.rs`. The status (`get_status`) carries `operation`, so the bar follows every
   status refresh (watcher, focus, after any change).
-- `src/features/operations/`: `MergeDialog`, `PickDialog`, `ResetDialog` (+ `ResetEffects`),
+- `src/features/operations/`: `MergeDialog`, `PickDialog`, `RebaseDialog` (+ `RebasePreview`),
+  `ResetDialog` (+ `ResetEffects`),
   `OperationBanner`, `OperationDialogs` (mounted in the main window; `openMerge`, `openPick`,
-  `openReset`). The bar reaches the repository tab through `RepositoryBannerContext`, and
+  `openRebase`, `openReset`). The bar reaches the repository tab through `RepositoryBannerContext`, and
   merge, cherry-pick, revert and reset reach the graph and the Branches module as `RefActions`
-  (`merge`, `cherryPick`, `revert`, `reset`), so neither feature depends on this one.
+  (`merge`, `cherryPick`, `revert`, `rebase`, `reset`), so neither feature depends on this one.
 
 ## Not yet
 
-- Rebase onto (slice 3); a conflict list with ours/theirs
+- Rebasing onto one commit while keeping the commits after another (`--onto` with a range); a conflict list with ours/theirs
   and merge tools (slice 4); the three-way merge view (ADR 0014); the interactive rebase editor;
   the reflog.
 - Editing the merge message before committing; merge strategies and options (`-X ours`).

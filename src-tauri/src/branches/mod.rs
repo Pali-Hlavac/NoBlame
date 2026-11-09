@@ -9,3 +9,5 @@ mod remotes;
 mod service;
 mod types;
 mod upstream;
+
+pub use types::UniqueCommitsDto;

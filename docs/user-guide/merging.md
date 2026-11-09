@@ -37,6 +37,6 @@ still conflict.
 Click **Abort** to give up: your branch and files go back to how they were before the merge, and
 any conflict fixes you made are lost. NoBlame asks first.
 
-The same bar appears for a rebase, [cherry-pick or revert](cherry-pick-revert-reset.md) that
+The same bar appears for a [rebase](rebasing.md), [cherry-pick or revert](cherry-pick-revert-reset.md) that
 stopped, also when you started it in a terminal or by pulling. There, **Skip** leaves out the
 commit it stopped at.

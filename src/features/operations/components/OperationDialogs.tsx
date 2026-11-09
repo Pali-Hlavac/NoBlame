@@ -1,11 +1,12 @@
 import { closeOperationDialog, useOperationDialogStore } from "../store/dialog";
 import { MergeDialog } from "./MergeDialog";
 import { PickDialog } from "./PickDialog";
+import { RebaseDialog } from "./RebaseDialog";
 import { ResetDialog } from "./ResetDialog";
 
 /**
- * The history-changing dialog asked for (`openMerge`, `openPick`, `openReset`); mounted once in
- * the main window.
+ * The history-changing dialog asked for (`openMerge`, `openPick`, `openRebase`, `openReset`);
+ * mounted once in the main window.
  */
 export function OperationDialogs() {
   const request = useOperationDialogStore((state) => state.request);
@@ -29,6 +30,15 @@ export function OperationDialogs() {
           repoId={repoId}
           kind={request.kind}
           commit={request.commit}
+          onClose={closeOperationDialog}
+        />
+      );
+    case "rebase":
+      return (
+        <RebaseDialog
+          key={`${String(repoId)}:${request.onto.revision}`}
+          repoId={repoId}
+          onto={request.onto}
           onClose={closeOperationDialog}
         />
       );

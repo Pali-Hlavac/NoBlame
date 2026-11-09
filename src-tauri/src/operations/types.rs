@@ -139,6 +139,18 @@ pub enum SequenceStepDto {
     Abort,
 }
 
+/// Where a step left the operation.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub enum StepOutcomeDto {
+    /// Nothing is in progress any more (finished or aborted).
+    Finished,
+    /// It went on and stopped at the next commit whose changes conflict.
+    Conflicts,
+    /// It is still in progress without conflicts (a bisect, a paused rebase).
+    InProgress,
+}
+
 impl From<SequenceStepDto> for SequenceStep {
     fn from(step: SequenceStepDto) -> Self {
         match step {

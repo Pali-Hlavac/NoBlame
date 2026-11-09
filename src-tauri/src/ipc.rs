@@ -138,6 +138,8 @@ pub fn builder() -> Builder<tauri::Wry> {
             operations::commands::step_operation,
             operations::commands::pick_commit,
             operations::commands::reset_current,
+            operations::commands::rebase_current,
+            operations::commands::get_rebase_preview,
             inspect::difftool_commands::open_external_diff,
             workbench::commands::get_workbench_layout,
             workbench::commands::save_workbench_layout,

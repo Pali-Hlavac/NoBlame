@@ -22,6 +22,7 @@ function actions(): RefActions & Record<string, ReturnType<typeof vi.fn>> {
     merge: vi.fn(),
     cherryPick: vi.fn(),
     revert: vi.fn(),
+    rebase: vi.fn(),
     reset: vi.fn(),
   };
 }
@@ -36,6 +37,7 @@ describe("branchMenu", () => {
     expect(ids(branchMenu(entry("branch", "topic"), actions(), copy))).toEqual([
       "checkout",
       "merge",
+      "rebase",
       "create-branch",
       "create-tag",
       "rename",
@@ -54,6 +56,7 @@ describe("branchMenu", () => {
     expect(ids(branchMenu(entry("remote", "origin/x"), actions(), copy))).toEqual([
       "checkout",
       "merge",
+      "rebase",
       "create-branch",
       "create-tag",
       "delete-remote",
@@ -61,6 +64,7 @@ describe("branchMenu", () => {
     ]);
     expect(ids(branchMenu(entry("tag", "v1"), actions(), copy))).toEqual([
       "merge",
+      "rebase",
       "create-branch",
       "delete",
       "push",

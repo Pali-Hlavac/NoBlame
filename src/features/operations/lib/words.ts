@@ -4,6 +4,7 @@ import type {
   MergeResultDto,
   OperationDto,
   OperationKindDto,
+  StepOutcomeDto,
 } from "@/shared/ipc/bindings";
 
 import { CONFLICT_ADVICE, type Outcome } from "./outcome";
@@ -83,15 +84,40 @@ export function operationTitle(operation: OperationDto): string {
     : `${words}: ${operation.detail}${step}`;
 }
 
-/** What Continue did, for its toast (a rebase may stop again at a later commit). */
-export const CONTINUED_WORDS: Readonly<Record<OperationKindDto, string>> = {
-  merge: "Merge finished",
-  cherryPick: "Cherry-pick continued",
-  revert: "Revert continued",
-  rebase: "Rebase continued",
-  applyMailbox: "Applying patches continued",
-  bisect: "Bisecting continued",
+/** The operation, as the subject of a sentence. */
+const NOUNS: Readonly<Record<OperationKindDto, string>> = {
+  merge: "merge",
+  cherryPick: "cherry-pick",
+  revert: "revert",
+  rebase: "rebase",
+  applyMailbox: "patch",
+  bisect: "bisect",
 };
+
+/** The toast after Continue or Skip: finished, still going, or stopped at the next conflict. */
+export function stepToast(
+  kind: OperationKindDto,
+  step: "continue" | "skip",
+  outcome: StepOutcomeDto,
+): Outcome {
+  const noun = NOUNS[kind];
+  if (outcome === "conflicts") {
+    return {
+      title: `The ${noun} stopped again: some files conflict`,
+      description: "Resolve them and stage them, then choose Continue (or Skip, or Abort).",
+      tone: "warning",
+    };
+  }
+  const finished = outcome === "finished";
+  if (step === "skip") {
+    return {
+      title: finished ? `Skipped the commit; the ${noun} is finished` : "Skipped the commit",
+      tone: "success",
+    };
+  }
+  const title = finished ? `The ${noun} is finished` : `The ${noun} went on`;
+  return { title: title.charAt(0).toUpperCase() + title.slice(1), tone: "success" };
+}
 
 /** Whether the operation can leave out the commit it stopped at. */
 export function canSkip(kind: OperationKindDto): boolean {

@@ -21,6 +21,7 @@ buttons and the task windows are labelled placeholders.
 | [Fetching, pulling and pushing](remotes.md)               | Sharing your work with remotes               |
 | [Merging](merging.md)                                     | Merging branches, and conflicts              |
 | [Cherry-pick, revert, reset](cherry-pick-revert-reset.md) | Copying, undoing and moving back commits     |
+| [Rebasing](rebasing.md)                                   | Moving your commits on top of another branch |
 | [Browsing files](browsing-files.md)                       | Every file of a commit; saving one           |
 | [File history](file-history.md)                           | Every commit that changed a file             |
 | [Blame](blame.md)                                         | Who last changed each line of a file         |

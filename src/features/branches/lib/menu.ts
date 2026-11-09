@@ -45,6 +45,9 @@ export function branchMenu(
   const merge = item("merge", "Merge into the current branch…", () => {
     actions.merge(start);
   });
+  const rebase = item("rebase", "Rebase the current branch onto it…", () => {
+    actions.rebase(start);
+  });
   const createBranch = item("create-branch", "Create a branch here…", () => {
     actions.createBranch(start);
   });
@@ -70,6 +73,7 @@ export function branchMenu(
                 actions.checkoutBranch(target.name);
               }),
               merge,
+              rebase,
             ]),
         ...create,
         { type: "separator", id: "sep-change" },
@@ -106,6 +110,7 @@ export function branchMenu(
           actions.checkoutRemote(target);
         }),
         merge,
+        rebase,
         ...create,
         { type: "separator", id: "sep-change" },
         item("delete-remote", "Delete on the remote…", () => {
@@ -116,6 +121,7 @@ export function branchMenu(
     case "tag":
       return [
         merge,
+        rebase,
         createBranch,
         { type: "separator", id: "sep-change" },
         item("delete", "Delete…", () => {

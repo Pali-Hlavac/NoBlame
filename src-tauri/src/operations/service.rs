@@ -13,12 +13,14 @@ use tokio_util::sync::CancellationToken;
 
 use super::error::OperationsError;
 use super::pick::{PickRequestDto, PickResultDto, ResetRequestDto};
-use super::types::{MergeRequestDto, MergeResultDto, OperationDto, SequenceStepDto};
+use super::types::{
+    MergeRequestDto, MergeResultDto, OperationDto, SequenceStepDto, StepOutcomeDto,
+};
 use crate::git_env::GitEnvError;
 use crate::repository::{RepoId, RepoSessions, RepositoryError, blocking};
 
 /// The work tree: merging and resolving need one.
-fn work_tree(repo: &Repository) -> Result<PathBuf, RepositoryError> {
+pub(super) fn work_tree(repo: &Repository) -> Result<PathBuf, RepositoryError> {
     let info = repo.info();
     info.work_dir
         .clone()
@@ -26,7 +28,7 @@ fn work_tree(repo: &Repository) -> Result<PathBuf, RepositoryError> {
         .ok_or(RepositoryError::Bare)
 }
 
-fn git() -> Result<Git, RepositoryError> {
+pub(super) fn git() -> Result<Git, RepositoryError> {
     Ok(Git::locate().map_err(GitEnvError::from)?)
 }
 
@@ -61,12 +63,13 @@ pub async fn merge_into_current(
     Ok(result.into())
 }
 
-/// Continues, skips or aborts the operation in progress; returns what git printed.
+/// Continues, skips or aborts the operation in progress; says whether it finished, stopped at
+/// the next conflict, or goes on.
 pub async fn step_operation(
     sessions: &RepoSessions,
     id: RepoId,
     step: SequenceStepDto,
-) -> Result<String, OperationsError> {
+) -> Result<StepOutcomeDto, OperationsError> {
     let session = sessions.get(id)?;
     let dir = work_tree(&session.repo)?;
     let git = git()?;
@@ -79,14 +82,24 @@ pub async fn step_operation(
         )
         .into());
     };
-    Ok(run_step(
+    let result = run_step(
         &git,
         &dir,
         operation.kind,
         step.into(),
         &CancellationToken::new(),
     )
-    .await?)
+    .await?;
+    if result.conflicts {
+        return Ok(StepOutcomeDto::Conflicts);
+    }
+    let repo = session.repo.clone();
+    let after = blocking(move || operation_in_progress(&repo.local())).await?;
+    Ok(if after.is_some() {
+        StepOutcomeDto::InProgress
+    } else {
+        StepOutcomeDto::Finished
+    })
 }
 
 /// Cherry-picks or reverts one commit onto the current branch. Conflicts are a result: the

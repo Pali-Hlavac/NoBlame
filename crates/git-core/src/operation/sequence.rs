@@ -19,27 +19,46 @@ pub enum SequenceStep {
     Abort,
 }
 
+/// What a step did.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct StepResult {
+    /// It went on and stopped at the next commit whose changes conflict (a rebase, or a
+    /// sequence of cherry-picks); the operation is still in progress.
+    pub conflicts: bool,
+    /// Standard output and standard error, trimmed.
+    pub output: String,
+}
+
 /// Runs `step` for the operation `kind` in `work_dir`. Messages are taken as git prepared them:
 /// `GIT_EDITOR=true` accepts the prepared message instead of opening an editor (there is no
-/// terminal). Returns what git printed; git refusing (conflicts left) is `Rejected`.
+/// terminal). Stopping again at the next conflict is a result; git refusing (conflicts left
+/// unresolved) is `Rejected`.
 pub async fn run_step(
     git: &Git,
     work_dir: &Path,
     kind: OperationKind,
     step: SequenceStep,
     cancel: &CancellationToken,
-) -> Result<String, OperationError> {
+) -> Result<StepResult, OperationError> {
     let command = step_command(git, kind, step)?
         .current_dir(work_dir)
         .env("GIT_EDITOR", "true");
     let output = command.output(cancel).await?;
+    let text = output.combined();
     if output.success() {
-        Ok(output.combined())
-    } else {
-        Err(OperationError::Rejected {
-            output: output.combined(),
-        })
+        return Ok(StepResult {
+            conflicts: false,
+            output: text,
+        });
     }
+    // Only applying the next commit says these; refusing to continue says neither.
+    if text.contains("CONFLICT") || text.contains("could not apply") {
+        return Ok(StepResult {
+            conflicts: true,
+            output: text,
+        });
+    }
+    Err(OperationError::Rejected { output: text })
 }
 
 fn step_command(

@@ -105,6 +105,8 @@ const APP_COMMANDS: &[&str] = &[
     "step_operation",
     "pick_commit",
     "reset_current",
+    "rebase_current",
+    "get_rebase_preview",
     "open_external_diff",
     "get_workbench_layout",
     "save_workbench_layout",

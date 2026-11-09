@@ -118,7 +118,14 @@ export function commitMenu(commit: CommitRowDto, actions: CommitMenuActions): Me
           refActions.merge(here);
         }),
     ),
-    item("rebase", "Rebase the current branch onto this…", history),
+    refItem(
+      "rebase",
+      "Rebase the current branch onto this…",
+      refActions &&
+        (() => {
+          refActions.rebase(here);
+        }),
+    ),
     item("rebase-interactive", "Interactive rebase from here…", history),
     refItem(
       "cherry-pick",

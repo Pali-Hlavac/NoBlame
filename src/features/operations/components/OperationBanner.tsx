@@ -5,11 +5,12 @@ import { toast } from "sonner";
 import { useWorkingTreeStatus } from "@/features/working-tree";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { InlineError } from "@/shared/components/InlineError";
-import type { OperationDto } from "@/shared/ipc/bindings";
+import type { OperationDto, StepOutcomeDto } from "@/shared/ipc/bindings";
 import { Button } from "@/shared/ui/button";
 
 import { useStepOperation } from "../api/operations";
-import { ABORT_WORDS, CONTINUED_WORDS, canSkip, operationTitle } from "../lib/words";
+import { showOutcome } from "../lib/outcome";
+import { ABORT_WORDS, canSkip, operationTitle, stepToast } from "../lib/words";
 
 interface OperationBannerProps {
   repoId: number;
@@ -49,7 +50,11 @@ function OperationBar({ repoId, operation, conflicted }: OperationBarProps) {
   const busy = proceed.isPending || skip.isPending || abort.isPending;
   const title = operationTitle(operation);
   const bisect = operation.kind === "bisect";
-  const done = (what: string) => () => toast.success(what);
+  const onStep = (step: "continue" | "skip") => ({
+    onSuccess: (outcome: StepOutcomeDto) => {
+      showOutcome(stepToast(operation.kind, step, outcome));
+    },
+  });
 
   return (
     <section
@@ -82,7 +87,7 @@ function OperationBar({ repoId, operation, conflicted }: OperationBarProps) {
             disabled={busy || conflicted > 0}
             title={conflicted > 0 ? "Resolve and stage the conflicted files first" : undefined}
             onClick={() => {
-              proceed.mutate(undefined, { onSuccess: done(CONTINUED_WORDS[operation.kind]) });
+              proceed.mutate(undefined, onStep("continue"));
             }}
           >
             {proceed.isPending ? "Continuing…" : "Continue"}
@@ -96,7 +101,7 @@ function OperationBar({ repoId, operation, conflicted }: OperationBarProps) {
             disabled={busy}
             title="Leave out the commit it stopped at"
             onClick={() => {
-              skip.mutate(undefined, { onSuccess: done("Skipped the commit") });
+              skip.mutate(undefined, onStep("skip"));
             }}
           >
             {skip.isPending ? "Skipping…" : "Skip"}
