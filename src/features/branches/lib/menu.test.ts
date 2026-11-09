@@ -20,6 +20,9 @@ function actions(): RefActions & Record<string, ReturnType<typeof vi.fn>> {
     pushTag: vi.fn(),
     deleteOnRemote: vi.fn(),
     merge: vi.fn(),
+    cherryPick: vi.fn(),
+    revert: vi.fn(),
+    reset: vi.fn(),
   };
 }
 

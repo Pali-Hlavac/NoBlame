@@ -6,6 +6,8 @@ import type {
   OperationKindDto,
 } from "@/shared/ipc/bindings";
 
+import { CONFLICT_ADVICE, type Outcome } from "./outcome";
+
 /** The merge choices, in the order the dialog lists them. */
 export const MERGE_MODES: readonly { mode: MergeModeDto; label: string; detail: string }[] = [
   {
@@ -31,11 +33,7 @@ export const MERGE_MODES: readonly { mode: MergeModeDto; label: string; detail: 
 ];
 
 /** The toast after a merge of `source` into `target`: its title, description and tone. */
-export function mergeToast(
-  result: MergeResultDto,
-  source: string,
-  target: string,
-): { title: string; description?: string; tone: "success" | "info" | "warning" } {
+export function mergeToast(result: MergeResultDto, source: string, target: string): Outcome {
   const summary = result.summary ?? undefined;
   switch (result.outcome) {
     case "upToDate":
@@ -57,8 +55,7 @@ export function mergeToast(
     case "conflicts":
       return {
         title: "The merge stopped: some files conflict",
-        description:
-          "Resolve them and stage them, then choose Continue in the bar above the commits (or Abort).",
+        description: CONFLICT_ADVICE,
         tone: "warning",
       };
   }

@@ -136,6 +136,8 @@ pub fn builder() -> Builder<tauri::Wry> {
             worktree::open::show_worktree_file,
             operations::commands::merge_into_current,
             operations::commands::step_operation,
+            operations::commands::pick_commit,
+            operations::commands::reset_current,
             inspect::difftool_commands::open_external_diff,
             workbench::commands::get_workbench_layout,
             workbench::commands::save_workbench_layout,

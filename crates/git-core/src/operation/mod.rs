@@ -1,15 +1,20 @@
-//! Operations that change history and can stop half-way: merging (`merge.rs`), and the state of
-//! an operation in progress with how to go on, skip or abort it (`state.rs`, `sequence.rs`).
+//! Operations that change history and can stop half-way: merging (`merge.rs`), cherry-picking
+//! and reverting (`pick.rs`), resetting (`reset.rs`), and the state of an operation in progress
+//! with how to go on, skip or abort it (`state.rs`, `sequence.rs`).
 //! All writes run the user's `git`, so hooks, `merge.*` config and rerere apply; reading the
 //! state uses gix (the files git leaves in `.git`, as `git status` reads them).
 
 mod merge;
+mod pick;
+mod reset;
 mod sequence;
 mod state;
 
 use crate::cli::GitError;
 
 pub use merge::{MergeMode, MergeOutcome, MergeResult, merge, merge_name};
+pub use pick::{PickKind, PickOptions, PickOutcome, PickResult, pick};
+pub use reset::{ResetMode, reset};
 pub use sequence::{SequenceStep, run_step};
 pub use state::{Operation, OperationKind, operation_in_progress};
 

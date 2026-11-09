@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useId, useState } from "react";
 
+import { CommitList } from "@/features/graph";
 import { startJob, startPush } from "@/features/jobs";
 import { useRepositoryPath } from "@/features/repositories";
 import type { PushWhatDto, RefTargetDto } from "@/shared/ipc/bindings";
@@ -17,7 +18,6 @@ import {
 import { useUniqueCommits } from "../api/branches";
 import { useRemotes } from "../api/remotes";
 import { defaultRemote, splitRemoteBranch } from "../lib/remotes";
-import { CommitList } from "./CommitList";
 
 type RemoteRefRequest =
   { kind: "push-tag"; tag: string } | { kind: "delete-on-remote"; reference: RefTargetDto };

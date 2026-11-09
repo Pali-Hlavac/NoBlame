@@ -1,12 +1,11 @@
 import { toast } from "sonner";
 
-import { shortId } from "@/features/graph";
+import { CommitList, shortId } from "@/features/graph";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import type { RefTargetDto, UniqueCommitsDto } from "@/shared/ipc/bindings";
 import { toIpcError } from "@/shared/ipc/client";
 
 import { useDeleteRef, useUniqueCommits } from "../api/branches";
-import { CommitList } from "./CommitList";
 
 interface DeleteRefDialogProps {
   repoId: number;

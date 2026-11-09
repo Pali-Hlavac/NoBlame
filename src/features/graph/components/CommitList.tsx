@@ -1,4 +1,4 @@
-import { shortId } from "@/features/graph";
+import { shortId } from "../lib/format";
 import type { UniqueCommitsDto } from "@/shared/ipc/bindings";
 
 /** The newest few of some commits, by id and subject, and how many older ones there are. */

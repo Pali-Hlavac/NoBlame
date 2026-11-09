@@ -6,6 +6,8 @@ use git_core::operation::{
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
+use super::pick::summary_line;
+
 /// How a merge joins the histories.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
@@ -74,12 +76,10 @@ impl From<MergeResult> for MergeResultDto {
             MergeOutcome::Squashed => MergeOutcomeDto::Squashed,
             MergeOutcome::Conflicts => MergeOutcomeDto::Conflicts,
         };
-        let summary = result
-            .output
-            .lines()
-            .find(|line| line.contains(" changed"))
-            .map(|line| line.trim().to_owned());
-        Self { outcome, summary }
+        Self {
+            outcome,
+            summary: summary_line(&result.output),
+        }
     }
 }
 

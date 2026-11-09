@@ -110,7 +110,8 @@ subject.
 | Compare with the working tree                                  | Works (not in bare repos)              |
 | Check out this commit, Create a branch here, Create a tag here | Works ([branches.md](branches.md))     |
 | Merge into the current branch                                  | Works ([operations.md](operations.md)) |
-| Rebase, Interactive rebase, Cherry-pick, Revert, Reset         | Disabled, **M6**                       |
+| Cherry-pick, Revert, Reset the current branch to here          | Works ([operations.md](operations.md)) |
+| Rebase, Interactive rebase                                     | Disabled, **M6**                       |
 | A submenu per branch or tag on the commit                      | See below; merge works, rebase M6      |
 | More ▸ Bisect, Create a patch, Save an archive, Run a script   | Disabled, **M7**                       |
 

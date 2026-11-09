@@ -48,6 +48,18 @@ const HINTS: &[(&str, &str)] = &[
         "You have not concluded your merge",
         "A merge is in progress. Finish it (Continue) or abort it first.",
     ),
+    (
+        "is already in progress",
+        "Another cherry-pick or revert is in progress. Finish it (Continue) or abort it first.",
+    ),
+    (
+        "cannot do a partial commit during",
+        "An operation is in progress. Finish it (Continue) or abort it first.",
+    ),
+    (
+        "not uptodate. Cannot merge",
+        "Your uncommitted changes touch files this reset changes. Commit or stash them, or reset hard.",
+    ),
 ];
 
 impl From<OperationsError> for AppError {

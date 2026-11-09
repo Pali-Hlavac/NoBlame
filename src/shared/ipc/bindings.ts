@@ -318,6 +318,13 @@ export const commands = {
 	 */
 	stepOperation: (id: number, step: SequenceStepDto) => typedError<string, AppError>(__TAURI_INVOKE("step_operation", { id, step })),
 	/**
+	 *  Cherry-picks or reverts one commit onto the current branch. Conflicts come back as an
+	 *  outcome: the cherry-pick or revert is then in progress.
+	 */
+	pickCommit: (id: number, request: PickRequestDto) => typedError<PickResultDto, AppError>(__TAURI_INVOKE("pick_commit", { id, request })),
+	/**  Resets the current branch to a commit (soft, mixed, hard or keep); returns what git printed. */
+	resetCurrent: (id: number, request: ResetRequestDto) => typedError<string, AppError>(__TAURI_INVOKE("reset_current", { id, request })),
+	/**
 	 *  Opens a file's two versions in the external diff tool chosen in Settings (through
 	 *  `git difftool --no-index`). Returns once the tool started; fails when it could not.
 	 */
@@ -1410,6 +1417,44 @@ export type PathChangeDto =
 /**  A merge that differs from every parent at the path. */
 "merge";
 
+/**  Which way a commit's changes are applied. */
+export type PickKindDto = 
+/**  Its changes, as a new commit. */
+"cherryPick" | 
+/**  The opposite of its changes, as a new commit. */
+"revert";
+
+/**  How a cherry-pick or revert ended. */
+export type PickOutcomeDto = 
+/**  A new commit was made. */
+"committed" | 
+/**  The changes are staged; the user commits them. */
+"staged" | 
+/**  Nothing to do: the branch already has these changes. */
+"empty" | 
+/**  Stopped with conflicts; it is in progress. */
+"conflicts";
+
+/**  A cherry-pick or revert of one commit onto the current branch. */
+export type PickRequestDto = {
+	kind: PickKindDto,
+	/**  The commit id. */
+	commit: string,
+	/**  For a merge commit: the parent (1-based) its changes are taken against. */
+	mainline: number | null,
+	/**  Stage the changes only; the user commits them. */
+	noCommit: boolean,
+	/**  Note the picked commit's id in the message (cherry-pick only). */
+	recordOrigin: boolean,
+};
+
+/**  What a cherry-pick or revert did. */
+export type PickResultDto = {
+	outcome: PickOutcomeDto,
+	/**  git's summary line (`1 file changed, 2 insertions(+)`), when it printed one. */
+	summary: string | null,
+};
+
 /**  How a pull joins the upstream's commits with the branch's own. */
 export type PullModeDto = 
 /**  As the user's config says (`pull.rebase`, `pull.ff`). */
@@ -1693,6 +1738,24 @@ export type RepositoryGroupsDto = {
 	groups: RepositoryGroup[],
 	/**  Grouped paths whose folder no longer exists (checked when the list is read). */
 	missing: string[],
+};
+
+/**  What a reset does with the index and the working tree. */
+export type ResetModeDto = 
+/**  Only the branch moves; the changes stay staged. */
+"soft" | 
+/**  The branch and the index move; the changes stay in the files. */
+"mixed" | 
+/**  Everything matches the commit; uncommitted changes to tracked files are lost. */
+"hard" | 
+/**  Like hard, but uncommitted changes are kept (git refuses when they are in the way). */
+"keep";
+
+/**  A reset of the current branch. */
+export type ResetRequestDto = {
+	/**  The commit id to move to. */
+	commit: string,
+	mode: ResetModeDto,
 };
 
 /**  What to do with the operation in progress. */

@@ -39,6 +39,7 @@ const REF_KIND_WORDS: Record<RefLabel["kind"], string> = {
 export function commitMenu(commit: CommitRowDto, actions: CommitMenuActions): MenuEntry[] {
   const { copy, refs: refActions } = actions;
   const here = { revision: commit.id, label: `${shortId(commit.id)} ${commit.summary}` };
+  const picked = { ...here, parentCount: commit.parentCount };
   const refs = commit.refs.filter((ref) => ref.kind !== "head");
   const entries: MenuEntry[] = [
     {
@@ -119,9 +120,30 @@ export function commitMenu(commit: CommitRowDto, actions: CommitMenuActions): Me
     ),
     item("rebase", "Rebase the current branch onto this…", history),
     item("rebase-interactive", "Interactive rebase from here…", history),
-    item("cherry-pick", "Cherry-pick", history),
-    item("revert", "Revert", history),
-    item("reset", "Reset the current branch to here…", history),
+    refItem(
+      "cherry-pick",
+      "Cherry-pick…",
+      refActions &&
+        (() => {
+          refActions.cherryPick(picked);
+        }),
+    ),
+    refItem(
+      "revert",
+      "Revert…",
+      refActions &&
+        (() => {
+          refActions.revert(picked);
+        }),
+    ),
+    refItem(
+      "reset",
+      "Reset the current branch to here…",
+      refActions &&
+        (() => {
+          refActions.reset(here);
+        }),
+    ),
   );
   if (refs.length > 0) {
     entries.push(separator("sep-refs"));

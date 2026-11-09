@@ -103,6 +103,8 @@ const APP_COMMANDS: &[&str] = &[
     "show_worktree_file",
     "merge_into_current",
     "step_operation",
+    "pick_commit",
+    "reset_current",
     "open_external_diff",
     "get_workbench_layout",
     "save_workbench_layout",

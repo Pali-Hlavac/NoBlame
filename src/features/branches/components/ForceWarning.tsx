@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 
+import { CommitList } from "@/features/graph";
 import { toIpcError } from "@/shared/ipc/client";
 
 import { useMissingCommits } from "../api/remotes";
-import { CommitList } from "./CommitList";
 
 interface ForceWarningProps {
   repoId: number;

@@ -1,8 +1,6 @@
 import { useId, useState } from "react";
-import { toast } from "sonner";
 
 import type { StartPoint } from "@/features/graph";
-import { useActiveRepository } from "@/features/repositories";
 import { InlineError } from "@/shared/components/InlineError";
 import type { MergeModeDto } from "@/shared/ipc/bindings";
 import { Button } from "@/shared/ui/button";
@@ -15,13 +13,10 @@ import {
 } from "@/shared/ui/dialog";
 
 import { useMerge } from "../api/operations";
+import { useCurrentBranch } from "../hooks/useCurrentBranch";
+import { showOutcome } from "../lib/outcome";
 import { MERGE_MODES, mergeToast } from "../lib/words";
-
-/** The conflict toast stays a while longer than others: it says what to do next. */
-const CONFLICT_TOAST_MS = 12_000;
-
-const RADIO_CLASS =
-  "mt-0.5 size-4 shrink-0 accent-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none";
+import { Choice } from "./Choice";
 
 interface MergeDialogProps {
   repoId: number;
@@ -38,21 +33,14 @@ export function MergeDialog({ repoId, source, onClose }: MergeDialogProps) {
   const id = useId();
   const [mode, setMode] = useState<MergeModeDto>("default");
   const merge = useMerge(repoId);
-  const { summary } = useActiveRepository();
-  const head = summary?.id === repoId ? summary.head : undefined;
-  const target = head && head.kind !== "detached" ? head.name : "the current branch";
+  const target = useCurrentBranch(repoId);
 
   const submit = () => {
     merge.mutate(
       { revision: source.revision, mode },
       {
         onSuccess: (result) => {
-          const { title, description, tone } = mergeToast(result, source.label, target);
-          // The bar above the commits stays while the merge is in progress; the toast need not.
-          if (tone === "warning")
-            toast.warning(title, { description, duration: CONFLICT_TOAST_MS });
-          else if (tone === "info") toast.info(title, { description });
-          else toast.success(title, { description });
+          showOutcome(mergeToast(result, source.label, target));
           onClose();
         },
       },
@@ -86,27 +74,18 @@ export function MergeDialog({ repoId, source, onClose }: MergeDialogProps) {
           <fieldset className="flex flex-col gap-2 text-sm">
             <legend className="mb-1 font-medium">How</legend>
             {MERGE_MODES.map((choice) => (
-              <div key={choice.mode} className="flex items-start gap-2">
-                <input
-                  id={`${id}-${choice.mode}`}
-                  type="radio"
-                  name={`${id}-mode`}
-                  className={RADIO_CLASS}
-                  checked={mode === choice.mode}
-                  aria-describedby={`${id}-${choice.mode}-detail`}
-                  onChange={() => {
-                    setMode(choice.mode);
-                  }}
-                />
-                <div className="min-w-0">
-                  <label htmlFor={`${id}-${choice.mode}`} className="block">
-                    {choice.label}
-                  </label>
-                  <p id={`${id}-${choice.mode}-detail`} className="text-xs text-muted-foreground">
-                    {choice.detail}
-                  </p>
-                </div>
-              </div>
+              <Choice
+                key={choice.mode}
+                id={`${id}-${choice.mode}`}
+                type="radio"
+                name={`${id}-mode`}
+                checked={mode === choice.mode}
+                onChange={() => {
+                  setMode(choice.mode);
+                }}
+                label={choice.label}
+                detail={choice.detail}
+              />
             ))}
           </fieldset>
           {merge.error ? <InlineError error={merge.error} /> : null}

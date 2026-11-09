@@ -1,16 +1,45 @@
 import { closeOperationDialog, useOperationDialogStore } from "../store/dialog";
 import { MergeDialog } from "./MergeDialog";
+import { PickDialog } from "./PickDialog";
+import { ResetDialog } from "./ResetDialog";
 
-/** The history-changing dialog asked for (`openMerge`); mounted once in the main window. */
+/**
+ * The history-changing dialog asked for (`openMerge`, `openPick`, `openReset`); mounted once in
+ * the main window.
+ */
 export function OperationDialogs() {
   const request = useOperationDialogStore((state) => state.request);
   if (!request) return null;
-  return (
-    <MergeDialog
-      key={`${String(request.repoId)}:${request.source.revision}`}
-      repoId={request.repoId}
-      source={request.source}
-      onClose={closeOperationDialog}
-    />
-  );
+  const { repoId } = request;
+  switch (request.kind) {
+    case "merge":
+      return (
+        <MergeDialog
+          key={`${String(repoId)}:${request.source.revision}`}
+          repoId={repoId}
+          source={request.source}
+          onClose={closeOperationDialog}
+        />
+      );
+    case "cherryPick":
+    case "revert":
+      return (
+        <PickDialog
+          key={`${String(repoId)}:${request.kind}:${request.commit.revision}`}
+          repoId={repoId}
+          kind={request.kind}
+          commit={request.commit}
+          onClose={closeOperationDialog}
+        />
+      );
+    case "reset":
+      return (
+        <ResetDialog
+          key={`${String(repoId)}:${request.commit.revision}`}
+          repoId={repoId}
+          commit={request.commit}
+          onClose={closeOperationDialog}
+        />
+      );
+  }
 }

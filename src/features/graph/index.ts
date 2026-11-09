@@ -4,11 +4,13 @@ export { FIND_HOTKEY, GO_TO_HOTKEY, goToCommit, openFind, openGoTo } from "./api
 export { refKeys, useRefs } from "./api/refs";
 export { reloadGraph } from "./api/reload";
 export { GraphView } from "./components/GraphView";
+export { CommitList } from "./components/CommitList";
 export { RefBadge } from "./components/RefBadge";
 export { headNameOf, pickerSections } from "./lib/filter";
 export { refRevision } from "./lib/revision";
 export {
   RefActionsContext,
+  type PickSource,
   type RefActions,
   type StartPoint,
   type UseRefActions,

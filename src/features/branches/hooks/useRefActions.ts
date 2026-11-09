@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { toast } from "sonner";
 
 import type { RefActions } from "@/features/graph";
-import { openMerge } from "@/features/operations";
+import { openMerge, openPick, openReset } from "@/features/operations";
 import { toIpcError } from "@/shared/ipc/client";
 
 import { useCheckoutBranch } from "../api/branches";
@@ -61,6 +61,15 @@ export function useRefActions(repoId: number): RefActions {
       },
       merge: (source) => {
         openMerge(repoId, source);
+      },
+      cherryPick: (commit) => {
+        openPick(repoId, "cherryPick", commit);
+      },
+      revert: (commit) => {
+        openPick(repoId, "revert", commit);
+      },
+      reset: (commit) => {
+        openReset(repoId, commit);
       },
     }),
     [mutate, repoId],

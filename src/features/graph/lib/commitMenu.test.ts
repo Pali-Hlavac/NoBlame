@@ -64,7 +64,8 @@ describe("commitMenu", () => {
   it("names the milestone of operations that arrive later", () => {
     const entries = commitMenu(commit(), actions());
     expect(find(entries, "create-branch")).toMatchObject({ milestone: "M5" });
-    expect(find(entries, "cherry-pick")).toMatchObject({ milestone: "M6" });
+    expect(find(entries, "cherry-pick")).toMatchObject({ milestone: "M5" });
+    expect(find(entries, "rebase")).toMatchObject({ milestone: "M6" });
   });
 
   it("compares with the working tree, except in a bare repository", () => {
@@ -151,6 +152,9 @@ describe("commitMenu", () => {
       pushTag: vi.fn(),
       deleteOnRemote: vi.fn(),
       merge: vi.fn(),
+      cherryPick: vi.fn(),
+      revert: vi.fn(),
+      reset: vi.fn(),
     };
     const handlers = { ...actions(), refs };
     const row = commit([
@@ -172,11 +176,21 @@ describe("commitMenu", () => {
       ["checkout", refs.checkoutCommit],
       ["create-branch", refs.createBranch],
       ["create-tag", refs.createTag],
+      ["reset", refs.reset],
     ] as const) {
       const entry = find(entries, id);
       if (entry?.type !== "item") throw new Error("missing");
       entry.run?.();
       expect(action).toHaveBeenCalledWith(here);
+    }
+    for (const [id, action] of [
+      ["cherry-pick", refs.cherryPick],
+      ["revert", refs.revert],
+    ] as const) {
+      const entry = find(entries, id);
+      if (entry?.type !== "item") throw new Error("missing");
+      entry.run?.();
+      expect(action).toHaveBeenCalledWith({ ...here, parentCount: row.parentCount });
     }
     run(find(entries, "ref:branch:topic"), "checkout");
     expect(refs.checkoutBranch).toHaveBeenCalledWith("topic");

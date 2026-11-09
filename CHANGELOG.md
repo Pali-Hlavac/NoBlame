@@ -162,6 +162,12 @@ All notable changes to NoBlame are documented here. The format follows
   commit, fast-forward only, or squash. When files conflict, or any operation is in progress
   (merge, rebase, cherry-pick, revert, also started elsewhere), a bar above the commits names it,
   counts the conflicted files and offers **Continue**, **Skip** and **Abort** (after asking).
+- Cherry-pick, revert and reset (M6 slice 2) in the commit menu. **Cherry-pick…** and
+  **Revert…** commit at once or only stage, can note where a picked commit came from (`-x`), and
+  ask which parent counts for a merge commit; a pick the branch already has is reported and
+  left out, and conflicts bring up the bar. **Reset the current branch to here…** offers soft,
+  mixed, keep my changes and hard, and names before it runs the commits that leave the branch
+  and, for hard, how many files lose their uncommitted changes.
 - A context menu on files in every list (owner request 2026-11-09): Changed files, the Commit
   module, Compare and the Stash tab offer **Show diff** (and Stage, Discard, Ignore in the Commit
   module), **Open working tree file** (refusing files that would run as programs), **Show in

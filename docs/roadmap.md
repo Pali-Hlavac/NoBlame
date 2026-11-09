@@ -802,7 +802,7 @@ listed in the Repositories module already).
 
 ### M6: Changing history and resolving conflicts
 
-- [ ] Merge (ff/no-ff/squash) _(done, slice 1)_, rebase, cherry-pick, revert, reset (soft/mixed/hard behind confirmation)
+- [ ] Merge (ff/no-ff/squash) _(done, slice 1)_, rebase, cherry-pick, revert, reset (soft/mixed/hard behind confirmation) _(cherry-pick, revert, reset done, slice 2)_
 - [ ] Interactive rebase editor: reorder, squash, fixup, reword, edit, drop; autosquash
 - [x] In-progress operation banner (merge/rebase/cherry-pick/bisect) with continue/skip/abort
 - [ ] Conflict resolution: list, ours/theirs, built-in three-way merge view — ADR 0014
@@ -826,6 +826,20 @@ Slice 1 done (2026-11-09): merge and the operation in progress
   ("Merge branch 'refs/heads/topic'"); the short name is used when it is unambiguous.
 - Checked in the running app on a scratch repository: a conflicting merge, Abort, merging again,
   resolving in a shell, Continue (merge commit with git's message), a clean `--no-ff` merge.
+
+Slice 2 done (2026-11-09): cherry-pick, revert and reset ([features/operations.md](features/operations.md)).
+
+- **Cherry-pick…** and **Revert…** in the commit menu: commit at once or only stage, `-x`, the
+  parent of a merge commit (`--mainline`). A pick that would be empty is skipped and reported
+  (git 2.39 has no `--empty=drop`); conflicts bring up the bar.
+- **Reset the current branch to here…**: soft, mixed (default), keep, hard. The dialog is the
+  confirmation: the commits that leave the branch (`get_missing_commits`) and, for hard, how
+  many files lose uncommitted changes (untracked files are kept and not counted).
+- `CommitList` moved from the branches feature to the graph feature, so the operations feature
+  can show commits without depending on branches (which depends on it).
+- Checked in the running app on a scratch repository: a cherry-pick with `-x`, the same pick
+  again (reported as nothing to do), a conflicting pick and Skip, a staged revert finished with
+  Continue, a hard reset with a changed and an untracked file, a merge reverted against parent 1.
 
 ### M7: Advanced Git
 

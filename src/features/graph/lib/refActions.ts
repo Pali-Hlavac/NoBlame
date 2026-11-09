@@ -14,6 +14,11 @@ export interface StartPoint {
   label: string;
 }
 
+/** A commit to cherry-pick or revert; a merge commit asks which parent its changes are against. */
+export interface PickSource extends StartPoint {
+  parentCount: number;
+}
+
 /** What can be done with branches and tags of one repository. */
 export interface RefActions {
   /** Checks out a local branch at once. */
@@ -35,6 +40,12 @@ export interface RefActions {
   deleteOnRemote: (reference: RefTargetDto) => void;
   /** Asks how, then merges a branch, tag or commit into the current branch. */
   merge: (source: StartPoint) => void;
+  /** Asks how, then applies the commit's changes to the current branch. */
+  cherryPick: (commit: PickSource) => void;
+  /** Asks how, then undoes the commit's changes in a new commit on the current branch. */
+  revert: (commit: PickSource) => void;
+  /** Asks how (soft, mixed, keep, hard), naming what is lost, then moves the current branch. */
+  reset: (commit: StartPoint) => void;
 }
 
 /** A hook giving the actions for a repository; the default offers none (stubs stay labelled). */

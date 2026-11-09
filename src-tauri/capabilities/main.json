@@ -109,6 +109,8 @@
     "allow-show-worktree-file",
     "allow-merge-into-current",
     "allow-step-operation",
+    "allow-pick-commit",
+    "allow-reset-current",
     "allow-open-external-diff",
     "allow-list-submodules",
     "allow-get-workbench-layout",

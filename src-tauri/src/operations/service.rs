@@ -5,11 +5,14 @@
 use std::path::PathBuf;
 
 use git_core::cli::Git;
-use git_core::operation::{OperationError, merge, merge_name, operation_in_progress, run_step};
+use git_core::operation::{
+    OperationError, merge, merge_name, operation_in_progress, pick, reset, run_step,
+};
 use git_core::repo::{RepoKind, Repository};
 use tokio_util::sync::CancellationToken;
 
 use super::error::OperationsError;
+use super::pick::{PickRequestDto, PickResultDto, ResetRequestDto};
 use super::types::{MergeRequestDto, MergeResultDto, OperationDto, SequenceStepDto};
 use crate::git_env::GitEnvError;
 use crate::repository::{RepoId, RepoSessions, RepositoryError, blocking};
@@ -81,6 +84,49 @@ pub async fn step_operation(
         &dir,
         operation.kind,
         step.into(),
+        &CancellationToken::new(),
+    )
+    .await?)
+}
+
+/// Cherry-picks or reverts one commit onto the current branch. Conflicts are a result: the
+/// operation is then in progress.
+pub async fn pick_commit(
+    sessions: &RepoSessions,
+    id: RepoId,
+    request: PickRequestDto,
+) -> Result<PickResultDto, OperationsError> {
+    let session = sessions.get(id)?;
+    let dir = work_tree(&session.repo)?;
+    let git = git()?;
+    let _writing = session.lock_writes().await;
+    let options = (&request).into();
+    let result = pick(
+        &git,
+        &dir,
+        &request.commit,
+        options,
+        &CancellationToken::new(),
+    )
+    .await?;
+    Ok(result.into())
+}
+
+/// Resets the current branch (or a detached HEAD) to a commit; returns what git printed.
+pub async fn reset_current(
+    sessions: &RepoSessions,
+    id: RepoId,
+    request: ResetRequestDto,
+) -> Result<String, OperationsError> {
+    let session = sessions.get(id)?;
+    let dir = work_tree(&session.repo)?;
+    let git = git()?;
+    let _writing = session.lock_writes().await;
+    Ok(reset(
+        &git,
+        &dir,
+        &request.commit,
+        request.mode.into(),
         &CancellationToken::new(),
     )
     .await?)
