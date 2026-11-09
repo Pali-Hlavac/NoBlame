@@ -29,6 +29,7 @@ export function useLineChange(repoId: number) {
   return useMutation({
     mutationFn: ({ action, request }: { action: LineAction; request: LineChangeDto }) =>
       runLineChange(repoId, action, request),
+    meta: { activity: "Changing lines" },
     onSettled: () => queryClient.invalidateQueries({ queryKey: statusKeys.all(repoId) }),
   });
 }
@@ -45,6 +46,7 @@ export function useDiscardFiles(repoId: number) {
   return useMutation({
     mutationFn: ({ tracked, untracked }: DiscardedFiles) =>
       unwrap(commands.discardFiles(repoId, [...tracked], [...untracked])),
+    meta: { activity: "Discarding changes" },
     onSettled: () => queryClient.invalidateQueries({ queryKey: statusKeys.all(repoId) }),
   });
 }

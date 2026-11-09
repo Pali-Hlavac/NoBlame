@@ -82,13 +82,19 @@ failure messages pass through `redact_credentials`. See
 
 - `api/jobs.ts`: the list (`list_jobs` once, then events), a job's log (read again when
   `logLines` grows), cancel, `startFetch`.
-- `hooks/useJobEvents.ts`: mounted once in the main window; merges `JobUpdated` into the list
-  and toasts how a job ended (failures with **Show log**), except jobs of a batch.
+- `lib/start.ts` and `lib/toasts.tsx`: `startJob(started, kind)` / `trackJob` show a loading
+  toast the moment the action is chosen ("Fetching…", before the IPC reply) and bind it to the
+  job id when it comes. `JobUpdated` events then show the title, phase and a small bar
+  (`JobToastProgress`) with **Cancel**; the end replaces the same toast. A job that ended
+  before its id came was announced in a toast of its own, so the starting toast is dismissed.
+- `hooks/useJobEvents.ts`: mounted once in the main window; merges `JobUpdated` into the list,
+  updates job toasts and announces how a job ended (failures with **Show log**), except jobs of
+  a batch.
 - `lib/followUp.ts`: `afterJob(id, onEnd)` runs something when a job ended (the Clone dialog
   opens the new repository); ends that arrive before the start's reply are kept (20 at most).
 - `lib/batch.ts`: `startBatch(title, starts)` starts one job per repository (Pull all, Push
-  all) and remembers which job ids belong to it; when the last one ends (or could not start),
-  one summary toast replaces theirs (`batchSummary`: counts, failures first). Nothing changes in
+  all) and remembers which job ids belong to it; one loading toast appears at once and counts
+  the ended jobs; when the last one ends (or could not start), the summary replaces it (`batchSummary`: counts, failures first). Nothing changes in
   the backend: a batch is only how the UI reports its jobs.
 - `useJobOutput(job, enabled)`: one TanStack Query entry per job holding the lines read so far
   (`lib/output.ts`, `appendOutput`); when `logLines` grows past what it holds, it reads the new

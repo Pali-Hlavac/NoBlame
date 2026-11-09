@@ -26,6 +26,7 @@ export function useIgnoreFiles(repoId: number) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (request: IgnoreRequestDto) => unwrap(commands.ignoreFiles(repoId, request)),
+    meta: { activity: "Ignoring files" },
     // `info/exclude` is inside `.git`, which the file watcher does not report as a change.
     onSettled: () => queryClient.invalidateQueries({ queryKey: statusKeys.all(repoId) }),
   });

@@ -37,6 +37,7 @@ export function useIndexChange(repoId: number) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (change: IndexChange) => runIndexChange(repoId, change),
+    meta: { activity: "Changing what is staged" },
     onSettled: () => queryClient.invalidateQueries({ queryKey: statusKeys.all(repoId) }),
   });
 }
@@ -49,7 +50,7 @@ export function useCreateCommit(repoId: number) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (request: CommitRequestDto) => unwrap(commands.createCommit(repoId, request)),
-    meta: { silent: true },
+    meta: { silent: true, activity: "Committing" },
     onSettled: async () => {
       queryClient.removeQueries({ queryKey: commitKeys.headMessage(repoId) });
       queryClient.removeQueries({ queryKey: commitKeys.recent(repoId) });

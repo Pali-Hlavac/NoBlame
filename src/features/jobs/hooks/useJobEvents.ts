@@ -9,18 +9,25 @@ import { jobKeys, withJob } from "../api/jobs";
 import { batchJobEnded } from "../lib/batch";
 import { jobEnded } from "../lib/followUp";
 import { repositoryName } from "../lib/format";
+import { showJobProgress, takeJobToast } from "../lib/toasts";
 import { useOutputWindow, showOutput } from "../store/output";
 import { showJobs } from "../store/panel";
 
-/** Tells how a job ended: a toast naming the repository, with the log one click away. */
+/**
+ * Tells how a job ended: a toast naming the repository (in place of the job's progress toast),
+ * with the log one click away.
+ */
 function announce(job: JobDto): void {
   const where = repositoryName(job.repoPath);
+  // An update keeps the progress toast's fields unless given: drop its Cancel button.
+  const replacing = { id: takeJobToast(job.id), action: undefined };
   switch (job.state) {
     case "succeeded":
-      toast.success(`${job.title}: ${job.message ?? "done"}`, { description: where });
+      toast.success(`${job.title}: ${job.message ?? "done"}`, { ...replacing, description: where });
       return;
     case "failed":
       toast.error(`${job.title} failed`, {
+        ...replacing,
         description: `${where}\n${job.message ?? ""}`,
         classNames: { description: "whitespace-pre-line" },
         action: {
@@ -32,7 +39,12 @@ function announce(job: JobDto): void {
       });
       return;
     case "cancelled":
-      toast(`${job.title} cancelled`, { description: where });
+      // The message says what was cleaned up (a partly cloned folder).
+      toast(`${job.title} cancelled`, {
+        ...replacing,
+        description: job.message ? `${where}\n${job.message}` : where,
+        classNames: { description: "whitespace-pre-line" },
+      });
       return;
     case "running":
       return;
@@ -65,6 +77,7 @@ export function useJobEvents(): void {
         );
         showOutput(job.id, running ? "add" : "replace");
       }
+      if (job.state === "running") showJobProgress(job);
       if (job.state !== "running" && before?.state !== job.state) {
         jobEnded(job);
         // A batch's jobs are summed up together when its last one ends.

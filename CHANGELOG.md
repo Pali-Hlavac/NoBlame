@@ -157,6 +157,12 @@ All notable changes to NoBlame are documented here. The format follows
 - External diff tool (M4 slice 6): **Open in diff tool** beside the file name in every diff opens
   the two versions in Git's `diff.tool`, Visual Studio Code or a command of your own
   (Settings → Diff), through `git difftool --no-index`.
+- Feedback for every action (owner request 2026-11-09): Fetch, Pull, Push and Clone show a
+  toast the moment they are chosen, which follows the job (title, git's phase, a small progress
+  bar, **Cancel**) and turns into its result; Pull all and Push all have one toast counting the
+  repositories. A thin strip along the bottom of the window moves while anything runs, and
+  changes that take a moment (checkout, commit, stash, discard, …) name themselves in the status
+  bar ("Checking out the branch…").
 - Remotes and clone (M5 slice 8): a **Remotes** dialog (Pull ▾ → Remotes…, the Branches
   module, the palette) adds a remote and fetches it, renames it, changes its URL and push URL,
   and removes it after naming the branches that go. **Clone repository…** (Welcome tab,

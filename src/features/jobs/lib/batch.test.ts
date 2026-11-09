@@ -5,7 +5,12 @@ import type { JobDto } from "@/shared/ipc/bindings";
 import { batchJobEnded, batchSummary, startBatch, type BatchResult } from "./batch";
 
 vi.mock("sonner", () => ({
-  toast: Object.assign(vi.fn(), { success: vi.fn(), error: vi.fn() }),
+  toast: Object.assign(vi.fn(), {
+    success: vi.fn(),
+    error: vi.fn(),
+    loading: vi.fn(() => "toast-1"),
+    dismiss: vi.fn(),
+  }),
 }));
 
 function ended(id: number, repoPath: string, state: JobDto["state"], message: string): JobDto {
@@ -62,14 +67,23 @@ describe("batches", () => {
       },
       { path: "/r/web", start: () => Promise.resolve(42) },
     ]);
+    // One toast at once, counting the repositories as they end.
+    expect(toast.loading).toHaveBeenCalledWith("Pull all in Work", {
+      description: "0 of 3 repositories done",
+    });
     await Promise.resolve();
     await Promise.resolve();
     expect(batchJobEnded(ended(41, "/r/api", "succeeded", "Fast-forwarded"))).toBe(true);
+    expect(toast.loading).toHaveBeenLastCalledWith("Pull all in Work", {
+      id: "toast-1",
+      description: "2 of 3 repositories done",
+    });
     expect(toast.error).not.toHaveBeenCalled();
     expect(batchJobEnded(ended(42, "/r/web", "succeeded", "Already up to date"))).toBe(true);
     expect(toast.error).toHaveBeenCalledWith(
       "Pull all in Work: 2 done, 1 failed",
       expect.objectContaining({
+        id: "toast-1",
         description: "gone: not a repository\napi: Fast-forwarded\nweb: Already up to date",
       }),
     );

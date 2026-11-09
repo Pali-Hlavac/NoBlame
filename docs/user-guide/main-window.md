@@ -180,9 +180,14 @@ wrong, how to fix it and a **Check again** button.
 
 ## Status bar
 
+A thin line moves along its top edge, across the whole window, while NoBlame is working:
+fetching, pulling, pushing or cloning, or a change that takes a moment, such as checking out a
+branch or committing. It fills up when Git says how far it got.
+
 From left to right:
 
-- The NoBlame version.
+- The NoBlame version. While a change takes a moment, it says what is happening instead, for
+  example **Checking out the branch…**.
 - The git NoBlame uses, for example **Git 2.47.1**. Hover over it to see the path and any
   advice. Click it to check again, for example after you installed git. Its icon means:
   - a check mark: git was found and is supported;

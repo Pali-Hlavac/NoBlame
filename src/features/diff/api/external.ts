@@ -19,6 +19,7 @@ export function useOpenExternalDiff(repoId: number) {
           worktree: file.worktree ?? false,
         }),
       ),
+    meta: { activity: "Opening the diff tool" },
     onError: (error) => {
       const { message, hint } = toIpcError(error);
       toast.error("Could not open the diff tool", {

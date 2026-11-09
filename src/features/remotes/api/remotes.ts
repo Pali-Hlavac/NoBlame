@@ -22,28 +22,34 @@ export function useRemoteDetails(repoId: number) {
   });
 }
 
-function useRemoteChange<T>(repoId: number, change: (request: T) => Promise<string>) {
+function useRemoteChange<T>(
+  repoId: number,
+  activity: string,
+  change: (request: T) => Promise<string>,
+) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: change,
     // The dialog shows the error itself.
-    meta: { silent: true },
+    meta: { silent: true, activity },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: refKeys.all(repoId) }),
   });
 }
 
 export function useAddRemote(repoId: number) {
-  return useRemoteChange(repoId, (request: AddRemoteRequestDto) =>
+  return useRemoteChange(repoId, "Adding the remote", (request: AddRemoteRequestDto) =>
     unwrap(commands.addRemote(repoId, request)),
   );
 }
 
 export function useEditRemote(repoId: number) {
-  return useRemoteChange(repoId, (request: EditRemoteRequestDto) =>
+  return useRemoteChange(repoId, "Saving the remote", (request: EditRemoteRequestDto) =>
     unwrap(commands.editRemote(repoId, request)),
   );
 }
 
 export function useRemoveRemote(repoId: number) {
-  return useRemoteChange(repoId, (name: string) => unwrap(commands.removeRemote(repoId, name)));
+  return useRemoteChange(repoId, "Removing the remote", (name: string) =>
+    unwrap(commands.removeRemote(repoId, name)),
+  );
 }

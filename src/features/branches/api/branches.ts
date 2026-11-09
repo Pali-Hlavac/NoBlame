@@ -53,7 +53,7 @@ export function useCheckoutBranch(repoId: number) {
   const refresh = useRefresh(repoId);
   return useMutation({
     mutationFn: (name: string) => unwrap(commands.checkoutBranch(repoId, name)),
-    meta: { silent: true },
+    meta: { silent: true, activity: "Checking out the branch" },
     onSettled: refresh,
   });
 }
@@ -63,7 +63,7 @@ export function useCheckoutCommit(repoId: number) {
   const refresh = useRefresh(repoId);
   return useMutation({
     mutationFn: (commit: string) => unwrap(commands.checkoutCommit(repoId, commit)),
-    meta: { silent: true },
+    meta: { silent: true, activity: "Checking out the commit" },
     onSettled: refresh,
   });
 }
@@ -73,7 +73,7 @@ export function useCreateBranch(repoId: number) {
   const refresh = useRefresh(repoId);
   return useMutation({
     mutationFn: (request: CreateBranchRequestDto) => unwrap(commands.createBranch(repoId, request)),
-    meta: { silent: true },
+    meta: { silent: true, activity: "Creating the branch" },
     onSettled: refresh,
   });
 }
@@ -82,7 +82,7 @@ export function useCreateBranch(repoId: number) {
 export function useRenameBranch(repoId: number) {
   return useMutation({
     mutationFn: (request: RenameBranchRequestDto) => unwrap(commands.renameBranch(repoId, request)),
-    meta: { silent: true },
+    meta: { silent: true, activity: "Renaming the branch" },
   });
 }
 
@@ -90,7 +90,7 @@ export function useRenameBranch(repoId: number) {
 export function useDeleteRef(repoId: number) {
   return useMutation({
     mutationFn: (reference: RefTargetDto) => unwrap(commands.deleteRef(repoId, reference)),
-    meta: { silent: true },
+    meta: { silent: true, activity: "Deleting" },
   });
 }
 
@@ -98,6 +98,6 @@ export function useDeleteRef(repoId: number) {
 export function useCreateTag(repoId: number) {
   return useMutation({
     mutationFn: (request: CreateTagRequestDto) => unwrap(commands.createTag(repoId, request)),
-    meta: { silent: true },
+    meta: { silent: true, activity: "Creating the tag" },
   });
 }

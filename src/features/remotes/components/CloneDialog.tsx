@@ -1,6 +1,6 @@
 import { useId, useState } from "react";
 
-import { afterJob, startClone } from "@/features/jobs";
+import { afterJob, startClone, trackJob } from "@/features/jobs";
 import { openRepositories, pickFolder, useRecentRepositories } from "@/features/repositories";
 import { InlineError } from "@/shared/components/InlineError";
 import type { CloneFilterDto } from "@/shared/ipc/bindings";
@@ -58,15 +58,18 @@ function CloneForm({ initialParent, onClose }: { initialParent: string; onClose:
     if (problem !== null || folder === null) return;
     setPending(true);
     setError(null);
-    startClone({
-      url: url.trim(),
-      folder,
-      branch: choices.branch.trim() || null,
-      depth: choices.shallow ? depthOf(choices.depth) : null,
-      singleBranch: choices.singleBranch,
-      filter: choices.filter satisfies CloneFilterDto,
-      recurseSubmodules: choices.submodules,
-    }).then(
+    trackJob(
+      startClone({
+        url: url.trim(),
+        folder,
+        branch: choices.branch.trim() || null,
+        depth: choices.shallow ? depthOf(choices.depth) : null,
+        singleBranch: choices.singleBranch,
+        filter: choices.filter satisfies CloneFilterDto,
+        recurseSubmodules: choices.submodules,
+      }),
+      "clone",
+    ).then(
       (job) => {
         if (choices.open) {
           afterJob(job, (ended) => {

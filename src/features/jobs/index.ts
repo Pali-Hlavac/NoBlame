@@ -9,7 +9,7 @@ export {
 } from "./api/jobs";
 export { startBatch } from "./lib/batch";
 export { afterJob } from "./lib/followUp";
-export { startJob } from "./lib/start";
+export { startJob, trackJob } from "./lib/start";
 export { JobsIndicator } from "./components/JobsIndicator";
 export { OutputWindow } from "./components/OutputWindow";
 export { useJobEvents } from "./hooks/useJobEvents";

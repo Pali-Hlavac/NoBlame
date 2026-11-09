@@ -104,15 +104,19 @@ You can pull and push repositories without opening them:
 
 ## While it runs
 
-You can keep working. The status bar at the bottom shows what is running and how far it got.
-Click it to see all recent jobs:
+You can keep working. As soon as you choose Fetch, Pull, Push or Clone, a message in the corner
+says it started; it shows how far Git got, has a **Cancel** button, and then tells you how it
+ended. A thin line along the bottom of the window moves while anything runs. The status bar
+at the bottom also shows what is running and how far it got. Click it to see all recent jobs:
 
 - **Cancel** stops it completely.
 - **Log** shows everything Git printed.
 - **Copy command** copies the Git command, so you can run it yourself in a terminal.
 - **Output window** shows Git's output in a window of its own.
 
-When it ends, a message tells you what changed, or why it failed and what to do.
+When it ends, the message tells you what changed, or why it failed and what to do. For **Pull
+all** and **Push all** there is one message for the whole group, counting the repositories as
+they finish.
 
 ### Watching Git's output
 

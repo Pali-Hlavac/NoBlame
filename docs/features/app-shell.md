@@ -14,7 +14,13 @@ tabs show the real commit graph ([repositories.md](repositories.md),
   ([workbench.md](workbench.md)). Opening a path that is already open focuses its tab (identity
   ignores trailing separators).
 - **Status bar**: app name and version; git status button; "Commands" button with the palette
-  shortcut; theme menu.
+  shortcut; theme menu. While work runs, a 2 px strip along its top edge spans the window
+  (`WorkStrip`): a sliding segment, or filling up while exactly one job reports a percent
+  (`useWork` in `src/app/layout/`). It covers running jobs and pending mutations that declare
+  `meta.activity` (`query-client.ts`): checkout, branch and tag changes, upstreams, staging,
+  commit, stash, discard, ignore, remotes, the external diff tool. A mutation counts after
+  150 ms (quick ones would only flash), and its activity ("Checking out the branch…") replaces
+  the version text meanwhile.
 
 ## Tabs
 

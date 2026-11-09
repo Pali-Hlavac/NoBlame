@@ -32,7 +32,11 @@ one fetch per remote, so it shows progress. The job model is
   (`fetch_all_remotes`). Unlike `--all`, each fetch shows its progress. Its command reads `git
 fetch --progress a; git fetch --progress --append b`; its log has a `$ <command>` line before
   each. A remote that fails does not stop the next one (the job fails); Cancel stops all.
-- Each fetch is a job: it starts at once and the UI stays usable. The status bar shows
+- Each fetch is a job: it starts at once and the UI stays usable. A toast appears the moment it
+  is chosen ("Fetching…", before git runs), then shows the job's title, git's phase with a small
+  progress bar and **Cancel**; when the job ends the same toast says how
+  (`src/features/jobs/lib/toasts.tsx`). A thin strip along the top of the status bar, across
+  the window, moves while any job runs (it fills up while one job reports a percent). The status bar shows
   "Fetch: Receiving objects 45%" while it runs (with "+1" when more run); clicking it lists
   running and recent jobs: a progress bar with git's phase, size and speed, the time taken,
   **Cancel**, **Copy command** and **Log** (git's output, the command line first).
@@ -204,7 +208,8 @@ M5 slice 6. The **…** menu of a repository and its quick buttons
   asked: a rebase stopped by conflicts in one of many repositories is harder to notice and
   finish), **Push all** pushes each one's current branch to its upstream. One job per
   repository, all started at once (`startBatch` in `src/features/jobs/lib/batch.ts`). Their
-  jobs do not toast one by one: when the last one ends, one toast sums them up ("Pull all in
+  jobs do not toast one by one: one toast appears at once and counts them ("2 of 7
+  repositories done"); when the last one ends, it sums them up ("Pull all in
   Work: 3 done, 1 failed"), failures first with their first line (the hint, when there is
   one), at most six lines and "and N more", with **Show jobs**. A repository whose job could not
   start (missing folder, no upstream) counts as failed. Every job is in the jobs list with its

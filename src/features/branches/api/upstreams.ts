@@ -44,7 +44,7 @@ export function useSetUpstream(repoId: number) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (request: SetUpstreamRequestDto) => unwrap(commands.setUpstream(repoId, request)),
-    meta: { silent: true },
+    meta: { silent: true, activity: "Setting the upstream" },
     // The watcher reports the config change too; this is quicker and works without it.
     onSettled: () =>
       Promise.all([

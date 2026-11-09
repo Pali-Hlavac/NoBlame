@@ -279,4 +279,18 @@
   }
 }
 
+/* Work in progress without a known end: a segment sliding along a bar (toasts, status bar). */
+@theme {
+  --animate-indeterminate: indeterminate 1.4s ease-in-out infinite;
+
+  @keyframes indeterminate {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(300%);
+    }
+  }
+}
+
 /* The loading bird's own styles are in index.html (the start screen uses them too). */

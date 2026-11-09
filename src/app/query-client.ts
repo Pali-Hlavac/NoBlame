@@ -9,6 +9,11 @@ declare module "@tanstack/react-query" {
     mutationMeta: {
       /** The caller renders the error itself (e.g. inline), so skip the global toast. */
       silent?: boolean;
+      /**
+       * What it does, for the status bar while it runs (`Checking out the branch`); mutations
+       * without one (settings, layout) are not shown there.
+       */
+      activity?: string;
     };
   }
 }

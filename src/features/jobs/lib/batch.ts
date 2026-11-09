@@ -1,7 +1,7 @@
 /**
  * Batches: one job per repository started together (Pull all, Push all on a group). Their jobs
- * do not toast one by one; when the last one ends, one toast sums them up. Each job is still in
- * the jobs list with its own log.
+ * do not toast one by one: one toast appears at once, counts them as they end, and then sums
+ * them up. Each job is still in the jobs list with its own log.
  */
 import { toast } from "sonner";
 
@@ -26,6 +26,7 @@ interface Batch {
   title: string;
   total: number;
   results: BatchResult[];
+  toastId: string | number;
 }
 
 /** Running jobs that belong to a batch. Transient, never rendered, so not a store. */
@@ -37,7 +38,12 @@ export function startBatch(
   starts: readonly { path: string; start: () => Promise<number> }[],
 ): void {
   if (starts.length === 0) return;
-  const batch: Batch = { title, total: starts.length, results: [] };
+  const batch: Batch = {
+    title,
+    total: starts.length,
+    results: [],
+    toastId: toast.loading(title, { description: batchProgress(0, starts.length) }),
+  };
   for (const { path, start } of starts) {
     start().then(
       (id) => {
@@ -65,9 +71,16 @@ export function batchJobEnded(job: JobDto): boolean {
 
 function settle(batch: Batch, result: BatchResult): void {
   batch.results.push(result);
-  if (batch.results.length < batch.total) return;
+  if (batch.results.length < batch.total) {
+    toast.loading(batch.title, {
+      id: batch.toastId,
+      description: batchProgress(batch.results.length, batch.total),
+    });
+    return;
+  }
   const summary = batchSummary(batch.title, batch.results);
   const options = {
+    id: batch.toastId,
     description: summary.description,
     classNames: { description: "whitespace-pre-line" },
     action: {
@@ -79,6 +92,11 @@ function settle(batch: Batch, result: BatchResult): void {
   };
   if (summary.failed) toast.error(summary.title, options);
   else toast.success(summary.title, options);
+}
+
+/** `2 of 7 repositories done` (the running batch's toast). */
+export function batchProgress(done: number, total: number): string {
+  return `${String(done)} of ${String(total)} ${total === 1 ? "repository" : "repositories"} done`;
 }
 
 /** The toast for a finished batch: counts in the title, then a line per repository. */

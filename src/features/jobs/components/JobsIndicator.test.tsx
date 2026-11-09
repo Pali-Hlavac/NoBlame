@@ -32,7 +32,12 @@ vi.mock("@/shared/ipc/bindings", () => ({
 }));
 
 vi.mock("sonner", () => ({
-  toast: Object.assign(vi.fn(), { success: vi.fn(), error: vi.fn() }),
+  toast: Object.assign(vi.fn(), {
+    success: vi.fn(),
+    error: vi.fn(),
+    loading: vi.fn(() => "toast-1"),
+    dismiss: vi.fn(),
+  }),
 }));
 
 function job(overrides: Partial<JobDto> = {}): JobDto {

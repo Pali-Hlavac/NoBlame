@@ -55,7 +55,7 @@ export function useStashChanges(repoId: number) {
   const refresh = useRefresh(repoId);
   return useMutation({
     mutationFn: (request: StashRequestDto) => unwrap(commands.stashChanges(repoId, request)),
-    meta: { silent: true },
+    meta: { silent: true, activity: "Stashing" },
     onSettled: refresh,
   });
 }
@@ -65,6 +65,7 @@ export function useApplyStash(repoId: number) {
   const refresh = useRefresh(repoId);
   return useMutation({
     mutationFn: (request: ApplyStashRequestDto) => unwrap(commands.applyStash(repoId, request)),
+    meta: { activity: "Applying the stash" },
     onSettled: refresh,
   });
 }
@@ -75,6 +76,7 @@ export function useApplyStashFiles(repoId: number) {
   return useMutation({
     mutationFn: (request: ApplyStashFilesRequestDto) =>
       unwrap(commands.applyStashFiles(repoId, request)),
+    meta: { activity: "Applying files of the stash" },
     onSettled: refresh,
   });
 }
@@ -84,7 +86,7 @@ export function useDropStash(repoId: number) {
   const refresh = useRefresh(repoId);
   return useMutation({
     mutationFn: (stash: StashTargetDto) => unwrap(commands.dropStash(repoId, stash)),
-    meta: { silent: true },
+    meta: { silent: true, activity: "Dropping the stash" },
     onSettled: refresh,
   });
 }
