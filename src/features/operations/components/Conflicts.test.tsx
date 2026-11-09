@@ -3,10 +3,12 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { toast } from "sonner";
 
+import { useTabsStore } from "@/features/workspace";
 import type { OperationDto } from "@/shared/ipc/bindings";
 
 import { sideNames } from "../lib/conflicts";
 import { openConflicts } from "../store/dialog";
+import { useMergeViewStore } from "../store/mergeView";
 import { OperationDialogs } from "./OperationDialogs";
 
 const ipc = vi.hoisted(() => ({
@@ -110,6 +112,18 @@ describe("resolving conflicts", () => {
       expect(toast.info).toHaveBeenCalledWith("Opened src/both.txt in the merge tool", {
         description: expect.stringMatching(/stages the file/) as unknown,
       });
+    });
+  });
+
+  it("opens a file in the merge view and closes the list", async () => {
+    const user = userEvent.setup();
+    renderDialogs();
+    openConflicts(1);
+    await user.click(await screen.findByRole("button", { name: "Merge src/both.txt here" }));
+    expect(useMergeViewStore.getState().shown[1]).toBe("src/both.txt");
+    expect(useTabsStore.getState().tabs.some((tab) => tab.kind === "merge")).toBe(true);
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog")).toBeNull();
     });
   });
 

@@ -17,6 +17,7 @@ import {
 import { useConflicts, useOpenMergeTool, useResolve } from "../api/conflicts";
 import { useCurrentBranch } from "../hooks/useCurrentBranch";
 import { KIND_WORDS, canMergeInTool, hasOurs, hasTheirs, sideNames } from "../lib/conflicts";
+import { showMergeView } from "../store/mergeView";
 
 interface ConflictsDialogProps {
   repoId: number;
@@ -24,7 +25,8 @@ interface ConflictsDialogProps {
 }
 
 /**
- * The conflicted files, each with Open in merge tool, Use ours, Use theirs and Mark resolved.
+ * The conflicted files, each with Merge (the built-in merge view, in its own tab), Open in merge
+ * tool, Use ours, Use theirs and Mark resolved.
  * The list follows the status, so files resolved elsewhere (a merge tool, an editor and
  * staging, a terminal) leave it by themselves.
  */
@@ -52,7 +54,8 @@ export function ConflictsDialog({ repoId, onClose }: ConflictsDialogProps) {
           <DialogTitle>Resolve conflicts</DialogTitle>
           <DialogDescription>
             Ours: {names.ours}. Theirs: {names.theirs}. Taking a side keeps that whole version of
-            the file; for a mix, open it in the merge tool or edit it, then mark it resolved.
+            the file; for a mix, merge it here or in the merge tool, or edit it and mark it
+            resolved.
           </DialogDescription>
         </DialogHeader>
         {conflicts.isPending ? (
@@ -70,6 +73,10 @@ export function ConflictsDialog({ repoId, onClose }: ConflictsDialogProps) {
                 key={file.path}
                 file={file}
                 busy={resolve.isPending}
+                onMerge={() => {
+                  showMergeView(repoId, file.path);
+                  onClose();
+                }}
                 onMergeTool={() => {
                   openMergeTool(file.path);
                 }}
@@ -121,11 +128,12 @@ export function ConflictsDialog({ repoId, onClose }: ConflictsDialogProps) {
 interface ConflictRowProps {
   file: ConflictDto;
   busy: boolean;
+  onMerge: () => void;
   onMergeTool: () => void;
   onResolve: (side: SideDto | "asIs") => void;
 }
 
-function ConflictRow({ file, busy, onMergeTool, onResolve }: ConflictRowProps) {
+function ConflictRow({ file, busy, onMerge, onMergeTool, onResolve }: ConflictRowProps) {
   return (
     <li className="flex flex-wrap items-center gap-2 px-3 py-2 text-sm">
       <span className="min-w-0 flex-1">
@@ -135,9 +143,20 @@ function ConflictRow({ file, busy, onMergeTool, onResolve }: ConflictRowProps) {
         <span className="block text-xs text-muted-foreground">{KIND_WORDS[file.kind]}</span>
       </span>
       {canMergeInTool(file.kind) ? (
-        <Button size="sm" variant="outline" className="h-7" onClick={onMergeTool}>
-          Merge tool
-        </Button>
+        <>
+          <Button
+            size="sm"
+            className="h-7"
+            aria-label={`Merge ${file.path} here`}
+            title="Merge the lines in NoBlame's merge view"
+            onClick={onMerge}
+          >
+            Merge
+          </Button>
+          <Button size="sm" variant="outline" className="h-7" onClick={onMergeTool}>
+            Merge tool
+          </Button>
+        </>
       ) : null}
       <Button
         size="sm"

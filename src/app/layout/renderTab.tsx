@@ -5,6 +5,7 @@ import { CompareView } from "@/features/compare";
 import { DiffView } from "@/features/diff";
 import { FileView } from "@/features/files";
 import { HistoryView } from "@/features/history";
+import { MergeView } from "@/features/operations";
 import { RepositoryView } from "@/features/repositories";
 import { SettingsView } from "@/features/settings";
 import { StashView } from "@/features/stashes";
@@ -33,5 +34,7 @@ export function renderTab(tab: WorkspaceTab): ReactNode {
       return <CompareView />;
     case "stash":
       return <StashView />;
+    case "merge":
+      return <MergeView />;
   }
 }

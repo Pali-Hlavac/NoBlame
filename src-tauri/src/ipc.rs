@@ -143,6 +143,8 @@ pub fn builder() -> Builder<tauri::Wry> {
             operations::commands::get_conflicts,
             operations::commands::take_conflict_side,
             operations::commands::open_merge_tool,
+            operations::commands::get_merge_file,
+            operations::commands::save_merged_file,
             inspect::difftool_commands::open_external_diff,
             workbench::commands::get_workbench_layout,
             workbench::commands::save_workbench_layout,

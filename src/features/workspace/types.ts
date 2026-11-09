@@ -52,6 +52,11 @@ export interface StashTab extends TabBase {
   kind: "stash";
 }
 
+/** A conflicted file merged in the built-in merge view (one tab at most). */
+export interface MergeTab extends TabBase {
+  kind: "merge";
+}
+
 export type WorkspaceTab =
   | WelcomeTab
   | RepositoryTab
@@ -61,7 +66,8 @@ export type WorkspaceTab =
   | HistoryTab
   | BlameTab
   | CompareTab
-  | StashTab;
+  | StashTab
+  | MergeTab;
 
 /** Checks a tab read back from a saved layout (which may come from another app version). */
 export function isWorkspaceTab(value: unknown): value is WorkspaceTab {
@@ -77,6 +83,7 @@ export function isWorkspaceTab(value: unknown): value is WorkspaceTab {
     case "blame":
     case "compare":
     case "stash":
+    case "merge":
       return true;
     case "repository":
       return typeof tab.path === "string";

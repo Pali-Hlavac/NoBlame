@@ -180,6 +180,11 @@ All notable changes to NoBlame are documented here. The format follows
   for all files at once. **Settings → Diff → Merge tool for conflicts** chooses Git's
   `merge.tool`, Visual Studio Code, Beyond Compare, KDiff3, Meld, P4Merge or another tool Git
   knows; it runs through `git mergetool`.
+- The merge view (M6 slice 5): **Merge** on a conflicted file (in Resolve conflicts, or
+  **Merge in NoBlame** in the Commit module) opens it in the **Merge** tab. Lines only one side
+  changed are taken already; each conflict shows ours and theirs side by side (and the base on
+  request) and is decided with Use ours, Use theirs, both in either order, or an edit. **Save
+  and mark resolved** stages the file and writes it with your line-ending settings.
 - A context menu on files in every list (owner request 2026-11-09): Changed files, the Commit
   module, Compare and the Stash tab offer **Show diff** (and Stage, Discard, Ignore in the Commit
   module), **Open working tree file** (refusing files that would run as programs), **Show in

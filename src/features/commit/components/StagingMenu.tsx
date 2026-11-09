@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import { FileContextMenu, type MenuAction } from "@/features/file-menu";
-import { openConflicts, useOpenMergeTool } from "@/features/operations";
+import { openConflicts, showMergeView, useOpenMergeTool } from "@/features/operations";
 import type { WorkingFileDto } from "@/shared/ipc/bindings";
 
 import { canDiscard } from "../lib/discard";
@@ -33,6 +33,12 @@ export function StagingMenu(props: StagingMenuProps) {
   const actions: MenuAction[] = [];
   if (file?.status === "conflicted") {
     actions.push(
+      {
+        label: "Merge in NoBlame",
+        onSelect: () => {
+          showMergeView(repoId, file.path);
+        },
+      },
       {
         label: "Open in merge tool",
         onSelect: () => {

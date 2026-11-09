@@ -4,6 +4,7 @@
 use tauri::State;
 
 use super::conflicts::{self, ConflictDto, MergeToolResultDto, SideDto};
+use super::merge_view::{self, MergeFileDto, SaveMergedRequestDto};
 use super::pick::{PickRequestDto, PickResultDto, ResetRequestDto};
 use super::rebase::{self, RebaseOutcomeDto, RebasePreviewDto, RebaseRequestDto};
 use super::service;
@@ -103,6 +104,30 @@ pub async fn take_conflict_side(
     side: SideDto,
 ) -> CommandResult<()> {
     Ok(conflicts::take(&sessions, id, paths, side).await?)
+}
+
+/// A conflicted file merged line by line from its versions (base, ours, theirs), for the
+/// built-in merge view; or why it cannot be.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_merge_file(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    path: String,
+) -> CommandResult<MergeFileDto> {
+    Ok(merge_view::get(&sessions, id, path).await?)
+}
+
+/// Saves a file merged in the view: staged in place of its conflict and written to the working
+/// tree.
+#[tauri::command]
+#[specta::specta]
+pub async fn save_merged_file(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    request: SaveMergedRequestDto,
+) -> CommandResult<()> {
+    Ok(merge_view::save(&sessions, id, request).await?)
 }
 
 /// Opens a conflicted file in the merge tool chosen in Settings (through `git mergetool`).

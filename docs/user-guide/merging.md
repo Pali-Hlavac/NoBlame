@@ -31,6 +31,12 @@ still conflict.
 Click **Resolve…** in the bar. A window lists the conflicted files and says who is who:
 **ours** is your branch, **theirs** is the branch you merge. For each file:
 
+- **Merge** opens the file in NoBlame's **Merge** tab. Lines only one side changed are already
+  taken; each conflict shows your version and theirs side by side (tick **Show base** to see the
+  lines before both changes too). For each conflict choose **Use ours**, **Use theirs**, **Ours,
+  then theirs**, **Theirs, then ours**, or **Edit…** to write the lines yourself. When every
+  conflict is decided, click **Save and mark resolved**. Binary files and files over 8 MB cannot
+  be merged there; the tab says so.
 - **Merge tool** opens the file in your merge tool, with both versions side by side. Resolve it
   there, save and close the tool: Git then marks the file resolved. Choose the tool in
   **Settings → Diff → Merge tool for conflicts** (Git's own setting, Visual Studio Code, Beyond
@@ -41,8 +47,8 @@ Click **Resolve…** in the bar. A window lists the conflicted files and says wh
   `=======` and `>>>>>>>` lines), this marks it resolved.
 
 **Use ours for all** and **Use theirs for all** do it for every file at once. In the Commit
-module, right-click a conflicted file (marked **U**) for **Open in merge tool** and **Resolve
-conflicts…** too.
+module, right-click a conflicted file (marked **U**) for **Merge in NoBlame**, **Open in merge
+tool** and **Resolve conflicts…** too.
 
 When no conflicts are left, click **Continue** in the bar. NoBlame commits the merge with
 Git's message.

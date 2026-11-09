@@ -116,6 +116,8 @@
     "allow-get-conflicts",
     "allow-take-conflict-side",
     "allow-open-merge-tool",
+    "allow-get-merge-file",
+    "allow-save-merged-file",
     "allow-open-external-diff",
     "allow-list-submodules",
     "allow-get-workbench-layout",

@@ -10,6 +10,7 @@ import type {
   DiffTab,
   FileTab,
   HistoryTab,
+  MergeTab,
   RepositoryTab,
   SettingsTab,
   StashTab,
@@ -25,6 +26,7 @@ export const HISTORY_TAB: HistoryTab = { id: "history", kind: "history", title: 
 export const BLAME_TAB: BlameTab = { id: "blame", kind: "blame", title: "Blame" };
 export const COMPARE_TAB: CompareTab = { id: "compare", kind: "compare", title: "Compare" };
 export const STASH_TAB: StashTab = { id: "stash", kind: "stash", title: "Stash" };
+export const MERGE_TAB: MergeTab = { id: "merge", kind: "merge", title: "Merge" };
 
 interface TabsState {
   tabs: WorkspaceTab[];
@@ -177,6 +179,11 @@ export function showCompareTab(): void {
 /** Shows the stash tab: opens it the first time, otherwise focuses it where it is docked. */
 export function showStashTab(): void {
   useTabsStore.getState().openTab(STASH_TAB);
+}
+
+/** Shows the merge tab: opens it the first time, otherwise focuses it where it is docked. */
+export function showMergeTab(): void {
+  useTabsStore.getState().openTab(MERGE_TAB);
 }
 
 /** The currently active tab, if any. */

@@ -805,7 +805,7 @@ listed in the Repositories module already).
 - [ ] Merge (ff/no-ff/squash) _(done, slice 1)_, rebase, cherry-pick, revert, reset (soft/mixed/hard behind confirmation) _(cherry-pick, revert, reset done, slice 2; rebase onto done, slice 3)_
 - [ ] Interactive rebase editor: reorder, squash, fixup, reword, edit, drop; autosquash
 - [x] In-progress operation banner (merge/rebase/cherry-pick/bisect) with continue/skip/abort
-- [ ] Conflict resolution: list, ours/theirs _(done, slice 4)_, built-in three-way merge view — ADR 0014
+- [x] Conflict resolution: list, ours/theirs (slice 4), built-in three-way merge view (slice 5) — ADR 0014
 - [x] External diff and merge tools (configured like Git Extensions, honoring `diff.tool`/`merge.tool`)
       with presets (VS Code `code --wait --merge`, Beyond Compare, KDiff3, Meld, P4Merge);
       "Open in merge tool" on each conflicted file (owner request 2026-10-30)
@@ -869,6 +869,24 @@ Slice 4 done (2026-11-09): conflicts ([features/operations.md](features/operatio
   `merge.tool` that writes the file and exits (no window on the owner's screen): the tool
   resolved one file, Use theirs another, Use ours (delete) the third, then Continue finished the
   merge. A real GUI tool was not started.
+
+Slice 5 done (2026-11-09): the built-in merge view
+([features/operations.md](features/operations.md#the-merge-view), ADR
+[0014](adr/0014-conflict-resolution-ui.md)).
+
+- **Merge** in Resolve conflicts (and **Merge in NoBlame** in the Commit module's file menu)
+  opens the **Merge** tab: the file merged line by line from the index stages, each conflict
+  with ours and theirs side by side (the base on request) and Use ours, Use theirs, both in
+  either order, or an edit; **Save and mark resolved** stages the result and writes the file
+  from the index, so line endings and filters apply as for a checkout.
+- Found on the way: **Next conflict** first used `scrollIntoView`, which also scrolled the tab's
+  outer container and hid the header; it now scrolls only the list.
+- Checked in the running app on a scratch repository (a merge with a 30-line file with two
+  conflicts, changes from each side and one the same on both; a CRLF file; a binary file): the
+  two conflicts were the ones git marked; ours for one and an edit for the other saved the
+  expected file (index and working tree equal); a line typed in the CRLF file was stored with
+  CRLF; the binary file was refused with its reason; then Use theirs and Continue finished the
+  merge. The Commit module's new menu entry was not clicked.
 
 ### M7: Advanced Git
 
@@ -970,7 +988,7 @@ The owner's idea inbox (with where each idea is planned) is in
 | 0011 | Background job model                                                | M5        | Accepted |
 | 0012 | Credentials and askpass                                             | M5        | Accepted |
 | 0013 | Diff viewer: diffs computed in Rust, rows paged                     | M3        | Accepted |
-| 0014 | Conflict resolution UI                                              | M6        | Planned  |
+| 0014 | Conflict resolution UI                                              | M6        | Accepted |
 | 0015 | CLI, single instance and task windows                               | M1        | Accepted |
 | 0016 | Testing strategy                                                    | M9        | Planned  |
 | 0017 | Auto-update via the Tauri updater                                   | M9        | Planned  |

@@ -344,6 +344,16 @@ export const commands = {
 	 */
 	openMergeTool: (id: number, path: string) => typedError<MergeToolResultDto, AppError>(__TAURI_INVOKE("open_merge_tool", { id, path })),
 	/**
+	 *  A conflicted file merged line by line from its versions (base, ours, theirs), for the
+	 *  built-in merge view; or why it cannot be.
+	 */
+	getMergeFile: (id: number, path: string) => typedError<MergeFileDto, AppError>(__TAURI_INVOKE("get_merge_file", { id, path })),
+	/**
+	 *  Saves a file merged in the view: staged in place of its conflict and written to the working
+	 *  tree.
+	 */
+	saveMergedFile: (id: number, request: SaveMergedRequestDto) => typedError<null, AppError>(__TAURI_INVOKE("save_merged_file", { id, request })),
+	/**
 	 *  Opens a file's two versions in the external diff tool chosen in Settings (through
 	 *  `git difftool --no-index`). Returns once the tool started; fails when it could not.
 	 */
@@ -557,6 +567,17 @@ export type ChangedFilesDto = {
 	/**  Parents of the commit (more than one for a merge; 0 for the first commit). */
 	parentCount: number,
 };
+
+/**  Who changed resolved lines. */
+export type ChunkSourceDto = 
+/**  Neither side. */
+"unchanged" | 
+/**  Only ours. */
+"ours" | 
+/**  Only theirs. */
+"theirs" | 
+/**  Both, in the same way. */
+"both";
 
 /**  How much of the history's contents to download up front. */
 export type CloneFilterDto = 
@@ -1403,6 +1424,20 @@ export type LineSideDto =
 /**  After the change. */
 "new";
 
+/**  A run of lines of the merged file. Texts keep their line endings. */
+export type MergeChunkDto = 
+/**  Lines the merge decided by itself. */
+{ kind: "resolved"; source: ChunkSourceDto; text: string } | 
+/**  Lines both sides changed differently (`base` is empty where both added lines). */
+{ kind: "conflict"; base: string; ours: string; theirs: string };
+
+/**  A conflicted file merged line by line, or why it cannot be. */
+export type MergeFileDto = 
+/**  The merged lines; `crlf` when most lines end in CRLF. */
+{ kind: "text"; chunks: MergeChunkDto[]; crlf: boolean } | 
+/**  The view cannot merge it. */
+{ kind: "unavailable"; reason: UnmergeableDto };
+
 /**  How a merge joins the histories. */
 export type MergeModeDto = 
 /**  As `merge.ff` says: fast-forward when possible, else a merge commit. */
@@ -1874,6 +1909,15 @@ export type ResetRequestDto = {
 	mode: ResetModeDto,
 };
 
+/**  The merged file to save. */
+export type SaveMergedRequestDto = {
+	path: string,
+	/**  The whole file (lines typed in the view end in `\n`). */
+	text: string,
+	/**  Give every line a CRLF ending (the file's own), as `get_merge_file` said. */
+	crlf: boolean,
+};
+
 /**  What to do with the operation in progress. */
 export type SequenceStepDto = 
 /**  Go on after the conflicts are resolved and staged. */
@@ -2211,6 +2255,9 @@ export type UniqueCommitsDto = {
 	/**  The newest few, newest first. */
 	newest: CommitLineDto[],
 };
+
+/**  Why a conflicted file cannot be merged in the view. */
+export type UnmergeableDto = "noConflict" | "oneSided" | "notAFile" | "binary" | "notUtf8" | "tooLarge" | "largeFileStorage";
 
 /**  A local branch with an upstream configured. */
 export type UpstreamDto = {

@@ -1,6 +1,7 @@
 //! Operations that change history and can stop half-way: merging (`merge.rs`), cherry-picking
 //! and reverting (`pick.rs`), resetting (`reset.rs`), rebasing (`rebase.rs`), the conflicted
-//! files and taking a side (`conflict.rs`), the external merge tool (`mergetool.rs`), and the
+//! files and taking a side (`conflict.rs`), the built-in three-way merge of a conflicted file
+//! (`threeway.rs`, `merge_file.rs`), the external merge tool (`mergetool.rs`), and the
 //! state of an operation in progress with how to go on, skip or abort it (`state.rs`,
 //! `sequence.rs`).
 //! All writes run the user's `git`, so hooks, `merge.*` config and rerere apply; reading the
@@ -8,18 +9,21 @@
 
 mod conflict;
 mod merge;
+mod merge_file;
 mod mergetool;
 mod pick;
 mod rebase;
 mod reset;
 mod sequence;
 mod state;
+mod threeway;
 
 use crate::branch::BranchError;
 use crate::cli::GitError;
 
 pub use conflict::{Conflict, ConflictKind, Side, conflicts, take_side};
 pub use merge::{MergeMode, MergeOutcome, MergeResult, merge, merge_name};
+pub use merge_file::{MAX_MERGE_FILE_BYTES, MergeFile, Unmergeable, merge_file, save_merged};
 pub use mergetool::{MergeToolOutcome, configured_merge_tool, run_merge_tool};
 pub use pick::{PickKind, PickOptions, PickOutcome, PickResult, pick};
 pub use rebase::{
@@ -28,6 +32,7 @@ pub use rebase::{
 pub use reset::{ResetMode, reset};
 pub use sequence::{SequenceStep, StepResult, run_step};
 pub use state::{Operation, OperationKind, operation_in_progress};
+pub use threeway::{ChunkSource, MergeChunk, merge_chunks};
 
 /// Failures of history-changing operations.
 #[derive(Debug, thiserror::Error)]
@@ -47,4 +52,7 @@ pub enum OperationError {
     /// The step does not apply to this operation (skipping a merge).
     #[error("{0}")]
     NotApplicable(String),
+    /// Reading the repository (the index, a file's versions) failed.
+    #[error("{0}")]
+    Read(String),
 }

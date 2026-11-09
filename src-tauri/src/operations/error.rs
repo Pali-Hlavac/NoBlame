@@ -91,6 +91,9 @@ impl From<OperationsError> for AppError {
             OperationsError::Operation(OperationError::NotApplicable(message)) => {
                 AppError::new(ErrorCode::InvalidInput, message)
             }
+            OperationsError::Operation(OperationError::Read(message)) => {
+                AppError::new(ErrorCode::InvalidData, message)
+            }
             OperationsError::Operation(OperationError::Rejected { output }) => {
                 let hint = HINTS
                     .iter()

@@ -5,8 +5,9 @@ the bar above the commits while an operation is in progress (merge, cherry-pick,
 rebase, `git am`, bisect) with Continue, Skip and Abort. **Slice 2 (2026-11-09)**: cherry-pick,
 revert and reset. **Slice 3 (2026-11-09)**: rebasing the current branch onto a commit, branch or
 tag. **Slice 4 (2026-11-09)**: the conflicted files with Use ours, Use theirs, Mark resolved and
-the external merge tool. The three-way merge view, the interactive rebase editor and the reflog
-follow in later slices.
+the external merge tool. **Slice 5 (2026-11-09)**: the built-in three-way merge view (the
+Merge tab, ADR [0014](../adr/0014-conflict-resolution-ui.md)). The interactive rebase editor and
+the reflog follow in later slices.
 
 ## Where
 
@@ -112,6 +113,7 @@ branch rebased onto and theirs the commit being replayed (git's naming).
 
 | Per file                        | git                                                                                                   |
 | ------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Merge (both sides have it)      | the Merge tab (below)                                                                                 |
 | Merge tool (both sides have it) | `git mergetool --no-prompt --tool=<tool> -- <path>`                                                   |
 | Use ours / Use theirs           | `git checkout --ours` or `--theirs`, then `git add`; `git rm` where that side deleted it ("(delete)") |
 | Mark resolved                   | `git add` (`stage_files`)                                                                             |
@@ -127,6 +129,38 @@ write lock is held meanwhile; the watcher reports the staged file), or at once "
 "still conflicts" when it closed already. A tool git cannot start ("is not available", "cmd not
 set") is an error with a hint. git exits 0 with "No files need merging" for a file without a
 conflict; that is reported as such, not as resolved.
+
+## The merge view
+
+**Merge** in the list, or **Merge in NoBlame** on a conflicted file in the Commit module, shows
+the file in the **Merge** tab (one tab, beside the graph like the diff; `showMergeView`). ADR
+[0014](../adr/0014-conflict-resolution-ui.md) has the reasons.
+
+- `get_merge_file` reads the three versions from the index stages with gix, as stored, and
+  merges them line by line in Rust (`operation/threeway.rs`): each side is diffed against the
+  base (histogram); lines one side changed are taken from it, lines both changed alike once,
+  lines both changed differently are a conflict, and changes that touch conflict as in git.
+  Conflicts are narrowed like git's default level (shared first and last lines are taken; where
+  the base had no lines, the conflict is split where the sides agree). It refuses, with the
+  reason, files that are not regular files, binary (a NUL in the first 8000 bytes), not UTF-8,
+  over 8 MB, or Git LFS pointers; and says when the file has no conflict (any more), offering
+  the next conflicted file.
+- The tab shows the merged file: unchanged lines (runs over 7 lines folded to 3 + 3), lines
+  changed only by ours (blue bar), only by theirs (orange) or by both alike (green), and each
+  conflict with ours and theirs side by side (**Show base** adds the base). A conflict is
+  decided with **Use ours**, **Use theirs**, **Ours, then theirs**, **Theirs, then ours** or
+  **Edit…** (a text box starting from both); a decision can be edited or undone. **Next
+  conflict**, **Use ours / theirs for the rest** and **Start over** are in the header.
+  Decisions are UI state (`store/mergeView.ts`), kept per repository and file until saved.
+- **Save and mark resolved** (once every conflict is decided) calls `save_merged_file`: the text
+  becomes a blob (`git hash-object -w --no-filters --stdin`), replaces the three stages at stage
+  0 with our side's mode (`git update-index -z --index-info`), and the working tree file is
+  written from the index (`git checkout`), so line-ending settings and filters apply as for any
+  checkout. Lines typed in the view get CRLF endings when most of our lines have them as stored.
+  It is refused when the file has no conflict any more.
+- The file is read again on every status change, so a file resolved elsewhere shows as such.
+  Edits made to the working tree file before opening the view are not shown in it; saving
+  replaces the file.
 
 ## The operation bar
 
@@ -147,7 +181,9 @@ conflict; that is reported as such, not as resolved.
 
 ## Code
 
-- `crates/git-core/src/operation/`: `conflict.rs` (`conflicts`, `take_side`), `mergetool.rs`
+- `crates/git-core/src/operation/`: `conflict.rs` (`conflicts`, `take_side`), `threeway.rs`
+  (`merge_chunks` → `MergeChunk`), `merge_file.rs` (`merge_file` → `MergeFile` or
+  `Unmergeable`, `save_merged`), `mergetool.rs`
   (`run_merge_tool` → `MergeToolOutcome`, `configured_merge_tool`), `rebase.rs` (`rebase` with `RebaseOptions { autostash, rebase_merges }` → `RebaseResult`;
   `rebase_preview` → `RebasePreview { replayed, published }`), `pick.rs` (`pick` with `PickOptions { kind, mainline,
 no_commit, record_origin }` → `PickResult`; `CONFLICT`, "could not apply" or "could not
@@ -159,23 +195,26 @@ no_commit, record_origin }` → `PickResult`; `CONFLICT`, "could not apply" or "
   detail and step), `sequence.rs` (`run_step`).
 - `src-tauri/src/operations/`: `merge_into_current`, `pick_commit`, `reset_current`, `rebase_current`,
   `get_rebase_preview` (`rebase.rs`), `get_conflicts`, `take_conflict_side`, `open_merge_tool`
-  (`conflicts.rs`), `step_operation` (reads the kind itself, so a
+  (`conflicts.rs`), `get_merge_file`, `save_merged_file` (`merge_view.rs`), `step_operation`
+  (reads the kind itself, so a
   stale UI cannot continue the wrong thing), each under the session's write lock; errors map to
   hints in `error.rs`. The status (`get_status`) carries `operation`, so the bar follows every
   status refresh (watcher, focus, after any change).
 - `src/features/operations/`: `MergeDialog`, `PickDialog`, `RebaseDialog` (+ `RebasePreview`),
-  `ConflictsDialog`,
+  `ConflictsDialog`, `MergeView` (the Merge tab: `MergeHeader`, `ConflictChunk`, `ResolvedChunk`,
+  `MergeText`, `MergeUnavailable`),
   `ResetDialog` (+ `ResetEffects`),
   `OperationBanner`, `OperationDialogs` (mounted in the main window; `openMerge`, `openPick`,
-  `openRebase`, `openReset`, `openConflicts`); `useOpenMergeTool` is used by the Commit
-  module's file menu. The bar reaches the repository tab through `RepositoryBannerContext`, and
+  `openRebase`, `openReset`, `openConflicts`); `useOpenMergeTool` and `showMergeView` are used
+  by the Commit module's file menu. The bar reaches the repository tab through `RepositoryBannerContext`, and
   merge, cherry-pick, revert and reset reach the graph and the Branches module as `RefActions`
   (`merge`, `cherryPick`, `revert`, `rebase`, `reset`), so neither feature depends on this one.
 
 ## Not yet
 
-- Rebasing onto one commit while keeping the commits after another (`--onto` with a range); a conflict list with ours/theirs
-  and merge tools (slice 4); the three-way merge view (ADR 0014); the interactive rebase editor;
-  the reflog.
+- Rebasing onto one commit while keeping the commits after another (`--onto` with a range); the
+  interactive rebase editor; the reflog.
+- In the merge view: editing the lines git merged by itself, word-level highlights, syntax
+  colours, and custom `merge` drivers from `.gitattributes` (the view uses its own merge).
 - Editing the merge message before committing; merge strategies and options (`-X ours`).
 - Cherry-picking or reverting several selected commits at once; a commit range.

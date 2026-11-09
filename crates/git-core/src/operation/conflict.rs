@@ -70,6 +70,9 @@ pub struct Conflict {
     pub path: BString,
     /// Which sides have it.
     pub kind: ConflictKind,
+    /// Its index mode (`100644`, `100755`, `120000`, ...): our side's, else theirs, else the
+    /// base's.
+    pub mode: BString,
 }
 
 /// Which side's version to keep.
@@ -99,25 +102,27 @@ pub async fn conflicts(
 
 /// `<mode> <id> <stage>\t<path>` records separated by NUL, a few per path.
 fn parse_unmerged(bytes: &[u8]) -> Vec<Conflict> {
-    let mut stages: BTreeMap<BString, [bool; 3]> = BTreeMap::new();
+    let mut stages: BTreeMap<BString, [Option<BString>; 3]> = BTreeMap::new();
     for record in bytes.split(|byte| *byte == 0) {
         let Some((info, path)) = record.split_once_str("\t") else {
             continue;
         };
-        let stage = info.rsplit(|byte| *byte == b' ').next();
-        let index = match stage {
+        let mut fields = info.split(|byte| *byte == b' ');
+        let mode = fields.next().unwrap_or_default();
+        let index = match fields.nth(1) {
             Some(b"1") => 0,
             Some(b"2") => 1,
             Some(b"3") => 2,
             _ => continue,
         };
-        stages.entry(BString::from(path)).or_default()[index] = true;
+        stages.entry(BString::from(path)).or_default()[index] = Some(BString::from(mode));
     }
     stages
         .into_iter()
         .map(|(path, [base, ours, theirs])| Conflict {
             path,
-            kind: ConflictKind::from_stages(base, ours, theirs),
+            kind: ConflictKind::from_stages(base.is_some(), ours.is_some(), theirs.is_some()),
+            mode: ours.or(theirs).or(base).unwrap_or_default(),
         })
         .collect()
 }
@@ -184,7 +189,7 @@ pub async fn take_side(
     Ok(())
 }
 
-fn checked(output: GitOutput) -> Result<GitOutput, OperationError> {
+pub(super) fn checked(output: GitOutput) -> Result<GitOutput, OperationError> {
     if output.success() {
         Ok(output)
     } else {
@@ -206,7 +211,7 @@ mod tests {
             "100644 ccc 3\tboth.txt",
             "100644 aaa 1\tgone ours.txt",
             "100644 ccc 3\tgone ours.txt",
-            "100644 bbb 2\tnew.txt",
+            "100755 bbb 2\tnew.txt",
         ]
         .join("\0");
         let conflicts = parse_unmerged(records.as_bytes());
@@ -222,6 +227,7 @@ mod tests {
                 ("new.txt".to_owned(), ConflictKind::AddedByUs),
             ]
         );
+        assert_eq!(conflicts[2].mode, "100755");
         assert!(!ConflictKind::DeletedByUs.has_ours());
         assert!(ConflictKind::DeletedByUs.has_theirs());
     }
