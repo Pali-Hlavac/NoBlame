@@ -3,6 +3,7 @@ import type {
   JobsSettings,
   DiffSettings,
   ExternalDiffTool,
+  ExternalMergeTool,
   GraphSettings,
   RepositoriesSettings,
   Settings,
@@ -25,9 +26,10 @@ export interface AppSettings {
   jobs: Required<JobsSettings>;
 }
 
-/** The diff settings with every field present, the external tool's too. */
-export type AppDiffSettings = Required<Omit<DiffSettings, "externalTool">> & {
+/** The diff settings with every field present, the external tools' too. */
+export type AppDiffSettings = Required<Omit<DiffSettings, "externalTool" | "mergeTool">> & {
   externalTool: Required<ExternalDiffTool>;
+  mergeTool: Required<ExternalMergeTool>;
 };
 
 /** What the backend uses for missing settings (`src-tauri/src/settings/types.rs`). */
@@ -53,6 +55,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     wholeFile: false,
     syntaxHighlighting: true,
     externalTool: { kind: "git", command: "" },
+    mergeTool: { kind: "git", name: "" },
   },
   branches: { sort: "name" },
   jobs: { showOutputWindow: false, closeOutputOnSuccess: true },
@@ -68,6 +71,7 @@ export function withDefaults(settings: Settings | undefined): AppSettings {
       ...DEFAULT_SETTINGS.diff,
       ...settings?.diff,
       externalTool: { ...DEFAULT_SETTINGS.diff.externalTool, ...settings?.diff?.externalTool },
+      mergeTool: { ...DEFAULT_SETTINGS.diff.mergeTool, ...settings?.diff?.mergeTool },
     }),
     branches: { ...DEFAULT_SETTINGS.branches, ...settings?.branches },
     jobs: { ...DEFAULT_SETTINGS.jobs, ...settings?.jobs },

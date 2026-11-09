@@ -1,4 +1,5 @@
-//! Diff tab preferences: layout, whitespace, context, colours, and the external diff tool.
+//! Diff tab preferences: layout, whitespace, context, colours, and the external diff and merge
+//! tools.
 
 use serde::{Deserialize, Serialize};
 use specta::Type;
@@ -46,6 +47,8 @@ pub struct DiffSettings {
     pub syntax_highlighting: bool,
     /// The program "Open in diff tool" starts.
     pub external_tool: ExternalDiffTool,
+    /// The program "Open in merge tool" starts for a conflicted file.
+    pub merge_tool: ExternalMergeTool,
 }
 
 /// `git diff`'s default context.
@@ -60,6 +63,7 @@ impl Default for DiffSettings {
             whole_file: false,
             syntax_highlighting: true,
             external_tool: ExternalDiffTool::default(),
+            merge_tool: ExternalMergeTool::default(),
         }
     }
 }
@@ -87,4 +91,52 @@ pub struct ExternalDiffTool {
     /// For [`ExternalDiffToolKind::Custom`]: a shell command git runs with the old and the new
     /// file appended (`git difftool --extcmd`); it must wait until the tool is closed.
     pub command: String,
+}
+
+/// Which program resolves a conflicted file. Each runs through `git mergetool`, which knows
+/// these tools by name and starts them as it would from a terminal.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub enum MergeToolKind {
+    /// The user's `merge.tool` from their git config.
+    #[default]
+    Git,
+    /// Visual Studio Code (git's `vscode`).
+    VsCode,
+    /// Beyond Compare (git's `bc`).
+    BeyondCompare,
+    /// `KDiff3`.
+    KDiff3,
+    /// Meld.
+    Meld,
+    /// Perforce `P4Merge` (git's `p4merge`).
+    P4Merge,
+    /// Another tool by its git name ([`ExternalMergeTool::name`]): one git knows, or one with a
+    /// `mergetool.<name>.cmd` in the git config.
+    Named,
+}
+
+impl MergeToolKind {
+    /// git's name of a preset; `None` for [`Self::Git`] and [`Self::Named`].
+    #[must_use]
+    pub fn git_name(self) -> Option<&'static str> {
+        match self {
+            Self::VsCode => Some("vscode"),
+            Self::BeyondCompare => Some("bc"),
+            Self::KDiff3 => Some("kdiff3"),
+            Self::Meld => Some("meld"),
+            Self::P4Merge => Some("p4merge"),
+            Self::Git | Self::Named => None,
+        }
+    }
+}
+
+/// The external merge tool.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase", default)]
+pub struct ExternalMergeTool {
+    /// Which program.
+    pub kind: MergeToolKind,
+    /// For [`MergeToolKind::Named`]: the tool's git name.
+    pub name: String,
 }

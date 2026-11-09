@@ -4,7 +4,9 @@ M6 ([roadmap](../roadmap.md)). **Slice 1 (2026-11-09)**: merging into the curren
 the bar above the commits while an operation is in progress (merge, cherry-pick, revert,
 rebase, `git am`, bisect) with Continue, Skip and Abort. **Slice 2 (2026-11-09)**: cherry-pick,
 revert and reset. **Slice 3 (2026-11-09)**: rebasing the current branch onto a commit, branch or
-tag. Conflict resolution, the interactive rebase editor and the reflog follow in later slices.
+tag. **Slice 4 (2026-11-09)**: the conflicted files with Use ours, Use theirs, Mark resolved and
+the external merge tool. The three-way merge view, the interactive rebase editor and the reflog
+follow in later slices.
 
 ## Where
 
@@ -98,6 +100,34 @@ were pushed), "topic already contains origin/main", "Rebased topic, but your sta
 conflict" (git exits 0, leaves conflict markers and keeps the stash), or "The rebase stopped:
 some files conflict" (the bar: "Rebasing topic (step 2 of 3)").
 
+## Resolving conflicts
+
+**Resolve…** in the bar (while files conflict), or **Resolve conflicts…** on a conflicted file
+in the Commit module, opens the list (`get_conflicts`: `git ls-files -u -z`, the kind from which
+index stages a path has: 1 base, 2 ours, 3 theirs). It follows the status, so files resolved in
+a merge tool, an editor or a terminal leave it by themselves. It names the sides
+(`lib/conflicts.ts`): ours is the current branch and theirs what comes in (the merged branch
+from `Merge branch 'x'`, the picked commit, the revert, the patch); during a rebase ours is the
+branch rebased onto and theirs the commit being replayed (git's naming).
+
+| Per file                        | git                                                                                                   |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Merge tool (both sides have it) | `git mergetool --no-prompt --tool=<tool> -- <path>`                                                   |
+| Use ours / Use theirs           | `git checkout --ours` or `--theirs`, then `git add`; `git rm` where that side deleted it ("(delete)") |
+| Mark resolved                   | `git add` (`stage_files`)                                                                             |
+| Use ours / theirs for all       | the same for every listed file                                                                        |
+
+**The merge tool** (`open_merge_tool`) is chosen in Settings → Diff → Merge tool for conflicts:
+Git's `merge.tool`, or a preset by git's own name (`vscode`, `bc`, `kdiff3`, `meld`,
+`p4merge`), or any name git knows (`mergetool.<name>.cmd`). `git mergetool` starts it as from a
+terminal, waits until it is closed and stages the file when the tool reports success
+(`trustExitCode`) or the file changed; `mergetool.keepBackup` (git's default: true) leaves a
+`.orig` copy. The command returns after 1.5 s: "Opened … in the merge tool" while it runs (no
+write lock is held meanwhile; the watcher reports the staged file), or at once "Resolved" or
+"still conflicts" when it closed already. A tool git cannot start ("is not available", "cmd not
+set") is an error with a hint. git exits 0 with "No files need merging" for a file without a
+conflict; that is reported as such, not as resolved.
+
 ## The operation bar
 
 - Its title: "Merging: Merge branch 'topic'", "Cherry-picking: a1b2c3d4 Fix the parser",
@@ -117,7 +147,8 @@ some files conflict" (the bar: "Rebasing topic (step 2 of 3)").
 
 ## Code
 
-- `crates/git-core/src/operation/`: `rebase.rs` (`rebase` with `RebaseOptions { autostash, rebase_merges }` → `RebaseResult`;
+- `crates/git-core/src/operation/`: `conflict.rs` (`conflicts`, `take_side`), `mergetool.rs`
+  (`run_merge_tool` → `MergeToolOutcome`, `configured_merge_tool`), `rebase.rs` (`rebase` with `RebaseOptions { autostash, rebase_merges }` → `RebaseResult`;
   `rebase_preview` → `RebasePreview { replayed, published }`), `pick.rs` (`pick` with `PickOptions { kind, mainline,
 no_commit, record_origin }` → `PickResult`; `CONFLICT`, "could not apply" or "could not
   revert" is `Conflicts`, "is now empty" is skipped and `Empty`, "nothing to commit" is
@@ -127,14 +158,17 @@ no_commit, record_origin }` → `PickResult`; `CONFLICT`, "could not apply" or "
   `MERGE_MSG`, `CHERRY_PICK_HEAD`/`REVERT_HEAD` and `rebase-merge/` or `rebase-apply/` for the
   detail and step), `sequence.rs` (`run_step`).
 - `src-tauri/src/operations/`: `merge_into_current`, `pick_commit`, `reset_current`, `rebase_current`,
-  `get_rebase_preview` (`rebase.rs`), `step_operation` (reads the kind itself, so a
+  `get_rebase_preview` (`rebase.rs`), `get_conflicts`, `take_conflict_side`, `open_merge_tool`
+  (`conflicts.rs`), `step_operation` (reads the kind itself, so a
   stale UI cannot continue the wrong thing), each under the session's write lock; errors map to
   hints in `error.rs`. The status (`get_status`) carries `operation`, so the bar follows every
   status refresh (watcher, focus, after any change).
 - `src/features/operations/`: `MergeDialog`, `PickDialog`, `RebaseDialog` (+ `RebasePreview`),
+  `ConflictsDialog`,
   `ResetDialog` (+ `ResetEffects`),
   `OperationBanner`, `OperationDialogs` (mounted in the main window; `openMerge`, `openPick`,
-  `openRebase`, `openReset`). The bar reaches the repository tab through `RepositoryBannerContext`, and
+  `openRebase`, `openReset`, `openConflicts`); `useOpenMergeTool` is used by the Commit
+  module's file menu. The bar reaches the repository tab through `RepositoryBannerContext`, and
   merge, cherry-pick, revert and reset reach the graph and the Branches module as `RefActions`
   (`merge`, `cherryPick`, `revert`, `rebase`, `reset`), so neither feature depends on this one.
 

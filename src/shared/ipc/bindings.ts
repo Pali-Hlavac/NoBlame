@@ -331,6 +331,18 @@ export const commands = {
 	rebaseCurrent: (id: number, request: RebaseRequestDto) => typedError<RebaseOutcomeDto, AppError>(__TAURI_INVOKE("rebase_current", { id, request })),
 	/**  What rebasing the current branch onto `onto` would replay, and how much of it was pushed. */
 	getRebasePreview: (id: number, onto: string) => typedError<RebasePreviewDto, AppError>(__TAURI_INVOKE("get_rebase_preview", { id, onto })),
+	/**  The conflicted files, with which sides have them. */
+	getConflicts: (id: number) => typedError<ConflictDto[], AppError>(__TAURI_INVOKE("get_conflicts", { id })),
+	/**
+	 *  Resolves conflicted files with one side's whole version (or removes them where that side
+	 *  deleted them) and stages them.
+	 */
+	takeConflictSide: (id: number, paths: string[], side: SideDto) => typedError<null, AppError>(__TAURI_INVOKE("take_conflict_side", { id, paths, side })),
+	/**
+	 *  Opens a conflicted file in the merge tool chosen in Settings (through `git mergetool`).
+	 *  Returns once the tool started (or was closed at once); fails when it could not start.
+	 */
+	openMergeTool: (id: number, path: string) => typedError<MergeToolResultDto, AppError>(__TAURI_INVOKE("open_merge_tool", { id, path })),
 	/**
 	 *  Opens a file's two versions in the external diff tool chosen in Settings (through
 	 *  `git difftool --no-index`). Returns once the tool started; fails when it could not.
@@ -731,6 +743,29 @@ export type ComparisonDto = {
 	worktree: boolean,
 };
 
+/**  A conflicted file. */
+export type ConflictDto = {
+	path: string,
+	kind: ConflictKindDto,
+};
+
+/**  How a file conflicts. */
+export type ConflictKindDto = 
+/**  Both sides changed it. */
+"bothModified" | 
+/**  Both sides added it, differently. */
+"bothAdded" | 
+/**  Our side deleted it; theirs changed it. */
+"deletedByUs" | 
+/**  Their side deleted it; ours changed it. */
+"deletedByThem" | 
+/**  Only our side has it. */
+"addedByUs" | 
+/**  Only their side has it. */
+"addedByThem" | 
+/**  Both sides deleted it. */
+"bothDeleted";
+
 /**  A branch to create. */
 export type CreateBranchRequestDto = {
 	/**  Its name. */
@@ -897,6 +932,8 @@ export type DiffSettings = {
 	syntaxHighlighting?: boolean,
 	/**  The program "Open in diff tool" starts. */
 	externalTool?: ExternalDiffTool,
+	/**  The program "Open in merge tool" starts for a conflicted file. */
+	mergeTool?: ExternalMergeTool,
 };
 
 /**  A remote's new name and URLs; what did not change is left alone. */
@@ -972,6 +1009,14 @@ export type ExternalDiffToolKind =
 "vsCode" | 
 /**  The command in [`ExternalDiffTool::command`]. */
 "custom";
+
+/**  The external merge tool. */
+export type ExternalMergeTool = {
+	/**  Which program. */
+	kind?: MergeToolKind,
+	/**  For [`MergeToolKind::Named`]: the tool's git name. */
+	name?: string,
+};
 
 /**  A fetch to start. */
 export type FetchRequestDto = {
@@ -1395,6 +1440,38 @@ export type MergeResultDto = {
 	/**  git's summary line (`2 files changed, 3 insertions(+)`), when it printed one. */
 	summary: string | null,
 };
+
+/**
+ *  Which program resolves a conflicted file. Each runs through `git mergetool`, which knows
+ *  these tools by name and starts them as it would from a terminal.
+ */
+export type MergeToolKind = 
+/**  The user's `merge.tool` from their git config. */
+"git" | 
+/**  Visual Studio Code (git's `vscode`). */
+"vsCode" | 
+/**  Beyond Compare (git's `bc`). */
+"beyondCompare" | 
+/**  `KDiff3`. */
+"kDiff3" | 
+/**  Meld. */
+"meld" | 
+/**  Perforce `P4Merge` (git's `p4merge`). */
+"p4Merge" | 
+/**
+ *  Another tool by its git name ([`ExternalMergeTool::name`]): one git knows, or one with a
+ *  `mergetool.<name>.cmd` in the git config.
+ */
+"named";
+
+/**  How "Open in merge tool" went. */
+export type MergeToolResultDto = 
+/**  The tool is open; git stages the file when it is closed with the conflict resolved. */
+"opened" | 
+/**  The tool was closed at once and git staged the file. */
+"resolved" | 
+/**  The tool was closed at once without resolving the conflict. */
+"notResolved";
 
 /**  An operation in progress (a merge stopped by conflicts, a rebase, ...). */
 export type OperationDto = {
@@ -1835,6 +1912,13 @@ export type Settings = {
 	/**  Background jobs (fetch, pull, push). */
 	jobs?: JobsSettings,
 };
+
+/**  Which side's version to keep. */
+export type SideDto = 
+/**  The current branch (during a rebase: the branch rebased onto). */
+"ours" | 
+/**  What comes in (the merged branch, the picked or replayed commit). */
+"theirs";
 
 /**  The result of checking a commit's signature. */
 export type SignatureCheckDto = {

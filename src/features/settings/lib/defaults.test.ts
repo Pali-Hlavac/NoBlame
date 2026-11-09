@@ -19,6 +19,7 @@ describe("withDefaults", () => {
     const settings = withDefaults({ diff: { externalTool: { kind: "custom" } } });
     expect(settings.diff.externalTool).toEqual({ kind: "custom", command: "" });
     expect(withDefaults({ diff: {} }).diff.externalTool.kind).toBe("git");
+    expect(withDefaults({ diff: {} }).diff.mergeTool).toEqual({ kind: "git", name: "" });
   });
 
   it("turns the old whole-file context into the whole-file switch", () => {

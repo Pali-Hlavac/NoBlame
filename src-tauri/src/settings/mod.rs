@@ -5,7 +5,10 @@ mod diff;
 mod graph;
 mod types;
 
-pub use diff::{DiffLayout, ExternalDiffTool, ExternalDiffToolKind, WhitespaceMode};
+pub use diff::{
+    DiffLayout, ExternalDiffTool, ExternalDiffToolKind, ExternalMergeTool, MergeToolKind,
+    WhitespaceMode,
+};
 pub use types::{Settings, ThemePreference};
 
 use tauri::{App, Manager};

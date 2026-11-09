@@ -805,8 +805,8 @@ listed in the Repositories module already).
 - [ ] Merge (ff/no-ff/squash) _(done, slice 1)_, rebase, cherry-pick, revert, reset (soft/mixed/hard behind confirmation) _(cherry-pick, revert, reset done, slice 2; rebase onto done, slice 3)_
 - [ ] Interactive rebase editor: reorder, squash, fixup, reword, edit, drop; autosquash
 - [x] In-progress operation banner (merge/rebase/cherry-pick/bisect) with continue/skip/abort
-- [ ] Conflict resolution: list, ours/theirs, built-in three-way merge view — ADR 0014
-- [ ] External diff and merge tools (configured like Git Extensions, honoring `diff.tool`/`merge.tool`)
+- [ ] Conflict resolution: list, ours/theirs _(done, slice 4)_, built-in three-way merge view — ADR 0014
+- [x] External diff and merge tools (configured like Git Extensions, honoring `diff.tool`/`merge.tool`)
       with presets (VS Code `code --wait --merge`, Beyond Compare, KDiff3, Meld, P4Merge);
       "Open in merge tool" on each conflicted file (owner request 2026-10-30)
 - [ ] Reflog browser with "restore this state"
@@ -852,6 +852,23 @@ Slice 3 done (2026-11-09): rebase onto ([features/operations.md](features/operat
 - Checked in the running app on a scratch repository with a local bare origin: rebasing a branch
   with three commits (two pushed) and a changed file onto `origin/main`, the conflict at step 2
   of 3, resolving in a shell, Continue ("The rebase is finished"), the stashed change back.
+
+Slice 4 done (2026-11-09): conflicts ([features/operations.md](features/operations.md#resolving-conflicts)).
+
+- **Resolve…** in the bar and **Resolve conflicts…** on a conflicted file in the Commit module
+  open the list of conflicted files (`git ls-files -u`), naming who ours and theirs are (swapped
+  during a rebase), with **Merge tool**, **Use ours**, **Use theirs** ("(delete)" where that side
+  deleted the file), **Mark resolved**, and either side for all files.
+- **Settings → Diff → Merge tool for conflicts**: Git's `merge.tool`, VS Code, Beyond Compare,
+  KDiff3, Meld, P4Merge (git's own names), or another tool git knows. It runs through
+  `git mergetool`, which stages the file when the tool resolved it.
+- Found on the way: `git mergetool` exits 0 with "No files need merging"; that is reported as
+  no conflict, not as resolved.
+- Checked in the running app on a scratch repository (a merge with two files changed on both
+  sides and one deleted on ours), with a stand-in merge tool set in that repository's
+  `merge.tool` that writes the file and exits (no window on the owner's screen): the tool
+  resolved one file, Use theirs another, Use ours (delete) the third, then Continue finished the
+  merge. A real GUI tool was not started.
 
 ### M7: Advanced Git
 

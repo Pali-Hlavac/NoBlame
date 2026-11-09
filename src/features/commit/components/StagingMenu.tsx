@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import { FileContextMenu, type MenuAction } from "@/features/file-menu";
+import { openConflicts, useOpenMergeTool } from "@/features/operations";
 import type { WorkingFileDto } from "@/shared/ipc/bindings";
 
 import { canDiscard } from "../lib/discard";
@@ -23,11 +24,29 @@ interface StagingMenuProps {
 
 /**
  * The context menu of a file in the Commit module's lists: show its diff, stage or unstage it,
- * discard or ignore it (as its row's buttons), then the menu every file list has.
+ * discard or ignore it (as its row's buttons), resolve a conflicted one, then the menu every
+ * file list has.
  */
 export function StagingMenu(props: StagingMenuProps) {
-  const { file, index, busy } = props;
+  const { file, index, busy, repoId } = props;
+  const openMergeTool = useOpenMergeTool(repoId);
   const actions: MenuAction[] = [];
+  if (file?.status === "conflicted") {
+    actions.push(
+      {
+        label: "Open in merge tool",
+        onSelect: () => {
+          openMergeTool(file.path);
+        },
+      },
+      {
+        label: "Resolve conflicts…",
+        onSelect: () => {
+          openConflicts(repoId);
+        },
+      },
+    );
+  }
   if (file) {
     actions.push(
       {

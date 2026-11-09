@@ -207,6 +207,9 @@ gix. Selecting with whitespace ignored still works: the line numbers name real l
 
 ## External diff tool (M4 slice 6)
 
+(The merge tool for conflicted files is set beside it, under **Merge tool for conflicts**; see
+[operations.md](operations.md#resolving-conflicts).)
+
 A button beside the file name (a window icon, **Open in diff tool**) opens the file's two
 versions in another program. It is in every diff header (Diff tab, compare tab, Commit module),
 not for submodules. **Settings → Diff → External diff tool** chooses the program:

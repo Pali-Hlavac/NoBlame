@@ -57,6 +57,14 @@ const HINTS: &[(&str, &str)] = &[
         "A rebase is in progress. Finish it (Continue) or abort it first.",
     ),
     (
+        "is not available",
+        "Git cannot find this merge tool. Install it, or choose another one in Settings → Diff.",
+    ),
+    (
+        "cmd not set",
+        "Git does not know this merge tool. Check its name in Settings → Diff, or set mergetool.<name>.cmd in your Git config.",
+    ),
+    (
         "is already in progress",
         "Another cherry-pick or revert is in progress. Finish it (Continue) or abort it first.",
     ),

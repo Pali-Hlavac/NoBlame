@@ -1,10 +1,14 @@
 //! Operations that change history and can stop half-way: merging (`merge.rs`), cherry-picking
-//! and reverting (`pick.rs`), resetting (`reset.rs`), rebasing (`rebase.rs`), and the state of an operation in progress
-//! with how to go on, skip or abort it (`state.rs`, `sequence.rs`).
+//! and reverting (`pick.rs`), resetting (`reset.rs`), rebasing (`rebase.rs`), the conflicted
+//! files and taking a side (`conflict.rs`), the external merge tool (`mergetool.rs`), and the
+//! state of an operation in progress with how to go on, skip or abort it (`state.rs`,
+//! `sequence.rs`).
 //! All writes run the user's `git`, so hooks, `merge.*` config and rerere apply; reading the
 //! state uses gix (the files git leaves in `.git`, as `git status` reads them).
 
+mod conflict;
 mod merge;
+mod mergetool;
 mod pick;
 mod rebase;
 mod reset;
@@ -14,7 +18,9 @@ mod state;
 use crate::branch::BranchError;
 use crate::cli::GitError;
 
+pub use conflict::{Conflict, ConflictKind, Side, conflicts, take_side};
 pub use merge::{MergeMode, MergeOutcome, MergeResult, merge, merge_name};
+pub use mergetool::{MergeToolOutcome, configured_merge_tool, run_merge_tool};
 pub use pick::{PickKind, PickOptions, PickOutcome, PickResult, pick};
 pub use rebase::{
     RebaseOptions, RebaseOutcome, RebasePreview, RebaseResult, rebase, rebase_preview,

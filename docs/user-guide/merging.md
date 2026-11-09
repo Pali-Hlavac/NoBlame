@@ -28,11 +28,24 @@ If both branches changed the same lines, Git cannot merge those files by itself 
 stops. A bar appears above the commits: "Merging: Merge branch 'topic'", with how many files
 still conflict.
 
-1. Open each conflicted file (they are marked **U** in Changed files and in the Commit module)
-   and edit it to keep what is right. Remove the `<<<<<<<`, `=======` and `>>>>>>>` lines.
-2. Stage the file.
-3. When no conflicts are left, click **Continue** in the bar. NoBlame commits the merge with
-   Git's message.
+Click **Resolve…** in the bar. A window lists the conflicted files and says who is who:
+**ours** is your branch, **theirs** is the branch you merge. For each file:
+
+- **Merge tool** opens the file in your merge tool, with both versions side by side. Resolve it
+  there, save and close the tool: Git then marks the file resolved. Choose the tool in
+  **Settings → Diff → Merge tool for conflicts** (Git's own setting, Visual Studio Code, Beyond
+  Compare, KDiff3, Meld, P4Merge, or another tool Git knows).
+- **Use ours** or **Use theirs** keeps that whole version of the file and drops the other.
+  Where one side deleted the file, the button says **(delete)**.
+- **Mark resolved**: when you fixed the file yourself in an editor (removing the `<<<<<<<`,
+  `=======` and `>>>>>>>` lines), this marks it resolved.
+
+**Use ours for all** and **Use theirs for all** do it for every file at once. In the Commit
+module, right-click a conflicted file (marked **U**) for **Open in merge tool** and **Resolve
+conflicts…** too.
+
+When no conflicts are left, click **Continue** in the bar. NoBlame commits the merge with
+Git's message.
 
 Click **Abort** to give up: your branch and files go back to how they were before the merge, and
 any conflict fixes you made are lost. NoBlame asks first.

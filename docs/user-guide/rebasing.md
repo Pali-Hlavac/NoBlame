@@ -35,7 +35,9 @@ A rebase copies your commits one at a time. If one of them changes lines that ar
 the other branch, the rebase stops there and the bar above the commits says, for example,
 "Rebasing topic (step 2 of 3)".
 
-1. Resolve the conflicted files and stage them, as for a [merge](merging.md#when-files-conflict).
+1. Click **Resolve…** in the bar and resolve the files, as for a
+   [merge](merging.md#when-files-conflict). During a rebase the roles swap: **ours** is the
+   branch you rebase onto, **theirs** is your own commit being moved.
 2. Click **Continue**. The rebase goes on with the next commit. It can stop again at a later
    commit; NoBlame tells you.
 

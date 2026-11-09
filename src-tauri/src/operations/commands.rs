@@ -3,12 +3,14 @@
 
 use tauri::State;
 
+use super::conflicts::{self, ConflictDto, MergeToolResultDto, SideDto};
 use super::pick::{PickRequestDto, PickResultDto, ResetRequestDto};
 use super::rebase::{self, RebaseOutcomeDto, RebasePreviewDto, RebaseRequestDto};
 use super::service;
 use super::types::{MergeRequestDto, MergeResultDto, SequenceStepDto, StepOutcomeDto};
 use crate::error::CommandResult;
 use crate::repository::{RepoId, RepoSessions};
+use crate::settings::SettingsStore;
 
 /// Merges a branch, remote branch, tag or commit into the current branch. Conflicts come back
 /// as an outcome: the merge is then in progress (see the status's `operation`).
@@ -78,4 +80,41 @@ pub async fn get_rebase_preview(
     onto: String,
 ) -> CommandResult<RebasePreviewDto> {
     Ok(rebase::preview(&sessions, id, onto).await?)
+}
+
+/// The conflicted files, with which sides have them.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_conflicts(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+) -> CommandResult<Vec<ConflictDto>> {
+    Ok(conflicts::list(&sessions, id).await?)
+}
+
+/// Resolves conflicted files with one side's whole version (or removes them where that side
+/// deleted them) and stages them.
+#[tauri::command]
+#[specta::specta]
+pub async fn take_conflict_side(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    paths: Vec<String>,
+    side: SideDto,
+) -> CommandResult<()> {
+    Ok(conflicts::take(&sessions, id, paths, side).await?)
+}
+
+/// Opens a conflicted file in the merge tool chosen in Settings (through `git mergetool`).
+/// Returns once the tool started (or was closed at once); fails when it could not start.
+#[tauri::command]
+#[specta::specta]
+pub async fn open_merge_tool(
+    sessions: State<'_, RepoSessions>,
+    settings: State<'_, SettingsStore>,
+    id: RepoId,
+    path: String,
+) -> CommandResult<MergeToolResultDto> {
+    let tool = settings.load()?.diff.merge_tool;
+    Ok(conflicts::open_merge_tool(&sessions, id, tool, path).await?)
 }

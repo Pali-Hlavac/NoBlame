@@ -60,7 +60,8 @@ side where you started it. You can also start dragging in the empty space after 
 line.
 
 To look at a file in another program, click the window icon beside its name, **Open in diff
-tool**. Choose the program in **Settings → Diff → External diff tool**:
+tool**. Choose the program in **Settings → Diff → External diff tool** (the merge tool for
+conflicts is chosen just below it, see [Merging](merging.md#when-files-conflict)):
 
 - **Git's diff tool** uses the tool set in your Git configuration (`diff.tool`, for example
   Beyond Compare, Meld or KDiff3). If none is set, NoBlame says so.

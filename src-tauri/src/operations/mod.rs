@@ -5,6 +5,7 @@
 //! `docs/features/operations.md`.
 
 pub mod commands;
+mod conflicts;
 mod error;
 mod pick;
 mod rebase;

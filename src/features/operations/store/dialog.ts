@@ -25,6 +25,10 @@ export type OperationDialogRequest =
       onto: StartPoint;
     }
   | {
+      kind: "conflicts";
+      repoId: number;
+    }
+  | {
       kind: "reset";
       repoId: number;
       /** Where the current branch moves to. */
@@ -59,6 +63,11 @@ export function openRebase(repoId: number, onto: StartPoint): void {
 /** Asks how to reset the current branch of repository `repoId` to `commit`. */
 export function openReset(repoId: number, commit: StartPoint): void {
   open({ kind: "reset", repoId, commit });
+}
+
+/** Shows the conflicted files of repository `repoId`, to resolve them. */
+export function openConflicts(repoId: number): void {
+  open({ kind: "conflicts", repoId });
 }
 
 export function closeOperationDialog(): void {

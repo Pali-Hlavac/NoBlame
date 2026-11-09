@@ -1,11 +1,13 @@
 import { closeOperationDialog, useOperationDialogStore } from "../store/dialog";
+import { ConflictsDialog } from "./ConflictsDialog";
 import { MergeDialog } from "./MergeDialog";
 import { PickDialog } from "./PickDialog";
 import { RebaseDialog } from "./RebaseDialog";
 import { ResetDialog } from "./ResetDialog";
 
 /**
- * The history-changing dialog asked for (`openMerge`, `openPick`, `openRebase`, `openReset`);
+ * The history-changing dialog asked for (`openMerge`, `openPick`, `openRebase`, `openReset`,
+ * `openConflicts`);
  * mounted once in the main window.
  */
 export function OperationDialogs() {
@@ -42,6 +44,8 @@ export function OperationDialogs() {
           onClose={closeOperationDialog}
         />
       );
+    case "conflicts":
+      return <ConflictsDialog repoId={repoId} onClose={closeOperationDialog} />;
     case "reset":
       return (
         <ResetDialog

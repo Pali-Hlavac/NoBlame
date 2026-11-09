@@ -7,6 +7,7 @@ import { DIFF_LAYOUT_OPTIONS, WHITESPACE_OPTIONS } from "../lib/diff";
 import { THEME_OPTIONS } from "../lib/theme";
 import { ContextStepper } from "./ContextStepper";
 import { ExternalToolSetting } from "./ExternalToolSetting";
+import { MergeToolSetting } from "./MergeToolSetting";
 import { GraphColumnsSetting } from "./GraphColumnsSetting";
 import { JobsSection } from "./JobsSection";
 import { RepositoryButtonsSetting } from "./RepositoryButtonsSetting";
@@ -68,6 +69,7 @@ function DiffSection() {
         }}
       />
       <ExternalToolSetting />
+      <MergeToolSetting />
     </Section>
   );
 }

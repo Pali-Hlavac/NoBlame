@@ -9,6 +9,7 @@ import type { OperationDto, StepOutcomeDto } from "@/shared/ipc/bindings";
 import { Button } from "@/shared/ui/button";
 
 import { useStepOperation } from "../api/operations";
+import { openConflicts } from "../store/dialog";
 import { showOutcome } from "../lib/outcome";
 import { ABORT_WORDS, canSkip, operationTitle, stepToast } from "../lib/words";
 
@@ -80,6 +81,18 @@ function OperationBar({ repoId, operation, conflicted }: OperationBarProps) {
             )
           )}
         </span>
+        {conflicted > 0 && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7"
+            onClick={() => {
+              openConflicts(repoId);
+            }}
+          >
+            Resolve…
+          </Button>
+        )}
         {!bisect && (
           <Button
             size="sm"

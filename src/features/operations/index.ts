@@ -5,4 +5,5 @@
  */
 export { OperationBanner } from "./components/OperationBanner";
 export { OperationDialogs } from "./components/OperationDialogs";
-export { openMerge, openPick, openRebase, openReset } from "./store/dialog";
+export { useOpenMergeTool } from "./api/conflicts";
+export { openConflicts, openMerge, openPick, openRebase, openReset } from "./store/dialog";
