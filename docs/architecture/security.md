@@ -67,3 +67,13 @@ the UI.
 
 Paths from the command line are made absolute against the caller's directory. Paths that are not
 valid Unicode are refused with a clear message for now rather than altered.
+
+## Opening files from a repository
+
+The file lists' **Open working tree file** (`open_worktree_file`) opens a file on disk in its
+default app. A repository is untrusted data, so files whose default action would run them are
+refused (`git_core::locate::openable`: executable extensions per platform, such as `.exe`,
+`.bat`, `.ps1`, `.js` and `.lnk` on Windows or `.app` and `.command` on macOS, and the executable
+bit on Unix). Paths must stay inside the working tree (no `..`, no absolute paths). **Show in
+Explorer** (`show_worktree_file`) only selects the item in the file manager. Both go through
+`tauri-plugin-opener`'s Rust functions; the webview has no opener permission.

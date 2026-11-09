@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
 
 import { showBlame } from "@/features/blame";
+import { openWorktreeFile, saveFileAs, showWorktreeFile } from "@/features/file-menu";
 import { showHistory } from "@/features/history";
 import { copyToClipboard } from "@/shared/lib/clipboard";
+import { fileManagerName } from "@/shared/lib/platform";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -12,7 +14,6 @@ import {
   ContextMenuTrigger,
 } from "@/shared/ui/context-menu";
 
-import { saveFileAs } from "../api/save";
 import type { TreeRow } from "../lib/rows";
 
 interface FileTreeMenuProps {
@@ -52,6 +53,22 @@ export function FileTreeMenu(props: FileTreeMenuProps) {
             }}
           >
             Save as…
+          </ContextMenuItem>
+          {!folder && (
+            <ContextMenuItem
+              onSelect={() => {
+                openWorktreeFile(repoId, entry.path);
+              }}
+            >
+              Open working tree file
+            </ContextMenuItem>
+          )}
+          <ContextMenuItem
+            onSelect={() => {
+              showWorktreeFile(repoId, entry.path);
+            }}
+          >
+            Show in {fileManagerName()}
           </ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem

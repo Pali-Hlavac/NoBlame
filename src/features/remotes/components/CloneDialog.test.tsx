@@ -7,7 +7,11 @@ import type { JobDto } from "@/shared/ipc/bindings";
 import { openClone } from "../store/dialog";
 import { RemoteDialogs } from "./RemoteDialogs";
 
-const jobs = vi.hoisted(() => ({ startClone: vi.fn(), afterJob: vi.fn() }));
+const jobs = vi.hoisted(() => ({
+  startClone: vi.fn(),
+  afterJob: vi.fn(),
+  trackJob: (started: Promise<number>) => started,
+}));
 const repositories = vi.hoisted(() => ({
   openRepositories: vi.fn(),
   pickFolder: vi.fn(),

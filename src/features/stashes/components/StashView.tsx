@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Group, Panel, Separator } from "react-resizable-panels";
 
 import { FileDiffView } from "@/features/diff";
+import { FileContextMenu } from "@/features/file-menu";
 import { WithActiveRepository } from "@/features/repositories";
 import { STASH_TAB, useTabsStore } from "@/features/workspace";
 import { EmptyState } from "@/shared/components/EmptyState";
@@ -72,20 +73,36 @@ export function StashBody({ repoId, repoPath }: StashBodyProps) {
       />
       <Group orientation="horizontal" className="min-h-0 flex-1">
         <Panel id="stash-files" defaultSize="35%" minSize="160px" style={PANEL_STYLE}>
-          <CheckedFiles
-            className="h-full"
-            label="Files in the stash"
-            files={list}
-            keyOf={(entry) => entry.key}
-            checked={shown.chosen}
-            onCheck={(keys, chosen) => {
-              chooseStashFiles(repoPath, keys, chosen);
-            }}
-            shown={shown.file}
-            onShow={(entry) => {
-              showStashFile(repoPath, entry.key);
-            }}
-          />
+          <FileContextMenu
+            repoId={repoId}
+            repoPath={repoPath}
+            file={file && { path: file.path, blobId: file.newId ?? file.oldId }}
+            actions={[
+              {
+                label: "Show diff",
+                onSelect: () => {
+                  if (file) showStashFile(repoPath, file.key);
+                },
+              },
+            ]}
+          >
+            <div className="h-full">
+              <CheckedFiles
+                className="h-full"
+                label="Files in the stash"
+                files={list}
+                keyOf={(entry) => entry.key}
+                checked={shown.chosen}
+                onCheck={(keys, chosen) => {
+                  chooseStashFiles(repoPath, keys, chosen);
+                }}
+                shown={shown.file}
+                onShow={(entry) => {
+                  showStashFile(repoPath, entry.key);
+                }}
+              />
+            </div>
+          </FileContextMenu>
         </Panel>
         <Separator
           aria-label="Resize the file list"

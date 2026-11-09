@@ -10,6 +10,16 @@ selected commit changed:
 - A merge commit is compared with its first parent. Use **Compared with** to pick another parent.
 - A commit that changed more than 5,000 files lists the first 5,000.
 
+Right-click a file (in any file list: Changed files, Commit, Compare, Stash) for more:
+
+- **Open working tree file** opens the file as it is on your disk now, in the program your
+  system uses for it. Files that would run as programs (such as `.exe`, `.bat` or, on Windows,
+  `.js`) are not opened; use the next item and open them yourself if you trust them.
+- **Show in Explorer** (Finder on a Mac) opens its folder with the file selected.
+- **Save this version as…** saves the file as it was in that commit.
+- **Copy path**, **Copy full path** and **Copy name**.
+- **File history** and **Blame**.
+
 ## The diff of a file
 
 Click a file, or move through the list with the arrow keys. Its diff appears in the **Diff**

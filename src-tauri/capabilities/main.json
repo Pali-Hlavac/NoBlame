@@ -105,6 +105,8 @@
     "allow-apply-stash-files",
     "allow-preview-ignore",
     "allow-ignore-files",
+    "allow-open-worktree-file",
+    "allow-show-worktree-file",
     "allow-open-external-diff",
     "allow-list-submodules",
     "allow-get-workbench-layout",

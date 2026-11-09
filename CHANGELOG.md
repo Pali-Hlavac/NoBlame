@@ -157,6 +157,11 @@ All notable changes to NoBlame are documented here. The format follows
 - External diff tool (M4 slice 6): **Open in diff tool** beside the file name in every diff opens
   the two versions in Git's `diff.tool`, Visual Studio Code or a command of your own
   (Settings → Diff), through `git difftool --no-index`.
+- A context menu on files in every list (owner request 2026-11-09): Changed files, the Commit
+  module, Compare and the Stash tab offer **Show diff** (and Stage, Discard, Ignore in the Commit
+  module), **Open working tree file** (refusing files that would run as programs), **Show in
+  Explorer** / Finder, **Save this version as…**, **Copy path**, **Copy full path**, **Copy
+  name**, **File history** and **Blame**. The Files tree gained Open and Show in Explorer.
 - Feedback for every action (owner request 2026-11-09): Fetch, Pull, Push and Clone show a
   toast the moment they are chosen, which follows the job (title, git's phase, a small progress
   bar, **Cancel**) and turns into its result; Pull all and Push all have one toast counting the

@@ -3,6 +3,7 @@ import { Group, Panel, Separator } from "react-resizable-panels";
 
 import { ChangedFileRow, describeFile } from "@/features/changed-files";
 import { DiskFileDiff, FileDiffView } from "@/features/diff";
+import { FileContextMenu } from "@/features/file-menu";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { VirtualList } from "@/shared/components/VirtualList";
 import type { ComparisonDto } from "@/shared/ipc/bindings";
@@ -47,23 +48,46 @@ export function CompareFiles({ repoId, repoPath, result }: CompareFilesProps) {
   return (
     <Group orientation="horizontal" className="min-h-0 flex-1">
       <Panel id="compare-files" defaultSize="35%" minSize="160px" style={PANEL_STYLE}>
-        <VirtualList
-          className="h-full"
-          label="Files that differ"
-          count={files.length}
-          rowHeight={ROW_HEIGHT_PX}
-          activeIndex={activeIndex < 0 ? undefined : activeIndex}
-          onActiveChange={choose}
-          onActivate={choose}
-          rowLabel={(index) => {
-            const row = files[index];
-            return row ? describeFile(row) : "";
-          }}
-          renderRow={(index, active) => {
-            const row = files[index];
-            return row ? <ChangedFileRow file={row} active={active} /> : null;
-          }}
-        />
+        <FileContextMenu
+          repoId={repoId}
+          repoPath={repoPath}
+          file={
+            file && {
+              path: file.path,
+              // Compared with the working tree, the new side is the file on disk.
+              blobId: file.newId ?? file.oldId,
+              commit: result.worktree || file.status === "deleted" ? undefined : result.target.id,
+            }
+          }
+          actions={[
+            {
+              label: "Show diff",
+              onSelect: () => {
+                choose(activeIndex);
+              },
+            },
+          ]}
+        >
+          <div className="h-full">
+            <VirtualList
+              className="h-full"
+              label="Files that differ"
+              count={files.length}
+              rowHeight={ROW_HEIGHT_PX}
+              activeIndex={activeIndex < 0 ? undefined : activeIndex}
+              onActiveChange={choose}
+              onActivate={choose}
+              rowLabel={(index) => {
+                const row = files[index];
+                return row ? describeFile(row) : "";
+              }}
+              renderRow={(index, active) => {
+                const row = files[index];
+                return row ? <ChangedFileRow file={row} active={active} /> : null;
+              }}
+            />
+          </div>
+        </FileContextMenu>
       </Panel>
       <Separator
         aria-label="Resize the file list"

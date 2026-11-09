@@ -11,6 +11,7 @@ import { useEffect } from "react";
 
 import { showBlame } from "@/features/blame";
 import { useCommitDetails } from "@/features/commit-details";
+import { saveFileAs } from "@/features/file-menu";
 import { FileContents } from "@/features/diff";
 import { shortId } from "@/features/graph";
 import { showHistory } from "@/features/history";
@@ -23,7 +24,6 @@ import { LoadingState } from "@/shared/components/LoadingState";
 import type { TreeEntryDto } from "@/shared/ipc/bindings";
 import { Button } from "@/shared/ui/button";
 
-import { saveFileAs } from "../api/save";
 import { useTreeEntry } from "../api/tree";
 import { parentPath } from "../lib/rows";
 import { useChosenFile } from "../store/files";

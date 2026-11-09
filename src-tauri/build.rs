@@ -99,6 +99,8 @@ const APP_COMMANDS: &[&str] = &[
     "apply_stash_files",
     "preview_ignore",
     "ignore_files",
+    "open_worktree_file",
+    "show_worktree_file",
     "open_external_diff",
     "get_workbench_layout",
     "save_workbench_layout",

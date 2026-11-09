@@ -43,6 +43,32 @@ The header counts all of them; each list stops at 5,000.
 - The status is read again when the window regains focus and when the watcher reports a change
   (`statusKeys.all(repoId)` is invalidated).
 
+## Context menu (owner request 2026-11-09)
+
+Every file list has the same context menu (`FileContextMenu` in `src/features/file-menu/`):
+Changed files (a commit's files and working tree files), the Commit module's two lists, Compare
+and the Stash tab. Right click, Shift+F10 or the Menu key; right-clicking a row moves the cursor
+to it first. From top to bottom:
+
+- the list's own actions: **Show diff**; in the Commit module also **Stage** / **Unstage**,
+  **Discard the changes…** and **Ignore…** (as the row's buttons);
+- **Open working tree file**: the file on disk in its default app (`open_worktree_file`).
+  Files whose default action runs them are refused with a hint (by extension: `.exe`, `.bat`,
+  `.cmd`, `.ps1`, `.js`, `.vbs`, `.lnk`, `.url`, `.msi`, … on Windows, `.app`, `.command`,
+  `.desktop`, … elsewhere; or by the executable bit): a repository is data, and opening a
+  file must never run it (`git_core::locate`);
+- **Show in Explorer** / **Finder** / **the file manager**: selects it there
+  (`show_worktree_file`; a deleted file shows its nearest folder still on disk);
+- **Save this version as…**: the listed blob (a deleted file's version before), for a commit,
+  Compare or a stash;
+- **Copy path**, **Copy full path** (with the repository folder's separator), **Copy name**;
+- **File history**, and **Blame** at the listed commit (not for working tree or deleted files).
+
+Both commands take a path relative to the working tree, refuse anything that climbs out of it
+(`..`, absolute paths), and call the OS through `tauri-plugin-opener`'s Rust functions (MIT /
+Apache-2.0); the webview gets no opener permission of its own. The Files tree's menu gained the
+same **Open working tree file** and **Show in …** items.
+
 ## How it works
 
 - `git_core::diff::commit_changes` diffs the commit's tree against the parent's tree with gix
@@ -56,4 +82,5 @@ The header counts all of them; each list stops at 5,000.
 ## Not yet
 
 - Added and removed line counts per file; a folder tree view; filtering the list.
-- Staging from the list, the context menu of working tree files (M4).
+- Staging from the Changed files list (the Commit module stages).
+- **Open this version** (a commit's version in a temporary file) and **Open with…**.

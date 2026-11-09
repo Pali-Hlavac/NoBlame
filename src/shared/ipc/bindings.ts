@@ -298,6 +298,16 @@ export const commands = {
 	 */
 	ignoreFiles: (id: number, request: IgnoreRequestDto) => typedError<boolean, AppError>(__TAURI_INVOKE("ignore_files", { id, request })),
 	/**
+	 *  Opens the working tree file at `path` (relative, `/`-separated) in its default app.
+	 *  Files that would run as programs (by extension or executable bit) are refused.
+	 */
+	openWorktreeFile: (id: number, path: string) => typedError<null, AppError>(__TAURI_INVOKE("open_worktree_file", { id, path })),
+	/**
+	 *  Shows the working tree item at `path` selected in the file manager; when it is gone, its
+	 *  nearest folder that is still there.
+	 */
+	showWorktreeFile: (id: number, path: string) => typedError<null, AppError>(__TAURI_INVOKE("show_worktree_file", { id, path })),
+	/**
 	 *  Opens a file's two versions in the external diff tool chosen in Settings (through
 	 *  `git difftool --no-index`). Returns once the tool started; fails when it could not.
 	 */

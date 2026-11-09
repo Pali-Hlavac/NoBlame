@@ -17,7 +17,8 @@ Click **Save as…** in the File tab, or right-click a file and choose **Save as
 save it. NoBlame saves the file exactly as it is stored in the repository. For example, line
 endings are not converted, and a Git LFS file is saved as its small pointer file.
 
-Right-click a file or folder to copy its path or name, or to see its
+Right-click a file to open the copy in your working tree (**Open working tree file**), or a file
+or folder to show it in Explorer (Finder on a Mac). Right-click a file or folder to copy its path or name, or to see its
 [history](file-history.md). Right-click a file and choose **Blame** to see who last changed each
 line ([Blame](blame.md)). The File tab's **History** and **Blame** buttons do the same for its
 file.

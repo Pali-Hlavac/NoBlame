@@ -48,7 +48,9 @@ export function WorkingTreeFiles({ repoId, repoPath, kind }: WorkingTreeFilesPro
   const total = totalOf(status.data.summary, kind);
   return (
     <FileList
+      repoId={repoId}
       repoPath={repoPath}
+      menuFile={(file) => ({ path: file.path })}
       files={files}
       header={
         <span className="flex-1">

@@ -1,5 +1,6 @@
 import { MousePointerClickIcon } from "lucide-react";
 
+import { useCommitDetails } from "@/features/commit-details";
 import { WithActiveRepository } from "@/features/repositories";
 import { compareWithParent, useComparedParent, useSelection } from "@/features/selection";
 import { ErrorState } from "@/shared/components/ErrorState";
@@ -20,6 +21,9 @@ interface CommitFilesProps {
 function CommitFiles({ repoId, repoPath, row }: CommitFilesProps) {
   const parent = useComparedParent(repoPath);
   const changes = useChangedFiles(repoId, row, parent);
+  const details = useCommitDetails(repoId, row);
+  // The previous commit's details stay while the next ones load: no Blame until they are in.
+  const commit = details.isPlaceholderData ? undefined : details.data?.id;
   if (changes.error) {
     return (
       <ErrorState
@@ -58,7 +62,21 @@ function CommitFiles({ repoId, repoPath, row }: CommitFilesProps) {
       )}
     </>
   );
-  return <FileList repoPath={repoPath} files={files} header={header} empty="No files changed." />;
+  return (
+    <FileList
+      repoId={repoId}
+      repoPath={repoPath}
+      files={files}
+      header={header}
+      empty="No files changed."
+      // A deleted file's version is the one before.
+      menuFile={(file) => ({
+        path: file.path,
+        blobId: file.newId ?? file.oldId,
+        commit: file.status === "deleted" ? undefined : commit,
+      })}
+    />
+  );
 }
 
 function SelectedChanges({ repoId, repoPath }: { repoId: number; repoPath: string }) {

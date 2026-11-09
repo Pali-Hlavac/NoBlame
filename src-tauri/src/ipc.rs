@@ -132,6 +132,8 @@ pub fn builder() -> Builder<tauri::Wry> {
             worktree::stash_commands::apply_stash_files,
             worktree::ignore_commands::preview_ignore,
             worktree::ignore_commands::ignore_files,
+            worktree::open::open_worktree_file,
+            worktree::open::show_worktree_file,
             inspect::difftool_commands::open_external_diff,
             workbench::commands::get_workbench_layout,
             workbench::commands::save_workbench_layout,

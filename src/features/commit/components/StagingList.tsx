@@ -1,13 +1,12 @@
-import { EyeOffIcon, LoaderCircleIcon, Undo2Icon, type LucideIcon } from "lucide-react";
-import type { MouseEvent } from "react";
+import { LoaderCircleIcon, Undo2Icon, type LucideIcon } from "lucide-react";
 
-import { ChangedFileRow, describeFile } from "@/features/changed-files";
+import { describeFile } from "@/features/changed-files";
 import type { WorkingFileDto } from "@/shared/ipc/bindings";
 import { VirtualList } from "@/shared/components/VirtualList";
-import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/button";
 
-import { canDiscard } from "../lib/discard";
+import { StagingMenu } from "./StagingMenu";
+import { StagingRow } from "./StagingRow";
 
 /** Height of one row, in CSS pixels. */
 const ROW_HEIGHT_PX = 26;
@@ -22,6 +21,8 @@ export interface StagingVerb {
 }
 
 interface StagingListProps {
+  repoId: number;
+  repoPath: string;
   title: string;
   files: readonly WorkingFileDto[];
   /** All the files on this side; the list stops at 5,000. */
@@ -44,14 +45,6 @@ interface StagingListProps {
   onIgnore?: (file: WorkingFileDto) => void;
 }
 
-/** A row's small button, shown on hover and on the active row. */
-const ROW_BUTTON_CLASSES = "size-5 bg-background/80";
-
-/** A press on a row's button is not a press on the row (that would show the file's diff). */
-function stopRowPress(event: MouseEvent): void {
-  event.stopPropagation();
-}
-
 /**
  * Changed or staged files under a bar with their count and a button that moves all of them.
  * Each row has a button (on hover) that moves the file to the other list; Space does the same
@@ -61,7 +54,6 @@ export function StagingList(props: StagingListProps) {
   const { files, verb, chosen, busy, onChoose, onToggle } = props;
   const activeIndex = chosen === undefined ? -1 : files.findIndex((file) => file.path === chosen);
   const AllIcon = verb.allIcon;
-  const Icon = verb.icon;
   return (
     <section aria-label={props.title} className="flex min-h-24 flex-1 flex-col">
       <div className="flex shrink-0 items-center gap-2 border-b border-border px-2 py-1 text-xs text-muted-foreground">
@@ -105,96 +97,63 @@ export function StagingList(props: StagingListProps) {
       {files.length === 0 ? (
         <p className="p-3 text-sm text-muted-foreground">{props.empty}</p>
       ) : (
-        <VirtualList
-          className="flex-1"
-          label={props.title}
-          count={files.length}
-          rowHeight={ROW_HEIGHT_PX}
-          activeIndex={activeIndex < 0 ? undefined : activeIndex}
-          onActiveChange={(index) => {
-            const file = files[index];
-            if (file) onChoose(file);
-          }}
-          onActivate={(index) => {
-            const file = files[index];
-            if (file) onChoose(file);
-          }}
-          onKey={(key, index) => {
-            const file = index === undefined ? undefined : files[index];
-            if (key !== " " || !file || index === undefined || busy) return false;
-            onToggle(file, index);
-            return true;
-          }}
-          rowLabel={(index) => {
-            const file = files[index];
-            return file ? describeFile(file) : "";
-          }}
-          renderRow={(index, active) => {
-            const file = files[index];
-            if (!file) return null;
-            return (
-              <div className="group/row relative h-full">
-                <ChangedFileRow file={file} active={active} />
-                <span
-                  className={cn(
-                    "absolute top-1/2 right-1 flex -translate-y-1/2 gap-0.5 opacity-0 group-hover/row:opacity-100",
-                    active && "opacity-100",
-                  )}
-                >
-                  {props.onIgnore && file.status === "untracked" && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      tabIndex={-1}
-                      disabled={busy}
-                      aria-label={`Ignore ${file.path}…`}
-                      title="Ignore (add to .gitignore)…"
-                      className={ROW_BUTTON_CLASSES}
-                      onMouseDown={stopRowPress}
-                      onClick={() => {
-                        props.onIgnore?.(file);
-                      }}
-                    >
-                      <EyeOffIcon aria-hidden />
-                    </Button>
-                  )}
-                  {props.onDiscard && canDiscard(file) && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      tabIndex={-1}
-                      disabled={busy}
-                      aria-label={`Discard ${file.path}…`}
-                      title="Discard the changes…"
-                      className={ROW_BUTTON_CLASSES}
-                      onMouseDown={stopRowPress}
-                      onClick={() => {
-                        props.onDiscard?.(file);
-                      }}
-                    >
-                      <Undo2Icon aria-hidden />
-                    </Button>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    tabIndex={-1}
-                    disabled={busy}
-                    aria-label={`${verb.label} ${file.path}`}
-                    title={`${verb.label} (Space)`}
-                    className={ROW_BUTTON_CLASSES}
-                    onMouseDown={stopRowPress}
-                    onClick={() => {
+        <StagingMenu
+          repoId={props.repoId}
+          repoPath={props.repoPath}
+          file={files[activeIndex]}
+          index={activeIndex}
+          verb={verb.label}
+          busy={busy}
+          onChoose={onChoose}
+          onToggle={onToggle}
+          onDiscard={props.onDiscard}
+          onIgnore={props.onIgnore}
+        >
+          <div className="flex min-h-0 flex-1 flex-col">
+            <VirtualList
+              className="flex-1"
+              label={props.title}
+              count={files.length}
+              rowHeight={ROW_HEIGHT_PX}
+              activeIndex={activeIndex < 0 ? undefined : activeIndex}
+              onActiveChange={(index) => {
+                const file = files[index];
+                if (file) onChoose(file);
+              }}
+              onActivate={(index) => {
+                const file = files[index];
+                if (file) onChoose(file);
+              }}
+              onKey={(key, index) => {
+                const file = index === undefined ? undefined : files[index];
+                if (key !== " " || !file || index === undefined || busy) return false;
+                onToggle(file, index);
+                return true;
+              }}
+              rowLabel={(index) => {
+                const file = files[index];
+                return file ? describeFile(file) : "";
+              }}
+              renderRow={(index, active) => {
+                const file = files[index];
+                if (!file) return null;
+                return (
+                  <StagingRow
+                    file={file}
+                    active={active}
+                    verb={verb}
+                    busy={busy}
+                    onToggle={() => {
                       onToggle(file, index);
                     }}
-                  >
-                    <Icon aria-hidden />
-                  </Button>
-                </span>
-              </div>
-            );
-          }}
-        />
+                    onDiscard={props.onDiscard}
+                    onIgnore={props.onIgnore}
+                  />
+                );
+              }}
+            />
+          </div>
+        </StagingMenu>
       )}
     </section>
   );

@@ -105,6 +105,8 @@ export function StagingLists({ repoId, repoPath, showDiff }: StagingListsProps) 
     const stage = kind === "worktree";
     return (
       <StagingList
+        repoId={repoId}
+        repoPath={repoPath}
         title={stage ? "Changes" : "Staged"}
         files={filesOf(data, kind)}
         total={totalOf(data.summary, kind)}
