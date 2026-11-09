@@ -46,7 +46,7 @@ function DocumentPanel({ params, api }: IDockviewPanelProps<DocumentParams>) {
   }, [api, shown]);
   return (
     // Content scrolls itself; a scrolling wrapper flashes scrollbars while the dock resizes.
-    <div className="h-full overflow-hidden">{shown ? renderTab(tab) : null}</div>
+    <div className="relative h-full overflow-hidden">{shown ? renderTab(tab) : null}</div>
   );
 }
 

@@ -371,3 +371,7 @@ All notable changes to NoBlame are documented here. The format follows
     differently; revealing a row now puts it exactly on the bottom edge);
   - closing the last tab in one half of a split could switch the other half to another
     repository; the tab already on screen stays.
+- Reported by the owner (2026-11-09): the Repositories module showed two scrollbars. Labels for
+  screen readers in its rows were laid out against the dock's pane instead of the module, so
+  the pane scrolled too. Panels now contain everything inside them, and the dock's panes never
+  scroll.

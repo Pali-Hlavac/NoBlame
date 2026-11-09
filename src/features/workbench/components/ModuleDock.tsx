@@ -25,7 +25,9 @@ function ModulePanel({ params }: IDockviewPanelProps<ModuleParams>) {
   const Content = module.component;
   return (
     // Modules scroll themselves; a scrolling wrapper flashes scrollbars while the dock resizes.
-    <div className="h-full overflow-hidden bg-muted/30">
+    // `relative` keeps absolutely positioned parts (`sr-only` labels) inside: without it they
+    // are laid out against dockview's pane, which then scrolls as a second scrollbar.
+    <div className="relative h-full overflow-hidden bg-muted/30">
       <Content />
     </div>
   );

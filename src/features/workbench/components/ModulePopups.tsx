@@ -87,7 +87,7 @@ function ModulePopup({ module, open }: { module: WorkbenchModule; open: boolean 
             <XIcon aria-hidden />
           </Button>
         </header>
-        <div className="min-h-0 flex-1 overflow-hidden bg-muted/30">
+        <div className="relative min-h-0 flex-1 overflow-hidden bg-muted/30">
           <ModuleHostContext.Provider value={POPUP_HOST}>
             <Content />
           </ModuleHostContext.Provider>

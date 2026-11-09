@@ -80,3 +80,9 @@
   .dv-scrollbar {
   background-color: transparent;
 }
+
+/* Panes sized by the dock never scroll: their panels scroll their own content. dockview's
+   `overflow: auto` showed a second scrollbar whenever anything slipped out of a panel. */
+.dockview-theme-noblame .dv-view {
+  overflow: hidden;
+}
