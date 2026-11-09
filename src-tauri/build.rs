@@ -101,6 +101,8 @@ const APP_COMMANDS: &[&str] = &[
     "ignore_files",
     "open_worktree_file",
     "show_worktree_file",
+    "merge_into_current",
+    "step_operation",
     "open_external_diff",
     "get_workbench_layout",
     "save_workbench_layout",

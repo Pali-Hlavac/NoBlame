@@ -157,6 +157,11 @@ All notable changes to NoBlame are documented here. The format follows
 - External diff tool (M4 slice 6): **Open in diff tool** beside the file name in every diff opens
   the two versions in Git's `diff.tool`, Visual Studio Code or a command of your own
   (Settings → Diff), through `git difftool --no-index`.
+- Merging (M6 slice 1): **Merge into the current branch…** on a commit, on a branch, remote
+  branch or tag (graph and Branches module), with fast-forward when possible, always a merge
+  commit, fast-forward only, or squash. When files conflict, or any operation is in progress
+  (merge, rebase, cherry-pick, revert, also started elsewhere), a bar above the commits names it,
+  counts the conflicted files and offers **Continue**, **Skip** and **Abort** (after asking).
 - A context menu on files in every list (owner request 2026-11-09): Changed files, the Commit
   module, Compare and the Stash tab offer **Show diff** (and Stage, Discard, Ignore in the Commit
   module), **Open working tree file** (refusing files that would run as programs), **Show in

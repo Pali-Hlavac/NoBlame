@@ -2,10 +2,12 @@ import { BranchDialogs, useRefActions } from "@/features/branches";
 import { OutputWindow, useJobEvents } from "@/features/jobs";
 import { CommandPalette } from "@/features/command-palette";
 import { CredentialPrompt } from "@/features/credentials";
+import { OperationBanner, OperationDialogs } from "@/features/operations";
 import { RemoteDialogs, openClone } from "@/features/remotes";
 import { RefActionsContext } from "@/features/graph";
 import {
   CloneRepositoryContext,
+  RepositoryBannerContext,
   GroupActionsContext,
   RepositoryActionsContext,
   openRepositories,
@@ -32,6 +34,11 @@ import { SettingsButton } from "./SettingsButton";
 import { StatusBar } from "./StatusBar";
 
 /** Main window: waits for the saved layout, then shows the workbench. */
+/** The bar above a repository's commits: the operation in progress, if any. */
+function renderBanner(repoId: number) {
+  return <OperationBanner repoId={repoId} />;
+}
+
 export function MainWindow() {
   const layout = useSavedLayout();
   if (layout.isPending) return <LoadingState label="Restoring layout…" className="h-screen" />;
@@ -57,15 +64,17 @@ function MainWorkbench({ saved }: { saved: SavedLayout | null }) {
       <RepositoryActionsContext.Provider value={REPOSITORY_ACTIONS}>
         <GroupActionsContext.Provider value={GROUP_ACTIONS}>
           <CloneRepositoryContext.Provider value={openClone}>
-            <RefActionsContext.Provider value={useRefActions}>
-              <Workbench
-                modules={MODULES}
-                defaultModuleLayout={DEFAULT_MODULE_LAYOUT}
-                renderTab={renderTab}
-                saved={saved}
-                activityBarFooter={<SettingsButton />}
-              />
-            </RefActionsContext.Provider>
+            <RepositoryBannerContext.Provider value={renderBanner}>
+              <RefActionsContext.Provider value={useRefActions}>
+                <Workbench
+                  modules={MODULES}
+                  defaultModuleLayout={DEFAULT_MODULE_LAYOUT}
+                  renderTab={renderTab}
+                  saved={saved}
+                  activityBarFooter={<SettingsButton />}
+                />
+              </RefActionsContext.Provider>
+            </RepositoryBannerContext.Provider>
           </CloneRepositoryContext.Provider>
         </GroupActionsContext.Provider>
       </RepositoryActionsContext.Provider>
@@ -73,6 +82,7 @@ function MainWorkbench({ saved }: { saved: SavedLayout | null }) {
       <CommandPalette commands={commands} />
       <BranchDialogs />
       <RemoteDialogs />
+      <OperationDialogs />
       <CredentialPrompt />
       <OutputWindow />
     </div>

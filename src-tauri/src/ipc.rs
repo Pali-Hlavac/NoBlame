@@ -11,8 +11,8 @@ use specta_typescript::Typescript;
 use tauri_specta::{Builder, collect_commands, collect_events};
 
 use crate::{
-    app_info, askpass, branches, git_env, inspect, jobs, repository, settings, windows, workbench,
-    worktree,
+    app_info, askpass, branches, git_env, inspect, jobs, operations, repository, settings, windows,
+    workbench, worktree,
 };
 
 /// Location of the generated bindings, relative to the crate root.
@@ -134,6 +134,8 @@ pub fn builder() -> Builder<tauri::Wry> {
             worktree::ignore_commands::ignore_files,
             worktree::open::open_worktree_file,
             worktree::open::show_worktree_file,
+            operations::commands::merge_into_current,
+            operations::commands::step_operation,
             inspect::difftool_commands::open_external_diff,
             workbench::commands::get_workbench_layout,
             workbench::commands::save_workbench_layout,

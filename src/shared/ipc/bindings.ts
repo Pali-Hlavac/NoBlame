@@ -308,6 +308,16 @@ export const commands = {
 	 */
 	showWorktreeFile: (id: number, path: string) => typedError<null, AppError>(__TAURI_INVOKE("show_worktree_file", { id, path })),
 	/**
+	 *  Merges a branch, remote branch, tag or commit into the current branch. Conflicts come back
+	 *  as an outcome: the merge is then in progress (see the status's `operation`).
+	 */
+	mergeIntoCurrent: (id: number, request: MergeRequestDto) => typedError<MergeResultDto, AppError>(__TAURI_INVOKE("merge_into_current", { id, request })),
+	/**
+	 *  Continues, skips or aborts the operation in progress (merge, cherry-pick, revert, rebase,
+	 *  `git am`, bisect); returns what git printed.
+	 */
+	stepOperation: (id: number, step: SequenceStepDto) => typedError<string, AppError>(__TAURI_INVOKE("step_operation", { id, step })),
+	/**
 	 *  Opens a file's two versions in the external diff tool chosen in Settings (through
 	 *  `git difftool --no-index`). Returns once the tool started; fails when it could not.
 	 */
@@ -1334,6 +1344,59 @@ export type LineSideDto =
 /**  After the change. */
 "new";
 
+/**  How a merge joins the histories. */
+export type MergeModeDto = 
+/**  As `merge.ff` says: fast-forward when possible, else a merge commit. */
+"default" | 
+/**  Always a merge commit (`--no-ff`). */
+"noFastForward" | 
+/**  Only a fast-forward (`--ff-only`). */
+"fastForwardOnly" | 
+/**  Stage the combined changes for a commit the user makes (`--squash`). */
+"squash";
+
+/**  How a merge ended. */
+export type MergeOutcomeDto = 
+/**  The branch already contains it. */
+"upToDate" | 
+/**  The branch moved forward; no merge commit. */
+"fastForwarded" | 
+/**  A merge commit was made. */
+"merged" | 
+/**  The changes are staged; the user commits them. */
+"squashed" | 
+/**  Stopped with conflicts; the merge is in progress. */
+"conflicts";
+
+/**  A merge into the current branch. */
+export type MergeRequestDto = {
+	/**  What to merge: a branch, remote branch or tag name, or a commit id. */
+	revision: string,
+	mode: MergeModeDto,
+};
+
+/**  What a merge did. */
+export type MergeResultDto = {
+	outcome: MergeOutcomeDto,
+	/**  git's summary line (`2 files changed, 3 insertions(+)`), when it printed one. */
+	summary: string | null,
+};
+
+/**  An operation in progress (a merge stopped by conflicts, a rebase, ...). */
+export type OperationDto = {
+	kind: OperationKindDto,
+	/**  What it works on: `Merge branch 'x'`, `a1b2c3d4 Fix the parser`, the rebased branch. */
+	detail: string | null,
+	/**  The step a rebase stopped at (1-based) and how many there are. */
+	step: number | null,
+	steps: number | null,
+};
+
+/**  The kind of operation in progress. */
+export type OperationKindDto = "merge" | "cherryPick" | "revert" | "rebase" | 
+/**  `git am`. */
+"applyMailbox" | "bisect";
+
 /**  What a commit did to the path. */
 export type PathChangeDto = 
 /**  Created it. */
@@ -1631,6 +1694,15 @@ export type RepositoryGroupsDto = {
 	/**  Grouped paths whose folder no longer exists (checked when the list is read). */
 	missing: string[],
 };
+
+/**  What to do with the operation in progress. */
+export type SequenceStepDto = 
+/**  Go on after the conflicts are resolved and staged. */
+"continue" | 
+/**  Leave out the commit it stopped at (not for a merge). */
+"skip" | 
+/**  Put everything back as before the operation. */
+"abort";
 
 /**  Sets or removes the upstream of a local branch. */
 export type SetUpstreamRequestDto = {
@@ -2032,6 +2104,8 @@ export type WorkingTreeStatusDto = {
 	staged: WorkingFileDto[],
 	/**  Changed, untracked and conflicted files, sorted by path. */
 	unstaged: WorkingFileDto[],
+	/**  The operation in progress (a merge stopped by conflicts, a rebase, ...), if any. */
+	operation: OperationDto | null,
 };
 
 /* Tauri Specta runtime */

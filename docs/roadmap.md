@@ -802,14 +802,30 @@ listed in the Repositories module already).
 
 ### M6: Changing history and resolving conflicts
 
-- [ ] Merge (ff/no-ff/squash), rebase, cherry-pick, revert, reset (soft/mixed/hard behind confirmation)
+- [ ] Merge (ff/no-ff/squash) _(done, slice 1)_, rebase, cherry-pick, revert, reset (soft/mixed/hard behind confirmation)
 - [ ] Interactive rebase editor: reorder, squash, fixup, reword, edit, drop; autosquash
-- [ ] In-progress operation banner (merge/rebase/cherry-pick/bisect) with continue/skip/abort
+- [x] In-progress operation banner (merge/rebase/cherry-pick/bisect) with continue/skip/abort
 - [ ] Conflict resolution: list, ours/theirs, built-in three-way merge view — ADR 0014
 - [ ] External diff and merge tools (configured like Git Extensions, honoring `diff.tool`/`merge.tool`)
       with presets (VS Code `code --wait --merge`, Beyond Compare, KDiff3, Meld, P4Merge);
       "Open in merge tool" on each conflicted file (owner request 2026-10-30)
 - [ ] Reflog browser with "restore this state"
+
+Slices (planned 2026-11-09): 1. merge and the in-progress bar; 2. cherry-pick, revert, reset; 3. rebase onto; 4. conflicts: list, ours/theirs, external merge tools; 5. the three-way merge
+view (ADR 0014); 6. the interactive rebase editor; 7. the reflog.
+
+Slice 1 done (2026-11-09): merge and the operation in progress
+([features/operations.md](features/operations.md)).
+
+- **Merge into the current branch…** from a commit, a branch, remote branch or tag (graph and
+  Branches module): fast-forward when possible, `--no-ff`, `--ff-only` or `--squash`.
+- The bar above the commits for any operation in progress (also one started in a terminal or by
+  a pull) with Continue, Skip and Abort; the status carries the operation, so it follows every
+  refresh.
+- Found while clicking through: git writes a full ref name into the merge message as given
+  ("Merge branch 'refs/heads/topic'"); the short name is used when it is unambiguous.
+- Checked in the running app on a scratch repository: a conflicting merge, Abort, merging again,
+  resolving in a shell, Continue (merge commit with git's message), a clean `--no-ff` merge.
 
 ### M7: Advanced Git
 

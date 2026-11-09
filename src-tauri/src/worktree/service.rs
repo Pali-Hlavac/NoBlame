@@ -12,6 +12,7 @@ use tokio_util::sync::CancellationToken;
 
 use super::{ChangeCountsDto, WorkingTreeStatusDto};
 use crate::git_env::GitEnvError;
+use crate::operations::current_operation;
 use crate::repository::{RawBytes, RepoId, RepoSessions, RepositoryError, blocking};
 
 /// Previews (images) read at most this much of a file.
@@ -36,7 +37,8 @@ pub async fn status(
     let untracked = blocking(move || UntrackedFiles::configured(&repo.local())).await?;
     let git = Git::locate().map_err(GitEnvError::from)?;
     let status = working_tree_status(&git, &work_dir, untracked, &CancellationToken::new()).await?;
-    Ok(Some(status.into()))
+    let operation = current_operation(&session.repo).await?;
+    Ok(Some(WorkingTreeStatusDto::new(status, operation)))
 }
 
 /// The uncommitted files of the repository at `path` (no session: it need not be open), counted

@@ -16,6 +16,7 @@ pub mod graph;
 pub mod history;
 pub mod ignore;
 pub mod locate;
+pub mod operation;
 pub mod remote;
 pub mod repo;
 pub mod signing;

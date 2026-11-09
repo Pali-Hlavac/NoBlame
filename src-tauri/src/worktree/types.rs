@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use specta::Type;
 
 use super::ChangeCountsDto;
+use crate::operations::OperationDto;
 
 /// Number of files in each state; a file staged and changed again counts in both.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Type)]
@@ -108,14 +109,18 @@ pub struct WorkingTreeStatusDto {
     pub staged: Vec<WorkingFileDto>,
     /// Changed, untracked and conflicted files, sorted by path.
     pub unstaged: Vec<WorkingFileDto>,
+    /// The operation in progress (a merge stopped by conflicts, a rebase, ...), if any.
+    pub operation: Option<OperationDto>,
 }
 
-impl From<WorkingTreeStatus> for WorkingTreeStatusDto {
-    fn from(status: WorkingTreeStatus) -> Self {
+impl WorkingTreeStatusDto {
+    /// The status `git status` reported, with the operation in progress read beside it.
+    pub(super) fn new(status: WorkingTreeStatus, operation: Option<OperationDto>) -> Self {
         Self {
             summary: status.summary.into(),
             staged: status.staged.into_iter().map(Into::into).collect(),
             unstaged: status.unstaged.into_iter().map(Into::into).collect(),
+            operation,
         }
     }
 }

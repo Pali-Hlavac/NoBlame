@@ -11,6 +11,7 @@ mod inspect;
 mod ipc;
 mod jobs;
 mod logging;
+mod operations;
 mod repository;
 mod settings;
 pub mod storage;

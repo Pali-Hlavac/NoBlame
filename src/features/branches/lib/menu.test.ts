@@ -19,6 +19,7 @@ function actions(): RefActions & Record<string, ReturnType<typeof vi.fn>> {
     pushBranch: vi.fn(),
     pushTag: vi.fn(),
     deleteOnRemote: vi.fn(),
+    merge: vi.fn(),
   };
 }
 
@@ -31,6 +32,7 @@ describe("branchMenu", () => {
     const copy = vi.fn();
     expect(ids(branchMenu(entry("branch", "topic"), actions(), copy))).toEqual([
       "checkout",
+      "merge",
       "create-branch",
       "create-tag",
       "rename",
@@ -48,12 +50,14 @@ describe("branchMenu", () => {
     ]);
     expect(ids(branchMenu(entry("remote", "origin/x"), actions(), copy))).toEqual([
       "checkout",
+      "merge",
       "create-branch",
       "create-tag",
       "delete-remote",
       "copy-name",
     ]);
     expect(ids(branchMenu(entry("tag", "v1"), actions(), copy))).toEqual([
+      "merge",
       "create-branch",
       "delete",
       "push",

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { toast } from "sonner";
 
 import type { RefActions } from "@/features/graph";
+import { openMerge } from "@/features/operations";
 import { toIpcError } from "@/shared/ipc/client";
 
 import { useCheckoutBranch } from "../api/branches";
@@ -57,6 +58,9 @@ export function useRefActions(repoId: number): RefActions {
       },
       deleteRef: (reference) => {
         openBranchDialog({ kind: "delete", repoId, reference });
+      },
+      merge: (source) => {
+        openMerge(repoId, source);
       },
     }),
     [mutate, repoId],

@@ -1,4 +1,5 @@
 import { FolderPlusIcon } from "lucide-react";
+import { useContext } from "react";
 
 import { GraphView } from "@/features/graph";
 import type { RepositoryTab } from "@/features/workspace";
@@ -10,6 +11,7 @@ import { KIND_ICON_CLASSES } from "@/shared/lib/workKinds";
 
 import { useRepositorySession } from "../api/session";
 import { useCreateRepository } from "../hooks/useOpenRepository";
+import { RepositoryBannerContext } from "../lib/actions";
 import { CommitGraphNotice } from "./CommitGraphNotice";
 import { RepositoryHeader } from "./RepositoryHeader";
 
@@ -17,6 +19,7 @@ import { RepositoryHeader } from "./RepositoryHeader";
 export function RepositoryView({ tab }: { tab: RepositoryTab }) {
   const session = useRepositorySession(tab.path);
   const create = useCreateRepository();
+  const banner = useContext(RepositoryBannerContext);
 
   if (session.isPending) return <LoadingState label="Opening repository…" className="h-full" />;
   if (session.error) {
@@ -49,6 +52,7 @@ export function RepositoryView({ tab }: { tab: RepositoryTab }) {
     <div className="flex h-full flex-col">
       <RepositoryHeader summary={session.data} />
       <CommitGraphNotice summary={session.data} tabPath={tab.path} />
+      {session.data.kind !== "bare" && banner?.(session.data.id)}
       <div className="min-h-0 flex-1">
         <GraphView
           repoId={session.data.id}

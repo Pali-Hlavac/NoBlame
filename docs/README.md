@@ -50,6 +50,8 @@ One page per user-facing feature: behaviour, edge cases and status.
 - [files.md](features/files.md): the Files module (tree of a commit), the file tab, saving a file
 - [history.md](features/history.md): the history tab (commits that change a file, following renames)
 - [blame.md](features/blame.md): the blame tab (who last changed each line; blame the previous revision)
+- [operations.md](features/operations.md): merging into the current branch, and the bar for an
+  operation in progress (merge, rebase, cherry-pick, revert) with Continue, Skip and Abort
 - [compare.md](features/compare.md): the compare tab (files that differ between two revisions, and their diffs)
 
 ## User guide

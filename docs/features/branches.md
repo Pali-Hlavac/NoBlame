@@ -15,7 +15,8 @@ The Branches module itself (sections, filter, sort) is described in
   submenu **Check out**, **Rename…**, **Delete…** (branches), **Check out as a new local
   branch…** (remote branches), **Delete…** (tags), and **Push…** (branches, tags), **Delete on
   the remote…** (remote branches), **Delete on a remote…** (tags) ([remotes.md](remotes.md#push)).
-  Merge and Rebase stay labelled stubs (M6).
+  **Merge into the current branch…** works (M6 slice 1, [operations.md](operations.md)); Rebase
+  stays a labelled stub.
 - **The Branches module**: right click a row (or Shift+F10 / Menu key on the active row):
 
   | Row           | Entries                                                                                                                                                                                      |

@@ -101,17 +101,18 @@ Right-clicking a commit selects it and opens its menu; **Shift+F10** or the **Me
 the menu of the selected commit (owner request 2026-10-30). The menu starts with the short id and
 subject.
 
-| Entry                                                          | Status                             |
-| -------------------------------------------------------------- | ---------------------------------- |
-| Copy ▸ Commit id, Short commit id, Subject, Whole message      | Works                              |
-| Highlight its history / Clear the highlight                    | Works (when highlighting is on)    |
-| Browse files at this commit                                    | Works (opens the Files module)     |
-| Compare with HEAD                                              | Works (the compare tab)            |
-| Compare with the working tree                                  | Works (not in bare repos)          |
-| Check out this commit, Create a branch here, Create a tag here | Works ([branches.md](branches.md)) |
-| Merge, Rebase, Interactive rebase, Cherry-pick, Revert, Reset  | Disabled, **M6**                   |
-| A submenu per branch or tag on the commit                      | See below; merge and rebase M6     |
-| More ▸ Bisect, Create a patch, Save an archive, Run a script   | Disabled, **M7**                   |
+| Entry                                                          | Status                                 |
+| -------------------------------------------------------------- | -------------------------------------- |
+| Copy ▸ Commit id, Short commit id, Subject, Whole message      | Works                                  |
+| Highlight its history / Clear the highlight                    | Works (when highlighting is on)        |
+| Browse files at this commit                                    | Works (opens the Files module)         |
+| Compare with HEAD                                              | Works (the compare tab)                |
+| Compare with the working tree                                  | Works (not in bare repos)              |
+| Check out this commit, Create a branch here, Create a tag here | Works ([branches.md](branches.md))     |
+| Merge into the current branch                                  | Works ([operations.md](operations.md)) |
+| Rebase, Interactive rebase, Cherry-pick, Revert, Reset         | Disabled, **M6**                       |
+| A submenu per branch or tag on the commit                      | See below; merge works, rebase M6      |
+| More ▸ Bisect, Create a patch, Save an archive, Run a script   | Disabled, **M7**                       |
 
 Each disabled entry names the milestone that delivers it. A branch's submenu offers:
 

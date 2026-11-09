@@ -5,7 +5,7 @@
  * that implement pulling, committing, and so on.
  */
 import type { LucideIcon } from "lucide-react";
-import { createContext } from "react";
+import { createContext, type ReactNode } from "react";
 
 import type { JobKindDto, RepositoryButton } from "@/shared/ipc/bindings";
 import type { WorkKind } from "@/shared/lib/workKinds";
@@ -76,3 +76,9 @@ export const GroupActionsContext = createContext<readonly GroupAction[]>([]);
 
 /** Opens the Clone dialog (supplied by the app shell; no Clone button without it). */
 export const CloneRepositoryContext = createContext<(() => void) | null>(null);
+
+/**
+ * A bar shown above a repository's commits (the operation in progress, supplied by the app
+ * shell so this feature does not depend on the one that draws it); nothing without it.
+ */
+export const RepositoryBannerContext = createContext<((repoId: number) => ReactNode) | null>(null);

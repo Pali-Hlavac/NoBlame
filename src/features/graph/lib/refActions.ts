@@ -33,6 +33,8 @@ export interface RefActions {
   pushTag: (tag: string) => void;
   /** Asks first, then deletes a remote branch or a tag on a remote. */
   deleteOnRemote: (reference: RefTargetDto) => void;
+  /** Asks how, then merges a branch, tag or commit into the current branch. */
+  merge: (source: StartPoint) => void;
 }
 
 /** A hook giving the actions for a repository; the default offers none (stubs stay labelled). */

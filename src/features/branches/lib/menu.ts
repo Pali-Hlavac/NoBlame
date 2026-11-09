@@ -42,6 +42,9 @@ export function branchMenu(
     run,
   });
   const start = startOf(target);
+  const merge = item("merge", "Merge into the current branch…", () => {
+    actions.merge(start);
+  });
   const createBranch = item("create-branch", "Create a branch here…", () => {
     actions.createBranch(start);
   });
@@ -66,6 +69,7 @@ export function branchMenu(
               item("checkout", "Check out", () => {
                 actions.checkoutBranch(target.name);
               }),
+              merge,
             ]),
         ...create,
         { type: "separator", id: "sep-change" },
@@ -101,6 +105,7 @@ export function branchMenu(
         item("checkout", "Check out as a new local branch…", () => {
           actions.checkoutRemote(target);
         }),
+        merge,
         ...create,
         { type: "separator", id: "sep-change" },
         item("delete-remote", "Delete on the remote…", () => {
@@ -110,6 +115,7 @@ export function branchMenu(
       ];
     case "tag":
       return [
+        merge,
         createBranch,
         { type: "separator", id: "sep-change" },
         item("delete", "Delete…", () => {

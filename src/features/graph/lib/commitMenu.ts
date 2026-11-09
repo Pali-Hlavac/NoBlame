@@ -109,7 +109,14 @@ export function commitMenu(commit: CommitRowDto, actions: CommitMenuActions): Me
         }),
     ),
     separator("sep-history"),
-    item("merge", "Merge into the current branch…", history),
+    refItem(
+      "merge",
+      "Merge into the current branch…",
+      refActions &&
+        (() => {
+          refActions.merge(here);
+        }),
+    ),
     item("rebase", "Rebase the current branch onto this…", history),
     item("rebase-interactive", "Interactive rebase from here…", history),
     item("cherry-pick", "Cherry-pick", history),

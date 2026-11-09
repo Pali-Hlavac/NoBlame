@@ -33,6 +33,7 @@ const STATUS: WorkingTreeStatusDto = {
     changes: { added: 0, changed: 0, deleted: 0 },
   },
   staged: [{ ...file("src/staged.ts", "added", false), oldId: null, newId: INDEX }],
+  operation: null,
   unstaged: [
     file("src/both.ts", "conflicted"),
     file("src/main.ts", "modified"),

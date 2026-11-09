@@ -11,6 +11,7 @@ const STATUS: WorkingTreeStatusDto = {
     changes: { added: 0, changed: 0, deleted: 0 },
   },
   staged: [],
+  operation: null,
   unstaged: [],
 };
 

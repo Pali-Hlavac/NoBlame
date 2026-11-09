@@ -43,6 +43,7 @@ const STATUS: WorkingTreeStatusDto = {
     changes: { added: 0, changed: 0, deleted: 0 },
   },
   staged: [file("a.txt", { oldId: HEAD, newId: INDEX, worktree: false })],
+  operation: null,
   unstaged: [file("a.txt", {}), file("gone.txt", { status: "deleted", worktree: false })],
 };
 

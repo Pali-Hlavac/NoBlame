@@ -107,6 +107,8 @@
     "allow-ignore-files",
     "allow-open-worktree-file",
     "allow-show-worktree-file",
+    "allow-merge-into-current",
+    "allow-step-operation",
     "allow-open-external-diff",
     "allow-list-submodules",
     "allow-get-workbench-layout",

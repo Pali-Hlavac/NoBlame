@@ -39,6 +39,14 @@ export function refEntries(
   const compare = item("compare", "Compare with the current branch", undefined, () => {
     actions.compareWithCurrent(refRevision(ref));
   });
+  const merge = refItem(
+    "merge",
+    "Merge into the current branch…",
+    refs &&
+      (() => {
+        refs.merge({ revision: refRevision(ref), label: ref.name });
+      }),
+  );
   switch (ref.kind) {
     case "branch":
       return [
@@ -53,7 +61,7 @@ export function refEntries(
                     refs.checkoutBranch(ref.name);
                   }),
               ),
-              item("merge", "Merge into the current branch…", history),
+              merge,
               item("rebase", "Rebase the current branch onto it…", history),
               compare,
               separator("sep-ref"),
@@ -75,7 +83,7 @@ export function refEntries(
     case "remote":
       return [
         refItem("checkout", "Check out as a new local branch…", act("checkoutRemote")),
-        item("merge", "Merge into the current branch…", history),
+        merge,
         item("rebase", "Rebase the current branch onto it…", history),
         compare,
         refItem("delete", "Delete on the remote…", act("deleteOnRemote")),
@@ -84,6 +92,7 @@ export function refEntries(
       ];
     case "tag":
       return [
+        merge,
         compare,
         refItem(
           "push",

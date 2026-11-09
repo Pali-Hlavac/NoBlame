@@ -150,6 +150,7 @@ describe("commitMenu", () => {
       pushBranch: vi.fn(),
       pushTag: vi.fn(),
       deleteOnRemote: vi.fn(),
+      merge: vi.fn(),
     };
     const handlers = { ...actions(), refs };
     const row = commit([

@@ -17,6 +17,7 @@ export {
 } from "./hooks/useOpenRepository";
 export {
   CloneRepositoryContext,
+  RepositoryBannerContext,
   GroupActionsContext,
   RepositoryActionsContext,
   type GroupAction,

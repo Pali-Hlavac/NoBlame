@@ -1,0 +1,87 @@
+//! Merging and the operation in progress behind the Tauri commands. Each change holds the
+//! session's write lock; the file watcher reports what changed (refs, index, working tree), so
+//! the graph and the status follow by themselves.
+
+use std::path::PathBuf;
+
+use git_core::cli::Git;
+use git_core::operation::{OperationError, merge, merge_name, operation_in_progress, run_step};
+use git_core::repo::{RepoKind, Repository};
+use tokio_util::sync::CancellationToken;
+
+use super::error::OperationsError;
+use super::types::{MergeRequestDto, MergeResultDto, OperationDto, SequenceStepDto};
+use crate::git_env::GitEnvError;
+use crate::repository::{RepoId, RepoSessions, RepositoryError, blocking};
+
+/// The work tree: merging and resolving need one.
+fn work_tree(repo: &Repository) -> Result<PathBuf, RepositoryError> {
+    let info = repo.info();
+    info.work_dir
+        .clone()
+        .filter(|_| info.kind != RepoKind::Bare)
+        .ok_or(RepositoryError::Bare)
+}
+
+fn git() -> Result<Git, RepositoryError> {
+    Ok(Git::locate().map_err(GitEnvError::from)?)
+}
+
+/// The operation in progress in `repo`, if any.
+pub async fn current_operation(repo: &Repository) -> Result<Option<OperationDto>, RepositoryError> {
+    let repo = repo.clone();
+    blocking(move || operation_in_progress(&repo.local()).map(OperationDto::from)).await
+}
+
+/// Merges `request.revision` into the current branch. Conflicts are a result, not an error:
+/// the merge is then in progress.
+pub async fn merge_into_current(
+    sessions: &RepoSessions,
+    id: RepoId,
+    request: MergeRequestDto,
+) -> Result<MergeResultDto, OperationsError> {
+    let session = sessions.get(id)?;
+    let dir = work_tree(&session.repo)?;
+    let git = git()?;
+    let _writing = session.lock_writes().await;
+    let repo = session.repo.clone();
+    let revision = request.revision;
+    let name = blocking(move || merge_name(&repo.local(), &revision)).await?;
+    let result = merge(
+        &git,
+        &dir,
+        &name,
+        request.mode.into(),
+        &CancellationToken::new(),
+    )
+    .await?;
+    Ok(result.into())
+}
+
+/// Continues, skips or aborts the operation in progress; returns what git printed.
+pub async fn step_operation(
+    sessions: &RepoSessions,
+    id: RepoId,
+    step: SequenceStepDto,
+) -> Result<String, OperationsError> {
+    let session = sessions.get(id)?;
+    let dir = work_tree(&session.repo)?;
+    let git = git()?;
+    let _writing = session.lock_writes().await;
+    let repo = session.repo.clone();
+    let operation = blocking(move || operation_in_progress(&repo.local())).await?;
+    let Some(operation) = operation else {
+        return Err(OperationError::NotApplicable(
+            "Nothing is in progress any more (it was finished or aborted elsewhere).".to_owned(),
+        )
+        .into());
+    };
+    Ok(run_step(
+        &git,
+        &dir,
+        operation.kind,
+        step.into(),
+        &CancellationToken::new(),
+    )
+    .await?)
+}
