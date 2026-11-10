@@ -125,6 +125,7 @@ fn ref_kind(kind: RefKindDto) -> RefKind {
         RefKindDto::Branch => RefKind::LocalBranch,
         RefKindDto::Remote => RefKind::RemoteBranch,
         RefKindDto::Tag => RefKind::Tag,
+        RefKindDto::Bisect => RefKind::Bisect,
     }
 }
 

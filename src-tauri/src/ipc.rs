@@ -84,6 +84,8 @@ pub fn builder() -> Builder<tauri::Wry> {
             inspect::commands::list_stashes,
             inspect::commands::list_submodules,
             inspect::submodule_log::get_submodule_log,
+            operations::bisect::bisect_mark,
+            operations::bisect::get_bisect,
             worktrees::commands::list_worktrees,
             worktrees::commands::add_worktree,
             worktrees::commands::remove_worktree,

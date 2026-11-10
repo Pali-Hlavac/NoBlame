@@ -612,7 +612,7 @@ On any commit row:
 | Interactive rebase from here                                           | Done (M6 slice 6)          |
 | Cherry-pick / Revert this commit                                       | Done (M6 slice 2)          |
 | Reset the current branch to here (soft, mixed, hard with confirmation) | Done (M6 slice 2)          |
-| Mark as good / bad (bisect)                                            | M7                         |
+| Mark as good / bad (bisect)                                            | Done (M7 slice 3)          |
 | Create a patch; save an archive (zip, tar) of this commit              | M7                         |
 | Run a user script with this commit                                     | M7                         |
 
@@ -931,7 +931,7 @@ patches).
       the M2.5 Repositories module). Slice 1
 - [x] Worktrees: list, add, remove, open (slice 2)
 - [ ] Git LFS: detect, show pointers vs. content, lock/unlock
-- [ ] Bisect workflow (good/bad/skip from the graph)
+- [x] Bisect workflow (good/bad/skip from the graph) (slice 3)
 - [ ] Patches: create (format-patch), apply (am/apply); archive a revision
 - [ ] User scripts / custom commands with placeholders (`{sha}`, `{branch}`, `{file}`) like Git Extensions scripts
 - [ ] Settings: repo and global git config editor (explicit), app preferences, keyboard shortcuts
@@ -989,6 +989,22 @@ Slice 2 done (2026-11-10): worktrees ([features/worktrees.md](features/worktrees
   changed file (named, then forced; its branch kept), Lock with a reason and Unlock, Remove
   disabled for this tab's worktree, Prune, the branch choice leaving out branches checked out
   elsewhere, and worktrees added, removed and switched in a terminal.
+
+Slice 3 done (2026-11-10): bisect ([features/operations.md](features/operations.md#bisecting)).
+
+- The commit menu's **More**: **Bisect: mark as bad**, **good**, **skip**; the first mark explains
+  bisecting and starts it. The bar while bisecting says what to mark next or which commit is
+  tested and how many are left, with **Good**, **Bad** and **Skip**; once found, **Show it** and
+  **Stop bisecting**. The marks are graph labels (`bad` red, `good` green, `skipped` grey), a ref
+  kind of their own kept out of the Branches module and the filters.
+- Found while clicking through: the labels read `bisect/bad` (gix's short name keeps the
+  folder); the start dialog said the commit "is marked bad" before anything happened. Measured
+  after: counting what is left on every refresh took 73 s on the Linux kernel's v5.0..v6.1, so the
+  bar keeps the count git prints with each mark.
+- Checked in the running app on a 20-commit scratch repository broken from commit 13: bad on
+  the newest, good on commit 6, then Bad, Good, Good, Good from the bar found commit 13; Show
+  it, Stop bisecting (back on main, marks gone); a bisect started in a terminal showed in the
+  bar, Skip, and Stop after asking.
 
 ### M8: Standalone task windows (prepares phase 2)
 

@@ -267,6 +267,13 @@ and cost nothing extra. Parsing counts all files, not only the 5,000 listed. Col
 much larger trees will be slower; the setting is off by default for that reason. The
 120,000-file tree took 946 s to `git add` once (Defender scanning each new file).
 
+### Bisect counts (M7 slice 3, 2026-11-10)
+
+`git rev-list --bisect-vars` (how many commits are left) on the Linux kernel: v6.0..v6.1
+(7,593 left) 257 ms warm, 487 ms cold; v5.0..v6.1 (163,092 left) 73 s. The bar therefore shows
+the count git prints with each mark instead of counting on every refresh; `get_bisect` reads
+only the marks, HEAD and the bisect log.
+
 ### Submodule pointer log (M7 slice 1, 2026-11-10)
 
 The diff tab of a submodule runs `git log --max-count=201` in its clone, both ways. On the

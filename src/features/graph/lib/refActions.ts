@@ -4,7 +4,7 @@
  */
 import { createContext } from "react";
 
-import type { RefTargetDto } from "@/shared/ipc/bindings";
+import type { BisectMarkDto, RefTargetDto } from "@/shared/ipc/bindings";
 
 /** A commit or reference a new branch or tag starts at, with how to name it to the user. */
 export interface StartPoint {
@@ -59,6 +59,11 @@ export interface RefActions {
   interactiveRebase: (from: StartPoint) => void;
   /** Asks how (soft, mixed, keep, hard), naming what is lost, then moves the current branch. */
   reset: (commit: StartPoint, options?: ResetOptions) => void;
+  /**
+   * Marks the commit good, bad or skipped in a bisect; without one running, explains bisecting
+   * and starts it.
+   */
+  bisect: (commit: StartPoint, mark: BisectMarkDto) => void;
 }
 
 /** A hook giving the actions for a repository; the default offers none (stubs stay labelled). */

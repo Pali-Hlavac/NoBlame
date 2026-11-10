@@ -125,6 +125,11 @@ Use `target\debug\noblame.exe` while the dev app runs.
       commits**; **Update to the recorded commit** asks first and lists it, then puts it back.
       A repository's **…** → **Update all submodules**.
   - Notes:
+- [ ] **(new, M7)** Bisect: right-click the newest commit → **More** → **Bisect: mark as bad** →
+      **Start bisecting**; mark an older one good. The bar names the commit tested and how many
+      are left; **Good** / **Bad** until "Found the first bad commit"; `bad`/`good` labels in the
+      graph; **Show it**; **Stop bisecting** returns to the branch.
+  - Notes:
 - [ ] **(new, M7)** Worktrees module (Alt+9): **+** adds a worktree with a new branch next to
       the repository and opens it; right-click → **Lock…**, **Unlock**, **Remove…** (with an
       uncommitted file it is named and the button says **Remove with its changes**); a

@@ -18,7 +18,9 @@ const PREFIX = { branch: "refs/heads/", remote: "refs/remotes/", tag: "refs/tags
 /** The reference as the actions take it; `null` for a detached HEAD. */
 export function targetOf(entry: RefEntry): RefTargetDto | null {
   const { kind, name } = entry.label;
-  return kind === "head" ? null : { namespace: kind, name, target: entry.target };
+  return kind === "head" || kind === "bisect"
+    ? null
+    : { namespace: kind, name, target: entry.target };
 }
 
 /** Where a branch or tag made from `entry` starts: its full name, so it is never ambiguous. */

@@ -1,4 +1,5 @@
 import { closeOperationDialog, useOperationDialogStore } from "../store/dialog";
+import { BisectStartDialog } from "./BisectStartDialog";
 import { ConflictsDialog } from "./ConflictsDialog";
 import { InteractiveDialog } from "./InteractiveDialog";
 import { MergeDialog } from "./MergeDialog";
@@ -8,7 +9,7 @@ import { ResetDialog } from "./ResetDialog";
 
 /**
  * The history-changing dialog asked for (`openMerge`, `openPick`, `openRebase`, `openReset`,
- * `openInteractive`, `openConflicts`);
+ * `openInteractive`, `openConflicts`, `openBisect`);
  * mounted once in the main window.
  */
 export function OperationDialogs() {
@@ -63,6 +64,16 @@ export function OperationDialogs() {
           repoId={repoId}
           commit={request.commit}
           restore={request.restore}
+          onClose={closeOperationDialog}
+        />
+      );
+    case "bisect":
+      return (
+        <BisectStartDialog
+          key={`${String(repoId)}:${request.commit.revision}`}
+          repoId={repoId}
+          commit={request.commit}
+          mark={request.mark}
           onClose={closeOperationDialog}
         />
       );

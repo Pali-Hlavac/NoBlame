@@ -52,7 +52,7 @@ One page per user-facing feature: behaviour, edge cases and status.
 - [blame.md](features/blame.md): the blame tab (who last changed each line; blame the previous revision)
 - [operations.md](features/operations.md): merging into the current branch, cherry-pick, revert,
   reset and rebase, and the bar for an operation in progress (merge, rebase, cherry-pick, revert) with
-  Continue, Skip and Abort
+  Continue, Skip and Abort; bisecting
 - [reflog.md](features/reflog.md): the Reflog module (where HEAD or a branch pointed; restore
   that state, or create a branch there)
 - [submodules.md](features/submodules.md): submodules' state, initializing and updating them,

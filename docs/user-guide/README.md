@@ -6,8 +6,9 @@ This guide describes version 0.1.0. You can open, create and clone repositories,
 history in the commit graph, see what each commit changed, stage and commit, stash, work with
 branches, tags and remotes (fetch, pull, push), merge, cherry-pick, revert, reset and rebase
 (also interactively), resolve conflicts, get lost work back from the reflog, and initialize
-and update submodules, and work in several worktrees. Features that come in later versions
-(bisect, patches) are labelled placeholders, and so are the task windows.
+and update submodules, work in several worktrees, and find the commit that broke something
+(bisect). Features that come in later versions (patches, archives) are labelled placeholders,
+and so are the task windows.
 
 | Page                                                      | What it covers                               |
 | --------------------------------------------------------- | -------------------------------------------- |
@@ -26,6 +27,7 @@ and update submodules, and work in several worktrees. Features that come in late
 | [Getting lost work back](reflog.md)                       | The reflog: what you did, and restoring it   |
 | [Submodules](submodules.md)                               | Initializing, updating, what changed in them |
 | [Worktrees](worktrees.md)                                 | Several folders of one repository            |
+| [Finding a bad commit](bisect.md)                         | Bisect: which commit brought a problem in    |
 | [Browsing files](browsing-files.md)                       | Every file of a commit; saving one           |
 | [File history](file-history.md)                           | Every commit that changed a file             |
 | [Blame](blame.md)                                         | Who last changed each line of a file         |

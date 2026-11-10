@@ -24,7 +24,7 @@ export function refEntries(
   actions: RefMenuActions,
 ): MenuEntry[] {
   const { refs } = actions;
-  if (ref.kind === "head") return [];
+  if (ref.kind === "head" || ref.kind === "bisect") return [];
   const target: RefTargetDto = { namespace: ref.kind, name: ref.name, target: commit.id };
   const act = (action: TargetAction) =>
     refs &&

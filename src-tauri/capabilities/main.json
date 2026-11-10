@@ -125,6 +125,8 @@
     "allow-open-external-diff",
     "allow-list-submodules",
     "allow-get-submodule-log",
+    "allow-bisect-mark",
+    "allow-get-bisect",
     "allow-list-worktrees",
     "allow-add-worktree",
     "allow-remove-worktree",

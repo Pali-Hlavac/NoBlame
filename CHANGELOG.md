@@ -180,6 +180,11 @@ All notable changes to NoBlame are documented here. The format follows
   for all files at once. **Settings → Diff → Merge tool for conflicts** chooses Git's
   `merge.tool`, Visual Studio Code, Beyond Compare, KDiff3, Meld, P4Merge or another tool Git
   knows; it runs through `git mergetool`.
+- Bisect (M7 slice 3): right-click a commit → **More** → **Bisect: mark as bad** (or good) to
+  find the commit that brought a problem in. NoBlame checks out the commit halfway between;
+  the bar above the commits says how many are left and has **Good**, **Bad** and **Skip** for
+  it, until it names the first bad commit (**Show it**, **Stop bisecting**). The marks show as
+  `bad`, `good` and `skipped` labels in the graph.
 - Worktrees (M7 slice 2): the **Worktrees** module (Alt+9) lists a repository's worktrees;
   click one to open it in a tab. **Add a worktree…** checks out a new branch, a branch or a
   commit in a new folder; right-click a worktree to **Lock…**, **Unlock** or **Remove…** it

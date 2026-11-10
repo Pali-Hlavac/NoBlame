@@ -66,6 +66,8 @@ describe("commitMenu", () => {
     expect(find(entries, "create-branch")).toMatchObject({ milestone: "M5" });
     expect(find(entries, "cherry-pick")).toMatchObject({ milestone: "M5" });
     expect(find(entries, "rebase-interactive")).toMatchObject({ milestone: "M5" });
+    expect(find(entries, "bisect-bad")).toMatchObject({ milestone: "M7" });
+    expect(find(entries, "patch")).toMatchObject({ milestone: "M7" });
   });
 
   it("compares with the working tree, except in a bare repository", () => {
@@ -157,6 +159,7 @@ describe("commitMenu", () => {
       rebase: vi.fn(),
       reset: vi.fn(),
       interactiveRebase: vi.fn(),
+      bisect: vi.fn(),
     };
     const handlers = { ...actions(), refs };
     const row = commit([
@@ -194,6 +197,12 @@ describe("commitMenu", () => {
       if (entry?.type !== "item") throw new Error("missing");
       entry.run?.();
       expect(action).toHaveBeenCalledWith({ ...here, parentCount: row.parentCount });
+    }
+    for (const mark of ["bad", "good", "skip"] as const) {
+      const entry = find(entries, `bisect-${mark}`);
+      if (entry?.type !== "item") throw new Error("missing");
+      entry.run?.();
+      expect(refs.bisect).toHaveBeenCalledWith(here, mark);
     }
     run(find(entries, "ref:branch:topic"), "checkout");
     expect(refs.checkoutBranch).toHaveBeenCalledWith("topic");

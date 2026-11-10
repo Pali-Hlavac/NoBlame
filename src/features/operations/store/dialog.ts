@@ -5,6 +5,7 @@
 import { create } from "zustand";
 
 import type { PickSource, StartPoint } from "@/features/graph";
+import type { BisectMarkDto } from "@/shared/ipc/bindings";
 
 export type OperationDialogRequest =
   | {
@@ -41,6 +42,13 @@ export type OperationDialogRequest =
       commit: StartPoint;
       /** Restoring an earlier state: the dialog starts on "keep". */
       restore: boolean;
+    }
+  | {
+      kind: "bisect";
+      repoId: number;
+      /** The first commit marked, starting the bisect. */
+      commit: StartPoint;
+      mark: BisectMarkDto;
     };
 
 interface OperationDialogState {
@@ -76,6 +84,11 @@ export function openInteractive(repoId: number, from: StartPoint): void {
 /** Asks how to reset the current branch of repository `repoId` to `commit`. */
 export function openReset(repoId: number, commit: StartPoint, restore = false): void {
   open({ kind: "reset", repoId, commit, restore });
+}
+
+/** Explains bisecting, then starts it by marking `commit` good or bad. */
+export function openBisect(repoId: number, commit: StartPoint, mark: BisectMarkDto): void {
+  open({ kind: "bisect", repoId, commit, mark });
 }
 
 /** Shows the conflicted files of repository `repoId`, to resolve them. */

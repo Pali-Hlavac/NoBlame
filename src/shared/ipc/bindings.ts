@@ -150,6 +150,16 @@ export const commands = {
 	 *  `null` for what the submodule has checked out). Read in the submodule's own clone.
 	 */
 	getSubmoduleLog: (id: number, path: string, from: string, to: string | null) => typedError<SubmoduleLogDto, AppError>(__TAURI_INVOKE("get_submodule_log", { id, path, from, to })),
+	/**
+	 *  Marks `commit` (HEAD when `null`) as good, bad or skipped, starting a bisect when none runs;
+	 *  git then checks out the next commit to test, or names the first bad one.
+	 */
+	bisectMark: (id: number, mark: BisectMarkDto, commit: string | null) => typedError<BisectResultDto, AppError>(__TAURI_INVOKE("bisect_mark", { id, mark, commit })),
+	/**
+	 *  Where the bisect stands (marks, the commit tested, the first bad one);
+	 *  `null` when none runs.
+	 */
+	getBisect: (id: number) => typedError<BisectStateDto | null, AppError>(__TAURI_INVOKE("get_bisect", { id })),
 	/**  The repository's worktrees, the main one first (`git worktree list --porcelain -z`). */
 	listWorktrees: (id: number) => typedError<WorktreeDto[], AppError>(__TAURI_INVOKE("list_worktrees", { id })),
 	/**
@@ -487,6 +497,57 @@ export type ApplyStashRequestDto = {
 	pop: boolean,
 	/**  Also restore what was staged (`--index`). */
 	restoreIndex: boolean,
+};
+
+/**  A commit named in the bar. */
+export type BisectCommitDto = {
+	/**  Full id. */
+	id: string,
+	/**  The first line of its message. */
+	summary: string,
+};
+
+/**  How a commit is marked. */
+export type BisectMarkDto = 
+/**  It does not have the problem. */
+"good" | 
+/**  It has the problem. */
+"bad" | 
+/**  It cannot be tested. */
+"skip";
+
+/**  Where a bisect stands after a mark. */
+export type BisectOutcomeDto = 
+/**  It still needs a good commit, a bad one, or both. */
+{ kind: "waiting" } | 
+/**  The next commit to test (`commit`, full id) is checked out. */
+{ kind: "testing"; commit: string; remaining: number; steps: number } | 
+/**  The first bad commit (full id) is found. */
+{ kind: "found"; commit: string } | 
+/**  Only skipped commits are left; the first bad one is among them. */
+{ kind: "onlySkipped" };
+
+/**  What a mark did. */
+export type BisectResultDto = {
+	outcome: BisectOutcomeDto,
+	/**  What git printed. */
+	detail: string,
+};
+
+/**  A bisect in progress. */
+export type BisectStateDto = {
+	/**  The commit marked bad. */
+	bad: string | null,
+	/**  The commits marked good. */
+	good: string[],
+	/**  The commits skipped. */
+	skipped: string[],
+	/**  The commit checked out to test (HEAD), until the first bad one is found. */
+	testing: BisectCommitDto | null,
+	/**  The first bad commit, once found. */
+	firstBad: BisectCommitDto | null,
+	/**  Where stopping returns to (a branch name or a commit). */
+	startedFrom: string | null,
 };
 
 /**  A commit some lines come from. */
@@ -1820,7 +1881,9 @@ export type RefKindDto =
 /**  Remote-tracking branch. */
 "remote" | 
 /**  Tag. */
-"tag";
+"tag" | 
+/**  A bisect's mark (`bad`, `good`, `skipped`). */
+"bisect";
 
 /**  A reference label on a row. */
 export type RefLabel = {

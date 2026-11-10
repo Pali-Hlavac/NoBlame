@@ -1,4 +1,5 @@
-//! References shown in the graph: local and remote branches, tags and a detached HEAD.
+//! References shown in the graph: local and remote branches, tags, a detached HEAD and the
+//! marks of a bisect.
 //! They are also the tips the history walk starts from.
 
 use gix::ObjectId;
@@ -17,6 +18,8 @@ pub enum RefKind {
     RemoteBranch,
     /// `refs/tags/*`
     Tag,
+    /// `refs/bisect/*`: a commit marked during a bisect (`bad`, `good`, `skipped`).
+    Bisect,
 }
 
 /// One reference label.
@@ -32,8 +35,20 @@ pub struct GraphRef {
     pub is_head: bool,
 }
 
+/// The label of a bisect ref: `bad`, `good` (from `good-<id>`), `skipped` (from `skip-<id>`);
+/// custom terms (`git bisect start --term-new=…`) keep their word.
+fn bisect_mark(short: &str) -> String {
+    // gix shortens `refs/bisect/bad` to `bisect/bad`.
+    let short = short.strip_prefix("bisect/").unwrap_or(short);
+    match short.split_once('-').map_or(short, |(term, _)| term) {
+        "skip" => "skipped".to_owned(),
+        term => term.to_owned(),
+    }
+}
+
 /// Reads every branch, remote branch and tag, plus HEAD when it is detached. Symbolic remote
-/// refs (`origin/HEAD`) are skipped; other namespaces (notes, stash, replace) are ignored.
+/// refs (`origin/HEAD`) are skipped; other namespaces (notes, stash, replace) are ignored; the
+/// marks of a bisect (`refs/bisect/*`) are kept.
 pub fn collect_refs(repo: &gix::Repository) -> Result<Vec<GraphRef>, GraphError> {
     let head = repo.head().map_err(GraphError::gix)?;
     let head_branch = head.referent_name().map(|name| name.as_bstr().to_owned());
@@ -56,13 +71,18 @@ pub fn collect_refs(repo: &gix::Repository) -> Result<Vec<GraphRef>, GraphError>
             Some(Category::LocalBranch) => RefKind::LocalBranch,
             Some(Category::RemoteBranch) => RefKind::RemoteBranch,
             Some(Category::Tag) => RefKind::Tag,
+            Some(Category::Bisect) => RefKind::Bisect,
             _ => continue,
         };
         if kind == RefKind::RemoteBranch && reference.target().try_id().is_none() {
             continue;
         }
         let full_name = reference.name().as_bstr().to_owned();
-        let name = reference.name().shorten().to_string();
+        let name = if kind == RefKind::Bisect {
+            bisect_mark(&reference.name().shorten().to_string())
+        } else {
+            reference.name().shorten().to_string()
+        };
         // A dangling ref is skipped rather than failing the whole graph.
         let Ok(target) = reference.peel_to_id() else {
             tracing::warn!(%name, "skipping a reference that cannot be resolved");
@@ -76,4 +96,17 @@ pub fn collect_refs(repo: &gix::Repository) -> Result<Vec<GraphRef>, GraphError>
         });
     }
     Ok(refs)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::bisect_mark;
+
+    #[test]
+    fn bisect_marks_are_named_by_their_term() {
+        assert_eq!(bisect_mark("bisect/bad"), "bad");
+        assert_eq!(bisect_mark("bisect/good-0123abcd"), "good");
+        assert_eq!(bisect_mark("bisect/skip-0123abcd"), "skipped");
+        assert_eq!(bisect_mark("new"), "new");
+    }
 }

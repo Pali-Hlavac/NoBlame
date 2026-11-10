@@ -51,6 +51,8 @@ const APP_COMMANDS: &[&str] = &[
     "list_stashes",
     "list_submodules",
     "get_submodule_log",
+    "bisect_mark",
+    "get_bisect",
     "list_worktrees",
     "add_worktree",
     "remove_worktree",

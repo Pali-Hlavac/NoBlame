@@ -13,7 +13,14 @@ import { cn } from "@/shared/lib/cn";
 import type { BranchRow } from "../lib/rows";
 import { trackingText, type BranchTracking } from "../lib/tracking";
 
-const ICONS = { branch: GitBranchIcon, remote: GlobeIcon, tag: TagIcon, head: GitBranchIcon };
+// The list holds no bisect marks (`list_refs` leaves them out); the type has them.
+const ICONS = {
+  branch: GitBranchIcon,
+  remote: GlobeIcon,
+  tag: TagIcon,
+  head: GitBranchIcon,
+  bisect: GitBranchIcon,
+};
 
 const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "medium" });
 

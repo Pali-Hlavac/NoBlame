@@ -224,8 +224,44 @@ the file in the **Merge** tab (one tab, beside the graph like the diff; `showMer
   resolutions are lost; `--abort` (`git bisect reset`).
 - Errors stay in the bar with git's words.
 
+## Bisecting
+
+M7 slice 3 (2026-11-10). Bisecting finds the commit that brought a problem in.
+
+- The commit menu's **More** submenu: **Bisect: mark as bad (has the problem)**, **…as good
+  (does not have it)**, **…skip (cannot be tested)** (`RefActions.bisect`). Without a bisect
+  running, a bad or good mark first opens **Start bisecting?**: what bisecting does, that HEAD
+  is detached and **Stop bisecting** goes back to the branch, and a warning when tracked files
+  have uncommitted changes (they travel with each checkout, or git refuses). It runs
+  `git bisect start`, then `git bisect bad|good <commit>`. A skip without a bisect says to
+  start with good and bad.
+- The marks are labels in the graph: `refs/bisect/*` is a ref kind of its own (`bisect`;
+  `bad`, `good` from `good-<id>`, `skipped` from `skip-<id>`), left out of the Branches
+  module, the filters and the commit menu's ref submenus (`list_refs` skips them).
+- The bar while bisecting (`BisectBar`, instead of the operation bar): what to mark next
+  (a bad commit, a good one), or "Testing a1b2c3d4 Parse dates: 4 commits left after it
+  (about 2 more steps)" with **Good**, **Bad** and **Skip** for the checked-out commit, the
+  marks so far, and **Stop bisecting** (asks first: the marks are forgotten). Once found:
+  "Found the first bad commit: …", **Show it** (selects it in the graph) and **Stop
+  bisecting** (no question).
+- `get_bisect` reads the marks (`git for-each-ref refs/bisect/`), the commit tested (HEAD),
+  the first bad commit (`# first bad commit:` in `BISECT_LOG`; git 2.56 writes `first 'bad'
+commit`) and where it started (`BISECT_START`). Keyed under the status, so marks made in a
+  terminal show too.
+- How many commits are left comes from git's words with each mark ("Bisecting: 4 revisions left
+  … [<id>] …"), kept per repository for the commit that mark checked out (`store/bisect.ts`):
+  counting again (`git rev-list --bisect-vars`) on every refresh took 73 s over the Linux
+  kernel's v5.0..v6.1 (performance.md). After a mark made in a terminal the bar names the
+  commit without the count.
+- `bisect_mark` says where it stands from git's words: waiting for a good or bad commit,
+  testing (left and steps), found, or only skipped commits left. The toast says what to do
+  next.
+
 ## Code
 
+- `crates/git-core/src/operation/bisect.rs` (`bisect_mark`, `bisect_state`, `bisect_outcome`);
+  `src-tauri/src/operations/bisect.rs`; `src/features/operations/`: `BisectBar`,
+  `BisectStartDialog`, `hooks/useBisectActions.ts`, `lib/bisect.ts`, `api/bisect.ts`.
 - `crates/git-core/src/operation/`: `conflict.rs` (`conflicts`, `take_side`), `threeway.rs`
   (`merge_chunks` → `MergeChunk`), `merge_file.rs` (`merge_file` → `MergeFile` or
   `Unmergeable`, `save_merged`), `mergetool.rs`

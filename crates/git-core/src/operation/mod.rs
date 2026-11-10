@@ -8,6 +8,7 @@
 //! All writes run the user's `git`, so hooks, `merge.*` config and rerere apply; reading the
 //! state uses gix (the files git leaves in `.git`, as `git status` reads them).
 
+mod bisect;
 mod conflict;
 mod interactive;
 mod merge;
@@ -24,6 +25,10 @@ mod todo;
 use crate::branch::BranchError;
 use crate::cli::GitError;
 
+pub use bisect::{
+    BisectCommit, BisectMark, BisectOutcome, BisectState, bisect_mark, bisect_outcome,
+    bisect_state, bisecting,
+};
 pub use conflict::{Conflict, ConflictKind, Side, conflicts, take_side};
 pub use interactive::{
     InteractiveOutcome, InteractivePlan, MAX_INTERACTIVE_COMMITS, PlannedCommit, interactive_plan,

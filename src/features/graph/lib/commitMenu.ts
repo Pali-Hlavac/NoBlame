@@ -7,6 +7,7 @@ import type { CommitRowDto, RefLabel } from "@/shared/ipc/bindings";
 
 import { shortId } from "./format";
 import { MENU_MILESTONES, item, refItem, separator, type MenuEntry } from "./menuEntry";
+import type { RefActions, StartPoint } from "./refActions";
 import { refEntries, type RefMenuActions } from "./refMenu";
 
 export { MENU_MILESTONES, type MenuEntry };
@@ -33,14 +34,36 @@ const REF_KIND_WORDS: Record<RefLabel["kind"], string> = {
   remote: "Remote branch",
   tag: "Tag",
   head: "HEAD",
+  bisect: "Bisect mark",
 };
+
+/** Marking the commit in a bisect (the labelled stub without the actions). */
+function bisectEntries(here: StartPoint, refActions: RefActions | undefined): MenuEntry[] {
+  const marks = [
+    ["bad", "Bisect: mark as bad (has the problem)"],
+    ["good", "Bisect: mark as good (does not have it)"],
+    ["skip", "Bisect: skip (cannot be tested)"],
+  ] as const;
+  return marks.map(([mark, label]) =>
+    item(
+      `bisect-${mark}`,
+      label,
+      refActions ? undefined : advanced,
+      refActions &&
+        (() => {
+          refActions.bisect(here, mark);
+        }),
+    ),
+  );
+}
 
 /** The menu for `commit`. */
 export function commitMenu(commit: CommitRowDto, actions: CommitMenuActions): MenuEntry[] {
   const { copy, refs: refActions } = actions;
   const here = { revision: commit.id, label: `${shortId(commit.id)} ${commit.summary}` };
   const picked = { ...here, parentCount: commit.parentCount };
-  const refs = commit.refs.filter((ref) => ref.kind !== "head");
+  // A bisect's marks are not references to act on.
+  const refs = commit.refs.filter((ref) => ref.kind !== "head" && ref.kind !== "bisect");
   const entries: MenuEntry[] = [
     {
       type: "submenu",
@@ -175,8 +198,8 @@ export function commitMenu(commit: CommitRowDto, actions: CommitMenuActions): Me
     id: "advanced",
     label: "More",
     entries: [
-      item("bisect-good", "Bisect: mark as good", advanced),
-      item("bisect-bad", "Bisect: mark as bad", advanced),
+      ...bisectEntries(here, refActions),
+      separator("sep-bisect"),
       item("patch", "Create a patch…", advanced),
       item("archive", "Save an archive…", advanced),
       item("scripts", "Run a script…", advanced),

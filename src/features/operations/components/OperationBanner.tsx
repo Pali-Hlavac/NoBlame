@@ -9,6 +9,7 @@ import type { OperationDto, StepOutcomeDto } from "@/shared/ipc/bindings";
 import { Button } from "@/shared/ui/button";
 
 import { useStepOperation } from "../api/operations";
+import { BisectBar } from "./BisectBar";
 import { openConflicts } from "../store/dialog";
 import { showOutcome } from "../lib/outcome";
 import { ABORT_WORDS, canSkip, operationTitle, stepToast } from "../lib/words";
@@ -26,6 +27,7 @@ export function OperationBanner({ repoId }: OperationBannerProps) {
   const status = useWorkingTreeStatus(repoId);
   const operation = status.data?.operation;
   if (!operation) return null;
+  if (operation.kind === "bisect") return <BisectBar repoId={repoId} />;
   return (
     <OperationBar
       // A new operation starts with fresh buttons (no error left from the last one).

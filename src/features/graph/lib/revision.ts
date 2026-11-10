@@ -12,5 +12,8 @@ export function refRevision(ref: Pick<RefLabel, "kind" | "name">): string {
       return `refs/tags/${ref.name}`;
     case "head":
       return "HEAD";
+    case "bisect":
+      // Only `bad` names a ref (`good-<id>`); the menus never offer a bisect mark.
+      return `refs/bisect/${ref.name}`;
   }
 }

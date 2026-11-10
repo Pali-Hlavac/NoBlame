@@ -1,9 +1,10 @@
 //! Changing history: merging into the current branch, cherry-picking, reverting, resetting and
 //! rebasing, resolving conflicts (a side, the merge tool, the built-in merge view),
 //! and the operation in progress (merge, cherry-pick, revert, rebase, `git am`, bisect) with
-//! Continue, Skip and Abort. See
+//! Continue, Skip and Abort; bisecting (`bisect.rs`). See
 //! `docs/features/operations.md`.
 
+pub mod bisect;
 pub mod commands;
 mod conflicts;
 mod error;

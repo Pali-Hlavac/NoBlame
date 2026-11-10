@@ -2,7 +2,14 @@ import { useMemo } from "react";
 import { toast } from "sonner";
 
 import type { RefActions } from "@/features/graph";
-import { openInteractive, openMerge, openPick, openRebase, openReset } from "@/features/operations";
+import {
+  openInteractive,
+  openMerge,
+  openPick,
+  openRebase,
+  openReset,
+  useBisectActions,
+} from "@/features/operations";
 import { toIpcError } from "@/shared/ipc/client";
 
 import { useCheckoutBranch } from "../api/branches";
@@ -15,6 +22,7 @@ import { openBranchDialog } from "../store/dialog";
 export function useRefActions(repoId: number): RefActions {
   const checkout = useCheckoutBranch(repoId);
   const { mutate } = checkout;
+  const bisect = useBisectActions(repoId);
   return useMemo(
     () => ({
       checkoutBranch: (name) => {
@@ -77,7 +85,8 @@ export function useRefActions(repoId: number): RefActions {
       reset: (commit, options) => {
         openReset(repoId, commit, options?.restore === true);
       },
+      bisect,
     }),
-    [mutate, repoId],
+    [bisect, mutate, repoId],
   );
 }

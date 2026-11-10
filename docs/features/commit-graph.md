@@ -44,12 +44,13 @@ Rows whose text is still loading show a grey placeholder bar.
 
 ## Reference labels
 
-| Kind          | Look                |
-| ------------- | ------------------- |
-| Local branch  | Green, branch icon  |
-| Remote branch | Blue, globe icon    |
-| Tag           | Amber, tag icon     |
-| Detached HEAD | Yellow label "HEAD" |
+| Kind          | Look                                                                     |
+| ------------- | ------------------------------------------------------------------------ |
+| Local branch  | Green, branch icon                                                       |
+| Remote branch | Blue, globe icon                                                         |
+| Tag           | Amber, tag icon                                                          |
+| Detached HEAD | Yellow label "HEAD"                                                      |
+| Bisect mark   | `bad` red, `good` green, `skipped` grey, with a search icon (M7 slice 3) |
 
 The branch HEAD points to is bold and outlined. Labels are sorted: detached HEAD, local
 branches, remote branches, tags. The tooltip names the kind and the full short name. Labels are
@@ -101,20 +102,21 @@ Right-clicking a commit selects it and opens its menu; **Shift+F10** or the **Me
 the menu of the selected commit (owner request 2026-10-30). The menu starts with the short id and
 subject.
 
-| Entry                                                          | Status                                 |
-| -------------------------------------------------------------- | -------------------------------------- |
-| Copy ▸ Commit id, Short commit id, Subject, Whole message      | Works                                  |
-| Highlight its history / Clear the highlight                    | Works (when highlighting is on)        |
-| Browse files at this commit                                    | Works (opens the Files module)         |
-| Compare with HEAD                                              | Works (the compare tab)                |
-| Compare with the working tree                                  | Works (not in bare repos)              |
-| Check out this commit, Create a branch here, Create a tag here | Works ([branches.md](branches.md))     |
-| Merge into the current branch                                  | Works ([operations.md](operations.md)) |
-| Cherry-pick, Revert, Reset the current branch to here          | Works ([operations.md](operations.md)) |
-| Rebase the current branch onto this                            | Works ([operations.md](operations.md)) |
-| Interactive rebase from here                                   | Works ([operations.md](operations.md)) |
-| A submenu per branch or tag on the commit                      | See below; merge and rebase work       |
-| More ▸ Bisect, Create a patch, Save an archive, Run a script   | Disabled, **M7**                       |
+| Entry                                                          | Status                                           |
+| -------------------------------------------------------------- | ------------------------------------------------ |
+| Copy ▸ Commit id, Short commit id, Subject, Whole message      | Works                                            |
+| Highlight its history / Clear the highlight                    | Works (when highlighting is on)                  |
+| Browse files at this commit                                    | Works (opens the Files module)                   |
+| Compare with HEAD                                              | Works (the compare tab)                          |
+| Compare with the working tree                                  | Works (not in bare repos)                        |
+| Check out this commit, Create a branch here, Create a tag here | Works ([branches.md](branches.md))               |
+| Merge into the current branch                                  | Works ([operations.md](operations.md))           |
+| Cherry-pick, Revert, Reset the current branch to here          | Works ([operations.md](operations.md))           |
+| Rebase the current branch onto this                            | Works ([operations.md](operations.md))           |
+| Interactive rebase from here                                   | Works ([operations.md](operations.md))           |
+| A submenu per branch or tag on the commit                      | See below; merge and rebase work                 |
+| More ▸ Bisect: mark as bad, good, skip                         | Works ([operations.md](operations.md#bisecting)) |
+| More ▸ Create a patch, Save an archive, Run a script           | Disabled, **M7**                                 |
 
 Each disabled entry names the milestone that delivers it. A branch's submenu offers:
 

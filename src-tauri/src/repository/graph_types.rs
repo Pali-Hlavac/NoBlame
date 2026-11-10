@@ -54,6 +54,8 @@ pub enum RefKindDto {
     Remote,
     /// Tag.
     Tag,
+    /// A bisect's mark (`bad`, `good`, `skipped`).
+    Bisect,
 }
 
 impl From<RefKind> for RefKindDto {
@@ -63,6 +65,7 @@ impl From<RefKind> for RefKindDto {
             RefKind::LocalBranch => Self::Branch,
             RefKind::RemoteBranch => Self::Remote,
             RefKind::Tag => Self::Tag,
+            RefKind::Bisect => Self::Bisect,
         }
     }
 }
