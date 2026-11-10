@@ -73,7 +73,7 @@ fn staged_files_compare_head_with_the_index() {
 fn unstaged_files_compare_the_index_with_the_working_tree() {
     let status = parse(&[
         format!("1 MD N... 100644 100644 000000 {HEAD} {INDEX} gone.txt"),
-        format!("1 .M SC.. 160000 160000 160000 {HEAD} {HEAD} module"),
+        format!("1 .M SC.U 160000 160000 160000 {HEAD} {HEAD} module"),
         "? z new.txt".into(),
     ]);
     let [gone, module, new] = &status.unstaged[..] else {
@@ -83,6 +83,8 @@ fn unstaged_files_compare_the_index_with_the_working_tree() {
     assert_eq!(gone.old_id, Some(id(INDEX)));
     assert!(!gone.in_worktree);
     assert!(module.submodule && module.in_worktree);
+    assert!(module.submodule_changes.new_commits && module.submodule_changes.untracked);
+    assert!(!module.submodule_changes.modified);
     assert_eq!(new.path, "z new.txt");
     assert_eq!((new.state, new.old_id), (FileState::Untracked, None));
     assert!(new.in_worktree);

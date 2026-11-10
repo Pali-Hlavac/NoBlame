@@ -180,6 +180,12 @@ All notable changes to NoBlame are documented here. The format follows
   for all files at once. **Settings → Diff → Merge tool for conflicts** chooses Git's
   `merge.tool`, Visual Studio Code, Beyond Compare, KDiff3, Meld, P4Merge or another tool Git
   knows; it runs through `git mergetool`.
+- Submodules (M7 slice 1): the Repositories module shows submodules that are not initialized
+  and ones with **new commits** (checked out at another commit than recorded). Right-click a
+  submodule for **Initialize** or **Update to the recorded commit**; a repository's **…** menu
+  has **Update all submodules**. They run in the background with progress; moving submodules
+  that have new commits asks first. The diff of a submodule shows the commits between its two
+  pointers, and whether it has changed or untracked files of its own.
 - The reflog (M6 slice 7): the **Reflog** module (Alt+8) lists where HEAD or a branch pointed
   before each change, newest first. Choosing an entry selects its commit (or says only the
   reflog has it); right-click for **Restore this state…** (the reset window, starting on Keep my

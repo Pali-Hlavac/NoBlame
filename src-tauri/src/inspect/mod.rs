@@ -2,7 +2,7 @@
 //! refs containing the commit), changed files and their diffs, two revisions compared, the files of a revision, a file's
 //! history and blame, the list of references, the stash list and the submodule tree. See `docs/design/workbench.md`.
 //! Commit details also check signatures (`signing`). A diff can be opened in an external tool
-//! (`difftool`).
+//! (`difftool`). A submodule's diff lists the commits between its pointers (`submodule_log`).
 
 mod blame;
 mod changes;
@@ -16,6 +16,7 @@ mod history;
 mod service;
 mod signing;
 mod split;
+pub mod submodule_log;
 mod syntax;
 mod types;
 

@@ -183,6 +183,11 @@ pub struct SubmoduleDto {
     pub url: Option<String>,
     /// Cloned and checked out.
     pub initialized: bool,
+    /// The commit the superproject records for it (hex), if its index has one.
+    pub recorded: Option<String>,
+    /// The commit checked out in it (hex), when initialized; another than `recorded` means
+    /// "new commits".
+    pub checked_out: Option<String>,
     /// Nested submodules.
     pub children: Vec<SubmoduleDto>,
 }
@@ -195,6 +200,8 @@ impl From<SubmoduleEntry> for SubmoduleDto {
             work_dir: entry.work_dir,
             url: entry.url,
             initialized: entry.initialized,
+            recorded: entry.recorded,
+            checked_out: entry.checked_out,
             children: entry.children.into_iter().map(Self::from).collect(),
         }
     }

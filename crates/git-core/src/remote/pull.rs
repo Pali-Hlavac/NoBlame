@@ -66,8 +66,8 @@ pub fn pull_hint(output: &str) -> Option<&'static str> {
         ),
         (
             "CONFLICT",
-            "Some changes conflict. Resolve the files, then commit the merge or continue the rebase \
-             (`git rebase --continue`) in a terminal; NoBlame's conflict tools arrive in M6.",
+            "Some changes conflict. Resolve the files (Resolve… in the bar above the commits), \
+             then choose Continue there.",
         ),
         (
             "no tracking information",

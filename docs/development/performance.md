@@ -267,6 +267,12 @@ and cost nothing extra. Parsing counts all files, not only the 5,000 listed. Col
 much larger trees will be slower; the setting is off by default for that reason. The
 120,000-file tree took 946 s to `git add` once (Defender scanning each new file).
 
+### Submodule pointer log (M7 slice 1, 2026-11-10)
+
+The diff tab of a submodule runs `git log --max-count=201` in its clone, both ways. On the
+Linux kernel, v6.0..v6.1 (15,109 commits): 450 ms cold, 130 ms warm; v6.1..v6.0 (none): 70 ms
+(Windows 11). Listing submodules now also reads each initialized one's HEAD (gix).
+
 ### Reflog (M6 slice 7, 2026-11-10)
 
 `reflog_spike` reads a reflog newest first (gix `log_iter().rev()`, from the end of the file)

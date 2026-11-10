@@ -120,6 +120,14 @@ Use `target\debug\noblame.exe` while the dev app runs.
 - [ ] `demo-submodules`: submodules nested under the repository; an uninitialized one is grey;
       clicking one opens it in its own tab and it turns bold.
   - Notes:
+- [ ] **(new, M7)** Right-click a grey submodule → **Initialize**: a job runs, the row turns
+      normal. In a terminal, check out another commit in a submodule: the row says **new
+      commits**; **Update to the recorded commit** asks first and lists it, then puts it back.
+      A repository's **…** → **Update all submodules**.
+  - Notes:
+- [ ] **(new, M7)** Choose a submodule in Changed files (a commit that moved its pointer, and the
+      working tree): the diff lists the commits in between; **Open the submodule** opens it.
+  - Notes:
 - [ ] Hover an open repository → **…**: **Copy path**, **Close** work; Pull, Fetch, Push,
       Commit are listed as later.
   - Notes:

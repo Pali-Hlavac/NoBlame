@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import type { JobKindDto } from "@/shared/ipc/bindings";
 import { toIpcError } from "@/shared/ipc/client";
 
-import { bindJobToast, startingToast } from "./toasts";
+import { JOB_NOUNS, bindJobToast, startingToast } from "./toasts";
 
 /**
  * Shows "Fetching…" (by `kind`) at once and hands the toast to the job when `started` gives its
@@ -34,7 +34,7 @@ export function trackJob(started: Promise<number>, kind: JobKindDto): Promise<nu
 export function startJob(started: Promise<number>, kind: JobKindDto): void {
   trackJob(started, kind).catch((error: unknown) => {
     const { message, hint } = toIpcError(error);
-    toast.error(`Could not start the ${kind}`, {
+    toast.error(`Could not start the ${JOB_NOUNS[kind]}`, {
       description: hint ? `${message}\n${hint}` : message,
       classNames: { description: "whitespace-pre-line" },
     });

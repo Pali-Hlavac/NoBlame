@@ -83,6 +83,9 @@ Some files have no line diff. The tab then says why:
 - files larger than 64 MB;
 - files that were only renamed, or whose permissions changed.
 
+A submodule shows which commit it pointed to before and after, and the commits in between
+([Submodules](submodules.md#what-changed-in-a-submodule)).
+
 In a partial clone (made with `git clone --filter=blob:none`), older versions of files may not be
 on your computer yet. NoBlame says so; it does not download them.
 

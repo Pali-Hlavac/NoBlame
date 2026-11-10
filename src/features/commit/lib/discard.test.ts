@@ -11,6 +11,7 @@ function file(path: string, status: WorkingFileDto["status"]): WorkingFileDto {
     newId: null,
     worktree: true,
     submodule: false,
+    submoduleChanges: null,
   };
 }
 

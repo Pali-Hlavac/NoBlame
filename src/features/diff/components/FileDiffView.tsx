@@ -1,7 +1,6 @@
-import { BinaryIcon, EqualIcon, FileWarningIcon, PackageIcon } from "lucide-react";
+import { BinaryIcon, EqualIcon, FileWarningIcon } from "lucide-react";
 import { useRef, type RefObject } from "react";
 
-import { shortId } from "@/features/graph";
 import { requestedContext, useDiffSettings } from "@/features/settings";
 import type { WorkingTreeKind } from "@/features/working-tree";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
@@ -20,6 +19,7 @@ import { DiffHeader } from "./DiffHeader";
 import { DiffLines } from "./DiffLines";
 import { LineSelectionBar } from "./LineSelectionBar";
 import { ImageDiff } from "./ImageDiff";
+import { SubmoduleDiff } from "./SubmoduleDiff";
 
 interface DiffBodyProps {
   shown: ShownDiff;
@@ -76,16 +76,6 @@ function DiffBody({ shown, file, viewport }: DiffBodyProps) {
   );
 }
 
-/** What a submodule entry's diff says: its commit changed, or its own working tree did. */
-function submoduleText(file: DiffFile): string {
-  if (file.worktree) {
-    return "Its checked-out commit or its own files changed. Open the submodule to see how.";
-  }
-  const from = file.oldId ? shortId(file.oldId) : "nothing";
-  const to = file.newId ? shortId(file.newId) : "nothing";
-  return `Its commit changed from ${from} to ${to}.`;
-}
-
 /**
  * The diff of one file: changed by a commit, or in the working tree. Changing the options or the
  * layout keeps the old diff under an overlay until the new one is ready, then opens it at the
@@ -126,14 +116,7 @@ export function FileDiffView({ repoId, file, staging: stagingKind }: FileDiffVie
   );
   let body;
   if (file.submodule) {
-    body = (
-      <EmptyState
-        icon={PackageIcon}
-        title="Submodule"
-        description={submoduleText(file)}
-        className="flex-1"
-      />
-    );
+    body = <SubmoduleDiff repoId={repoId} file={file} />;
   } else if (summary.error) {
     body = (
       <ErrorState

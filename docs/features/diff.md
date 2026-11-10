@@ -66,7 +66,8 @@ slice 3c (syntax highlighting) and slice 3d (images, `.gitattributes`): slice 3 
   - files whose contents did not change (a pure rename, or only the mode changed);
   - only whitespace changed while whitespace is ignored;
   - empty added or removed files;
-  - submodule pointers (old and new commit);
+  - submodules: where the pointer went and the commits in between
+    ([submodules.md](submodules.md#the-diff-of-a-submodule));
   - partial clones, where the old version of a file is not local;
   - a working tree file that changed again while it was read (try again).
 - Huge diffs scroll smoothly: only visible rows exist, their text arrives in pages of 500.

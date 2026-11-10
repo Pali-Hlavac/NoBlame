@@ -9,6 +9,8 @@ const submodule = (workDir: string, children: SubmoduleDto[] = []): SubmoduleDto
   workDir,
   url: null,
   initialized: true,
+  recorded: null,
+  checkedOut: null,
   children,
 });
 

@@ -14,6 +14,7 @@ import { RepositoryActions } from "./RepositoryActionsMenu";
 import { RepositoryContextMenu } from "./RepositoryContextMenu";
 import { RepositoryQuickButtons } from "./QuickButtons";
 import { RepositoryTreeRow } from "./RepositoryTreeRow";
+import { UpdateAllSubmodulesItem } from "./SubmoduleMenus";
 import { SubmoduleList } from "./SubmoduleTree";
 
 interface OpenRepositoryProps {
@@ -47,21 +48,36 @@ export function OpenRepository({ tab, active, submodules }: OpenRepositoryProps)
           onDragStart={(event) => {
             startRepositoryDrag(event, { path: tab.path });
           }}
-          actions={<OpenRepositoryActions tab={tab} />}
+          actions={<OpenRepositoryActions tab={tab} submodules={submodules} />}
         />
       </RepositoryContextMenu>
-      {expanded && submodules.length > 0 && <SubmoduleList submodules={submodules} depth={1} />}
+      {expanded && submodules.length > 0 && (
+        <SubmoduleList submodules={submodules} parent={tab.path} depth={1} />
+      )}
     </li>
   );
 }
 
 /** An open repository's quick buttons and "…" menu. */
-function OpenRepositoryActions({ tab }: { tab: RepositoryTab }) {
+function OpenRepositoryActions({
+  tab,
+  submodules,
+}: {
+  tab: RepositoryTab;
+  submodules: readonly SubmoduleDto[];
+}) {
   const repository = { path: tab.path, tabId: tab.id, title: tab.title, open: true };
   return (
     <>
       <RepositoryQuickButtons repository={repository} />
-      <RepositoryActions repository={repository} />
+      <RepositoryActions
+        repository={repository}
+        extra={
+          submodules.length > 0 && (
+            <UpdateAllSubmodulesItem path={tab.path} submodules={submodules} />
+          )
+        }
+      />
     </>
   );
 }

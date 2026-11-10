@@ -154,7 +154,11 @@ impl From<RepositoryError> for AppError {
             RepositoryError::Status(StatusError::Git(error))
             | RepositoryError::History(HistoryError::Git(error))
             | RepositoryError::Blame(BlameError::Git(error))
-            | RepositoryError::Signing(SigningError::Git(error)) => GitEnvError::from(error).into(),
+            | RepositoryError::Signing(SigningError::Git(error))
+            | RepositoryError::Submodule(SubmoduleError::Git(error)) => GitEnvError::from(error).into(),
+            RepositoryError::Submodule(error @ SubmoduleError::InvalidPath(_)) => {
+                AppError::new(ErrorCode::InvalidInput, format!("{}.", capitalized(&error.to_string())))
+            }
             RepositoryError::Compare(error) => compare_error(error),
             RepositoryError::Branch(error) => super::branch_error::branch_error(error),
             RepositoryError::Clone(error) => super::branch_error::clone_error(error),

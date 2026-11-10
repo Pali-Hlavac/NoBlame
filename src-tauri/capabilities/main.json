@@ -78,6 +78,7 @@
     "allow-push-current-branch",
     "allow-list-remotes",
     "allow-clone-repository",
+    "allow-update-submodules",
     "allow-list-remote-details",
     "allow-add-remote",
     "allow-edit-remote",
@@ -123,6 +124,7 @@
     "allow-save-merged-file",
     "allow-open-external-diff",
     "allow-list-submodules",
+    "allow-get-submodule-log",
     "allow-get-workbench-layout",
     "allow-save-workbench-layout"
   ]

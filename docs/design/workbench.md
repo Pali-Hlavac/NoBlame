@@ -80,7 +80,8 @@ into one sidebar and one content area without clutter, and new modules would hav
 - Lists open repositories (and below them, recent ones), each with its **submodules nested as a
   tree** (recursively), read from the repository's submodule configuration.
 - Clicking a repository or submodule opens (or focuses) its repository tab.
-- Submodules that are not initialized are shown dimmed; initializing them is an M7 action.
+- Submodules that are not initialized are shown dimmed; initializing and updating them is in
+  their menus (M7 slice 1, [features/submodules.md](../features/submodules.md)).
 
 ### Diff tab
 

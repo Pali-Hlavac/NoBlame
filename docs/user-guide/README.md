@@ -5,9 +5,9 @@ NoBlame is a fast Git client for Windows, Linux and macOS, built for very large 
 This guide describes version 0.1.0. You can open, create and clone repositories, browse their
 history in the commit graph, see what each commit changed, stage and commit, stash, work with
 branches, tags and remotes (fetch, pull, push), merge, cherry-pick, revert, reset and rebase
-(also interactively), resolve conflicts, and get lost work back from the reflog. Features that
-come in later versions (submodule actions, worktrees, bisect, patches) are labelled
-placeholders, and so are the task windows.
+(also interactively), resolve conflicts, get lost work back from the reflog, and initialize
+and update submodules. Features that come in later versions (worktrees, bisect, patches) are
+labelled placeholders, and so are the task windows.
 
 | Page                                                      | What it covers                               |
 | --------------------------------------------------------- | -------------------------------------------- |
@@ -24,6 +24,7 @@ placeholders, and so are the task windows.
 | [Cherry-pick, revert, reset](cherry-pick-revert-reset.md) | Copying, undoing and moving back commits     |
 | [Rebasing](rebasing.md)                                   | Moving and editing your commits              |
 | [Getting lost work back](reflog.md)                       | The reflog: what you did, and restoring it   |
+| [Submodules](submodules.md)                               | Initializing, updating, what changed in them |
 | [Browsing files](browsing-files.md)                       | Every file of a commit; saving one           |
 | [File history](file-history.md)                           | Every commit that changed a file             |
 | [Blame](blame.md)                                         | Who last changed each line of a file         |

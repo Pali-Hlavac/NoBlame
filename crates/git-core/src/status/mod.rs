@@ -70,6 +70,20 @@ pub struct StatusFile {
     pub in_worktree: bool,
     /// The entry is a submodule (a commit pointer), not a file.
     pub submodule: bool,
+    /// For a submodule in the working tree: what changed inside it.
+    pub submodule_changes: SubmoduleChanges,
+}
+
+/// What changed inside a submodule, from `git status` (`S<c><m><u>`): all false for files and
+/// for the staged side.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct SubmoduleChanges {
+    /// It has another commit checked out than the one recorded ("new commits").
+    pub new_commits: bool,
+    /// Its tracked files have changes.
+    pub modified: bool,
+    /// It has untracked files.
+    pub untracked: bool,
 }
 
 impl StatusFile {

@@ -927,8 +927,8 @@ patches).
 
 ### M7: Advanced Git
 
-- [ ] Submodules: status, init/update, diff of submodule pointers (listing and opening them is in
-      the M2.5 Repositories module)
+- [x] Submodules: status, init/update, diff of submodule pointers (listing and opening them is in
+      the M2.5 Repositories module). Slice 1
 - [ ] Worktrees: list, add, remove, open
 - [ ] Git LFS: detect, show pointers vs. content, lock/unlock
 - [ ] Bisect workflow (good/bad/skip from the graph)
@@ -937,6 +937,40 @@ patches).
 - [ ] Settings: repo and global git config editor (explicit), app preferences, keyboard shortcuts
       (configurable in the Settings tab, owner request 2026-10-28; first move every shortcut into
       one keybinding registry, since features register their own today)
+
+Slices (planned 2026-11-10), the Git features first, then the app's own:
+
+1. **Submodules**: their state in the Repositories module (not initialized, checked out at
+   another commit than the one recorded), initialize and update as jobs, and the commits
+   between the two pointers when a submodule changed (diff tab).
+2. **Worktrees**: a Worktrees module listing them; add (new or existing branch), open as a
+   repository tab, remove (naming uncommitted changes), lock and unlock, prune stale entries.
+3. **Bisect**: start from the commit menu (good, bad), mark good, bad or skip from the graph,
+   the bisect marks in the graph, the bar while it runs, the result, reset.
+4. **Patches and archives**: create patches of a commit or a range (`format-patch`), apply a
+   patch or a mailbox (`git am`, `git apply --3way`, checked first), save an archive of a
+   revision (zip, tar.gz).
+5. **Git LFS**: detect LFS, files shown as pointer or content, the locks (list, lock, unlock).
+6. **User scripts**: commands with placeholders run from the menus, their output in a job.
+7. **Git config editor**: the repository's and the global settings, explicit and named.
+8. **Keyboard shortcuts**: one registry, configurable in Settings.
+
+Slice 1 done (2026-11-10): submodules ([features/submodules.md](features/submodules.md)).
+
+- The Repositories module shows which submodules are not initialized and which have "new
+  commits" (checked out elsewhere than recorded). **Initialize**, **Update to the recorded
+  commit** and **Update all submodules** run `git submodule update --init --recursive` as a
+  job; moving submodules with new commits asks first.
+- The diff tab of a submodule shows where its pointer went and the commits in between (added
+  and removed), and for the working tree whether it has files of its own changed.
+- Found while clicking through: "Open the submodule" was offered for one not checked out
+  (its empty folder would have opened the parent); the diff kept saying "not checked out"
+  after an update; the tree only noticed a submodule moved in a terminal on window focus
+  (now also on the watcher's changes); commit rows were cramped in a narrow tab.
+- Checked in the running app on a clone whose submodules were not initialized: Initialize,
+  Update all, a submodule moved in a terminal (badge, diff with the commit added and its own
+  changed file), Update back (the dialog, the local change kept), a commit bumping the pointer
+  (two commits listed), Open the submodule (a tab inside its parent's tree).
 
 ### M8: Standalone task windows (prepares phase 2)
 

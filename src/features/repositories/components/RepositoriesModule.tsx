@@ -28,6 +28,7 @@ import { ModuleSection } from "./ModuleSection";
 import { OpenTabsContext } from "./openTabsContext";
 import { RepositoryGroups } from "./RepositoryGroups";
 import { OpenRepository, RecentItem } from "./RepositoryRows";
+import { SubmoduleUpdateDialog } from "./SubmoduleUpdateDialog";
 
 const SECTION_TITLES: Record<RepositoriesSection, string> = {
   open: "Open",
@@ -200,6 +201,7 @@ export function RepositoriesModule() {
           />
         </div>
       </OpenTabsContext.Provider>
+      <SubmoduleUpdateDialog />
     </nav>
   );
 }

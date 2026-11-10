@@ -55,6 +55,8 @@ One page per user-facing feature: behaviour, edge cases and status.
   Continue, Skip and Abort
 - [reflog.md](features/reflog.md): the Reflog module (where HEAD or a branch pointed; restore
   that state, or create a branch there)
+- [submodules.md](features/submodules.md): submodules' state, initializing and updating them,
+  the commits between two pointers
 - [compare.md](features/compare.md): the compare tab (files that differ between two revisions, and their diffs)
 
 ## User guide

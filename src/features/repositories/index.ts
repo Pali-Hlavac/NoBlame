@@ -9,6 +9,7 @@ export { useRepositoryChanges } from "./hooks/useRepositoryChanges";
 export { useRepositoryPath } from "./hooks/useRepositoryPath";
 export { useSessionCleanup } from "./hooks/useSessionCleanup";
 export { useRecentRepositories } from "./api/recent";
+export { submoduleKeys } from "./api/submodules";
 export {
   openRepositories,
   pickFolder,

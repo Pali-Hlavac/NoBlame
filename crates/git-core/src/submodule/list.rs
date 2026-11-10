@@ -1,27 +1,14 @@
 //! Submodules of a repository, nested recursively, for the Repositories module. Read with gix
-//! from `.gitmodules` and the superproject's config; initializing and updating them runs the
-//! `git` CLI (M7).
+//! from `.gitmodules`, the superproject's config and index, and each submodule's HEAD.
 
 use std::path::Path;
 
 use gix::bstr::ByteSlice;
 
+use super::SubmoduleError;
+
 /// Nesting deeper than this is not listed (and protects against cycles in broken setups).
 pub const MAX_SUBMODULE_DEPTH: usize = 8;
-
-/// Failures while listing submodules.
-#[derive(Debug, thiserror::Error)]
-pub enum SubmoduleError {
-    /// gix could not read the configuration or a submodule.
-    #[error("{0}")]
-    Gix(String),
-}
-
-impl SubmoduleError {
-    fn gix(error: impl std::fmt::Display) -> Self {
-        Self::Gix(error.to_string())
-    }
-}
 
 /// One submodule and, when it is checked out, its own submodules.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -36,6 +23,12 @@ pub struct SubmoduleEntry {
     pub url: Option<String>,
     /// Cloned and checked out (`git submodule update --init` has run).
     pub initialized: bool,
+    /// The commit the superproject's index records for it (hex); `None` when the index has no
+    /// commit there (not added yet, or a conflict).
+    pub recorded: Option<String>,
+    /// The commit checked out in it (hex), when initialized. Different from `recorded`: it has
+    /// "new commits", as `git status` says.
+    pub checked_out: Option<String>,
     /// Its own submodules (only for initialized ones, up to [`MAX_SUBMODULE_DEPTH`]).
     pub children: Vec<SubmoduleEntry>,
 }
@@ -60,14 +53,21 @@ fn collect(repo: &gix::Repository, depth: usize) -> Result<Vec<SubmoduleEntry>, 
         let initialized = submodule
             .state()
             .is_ok_and(|state| state.repository_exists && state.worktree_checkout);
-        let child = if initialized && depth + 1 < MAX_SUBMODULE_DEPTH {
+        let child = if initialized {
             submodule.open().ok().flatten()
         } else {
             None
         };
+        let checked_out = child
+            .as_ref()
+            .and_then(|child| child.head_id().ok())
+            .map(|id| id.to_string());
+        let recorded = submodule.index_id().ok().flatten().map(|id| id.to_string());
         let children = match &child {
-            Some(child) => collect(child, depth + 1).unwrap_or_default(),
-            None => Vec::new(),
+            Some(child) if depth + 1 < MAX_SUBMODULE_DEPTH => {
+                collect(child, depth + 1).unwrap_or_default()
+            }
+            _ => Vec::new(),
         };
         // Join component by component: the path uses `/`, Windows paths use `\`, and the result
         // must equal the path a folder picker returns (it identifies the repository's tab).
@@ -89,6 +89,8 @@ fn collect(repo: &gix::Repository, depth: usize) -> Result<Vec<SubmoduleEntry>, 
             path,
             work_dir,
             initialized,
+            recorded,
+            checked_out,
             children,
         });
     }

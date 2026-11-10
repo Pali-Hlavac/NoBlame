@@ -8,7 +8,7 @@ use tauri::State;
 use super::clone::CloneRequestDto;
 use super::registry::JobRegistry;
 use super::types::{FetchRequestDto, JobDto, JobId, JobOutputDto, PullRequestDto, PushRequestDto};
-use super::{clone, fetch, sync};
+use super::{clone, fetch, submodules, sync};
 use crate::error::CommandResult;
 
 /// Running and recent jobs, newest first.
@@ -83,6 +83,18 @@ pub async fn clone_repository(
     request: CloneRequestDto,
 ) -> CommandResult<JobId> {
     Ok(clone::start(&registry, request).await?)
+}
+
+/// Starts `git submodule update --init --recursive` in the repository at `path` for the
+/// submodules at `paths` (relative to it), or for all of them when `paths` is empty.
+#[tauri::command]
+#[specta::specta]
+pub async fn update_submodules(
+    registry: State<'_, Arc<JobRegistry>>,
+    path: String,
+    paths: Vec<String>,
+) -> CommandResult<JobId> {
+    Ok(submodules::update(&registry, path, paths).await?)
 }
 
 /// The remotes of the repository at `path`, sorted.

@@ -135,7 +135,9 @@ Details:
     tab.
   - An open submodule stays inside its parent's tree: shown in bold, and highlighted when it is
     the active repository. It is not listed again as a repository of its own.
-  - Submodules that are not initialized are dimmed and cannot be opened; initializing them is M7.
+  - Submodules that are not initialized are dimmed and cannot be opened; right-click one to
+    initialize it. One checked out at another commit than recorded says "new commits"
+    ([submodules.md](submodules.md)).
   - Each open repository (and each open submodule) has a **…** button, shown on hover or focus,
     with its actions: **Copy path**, **Close**, **Fetch** ([remotes.md](remotes.md)) and
     **Commit…** work; **Pull** and **Push** (M5 slice 6) are listed disabled with their milestone. The app shell supplies the

@@ -75,6 +75,20 @@ pub struct WorkingFileDto {
     pub worktree: bool,
     /// A submodule pointer, not a file.
     pub submodule: bool,
+    /// For a submodule in the working tree: what changed inside it; `null` otherwise.
+    pub submodule_changes: Option<SubmoduleChangesDto>,
+}
+
+/// What changed inside a submodule (`git status`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct SubmoduleChangesDto {
+    /// Another commit is checked out than the one recorded.
+    pub new_commits: bool,
+    /// Its tracked files have changes.
+    pub modified: bool,
+    /// It has untracked files.
+    pub untracked: bool,
 }
 
 impl From<StatusFile> for WorkingFileDto {
@@ -95,6 +109,13 @@ impl From<StatusFile> for WorkingFileDto {
             new_id: file.new_id.map(|id| id.to_string()),
             worktree: file.in_worktree,
             submodule: file.submodule,
+            submodule_changes: (file.submodule && file.in_worktree).then_some(
+                SubmoduleChangesDto {
+                    new_commits: file.submodule_changes.new_commits,
+                    modified: file.submodule_changes.modified,
+                    untracked: file.submodule_changes.untracked,
+                },
+            ),
         }
     }
 }

@@ -146,6 +146,11 @@ export const commands = {
 	/**  Submodules of the repository containing `path`, nested recursively. */
 	listSubmodules: (path: string) => typedError<SubmoduleDto[], AppError>(__TAURI_INVOKE("list_submodules", { path })),
 	/**
+	 *  The commits between two pointers of the submodule at `path`: `from` (hex) and `to` (hex, or
+	 *  `null` for what the submodule has checked out). Read in the submodule's own clone.
+	 */
+	getSubmoduleLog: (id: number, path: string, from: string, to: string | null) => typedError<SubmoduleLogDto, AppError>(__TAURI_INVOKE("get_submodule_log", { id, path, from, to })),
+	/**
 	 *  Checks out the local branch `name`; returns what git printed. git refuses when local
 	 *  changes would be overwritten.
 	 */
@@ -206,6 +211,11 @@ export const commands = {
 	listRemotes: (path: string) => typedError<string[], AppError>(__TAURI_INVOKE("list_remotes", { path })),
 	/**  Starts `git clone` into a new (or empty) folder; the UI opens it when the job succeeded. */
 	cloneRepository: (request: CloneRequestDto) => typedError<number, AppError>(__TAURI_INVOKE("clone_repository", { request })),
+	/**
+	 *  Starts `git submodule update --init --recursive` in the repository at `path` for the
+	 *  submodules at `paths` (relative to it), or for all of them when `paths` is empty.
+	 */
+	updateSubmodules: (path: string, paths: string[]) => typedError<number, AppError>(__TAURI_INVOKE("update_submodules", { path, paths })),
 	/**  The remotes with their URLs, remote branches and the local branches tracking them. */
 	listRemoteDetails: (id: number) => typedError<RemoteDto[], AppError>(__TAURI_INVOKE("list_remote_details", { id })),
 	/**  Adds a remote (`git remote add`); nothing is fetched yet. */
@@ -1378,7 +1388,9 @@ export type JobKindDto =
 /**  `git push`. */
 "push" | 
 /**  `git clone`; its `repoPath` is the new repository's folder. */
-"clone";
+"clone" | 
+/**  `git submodule update --init --recursive`. */
+"submoduleUpdate";
 
 /**  Lines of a job's log, from line `from` (counting from its first line) on. */
 export type JobOutputDto = {
@@ -1625,6 +1637,32 @@ export type PlannedCommitDto = {
 	time: number | null,
 	/**  The whole message. */
 	message: string,
+};
+
+/**  A commit between two pointers. */
+export type PointerCommitDto = {
+	/**  Full id. */
+	id: string,
+	/**  The first line of its message. */
+	summary: string,
+	/**  Author name. */
+	author: string,
+	/**  Author time, seconds since the epoch. */
+	time: number | null,
+};
+
+/**  The commits between two pointers, newest first on each side (at most 200 each). */
+export type PointerLogDto = {
+	/**  The new pointer's commit (what is checked out, for the working tree). */
+	to: string,
+	/**  Commits the new pointer has and the old one does not. */
+	added: PointerCommitDto[],
+	/**  Commits the old pointer had and the new one does not. */
+	removed: PointerCommitDto[],
+	/**  More were added than listed. */
+	moreAdded: boolean,
+	/**  More were removed than listed. */
+	moreRemoved: boolean,
 };
 
 /**  How a pull joins the upstream's commits with the branch's own. */
@@ -2208,6 +2246,16 @@ export type StepOutcomeDto =
 /**  It is still in progress without conflicts (a bisect, a paused rebase). */
 "inProgress";
 
+/**  What changed inside a submodule (`git status`). */
+export type SubmoduleChangesDto = {
+	/**  Another commit is checked out than the one recorded. */
+	newCommits: boolean,
+	/**  Its tracked files have changes. */
+	modified: boolean,
+	/**  It has untracked files. */
+	untracked: boolean,
+};
+
 /**  A submodule and its own submodules. */
 export type SubmoduleDto = {
 	/**  Name from `.gitmodules`. */
@@ -2220,9 +2268,27 @@ export type SubmoduleDto = {
 	url: string | null,
 	/**  Cloned and checked out. */
 	initialized: boolean,
+	/**  The commit the superproject records for it (hex), if its index has one. */
+	recorded: string | null,
+	/**
+	 *  The commit checked out in it (hex), when initialized; another than `recorded` means
+	 *  "new commits".
+	 */
+	checkedOut: string | null,
 	/**  Nested submodules. */
 	children: SubmoduleDto[],
 };
+
+/**  What the diff tab says about a submodule's pointer change. */
+export type SubmoduleLogDto = 
+/**  The submodule is not checked out here: its commits cannot be read. */
+{ kind: "notCheckedOut" } | 
+/**  Its clone does not have one of the commits (not fetched yet). */
+{ kind: "missing" } | 
+/**  The commits between the pointers. */
+{
+	kind: "log",
+} & PointerLogDto;
 
 /**  What a coloured part of a line is. */
 export type SyntaxClassDto = 
@@ -2399,6 +2465,8 @@ export type WorkingFileDto = {
 	worktree: boolean,
 	/**  A submodule pointer, not a file. */
 	submodule: boolean,
+	/**  For a submodule in the working tree: what changed inside it; `null` otherwise. */
+	submoduleChanges: SubmoduleChangesDto | null,
 };
 
 /**  What happened to a file on one side of the status. */

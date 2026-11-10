@@ -72,8 +72,8 @@ Point at a repository (open, in a group, or a downloaded submodule) to see its *
 **Copy path** works, **Open** opens it if it is not open yet, **Close** closes its tab, and in a
 group **Remove from group** takes it out. **Commit…** shows the repository and opens the commit
 window. **Pull**, **Fetch** and **Push** work even when the repository is not open
-([Fetching, pulling and pushing](remotes.md#in-the-repositories-module)). A grey submodule has not been downloaded yet ("initialized"); NoBlame cannot
-initialize submodules in this version.
+([Fetching, pulling and pushing](remotes.md#in-the-repositories-module)). A grey submodule has not been downloaded yet ("initialized"): right-click it to
+initialize it ([Submodules](submodules.md)).
 
 Click the title of a section (**Open**, **Groups**, **Recent**) to fold or unfold it. Drag a
 title onto another section to change their order, or press Alt+Up or Alt+Down on it. NoBlame

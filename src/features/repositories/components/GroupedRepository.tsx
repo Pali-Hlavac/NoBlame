@@ -24,6 +24,7 @@ import { RepositoryActions } from "./RepositoryActionsMenu";
 import { RepositoryContextMenu } from "./RepositoryContextMenu";
 import { RepositoryQuickButtons } from "./QuickButtons";
 import { RepositoryTreeRow } from "./RepositoryTreeRow";
+import { UpdateAllSubmodulesItem } from "./SubmoduleMenus";
 import { SubmoduleList } from "./SubmoduleTree";
 
 /** Classes of a row while something is dragged over it. */
@@ -99,21 +100,26 @@ export function GroupedRepository({ group, path, missing }: GroupedRepositoryPro
               <RepositoryActions
                 repository={repository}
                 extra={
-                  <DropdownMenuItem
-                    onSelect={() => {
-                      edit((groups) => removeRepository(groups, group.id, path));
-                    }}
-                  >
-                    <FolderMinusIcon className={KIND_ICON_CLASSES.groups} aria-hidden />
-                    Remove from group
-                  </DropdownMenuItem>
+                  <>
+                    <UpdateAllSubmodulesItem path={path} submodules={submodules} />
+                    <DropdownMenuItem
+                      onSelect={() => {
+                        edit((groups) => removeRepository(groups, group.id, path));
+                      }}
+                    >
+                      <FolderMinusIcon className={KIND_ICON_CLASSES.groups} aria-hidden />
+                      Remove from group
+                    </DropdownMenuItem>
+                  </>
                 }
               />
             </>
           }
         />
       </RepositoryContextMenu>
-      {expanded && submodules.length > 0 && <SubmoduleList submodules={submodules} depth={2} />}
+      {expanded && submodules.length > 0 && (
+        <SubmoduleList submodules={submodules} parent={path} depth={2} />
+      )}
     </li>
   );
 }

@@ -5,7 +5,9 @@
 use gix::ObjectId;
 use gix::bstr::{BString, ByteSlice};
 
-use super::{FileState, MAX_STATUS_FILES, StatusError, StatusFile, WorkingTreeStatus};
+use super::{
+    FileState, MAX_STATUS_FILES, StatusError, StatusFile, SubmoduleChanges, WorkingTreeStatus,
+};
 
 /// Fields before the path: `1 XY sub mH mI mW hH hI`.
 const ORDINARY_FIELDS: usize = 8;
@@ -41,6 +43,7 @@ impl WorkingTreeStatus {
                         new_id: None,
                         in_worktree: true,
                         submodule: false,
+                        submodule_changes: SubmoduleChanges::default(),
                     });
                 }
                 Some(b'!' | b'#') => {}
@@ -78,6 +81,7 @@ impl WorkingTreeStatus {
                 new_id: index_id,
                 in_worktree: false,
                 submodule,
+                submodule_changes: SubmoduleChanges::default(),
             });
         }
         if work_tree != b'.' {
@@ -92,6 +96,7 @@ impl WorkingTreeStatus {
                 new_id: None,
                 in_worktree: state != FileState::Deleted,
                 submodule,
+                submodule_changes: submodule_changes(sub),
             });
         }
         Ok(())
@@ -111,8 +116,22 @@ impl WorkingTreeStatus {
             // `mW` is 000000 when the file is not in the working tree.
             in_worktree: fields[6].iter().any(|&digit| digit != b'0'),
             submodule: fields[2].first() == Some(&b'S'),
+            submodule_changes: SubmoduleChanges::default(),
         });
         Ok(())
+    }
+}
+
+/// `S<c><m><u>`: `C` new commits, `M` changed files, `U` untracked files (`.` for none);
+/// `N...` (not a submodule) has none.
+fn submodule_changes(sub: &[u8]) -> SubmoduleChanges {
+    match sub {
+        [b'S', commit, modified, untracked] => SubmoduleChanges {
+            new_commits: *commit == b'C',
+            modified: *modified == b'M',
+            untracked: *untracked == b'U',
+        },
+        _ => SubmoduleChanges::default(),
     }
 }
 

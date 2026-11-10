@@ -18,6 +18,8 @@ pub enum JobKindDto {
     Push,
     /// `git clone`; its `repoPath` is the new repository's folder.
     Clone,
+    /// `git submodule update --init --recursive`.
+    SubmoduleUpdate,
 }
 
 /// Where a job is in its life.

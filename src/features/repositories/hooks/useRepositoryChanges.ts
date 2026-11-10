@@ -7,6 +7,7 @@ import { events, type RepoSummary, type RepositoryChanged } from "@/shared/ipc/b
 import { commands, unwrap } from "@/shared/ipc/client";
 
 import { sessionKeys } from "../api/session";
+import { submoduleKeys } from "../api/submodules";
 
 /** The path of the open repository whose session is `id`. */
 function sessionPath(queryClient: QueryClient, id: number): string | undefined {
@@ -23,6 +24,8 @@ async function applyChange(queryClient: QueryClient, change: RepositoryChanged):
   if (path === undefined) return;
   // A commit or checkout changes the index too, so refs changes re-read the status as well.
   void queryClient.invalidateQueries({ queryKey: statusKeys.all(change.id) });
+  // A submodule checked out at another commit, or initialized in a terminal.
+  void queryClient.invalidateQueries({ queryKey: submoduleKeys.byPath(path) });
   // The config holds the branches' upstreams (the Branches module keeps them under the refs).
   if (change.config && !change.refs) {
     void queryClient.invalidateQueries({ queryKey: refKeys.all(change.id) });
@@ -35,7 +38,7 @@ async function applyChange(queryClient: QueryClient, change: RepositoryChanged):
 
 /**
  * Keeps open repositories current while they change outside the app: the backend watches each
- * one and reports what changed; this re-reads the status, HEAD and the graph.
+ * one and reports what changed; this re-reads the status, the submodules, HEAD and the graph.
  */
 export function useRepositoryChanges(): void {
   const queryClient = useQueryClient();

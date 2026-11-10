@@ -14,7 +14,8 @@ A repository opens in a tab from:
 
 - **Open repository…** (Welcome tab, Repositories module, command palette): a folder picker.
 - The **recent repositories** list on the Welcome tab and in the Repositories module.
-- A **submodule** in the Repositories module ([workbench.md](workbench.md#modules)).
+- A **submodule** in the Repositories module ([workbench.md](workbench.md#modules)); its
+  state, initializing and updating it: [submodules.md](submodules.md).
 - The **command line**: `noblame <path>` ([cli.md](cli.md)).
 
 Any folder inside a repository works: NoBlame searches upwards like git and opens the repository

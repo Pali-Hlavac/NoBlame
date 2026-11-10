@@ -30,6 +30,7 @@ function file(path: string, overrides: Partial<WorkingFileDto>): WorkingFileDto 
     newId: null,
     worktree: true,
     submodule: false,
+    submoduleChanges: null,
     ...overrides,
   };
 }
