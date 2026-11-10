@@ -180,6 +180,10 @@ All notable changes to NoBlame are documented here. The format follows
   for all files at once. **Settings → Diff → Merge tool for conflicts** chooses Git's
   `merge.tool`, Visual Studio Code, Beyond Compare, KDiff3, Meld, P4Merge or another tool Git
   knows; it runs through `git mergetool`.
+- Worktrees (M7 slice 2): the **Worktrees** module (Alt+9) lists a repository's worktrees;
+  click one to open it in a tab. **Add a worktree…** checks out a new branch, a branch or a
+  commit in a new folder; right-click a worktree to **Lock…**, **Unlock** or **Remove…** it
+  (uncommitted files are named first); **Prune** forgets worktrees whose folders are gone.
 - Submodules (M7 slice 1): the Repositories module shows submodules that are not initialized
   and ones with **new commits** (checked out at another commit than recorded). Right-click a
   submodule for **Initialize** or **Update to the recorded commit**; a repository's **…** menu

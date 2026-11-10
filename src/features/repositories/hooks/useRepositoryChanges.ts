@@ -26,8 +26,9 @@ async function applyChange(queryClient: QueryClient, change: RepositoryChanged):
   void queryClient.invalidateQueries({ queryKey: statusKeys.all(change.id) });
   // A submodule checked out at another commit, or initialized in a terminal.
   void queryClient.invalidateQueries({ queryKey: submoduleKeys.byPath(path) });
-  // The config holds the branches' upstreams (the Branches module keeps them under the refs).
-  if (change.config && !change.refs) {
+  // The config holds the branches' upstreams (the Branches module keeps them under the refs);
+  // the Worktrees module keeps its list there too.
+  if ((change.config || change.worktrees) && !change.refs) {
     void queryClient.invalidateQueries({ queryKey: refKeys.all(change.id) });
   }
   if (!change.refs) return;

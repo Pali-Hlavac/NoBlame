@@ -12,7 +12,7 @@ use tauri_specta::{Builder, collect_commands, collect_events};
 
 use crate::{
     app_info, askpass, branches, git_env, inspect, jobs, operations, repository, settings, windows,
-    workbench, worktree,
+    workbench, worktree, worktrees,
 };
 
 /// Location of the generated bindings, relative to the crate root.
@@ -84,6 +84,12 @@ pub fn builder() -> Builder<tauri::Wry> {
             inspect::commands::list_stashes,
             inspect::commands::list_submodules,
             inspect::submodule_log::get_submodule_log,
+            worktrees::commands::list_worktrees,
+            worktrees::commands::add_worktree,
+            worktrees::commands::remove_worktree,
+            worktrees::commands::lock_worktree,
+            worktrees::commands::unlock_worktree,
+            worktrees::commands::prune_worktrees,
             branches::commands::checkout_branch,
             branches::commands::checkout_commit,
             branches::commands::create_branch,

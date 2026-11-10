@@ -125,6 +125,11 @@ Use `target\debug\noblame.exe` while the dev app runs.
       commits**; **Update to the recorded commit** asks first and lists it, then puts it back.
       A repository's **…** → **Update all submodules**.
   - Notes:
+- [ ] **(new, M7)** Worktrees module (Alt+9): **+** adds a worktree with a new branch next to
+      the repository and opens it; right-click → **Lock…**, **Unlock**, **Remove…** (with an
+      uncommitted file it is named and the button says **Remove with its changes**); a
+      worktree added in a terminal appears by itself; delete one's folder → **Prune**.
+  - Notes:
 - [ ] **(new, M7)** Choose a submodule in Changed files (a commit that moved its pointer, and the
       working tree): the diff lists the commits in between; **Open the submodule** opens it.
   - Notes:

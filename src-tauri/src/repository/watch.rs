@@ -12,6 +12,7 @@ use super::RepoId;
 /// A repository changed outside the app. The frontend reloads the graph (and everything read
 /// from it) for `refs`, and re-reads the status for `workTree`. A missed event is harmless:
 /// the status is also read when the window regains focus.
+#[allow(clippy::struct_excessive_bools)] // independent flags, reported together
 #[derive(Debug, Clone, Serialize, Deserialize, Type, tauri_specta::Event)]
 #[serde(rename_all = "camelCase")]
 pub struct RepositoryChanged {
@@ -23,6 +24,8 @@ pub struct RepositoryChanged {
     pub work_tree: bool,
     /// The repository's config changed (upstreams of branches, remotes).
     pub config: bool,
+    /// A linked worktree was added, removed, locked or unlocked, or its HEAD moved.
+    pub worktrees: bool,
 }
 
 /// Starts watching `repo` for session `id`. Failing to watch (for example the inotify limit
@@ -38,6 +41,7 @@ pub fn start(app: &AppHandle, id: RepoId, repo: &Repository) -> Option<RepoWatch
                 refs: changes.refs,
                 work_tree: changes.work_tree,
                 config: changes.config,
+                worktrees: changes.worktrees,
             };
             if let Err(error) = event.emit(&app) {
                 tracing::warn!(%error, "could not report a repository change");

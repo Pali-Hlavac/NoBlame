@@ -7,6 +7,7 @@ import {
   FileDiffIcon,
   FolderGitIcon,
   FolderTreeIcon,
+  FoldersIcon,
   GitBranchIcon,
   GitCommitHorizontalIcon,
   GitCommitVerticalIcon,
@@ -22,6 +23,7 @@ import { ReflogModule } from "@/features/reflog";
 import { RepositoriesModule } from "@/features/repositories";
 import { StashesModule } from "@/features/stashes";
 import type { WorkbenchModule } from "@/features/workbench";
+import { WorktreesModule } from "@/features/worktrees";
 
 import { COMMIT_MODULE_ID } from "./commit";
 
@@ -94,10 +96,18 @@ export const MODULES: readonly WorkbenchModule[] = [
     hotkey: "alt+8",
     component: ReflogModule,
   },
+  {
+    id: "worktrees",
+    title: "Worktrees",
+    icon: FoldersIcon,
+    kind: "repositories",
+    hotkey: "alt+9",
+    component: WorktreesModule,
+  },
 ];
 
 /** Module dock on first start and after "Reset layout": groups top to bottom, tabs inside. */
 export const DEFAULT_MODULE_LAYOUT: readonly (readonly string[])[] = [
-  ["repositories", "branches"],
+  ["repositories", "branches", "worktrees"],
   ["commit-details", "changed-files", "files", "stashes", "reflog"],
 ];

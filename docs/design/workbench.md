@@ -61,7 +61,7 @@ into one sidebar and one content area without clutter, and new modules would hav
 
 - **Activity bar** (icons, far left): each icon opens a module in the left dock or brings it to
   the front. Modules: Repositories, Branches (local, remote, tags), Commit details, Changed files,
-  Stashes; later Submodules actions, Worktrees, Search, Reflog, Bisect, Scripts. A small registry
+  Stashes, Reflog and Worktrees; later Search, Bisect, Scripts. A small registry
   makes a new module one feature folder plus one registration.
 - **Left dock**: holds the open modules; they can be stacked as tabs or split vertically, resized,
   and the whole dock collapsed.

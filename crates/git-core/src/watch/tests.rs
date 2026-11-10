@@ -34,6 +34,17 @@ fn the_index_and_files_are_work_tree_changes() {
 }
 
 #[test]
+fn other_worktrees_are_worktree_changes_but_not_their_index() {
+    let worktree = |rest: &str| kind(&format!("/repo/.git/worktrees/{rest}"));
+    assert_eq!(worktree("topic"), Some(ChangeKind::Worktrees));
+    assert_eq!(worktree("topic/gitdir"), Some(ChangeKind::Worktrees));
+    assert_eq!(worktree("topic/HEAD"), Some(ChangeKind::Worktrees));
+    assert_eq!(worktree("topic/locked"), Some(ChangeKind::Worktrees));
+    assert_eq!(worktree("topic/index"), None);
+    assert_eq!(worktree("topic/logs/HEAD"), None);
+}
+
+#[test]
 fn objects_logs_and_locks_are_ignored() {
     assert_eq!(kind("/repo/.git/objects/ab/cdef"), None);
     assert_eq!(kind("/repo/.git/logs/HEAD"), None);

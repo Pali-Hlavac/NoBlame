@@ -18,6 +18,7 @@ pub mod storage;
 mod windows;
 mod workbench;
 mod worktree;
+mod worktrees;
 
 use cli::LaunchRequest;
 

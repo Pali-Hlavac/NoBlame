@@ -929,7 +929,7 @@ patches).
 
 - [x] Submodules: status, init/update, diff of submodule pointers (listing and opening them is in
       the M2.5 Repositories module). Slice 1
-- [ ] Worktrees: list, add, remove, open
+- [x] Worktrees: list, add, remove, open (slice 2)
 - [ ] Git LFS: detect, show pointers vs. content, lock/unlock
 - [ ] Bisect workflow (good/bad/skip from the graph)
 - [ ] Patches: create (format-patch), apply (am/apply); archive a revision
@@ -971,6 +971,24 @@ Slice 1 done (2026-11-10): submodules ([features/submodules.md](features/submodu
   Update all, a submodule moved in a terminal (badge, diff with the commit added and its own
   changed file), Update back (the dialog, the local change kept), a commit bumping the pointer
   (two commits listed), Open the submodule (a tab inside its parent's tree).
+
+Slice 2 done (2026-11-10): worktrees ([features/worktrees.md](features/worktrees.md)).
+
+- The **Worktrees** module (Alt+9, with Repositories and Branches in the default layout): each
+  worktree with what it has checked out, badges for main, this tab, locked and folder gone;
+  a click opens it as a tab. **Add a worktree…** (a new branch, a free branch or a commit; the
+  folder suggested next to the main one), **Remove…** (naming uncommitted files, then
+  forcing), **Lock…**/**Unlock**, **Prune**.
+- Found while clicking through: worktrees added, removed or switched in a terminal did not
+  show until a refresh (the watcher now reports `.git/worktrees/<name>` and its `gitdir`,
+  `HEAD` and `locked` files, not its index); the folder field hid the end of a long path (now
+  also shown in full below it); the "main" badge read like the branch `main` (now "main
+  worktree").
+- Checked in the running app on a scratch repository with a linked worktree and one whose
+  folder was deleted: Add (a new branch, opened as a tab), Remove of one with a new and a
+  changed file (named, then forced; its branch kept), Lock with a reason and Unlock, Remove
+  disabled for this tab's worktree, Prune, the branch choice leaving out branches checked out
+  elsewhere, and worktrees added, removed and switched in a terminal.
 
 ### M8: Standalone task windows (prepares phase 2)
 

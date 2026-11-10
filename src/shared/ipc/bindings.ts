@@ -150,6 +150,24 @@ export const commands = {
 	 *  `null` for what the submodule has checked out). Read in the submodule's own clone.
 	 */
 	getSubmoduleLog: (id: number, path: string, from: string, to: string | null) => typedError<SubmoduleLogDto, AppError>(__TAURI_INVOKE("get_submodule_log", { id, path, from, to })),
+	/**  The repository's worktrees, the main one first (`git worktree list --porcelain -z`). */
+	listWorktrees: (id: number) => typedError<WorktreeDto[], AppError>(__TAURI_INVOKE("list_worktrees", { id })),
+	/**
+	 *  Adds a worktree in a new (or empty) folder, checking out a new branch, an existing one or
+	 *  a commit; returns what git printed.
+	 */
+	addWorktree: (id: number, request: AddWorktreeRequestDto) => typedError<string, AppError>(__TAURI_INVOKE("add_worktree", { id, request })),
+	/**
+	 *  Removes the worktree at `folder`; `force` also removes one with changed or untracked files
+	 *  (they are lost). Refused for this tab's own worktree and for locked ones.
+	 */
+	removeWorktree: (id: number, folder: string, force: boolean) => typedError<string, AppError>(__TAURI_INVOKE("remove_worktree", { id, folder, force })),
+	/**  Locks the worktree at `folder` (an empty `reason` gives none). */
+	lockWorktree: (id: number, folder: string, reason: string) => typedError<string, AppError>(__TAURI_INVOKE("lock_worktree", { id, folder, reason })),
+	/**  Unlocks the worktree at `folder`. */
+	unlockWorktree: (id: number, folder: string) => typedError<string, AppError>(__TAURI_INVOKE("unlock_worktree", { id, folder })),
+	/**  Forgets worktrees whose folders are gone (`git worktree prune`); returns what git printed. */
+	pruneWorktrees: (id: number) => typedError<string, AppError>(__TAURI_INVOKE("prune_worktrees", { id })),
 	/**
 	 *  Checks out the local branch `name`; returns what git printed. git refuses when local
 	 *  changes would be overwritten.
@@ -403,6 +421,14 @@ export const events = {
 export type AddRemoteRequestDto = {
 	name: string,
 	url: string,
+};
+
+/**  A worktree to add. */
+export type AddWorktreeRequestDto = {
+	/**  Its folder: a full path that does not exist yet, or an empty folder. */
+	folder: string,
+	/**  What it checks out. */
+	checkout: WorktreeCheckoutDto,
 };
 
 /**  Commits one side has that the other lacks. */
@@ -1984,6 +2010,8 @@ export type RepositoryChanged = {
 	workTree: boolean,
 	/**  The repository's config changed (upstreams of branches, remotes). */
 	config: boolean,
+	/**  A linked worktree was added, removed, locked or unlocked, or its HEAD moved. */
+	worktrees: boolean,
 };
 
 /**  One group, in the order the user arranged. */
@@ -2505,6 +2533,35 @@ export type WorkingTreeStatusDto = {
 	unstaged: WorkingFileDto[],
 	/**  The operation in progress (a merge stopped by conflicts, a rebase, ...), if any. */
 	operation: OperationDto | null,
+};
+
+/**  What a new worktree checks out. */
+export type WorktreeCheckoutDto = 
+/**  A new branch `name` made at `start`. */
+{ kind: "newBranch"; name: string; start: string } | 
+/**  An existing local branch. */
+{ kind: "branch"; name: string } | 
+/**  A commit without a branch. */
+{ kind: "detached"; revision: string };
+
+/**  One worktree of the repository. */
+export type WorktreeDto = {
+	/**  Its folder, with the platform's separators. */
+	path: string,
+	/**  The commit checked out (hex); `null` when bare or the branch has no commit yet. */
+	head: string | null,
+	/**  The branch checked out (short name); `null` when detached (HEAD at a commit) or bare. */
+	branch: string | null,
+	/**  A bare repository (no files checked out). */
+	bare: boolean,
+	/**  The main worktree: it cannot be removed. */
+	main: boolean,
+	/**  The worktree of this tab's repository. */
+	current: boolean,
+	/**  Locked: the reason, or an empty text; `null` when not locked. */
+	locked: string | null,
+	/**  Its folder is gone (prune would forget it): why; `null` otherwise. */
+	prunable: string | null,
 };
 
 /* Tauri Specta runtime */

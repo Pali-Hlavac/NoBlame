@@ -26,3 +26,4 @@ pub mod status;
 pub mod submodule;
 pub mod tree;
 pub mod watch;
+pub mod worktree;

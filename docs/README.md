@@ -57,6 +57,8 @@ One page per user-facing feature: behaviour, edge cases and status.
   that state, or create a branch there)
 - [submodules.md](features/submodules.md): submodules' state, initializing and updating them,
   the commits between two pointers
+- [worktrees.md](features/worktrees.md): the Worktrees module (list, add, open, lock, remove,
+  prune)
 - [compare.md](features/compare.md): the compare tab (files that differ between two revisions, and their diffs)
 
 ## User guide

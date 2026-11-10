@@ -125,6 +125,12 @@
     "allow-open-external-diff",
     "allow-list-submodules",
     "allow-get-submodule-log",
+    "allow-list-worktrees",
+    "allow-add-worktree",
+    "allow-remove-worktree",
+    "allow-lock-worktree",
+    "allow-unlock-worktree",
+    "allow-prune-worktrees",
     "allow-get-workbench-layout",
     "allow-save-workbench-layout"
   ]

@@ -22,16 +22,17 @@ usual coloured buttons are at its left end.
 
 Each icon in the activity bar opens a module in the sidebar:
 
-| Icon   | Module         | Shortcut | What it shows                                                          |
-| ------ | -------------- | -------- | ---------------------------------------------------------------------- |
-| Folder | Repositories   | Alt+1    | Your open repositories with their submodules, and recently opened ones |
-| Branch | Branches       | Alt+2    | Local branches, the branches of each remote, and tags                  |
-| Commit | Commit details | Alt+3    | Everything about the selected commit                                   |
-| Box    | Stashes        | Alt+4    | Your stashes                                                           |
-| File   | Changed files  | Alt+5    | The files the selected commit changed; choose one to see its diff      |
-| Tree   | Files          | Alt+6    | Every folder and file of the selected commit; choose one to see it     |
-| Commit | Commit         | Alt+7    | Stage your changes and commit them ([Committing](committing.md))       |
-| Clock  | Reflog         | Alt+8    | What you did, to get lost work back ([the reflog](reflog.md))          |
+| Icon    | Module         | Shortcut | What it shows                                                          |
+| ------- | -------------- | -------- | ---------------------------------------------------------------------- |
+| Folder  | Repositories   | Alt+1    | Your open repositories with their submodules, and recently opened ones |
+| Branch  | Branches       | Alt+2    | Local branches, the branches of each remote, and tags                  |
+| Commit  | Commit details | Alt+3    | Everything about the selected commit                                   |
+| Box     | Stashes        | Alt+4    | Your stashes                                                           |
+| File    | Changed files  | Alt+5    | The files the selected commit changed; choose one to see its diff      |
+| Tree    | Files          | Alt+6    | Every folder and file of the selected commit; choose one to see it     |
+| Commit  | Commit         | Alt+7    | Stage your changes and commit them ([Committing](committing.md))       |
+| Clock   | Reflog         | Alt+8    | What you did, to get lost work back ([the reflog](reflog.md))          |
+| Folders | Worktrees      | Alt+9    | More folders of the same repository ([worktrees](worktrees.md))        |
 
 The icons are coloured by what they are about, the same everywhere in the app: green for
 commits and committing (Commit details, Changed files, Commit), amber for stashes, teal for

@@ -3,7 +3,8 @@
 //!
 //! File system events are debounced, then sorted by [`classify`] into "refs changed" (the graph,
 //! branches and stashes need reloading), "working tree changed" (the status needs reading) and
-//! "config changed" (upstreams of branches).
+//! "config changed" (upstreams of branches) and "worktrees changed" (one added, removed, locked or
+//! switched to another branch).
 //! Changes to ignored files are dropped using the repository's own `.gitignore` rules, so a
 //! build writing into `target/` or `node_modules/` does not cause status runs.
 
@@ -17,7 +18,8 @@ use notify_debouncer_mini::{DebounceEventResult, Debouncer, new_debouncer};
 /// files (index, refs, logs) in quick succession; this reports them once.
 pub const DEBOUNCE: Duration = Duration::from_millis(300);
 
-/// What changed since the last report.
+/// What changed since the last report: independent flags, reported together.
+#[allow(clippy::struct_excessive_bools)]
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct Changes {
     /// HEAD, a branch, a tag, a remote branch or the stash moved.
@@ -26,6 +28,8 @@ pub struct Changes {
     pub work_tree: bool,
     /// The repository's config changed (upstreams of branches, remotes).
     pub config: bool,
+    /// A linked worktree was added, removed, locked or unlocked, or its HEAD moved.
+    pub worktrees: bool,
 }
 
 impl Changes {
@@ -34,11 +38,12 @@ impl Changes {
             ChangeKind::Refs => self.refs = true,
             ChangeKind::WorkTree => self.work_tree = true,
             ChangeKind::Config => self.config = true,
+            ChangeKind::Worktrees => self.worktrees = true,
         }
     }
 
     fn any(self) -> bool {
-        self.refs || self.work_tree || self.config
+        self.refs || self.work_tree || self.config || self.worktrees
     }
 }
 
@@ -51,6 +56,9 @@ pub enum ChangeKind {
     WorkTree,
     /// `config` or `config.worktree` in `.git`.
     Config,
+    /// A linked worktree's folder in `.git/worktrees`, or its `gitdir`, `HEAD` or `locked`
+    /// file (not its index, which changes with every status there).
+    Worktrees,
 }
 
 /// The folders of one repository.
@@ -119,9 +127,25 @@ fn classify_git_file(relative: &Path) -> Option<ChangeKind> {
         Some(ChangeKind::Refs)
     } else if first == "config" || first == "config.worktree" {
         Some(ChangeKind::Config)
+    } else if first == "worktrees" {
+        worktree_file(relative)
     } else {
         None
     }
+}
+
+/// `worktrees/<name>` itself, or its files that the worktree list shows.
+fn worktree_file(relative: &Path) -> Option<ChangeKind> {
+    let parts: Vec<_> = relative
+        .components()
+        .map(std::path::Component::as_os_str)
+        .collect();
+    let listed = match parts.as_slice() {
+        [_, _] => true,
+        [_, _, file] => ["gitdir", "HEAD", "locked"].iter().any(|name| file == name),
+        _ => false,
+    };
+    listed.then_some(ChangeKind::Worktrees)
 }
 
 /// A running watcher; dropping it stops watching.
