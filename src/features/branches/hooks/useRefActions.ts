@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { toast } from "sonner";
 
 import type { RefActions } from "@/features/graph";
-import { openMerge, openPick, openRebase, openReset } from "@/features/operations";
+import { openInteractive, openMerge, openPick, openRebase, openReset } from "@/features/operations";
 import { toIpcError } from "@/shared/ipc/client";
 
 import { useCheckoutBranch } from "../api/branches";
@@ -70,6 +70,9 @@ export function useRefActions(repoId: number): RefActions {
       },
       rebase: (onto) => {
         openRebase(repoId, onto);
+      },
+      interactiveRebase: (from) => {
+        openInteractive(repoId, from);
       },
       reset: (commit) => {
         openReset(repoId, commit);

@@ -4,6 +4,7 @@
 use tauri::State;
 
 use super::conflicts::{self, ConflictDto, MergeToolResultDto, SideDto};
+use super::interactive::{self, InteractivePlanDto, InteractiveRequestDto, InteractiveResultDto};
 use super::merge_view::{self, MergeFileDto, SaveMergedRequestDto};
 use super::pick::{PickRequestDto, PickResultDto, ResetRequestDto};
 use super::rebase::{self, RebaseOutcomeDto, RebasePreviewDto, RebaseRequestDto};
@@ -70,6 +71,29 @@ pub async fn rebase_current(
     request: RebaseRequestDto,
 ) -> CommandResult<RebaseOutcomeDto> {
     Ok(rebase::rebase_current(&sessions, id, request).await?)
+}
+
+/// The commits an interactive rebase from `from` (included) up to HEAD replays, oldest first.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_interactive_plan(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    from: String,
+) -> CommandResult<InteractivePlanDto> {
+    Ok(interactive::plan(&sessions, id, from).await?)
+}
+
+/// Rebases interactively with the edited list (order, pick, reword, edit, squash, fixup,
+/// drop). Stopping at an edit or a conflict comes back as an outcome.
+#[tauri::command]
+#[specta::specta]
+pub async fn rebase_interactive(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    request: InteractiveRequestDto,
+) -> CommandResult<InteractiveResultDto> {
+    Ok(interactive::start(&sessions, id, request).await?)
 }
 
 /// What rebasing the current branch onto `onto` would replay, and how much of it was pushed.

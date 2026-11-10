@@ -24,6 +24,7 @@ function actions(): RefActions & Record<string, ReturnType<typeof vi.fn>> {
     revert: vi.fn(),
     rebase: vi.fn(),
     reset: vi.fn(),
+    interactiveRebase: vi.fn(),
   };
 }
 

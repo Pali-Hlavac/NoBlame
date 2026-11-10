@@ -609,7 +609,7 @@ On any commit row:
 | Create branch here… / Create tag here…                                 | M5                         |
 | Merge into the current branch                                          | M6                         |
 | Rebase the current branch onto this commit                             | M6                         |
-| Interactive rebase from here                                           | M6                         |
+| Interactive rebase from here                                           | Done (M6 slice 6)          |
 | Cherry-pick / Revert this commit                                       | M6                         |
 | Reset the current branch to here (soft, mixed, hard with confirmation) | M6                         |
 | Mark as good / bad (bisect)                                            | M7                         |
@@ -803,7 +803,7 @@ listed in the Repositories module already).
 ### M6: Changing history and resolving conflicts
 
 - [ ] Merge (ff/no-ff/squash) _(done, slice 1)_, rebase, cherry-pick, revert, reset (soft/mixed/hard behind confirmation) _(cherry-pick, revert, reset done, slice 2; rebase onto done, slice 3)_
-- [ ] Interactive rebase editor: reorder, squash, fixup, reword, edit, drop; autosquash
+- [x] Interactive rebase editor: reorder, squash, fixup, reword, edit, drop; autosquash (slice 6)
 - [x] In-progress operation banner (merge/rebase/cherry-pick/bisect) with continue/skip/abort
 - [x] Conflict resolution: list, ours/theirs (slice 4), built-in three-way merge view (slice 5) — ADR 0014
 - [x] External diff and merge tools (configured like Git Extensions, honoring `diff.tool`/`merge.tool`)
@@ -887,6 +887,25 @@ Slice 5 done (2026-11-09): the built-in merge view
   expected file (index and working tree equal); a line typed in the CRLF file was stored with
   CRLF; the binary file was refused with its reason; then Use theirs and Continue finished the
   merge. The Commit module's new menu entry was not clicked.
+
+Slice 6 done (2026-11-10): the interactive rebase editor
+([features/operations.md](features/operations.md#interactive-rebase)).
+
+- **Interactive rebase from here…** in the commit menu lists the commit and those after it up to
+  HEAD, oldest first, to move (arrows, Alt+Up/Down) and pick, reword, edit, squash, fix up or
+  drop; new messages are edited in place; **Arrange fixup! commits** does what `--autosquash`
+  does. Pushed commits and left-out merge commits are named first.
+- git gets the list through `GIT_SEQUENCE_EDITOR` (a shell function copying NoBlame's file with
+  builtins only); new messages are `exec` lines amending from `printf`, so no editor or message
+  file is involved.
+- Found on the way: counting the pushed commits put `--not --remotes` before the range, which
+  turned the range around (every commit counted as pushed); the range now comes first. And a
+  squashed `squash! X` commit's subject is now left out of the combined message, as git does.
+- Checked in the running app on a scratch repository with a local bare origin (six commits, two
+  pushed, a `fixup!` and a `squash!`): the warning named the two pushed commits; Arrange put the
+  fixup and the squash under their commits; a reword with `$HOME`, backticks and a quote in its
+  body, the squash, and an edit on the last commit; the rebase stopped at the edit (the bar and
+  the toast), Continue finished it; the files and messages were as expected.
 
 ### M7: Advanced Git
 

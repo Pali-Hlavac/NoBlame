@@ -26,7 +26,7 @@ export interface CommitMenuActions extends RefMenuActions {
   compareWithWorkingTree: (() => void) | undefined;
 }
 
-const { history, advanced } = MENU_MILESTONES;
+const { advanced } = MENU_MILESTONES;
 
 const REF_KIND_WORDS: Record<RefLabel["kind"], string> = {
   branch: "Branch",
@@ -126,7 +126,14 @@ export function commitMenu(commit: CommitRowDto, actions: CommitMenuActions): Me
           refActions.rebase(here);
         }),
     ),
-    item("rebase-interactive", "Interactive rebase from here…", history),
+    refItem(
+      "rebase-interactive",
+      "Interactive rebase from here…",
+      refActions &&
+        (() => {
+          refActions.interactiveRebase(here);
+        }),
+    ),
     refItem(
       "cherry-pick",
       "Cherry-pick…",

@@ -111,6 +111,8 @@ const APP_COMMANDS: &[&str] = &[
     "take_conflict_side",
     "open_merge_tool",
     "get_merge_file",
+    "get_interactive_plan",
+    "rebase_interactive",
     "save_merged_file",
     "open_external_diff",
     "get_workbench_layout",

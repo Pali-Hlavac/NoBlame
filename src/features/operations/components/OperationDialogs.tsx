@@ -1,5 +1,6 @@
 import { closeOperationDialog, useOperationDialogStore } from "../store/dialog";
 import { ConflictsDialog } from "./ConflictsDialog";
+import { InteractiveDialog } from "./InteractiveDialog";
 import { MergeDialog } from "./MergeDialog";
 import { PickDialog } from "./PickDialog";
 import { RebaseDialog } from "./RebaseDialog";
@@ -7,7 +8,7 @@ import { ResetDialog } from "./ResetDialog";
 
 /**
  * The history-changing dialog asked for (`openMerge`, `openPick`, `openRebase`, `openReset`,
- * `openConflicts`);
+ * `openInteractive`, `openConflicts`);
  * mounted once in the main window.
  */
 export function OperationDialogs() {
@@ -41,6 +42,15 @@ export function OperationDialogs() {
           key={`${String(repoId)}:${request.onto.revision}`}
           repoId={repoId}
           onto={request.onto}
+          onClose={closeOperationDialog}
+        />
+      );
+    case "interactive":
+      return (
+        <InteractiveDialog
+          key={`${String(repoId)}:${request.from.revision}`}
+          repoId={repoId}
+          from={request.from}
           onClose={closeOperationDialog}
         />
       );

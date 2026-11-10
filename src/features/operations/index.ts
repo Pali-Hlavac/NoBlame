@@ -8,5 +8,12 @@ export { MergeView } from "./components/MergeView";
 export { OperationBanner } from "./components/OperationBanner";
 export { OperationDialogs } from "./components/OperationDialogs";
 export { useOpenMergeTool } from "./api/conflicts";
-export { openConflicts, openMerge, openPick, openRebase, openReset } from "./store/dialog";
+export {
+  openConflicts,
+  openInteractive,
+  openMerge,
+  openPick,
+  openRebase,
+  openReset,
+} from "./store/dialog";
 export { showMergeView } from "./store/mergeView";

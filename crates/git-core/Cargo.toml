@@ -9,6 +9,8 @@ publish.workspace = true
 
 [dependencies]
 gix = { version = "0.90", default-features = false, features = ["attributes", "blob-diff", "max-performance", "revision", "sha1"] }
+# The interactive rebase's todo file (deleted afterwards). MIT OR Apache-2.0.
+tempfile.workspace = true
 thiserror.workspace = true
 tokio = { workspace = true, features = ["process", "io-util", "macros", "rt"] }
 # Pinned: 8.2.1 was days old when added (2026-10-28). CC0-1.0 / MIT OR Apache-2.0.

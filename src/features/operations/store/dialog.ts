@@ -25,6 +25,12 @@ export type OperationDialogRequest =
       onto: StartPoint;
     }
   | {
+      kind: "interactive";
+      repoId: number;
+      /** The oldest commit to edit; it and the commits after it up to HEAD are listed. */
+      from: StartPoint;
+    }
+  | {
       kind: "conflicts";
       repoId: number;
     }
@@ -58,6 +64,11 @@ export function openPick(repoId: number, kind: "cherryPick" | "revert", commit: 
 /** Asks how to rebase the current branch of repository `repoId` onto `onto`. */
 export function openRebase(repoId: number, onto: StartPoint): void {
   open({ kind: "rebase", repoId, onto });
+}
+
+/** Opens the interactive rebase editor for the commits from `from` up to HEAD. */
+export function openInteractive(repoId: number, from: StartPoint): void {
+  open({ kind: "interactive", repoId, from });
 }
 
 /** Asks how to reset the current branch of repository `repoId` to `commit`. */

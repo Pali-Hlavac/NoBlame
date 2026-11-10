@@ -22,6 +22,27 @@ top of the other branch and get new ids; the old ones are no longer on your bran
 - **Keep merge commits**: if your branch has merge commits, keep them. Without it they are left
   out and their commits come in one line.
 
+## Editing your commits
+
+Right-click the oldest commit you want to change and choose **Interactive rebase from here…**.
+The window lists that commit and every commit after it, oldest first. For each one choose:
+
+- **Pick**: keep it.
+- **Reword**: keep it with a new message. A box opens for the message.
+- **Edit**: the rebase stops after this commit, so you can change it (amend it in the Commit
+  module). Then click **Continue** in the bar.
+- **Squash**: fold it into the commit above it, and combine their messages (you can edit the
+  combined message).
+- **Fixup**: fold it into the commit above it and drop its message.
+- **Drop**: leave it out.
+
+Move a commit with its arrows, or with Alt+Up and Alt+Down while its list is focused. Commits
+are replayed from the top down in the new order. If you made commits with "fixup! …" or
+"squash! …" messages, **Arrange fixup! commits** puts each under the commit it names.
+
+Every commit from the one you chose gets a new id, so the same warning about pushed commits
+applies (below). Merge commits in the range are left out; their commits come in one line.
+
 ## Commits you already pushed
 
 If some of the moved commits were already pushed, the window says so in red. After the rebase

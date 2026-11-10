@@ -348,6 +348,13 @@ export const commands = {
 	 *  built-in merge view; or why it cannot be.
 	 */
 	getMergeFile: (id: number, path: string) => typedError<MergeFileDto, AppError>(__TAURI_INVOKE("get_merge_file", { id, path })),
+	/**  The commits an interactive rebase from `from` (included) up to HEAD replays, oldest first. */
+	getInteractivePlan: (id: number, from: string) => typedError<InteractivePlanDto, AppError>(__TAURI_INVOKE("get_interactive_plan", { id, from })),
+	/**
+	 *  Rebases interactively with the edited list (order, pick, reword, edit, squash, fixup,
+	 *  drop). Stopping at an edit or a conflict comes back as an outcome.
+	 */
+	rebaseInteractive: (id: number, request: InteractiveRequestDto) => typedError<InteractiveResultDto, AppError>(__TAURI_INVOKE("rebase_interactive", { id, request })),
 	/**
 	 *  Saves a file merged in the view: staged in place of its conflict and written to the working
 	 *  tree.
@@ -1297,6 +1304,37 @@ export type IgnoreRequestDto = {
 	file: IgnoreFileDto,
 };
 
+/**  How an interactive rebase ended (so far). */
+export type InteractiveOutcomeDto = "rebased" | 
+/**  Stopped at an `edit`, or because a step failed; the rebase is in progress. */
+"stopped" | "conflicts" | "stashConflicts";
+
+/**  What an interactive rebase from a commit replays. */
+export type InteractivePlanDto = {
+	/**  The commits from the chosen one up to HEAD, oldest first, without merge commits. */
+	commits: PlannedCommitDto[],
+	/**  Merge commits in the range: left out, their commits come in a line. */
+	merges: number,
+	/**  How many of the commits a remote-tracking branch has (pushed already). */
+	published: number,
+};
+
+/**  An interactive rebase from `from` (included) up to HEAD. */
+export type InteractiveRequestDto = {
+	/**  The oldest commit to edit (as in `get_interactive_plan`). */
+	from: string,
+	/**  Every commit of the plan, once, in the new order. */
+	steps: TodoStepDto[],
+	/**  Stash uncommitted changes first and bring them back afterwards. */
+	autostash: boolean,
+};
+
+/**  The outcome, with git's line saying why it stopped. */
+export type InteractiveResultDto = {
+	outcome: InteractiveOutcomeDto,
+	detail: string | null,
+};
+
 /**  A background job as the UI shows it. */
 export type JobDto = {
 	/**  Its id. */
@@ -1572,6 +1610,16 @@ export type PickResultDto = {
 	outcome: PickOutcomeDto,
 	/**  git's summary line (`1 file changed, 2 insertions(+)`), when it printed one. */
 	summary: string | null,
+};
+
+/**  A commit the interactive rebase replays. */
+export type PlannedCommitDto = {
+	id: string,
+	author: string,
+	/**  Author time, in seconds since the epoch. */
+	time: number | null,
+	/**  The whole message. */
+	message: string,
 };
 
 /**  How a pull joins the upstream's commits with the branch's own. */
@@ -2216,6 +2264,18 @@ export type TipsDto =
 { type: "refs"; 
 /**  The references. */
 refs: RefSelectorDto[] };
+
+/**  What to do with one commit. */
+export type TodoActionDto = "pick" | "reword" | "edit" | "squash" | "fixup" | "drop";
+
+/**  One commit of the edited list, oldest first. */
+export type TodoStepDto = {
+	action: TodoActionDto,
+	/**  The full commit id. */
+	commit: string,
+	/**  The new message of the commit this step starts (reword, or a group with squashes). */
+	message: string | null,
+};
 
 /**  One entry of a folder. The name is for display (non-UTF-8 bytes are replaced). */
 export type TreeEntryDto = {

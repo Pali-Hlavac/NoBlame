@@ -117,6 +117,8 @@
     "allow-take-conflict-side",
     "allow-open-merge-tool",
     "allow-get-merge-file",
+    "allow-get-interactive-plan",
+    "allow-rebase-interactive",
     "allow-save-merged-file",
     "allow-open-external-diff",
     "allow-list-submodules",

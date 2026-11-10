@@ -112,7 +112,7 @@ subject.
 | Merge into the current branch                                  | Works ([operations.md](operations.md)) |
 | Cherry-pick, Revert, Reset the current branch to here          | Works ([operations.md](operations.md)) |
 | Rebase the current branch onto this                            | Works ([operations.md](operations.md)) |
-| Interactive rebase from here                                   | Disabled, **M6**                       |
+| Interactive rebase from here                                   | Works ([operations.md](operations.md)) |
 | A submenu per branch or tag on the commit                      | See below; merge and rebase work       |
 | More ▸ Bisect, Create a patch, Save an archive, Run a script   | Disabled, **M7**                       |
 

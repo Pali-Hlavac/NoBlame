@@ -7,6 +7,7 @@
 pub mod commands;
 mod conflicts;
 mod error;
+mod interactive;
 mod merge_view;
 mod pick;
 mod rebase;

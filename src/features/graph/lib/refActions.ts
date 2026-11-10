@@ -46,6 +46,8 @@ export interface RefActions {
   revert: (commit: PickSource) => void;
   /** Asks how, naming the commits that get new ids, then rebases the current branch onto it. */
   rebase: (onto: StartPoint) => void;
+  /** Opens the interactive rebase editor for the commits from `from` up to HEAD. */
+  interactiveRebase: (from: StartPoint) => void;
   /** Asks how (soft, mixed, keep, hard), naming what is lost, then moves the current branch. */
   reset: (commit: StartPoint) => void;
 }

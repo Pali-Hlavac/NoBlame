@@ -6,8 +6,8 @@ rebase, `git am`, bisect) with Continue, Skip and Abort. **Slice 2 (2026-11-09)*
 revert and reset. **Slice 3 (2026-11-09)**: rebasing the current branch onto a commit, branch or
 tag. **Slice 4 (2026-11-09)**: the conflicted files with Use ours, Use theirs, Mark resolved and
 the external merge tool. **Slice 5 (2026-11-09)**: the built-in three-way merge view (the
-Merge tab, ADR [0014](../adr/0014-conflict-resolution-ui.md)). The interactive rebase editor and
-the reflog follow in later slices.
+Merge tab, ADR [0014](../adr/0014-conflict-resolution-ui.md)). **Slice 6 (2026-11-10)**: the
+interactive rebase editor. The reflog follows in a later slice.
 
 ## Where
 
@@ -101,6 +101,50 @@ were pushed), "topic already contains origin/main", "Rebased topic, but your sta
 conflict" (git exits 0, leaves conflict markers and keeps the stash), or "The rebase stopped:
 some files conflict" (the bar: "Rebasing topic (step 2 of 3)").
 
+## Interactive rebase
+
+**Interactive rebase from here…** on a commit of the current branch opens the editor
+(`InteractiveDialog`) with that commit and every commit after it up to HEAD, oldest first
+(`get_interactive_plan`: `git log --reverse --topo-order --no-merges <parent>..HEAD`, or `HEAD`
+with `--root` for a root commit; at most 500 commits). A commit HEAD does not have is refused
+("not on the current branch"). Like the rebase dialog it warns in red when commits were pushed
+(on a remote-tracking branch) and says how many merge commits are left out (their commits come
+in a line, as `git rebase -i` without `--rebase-merges` does).
+
+| Per commit | Todo line                                                             |
+| ---------- | --------------------------------------------------------------------- |
+| Pick       | `pick`                                                                |
+| Reword     | `pick`, then an `exec` line that amends the message (below)           |
+| Edit       | `edit`: the rebase stops after it; amend it, then Continue in the bar |
+| Squash     | `squash`; the group gets the combined message, editable               |
+| Fixup      | `fixup`                                                               |
+| Drop       | `drop`                                                                |
+
+- Rows move with their arrow buttons, or Alt+Up and Alt+Down in their action list. Squash and
+  fixup fold a commit into the kept commit above it; the first kept commit cannot be one
+  ("there is no commit above it"), and dropping every commit is refused ("Use Reset instead").
+- A reworded commit, or one with squashes folded in, gets a box with its new message: its own
+  message, then each squashed commit's (a `squash!` or `amend!` subject line is left out, as
+  git does). **Arrange fixup! commits** (shown when a subject starts with `fixup! `,
+  `squash! ` or `amend! `) moves each under the commit it names (the same subject, an id
+  prefix, or a subject that starts with it) as fixup, or squash for `squash!` and `amend!`, as
+  `--autosquash` does. **Rebase** is enabled once the list changes anything.
+- **Running it** (`rebase_interactive`): the plan is read again under the write lock, and the
+  rebase is refused when the commits differ ("The branch changed since the list was made").
+  `git_core::operation::todo_script` writes the todo; `rebase_interactive` puts it in a
+  temporary file and runs `git rebase --interactive --autostash|--no-autostash <parent>` (or
+  `--root`) with `GIT_SEQUENCE_EDITOR` set to a shell function that copies that file over
+  git's todo using shell builtins only (no `cp` on git's `PATH` needed), and `GIT_EDITOR=true`.
+  A new message is an `exec` line after the commit's group:
+  `printf '%s
+' '<line>' ... | git commit --amend --quiet --allow-empty -F -`, every line
+  single-quoted for `sh`, so `$`, backticks and quotes stay as typed, and no message file is
+  needed. The author is kept.
+- Outcomes: "Rewrote the commits of topic" (with the force push advice when commits were
+  pushed); "The rebase stopped at the commit to edit" (an `edit`; the bar shows the step);
+  "The rebase stopped: a step failed" with git's line (an `exec` amend refused by a hook); the
+  conflict and stash-conflict toasts of the rebase dialog.
+
 ## Resolving conflicts
 
 **Resolve…** in the bar (while files conflict), or **Resolve conflicts…** on a conflicted file
@@ -185,7 +229,9 @@ the file in the **Merge** tab (one tab, beside the graph like the diff; `showMer
   (`merge_chunks` → `MergeChunk`), `merge_file.rs` (`merge_file` → `MergeFile` or
   `Unmergeable`, `save_merged`), `mergetool.rs`
   (`run_merge_tool` → `MergeToolOutcome`, `configured_merge_tool`), `rebase.rs` (`rebase` with `RebaseOptions { autostash, rebase_merges }` → `RebaseResult`;
-  `rebase_preview` → `RebasePreview { replayed, published }`), `pick.rs` (`pick` with `PickOptions { kind, mainline,
+  `rebase_preview` → `RebasePreview { replayed, published }`), `interactive.rs`
+  (`interactive_plan` → `InteractivePlan`, `rebase_interactive`), `todo.rs` (`todo_script` from
+  `TodoStep`s), `pick.rs` (`pick` with `PickOptions { kind, mainline,
 no_commit, record_origin }` → `PickResult`; `CONFLICT`, "could not apply" or "could not
   revert" is `Conflicts`, "is now empty" is skipped and `Empty`, "nothing to commit" is
   `Empty`), `reset.rs` (`reset` with `ResetMode`), `merge.rs` (`merge` → `MergeResult { outcome, output }`;
@@ -195,25 +241,30 @@ no_commit, record_origin }` → `PickResult`; `CONFLICT`, "could not apply" or "
   detail and step), `sequence.rs` (`run_step`).
 - `src-tauri/src/operations/`: `merge_into_current`, `pick_commit`, `reset_current`, `rebase_current`,
   `get_rebase_preview` (`rebase.rs`), `get_conflicts`, `take_conflict_side`, `open_merge_tool`
-  (`conflicts.rs`), `get_merge_file`, `save_merged_file` (`merge_view.rs`), `step_operation`
+  (`conflicts.rs`), `get_merge_file`, `save_merged_file` (`merge_view.rs`),
+  `get_interactive_plan`, `rebase_interactive` (`interactive.rs`), `step_operation`
   (reads the kind itself, so a
   stale UI cannot continue the wrong thing), each under the session's write lock; errors map to
   hints in `error.rs`. The status (`get_status`) carries `operation`, so the bar follows every
   status refresh (watcher, focus, after any change).
 - `src/features/operations/`: `MergeDialog`, `PickDialog`, `RebaseDialog` (+ `RebasePreview`),
   `ConflictsDialog`, `MergeView` (the Merge tab: `MergeHeader`, `ConflictChunk`, `ResolvedChunk`,
-  `MergeText`, `MergeUnavailable`),
+  `MergeText`, `MergeUnavailable`), `InteractiveDialog` (+ `TodoList`; `lib/todo.ts` holds
+  the groups, messages, autosquash and the request),
   `ResetDialog` (+ `ResetEffects`),
   `OperationBanner`, `OperationDialogs` (mounted in the main window; `openMerge`, `openPick`,
-  `openRebase`, `openReset`, `openConflicts`); `useOpenMergeTool` and `showMergeView` are used
+  `openRebase`, `openReset`, `openInteractive`, `openConflicts`); `useOpenMergeTool` and `showMergeView` are used
   by the Commit module's file menu. The bar reaches the repository tab through `RepositoryBannerContext`, and
   merge, cherry-pick, revert and reset reach the graph and the Branches module as `RefActions`
-  (`merge`, `cherryPick`, `revert`, `rebase`, `reset`), so neither feature depends on this one.
+  (`merge`, `cherryPick`, `revert`, `rebase`, `interactiveRebase`, `reset`), so neither feature
+  depends on this one.
 
 ## Not yet
 
 - Rebasing onto one commit while keeping the commits after another (`--onto` with a range); the
-  interactive rebase editor; the reflog.
+  reflog.
+- In the interactive rebase: dragging rows with the mouse, `exec` lines of one's own, keeping
+  merge commits (`--rebase-merges` with labels), and reordering several selected rows at once.
 - In the merge view: editing the lines git merged by itself, word-level highlights, syntax
   colours, and custom `merge` drivers from `.gitattributes` (the view uses its own merge).
 - Editing the merge message before committing; merge strategies and options (`-X ours`).

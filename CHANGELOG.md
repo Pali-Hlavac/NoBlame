@@ -180,6 +180,11 @@ All notable changes to NoBlame are documented here. The format follows
   for all files at once. **Settings → Diff → Merge tool for conflicts** chooses Git's
   `merge.tool`, Visual Studio Code, Beyond Compare, KDiff3, Meld, P4Merge or another tool Git
   knows; it runs through `git mergetool`.
+- The interactive rebase (M6 slice 6): **Interactive rebase from here…** in the commit menu
+  lists that commit and the ones after it, oldest first. Move them, and pick, reword, edit,
+  squash, fix up or drop each; new messages are typed in place, and **Arrange fixup! commits**
+  puts `fixup!` and `squash!` commits under the commits they name. Commits that were pushed
+  already are named first.
 - The merge view (M6 slice 5): **Merge** on a conflicted file (in Resolve conflicts, or
   **Merge in NoBlame** in the Commit module) opens it in the **Merge** tab. Lines only one side
   changed are taken already; each conflict shows ours and theirs side by side (and the base on

@@ -1,5 +1,5 @@
 /** Words for rebasing. */
-import type { RebaseOutcomeDto } from "@/shared/ipc/bindings";
+import type { InteractiveResultDto, RebaseOutcomeDto } from "@/shared/ipc/bindings";
 
 import { CONFLICT_ADVICE, type Outcome } from "./outcome";
 
@@ -34,5 +34,40 @@ export function rebaseToast(
         description: CONFLICT_ADVICE,
         tone: "warning",
       };
+  }
+}
+
+/** The toast after an interactive rebase of `target`. */
+export function interactiveToast(
+  result: InteractiveResultDto,
+  target: string,
+  published: boolean,
+): Outcome {
+  switch (result.outcome) {
+    case "rebased":
+      return {
+        title: `Rewrote the commits of ${target}`,
+        description: published
+          ? "Some of them were pushed before: push with force (with lease) to update the remote."
+          : undefined,
+        tone: "success",
+      };
+    case "stopped":
+      return result.detail?.includes("failed")
+        ? {
+            title: "The rebase stopped: a step failed",
+            description: `${result.detail} Fix it, then choose Continue in the bar above the commits (or Abort).`,
+            tone: "warning",
+          }
+        : {
+            title: "The rebase stopped at the commit to edit",
+            description:
+              "Change it (amend it in the Commit module), then choose Continue in the bar above the commits.",
+            tone: "info",
+          };
+    case "stashConflicts":
+      return rebaseToast("stashConflicts", target, "", false);
+    case "conflicts":
+      return rebaseToast("conflicts", target, "", false);
   }
 }
