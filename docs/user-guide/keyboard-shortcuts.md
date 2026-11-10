@@ -18,6 +18,7 @@ On macOS, use **⌘** where this page says **Ctrl**, except for switching tabs, 
 | Alt+5               | Show Changed files                      |
 | Alt+6               | Show Files                              |
 | Alt+7               | Show Commit                             |
+| Alt+8               | Show Reflog                             |
 | Ctrl+Enter (⌘Enter) | Commit, in the commit message box       |
 | Ctrl+, (⌘,)         | Open Settings                           |
 | Ctrl+F (⌘F)         | Find commits in the active repository   |

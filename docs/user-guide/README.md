@@ -2,11 +2,12 @@
 
 NoBlame is a fast Git client for Windows, Linux and macOS, built for very large repositories.
 
-This guide describes version 0.1.0 while milestone M2 is in progress. You can open and create
-repositories, browse their history in the commit graph, look at commit details, branches,
-stashes and submodules, see what each commit changed, file by file, and stage and commit your
-changes. The other Git operations (pull, push, branches, merging) come in later versions; their
-buttons and the task windows are labelled placeholders.
+This guide describes version 0.1.0. You can open, create and clone repositories, browse their
+history in the commit graph, see what each commit changed, stage and commit, stash, work with
+branches, tags and remotes (fetch, pull, push), merge, cherry-pick, revert, reset and rebase
+(also interactively), resolve conflicts, and get lost work back from the reflog. Features that
+come in later versions (submodule actions, worktrees, bisect, patches) are labelled
+placeholders, and so are the task windows.
 
 | Page                                                      | What it covers                               |
 | --------------------------------------------------------- | -------------------------------------------- |
@@ -21,7 +22,8 @@ buttons and the task windows are labelled placeholders.
 | [Fetching, pulling and pushing](remotes.md)               | Sharing your work with remotes               |
 | [Merging](merging.md)                                     | Merging branches, and conflicts              |
 | [Cherry-pick, revert, reset](cherry-pick-revert-reset.md) | Copying, undoing and moving back commits     |
-| [Rebasing](rebasing.md)                                   | Moving your commits on top of another branch |
+| [Rebasing](rebasing.md)                                   | Moving and editing your commits              |
+| [Getting lost work back](reflog.md)                       | The reflog: what you did, and restoring it   |
 | [Browsing files](browsing-files.md)                       | Every file of a commit; saving one           |
 | [File history](file-history.md)                           | Every commit that changed a file             |
 | [Blame](blame.md)                                         | Who last changed each line of a file         |

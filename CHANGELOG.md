@@ -180,6 +180,10 @@ All notable changes to NoBlame are documented here. The format follows
   for all files at once. **Settings → Diff → Merge tool for conflicts** chooses Git's
   `merge.tool`, Visual Studio Code, Beyond Compare, KDiff3, Meld, P4Merge or another tool Git
   knows; it runs through `git mergetool`.
+- The reflog (M6 slice 7): the **Reflog** module (Alt+8) lists where HEAD or a branch pointed
+  before each change, newest first. Choosing an entry selects its commit (or says only the
+  reflog has it); right-click for **Restore this state…** (the reset window, starting on Keep my
+  changes), **Create a branch here…**, **Check out this commit…** and **Copy commit id**.
 - The interactive rebase (M6 slice 6): **Interactive rebase from here…** in the commit menu
   lists that commit and the ones after it, oldest first. Move them, and pick, reword, edit,
   squash, fix up or drop each; new messages are typed in place, and **Arrange fixup! commits**

@@ -351,6 +351,11 @@ export const commands = {
 	/**  The commits an interactive rebase from `from` (included) up to HEAD replays, oldest first. */
 	getInteractivePlan: (id: number, from: string) => typedError<InteractivePlanDto, AppError>(__TAURI_INVOKE("get_interactive_plan", { id, from })),
 	/**
+	 *  The reflog of `reference` (`HEAD` or a local branch's full name), newest first, with the
+	 *  references that have one.
+	 */
+	getReflog: (id: number, reference: string) => typedError<ReflogDto, AppError>(__TAURI_INVOKE("get_reflog", { id, reference })),
+	/**
 	 *  Rebases interactively with the edited list (order, pick, reword, edit, squash, fixup,
 	 *  drop). Stopping at an edit or a conflict comes back as an outcome.
 	 */
@@ -1788,6 +1793,30 @@ export type RefTargetDto = {
 	name: string,
 	/**  Full id of the commit it pointed to (annotated tags peeled). */
 	target: string,
+};
+
+/**  A reflog, newest first, with the references that have one. */
+export type ReflogDto = {
+	/**  `HEAD`, then the local branches with a reflog (full names). */
+	references: string[],
+	entries: ReflogEntryDto[],
+	/**  More entries exist than were read (the oldest are left out). */
+	truncated: boolean,
+};
+
+/**  One change of the reference. */
+export type ReflogEntryDto = {
+	/**  Its number in `<ref>@{n}`; 0 is the newest. */
+	index: number,
+	/**  Where the reference pointed after the change (all zeros when it was deleted). */
+	newId: string,
+	/**  Where it pointed before (all zeros when it was created). */
+	oldId: string,
+	committer: string,
+	/**  Seconds since the epoch. */
+	time: number | null,
+	/**  What git wrote (`commit: …`, `checkout: moving from a to b`, `reset: moving to …`). */
+	message: string,
 };
 
 /**  The graph after a reload, and where the commit selected before it is now. */

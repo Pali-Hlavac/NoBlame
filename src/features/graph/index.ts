@@ -12,7 +12,8 @@ export {
   RefActionsContext,
   type PickSource,
   type RefActions,
+  type ResetOptions,
   type StartPoint,
   type UseRefActions,
 } from "./lib/refActions";
-export { formatCommitDate, shortId } from "./lib/format";
+export { formatCommitDate, formatRelativeDate, shortId } from "./lib/format";

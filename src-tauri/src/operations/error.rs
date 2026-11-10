@@ -2,6 +2,7 @@
 //! git's own words, with a plain-language next step when the reason is a known one.
 
 use git_core::operation::OperationError;
+use git_core::reflog::ReflogError;
 
 use crate::error::{AppError, ErrorCode};
 use crate::git_env::GitEnvError;
@@ -16,6 +17,9 @@ pub enum OperationsError {
     /// git refused or could not run.
     #[error(transparent)]
     Operation(#[from] OperationError),
+    /// A reflog could not be read.
+    #[error(transparent)]
+    Reflog(#[from] ReflogError),
 }
 
 /// Reasons git gives, and what to do about them.
@@ -91,7 +95,12 @@ impl From<OperationsError> for AppError {
             OperationsError::Operation(OperationError::NotApplicable(message)) => {
                 AppError::new(ErrorCode::InvalidInput, message)
             }
-            OperationsError::Operation(OperationError::Read(message)) => {
+            OperationsError::Reflog(ReflogError::NotFound(name)) => AppError::new(
+                ErrorCode::NotFound,
+                format!("There is no branch {name} (any more)."),
+            ),
+            OperationsError::Reflog(ReflogError::Read(message))
+            | OperationsError::Operation(OperationError::Read(message)) => {
                 AppError::new(ErrorCode::InvalidData, message)
             }
             OperationsError::Operation(OperationError::Rejected { output }) => {

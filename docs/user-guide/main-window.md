@@ -31,6 +31,7 @@ Each icon in the activity bar opens a module in the sidebar:
 | File   | Changed files  | Alt+5    | The files the selected commit changed; choose one to see its diff      |
 | Tree   | Files          | Alt+6    | Every folder and file of the selected commit; choose one to see it     |
 | Commit | Commit         | Alt+7    | Stage your changes and commit them ([Committing](committing.md))       |
+| Clock  | Reflog         | Alt+8    | What you did, to get lost work back ([the reflog](reflog.md))          |
 
 The icons are coloured by what they are about, the same everywhere in the app: green for
 commits and committing (Commit details, Changed files, Commit), amber for stashes, teal for

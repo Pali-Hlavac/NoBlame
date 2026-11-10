@@ -145,6 +145,7 @@ pub fn builder() -> Builder<tauri::Wry> {
             operations::commands::open_merge_tool,
             operations::commands::get_merge_file,
             operations::commands::get_interactive_plan,
+            operations::commands::get_reflog,
             operations::commands::rebase_interactive,
             operations::commands::save_merged_file,
             inspect::difftool_commands::open_external_diff,

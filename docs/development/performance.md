@@ -267,6 +267,13 @@ and cost nothing extra. Parsing counts all files, not only the 5,000 listed. Col
 much larger trees will be slower; the setting is off by default for that reason. The
 120,000-file tree took 946 s to `git add` once (Defender scanning each new file).
 
+### Reflog (M6 slice 7, 2026-11-10)
+
+`reflog_spike` reads a reflog newest first (gix `log_iter().rev()`, from the end of the file)
+and stops at 5,000 entries. A HEAD reflog padded to 200,000 lines: 2.5 ms (5,000 entries,
+truncated); NoBlame's own (106 entries): 1.4 ms cold, 0.2 ms warm. Listing the branches with a
+reflog: 0.5 ms (Windows 11, release build).
+
 ### Ignore preview (M4 slice 6, 2026-11-04)
 
 The `.gitignore` helper's preview runs `git ls-files --others` twice (the untracked files listed

@@ -74,8 +74,8 @@ export function useRefActions(repoId: number): RefActions {
       interactiveRebase: (from) => {
         openInteractive(repoId, from);
       },
-      reset: (commit) => {
-        openReset(repoId, commit);
+      reset: (commit, options) => {
+        openReset(repoId, commit, options?.restore === true);
       },
     }),
     [mutate, repoId],

@@ -11,6 +11,7 @@ mod interactive;
 mod merge_view;
 mod pick;
 mod rebase;
+mod reflog;
 mod service;
 mod types;
 

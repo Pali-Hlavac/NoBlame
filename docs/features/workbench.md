@@ -122,10 +122,11 @@ Settings shown there (stored in `settings.json`, see `src-tauri/src/settings/typ
 | Stashes        | Alt+4    | Stash list (`stash@{n}`, message, branch, date); refreshed when the window regains focus                                                                                                                                                   |
 | Files          | Alt+6    | The folders and files of the selected commit, read as they are opened; showing a file opens the file tab ([files.md](files.md)); File history opens the history tab ([history.md](history.md)), Blame the blame tab ([blame.md](blame.md)) |
 | Commit         | Alt+7    | Changes and staged files, stage and unstage, the message, Amend, Sign off, Commit ([commit.md](commit.md)); not in the default layout, the Commit button opens it                                                                          |
+| Reflog         | Alt+8    | Where HEAD or a branch pointed before each change; select its commit, restore that state, create a branch there ([reflog.md](reflog.md))                                                                                                   |
 
 Default arrangement: Repositories and Branches as tabs on top, Commit details, Changed files and
-Stashes as tabs below (Files after Changed files). A layout saved before Changed files or Files
-existed does not show them; open them from the activity bar or with Alt+5 and Alt+6.
+Stashes as tabs below (Files after Changed files, Reflog last). A layout saved before Changed files or Files
+existed does not show them; open them from the activity bar or with Alt+5, Alt+6 and Alt+8.
 
 Details:
 
@@ -230,7 +231,7 @@ also be read with the keyboard. Pull and Push are disabled while no branch is ch
 
 - `F6` / `Shift+F6` move focus to the next or previous region: activity bar, modules, toolbar,
   tabs, status bar. A collapsed sidebar is skipped.
-- `Alt+1` … `Alt+7` open a module.
+- `Alt+1` … `Alt+8` open a module.
 - Each module is also in the command palette under **View** ("Show Branches", ...), next to
   **Reset layout**.
 - The commit list, the Branches list and other long lists are listboxes. Arrows, Page Up/Down

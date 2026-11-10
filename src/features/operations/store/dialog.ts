@@ -39,6 +39,8 @@ export type OperationDialogRequest =
       repoId: number;
       /** Where the current branch moves to. */
       commit: StartPoint;
+      /** Restoring an earlier state: the dialog starts on "keep". */
+      restore: boolean;
     };
 
 interface OperationDialogState {
@@ -72,8 +74,8 @@ export function openInteractive(repoId: number, from: StartPoint): void {
 }
 
 /** Asks how to reset the current branch of repository `repoId` to `commit`. */
-export function openReset(repoId: number, commit: StartPoint): void {
-  open({ kind: "reset", repoId, commit });
+export function openReset(repoId: number, commit: StartPoint, restore = false): void {
+  open({ kind: "reset", repoId, commit, restore });
 }
 
 /** Shows the conflicted files of repository `repoId`, to resolve them. */

@@ -607,11 +607,11 @@ On any commit row:
 | Browse files at this commit; save a file from it                       | Done (slice 7)             |
 | Check out this commit (detached HEAD, explained in the dialog)         | M5                         |
 | Create branch here… / Create tag here…                                 | M5                         |
-| Merge into the current branch                                          | M6                         |
-| Rebase the current branch onto this commit                             | M6                         |
+| Merge into the current branch                                          | Done (M6 slice 1)          |
+| Rebase the current branch onto this commit                             | Done (M6 slice 3)          |
 | Interactive rebase from here                                           | Done (M6 slice 6)          |
-| Cherry-pick / Revert this commit                                       | M6                         |
-| Reset the current branch to here (soft, mixed, hard with confirmation) | M6                         |
+| Cherry-pick / Revert this commit                                       | Done (M6 slice 2)          |
+| Reset the current branch to here (soft, mixed, hard with confirmation) | Done (M6 slice 2)          |
 | Mark as good / bad (bisect)                                            | M7                         |
 | Create a patch; save an archive (zip, tar) of this commit              | M7                         |
 | Run a user script with this commit                                     | M7                         |
@@ -809,7 +809,7 @@ listed in the Repositories module already).
 - [x] External diff and merge tools (configured like Git Extensions, honoring `diff.tool`/`merge.tool`)
       with presets (VS Code `code --wait --merge`, Beyond Compare, KDiff3, Meld, P4Merge);
       "Open in merge tool" on each conflicted file (owner request 2026-10-30)
-- [ ] Reflog browser with "restore this state"
+- [x] Reflog browser with "restore this state" (slice 7)
 
 Slices (planned 2026-11-09): 1. merge and the in-progress bar; 2. cherry-pick, revert, reset; 3. rebase onto; 4. conflicts: list, ours/theirs, external merge tools; 5. the three-way merge
 view (ADR 0014); 6. the interactive rebase editor; 7. the reflog.
@@ -906,6 +906,24 @@ Slice 6 done (2026-11-10): the interactive rebase editor
   fixup and the squash under their commits; a reword with `$HOME`, backticks and a quote in its
   body, the squash, and an edit on the last commit; the rebase stopped at the edit (the bar and
   the toast), Continue finished it; the files and messages were as expected.
+
+Slice 7 done (2026-11-10): the reflog ([features/reflog.md](features/reflog.md)).
+
+- The **Reflog** module (Alt+8): HEAD's reflog or a local branch's, newest first (gix, at most
+  5,000 entries); choosing an entry selects its commit, or says only the reflog has it. Its
+  menu: **Restore this state…** (the reset dialog, starting on Keep), **Create a branch
+  here…**, **Check out this commit…**, **Copy commit id**.
+- Found while clicking through: the reset dialog's default (mixed) is wrong for restoring: the
+  branch moved back but the files stayed, so restored files looked deleted. Restore now starts
+  on Keep. Also the newest entry showed a date instead of "just now" (the clock ticks once a
+  minute), and the chosen row moved to another entry when one arrived on top.
+- Checked in the running app on a scratch repository where a hard reset lost two commits: the
+  lost commit was reported as only in the reflog; Restore this state put main back on it with
+  its files and a clean tree; a commit made in a terminal appeared on top while the chosen row
+  stayed; a branch's own reflog. 200,000-line reflog: 2.5 ms (performance.md).
+
+**M6 is done (2026-11-10).** Next: M7 (advanced Git: submodules, worktrees, LFS, bisect,
+patches).
 
 ### M7: Advanced Git
 

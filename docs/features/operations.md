@@ -7,7 +7,8 @@ revert and reset. **Slice 3 (2026-11-09)**: rebasing the current branch onto a c
 tag. **Slice 4 (2026-11-09)**: the conflicted files with Use ours, Use theirs, Mark resolved and
 the external merge tool. **Slice 5 (2026-11-09)**: the built-in three-way merge view (the
 Merge tab, ADR [0014](../adr/0014-conflict-resolution-ui.md)). **Slice 6 (2026-11-10)**: the
-interactive rebase editor. The reflog follows in a later slice.
+interactive rebase editor. **Slice 7 (2026-11-10)**: the reflog, in its own module
+([reflog.md](reflog.md)); "Restore this state" opens the reset dialog on Keep.
 
 ## Where
 
@@ -262,7 +263,7 @@ no_commit, record_origin }` → `PickResult`; `CONFLICT`, "could not apply" or "
 ## Not yet
 
 - Rebasing onto one commit while keeping the commits after another (`--onto` with a range); the
-  reflog.
+  undo button for the last operation.
 - In the interactive rebase: dragging rows with the mouse, `exec` lines of one's own, keeping
   merge commits (`--rebase-merges` with labels), and reordering several selected rows at once.
 - In the merge view: editing the lines git merged by itself, word-level highlights, syntax

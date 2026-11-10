@@ -10,6 +10,7 @@ import {
   GitBranchIcon,
   GitCommitHorizontalIcon,
   GitCommitVerticalIcon,
+  HistoryIcon,
 } from "lucide-react";
 
 import { BranchesModule } from "@/features/branches";
@@ -17,6 +18,7 @@ import { ChangedFilesModule } from "@/features/changed-files";
 import { CommitModule } from "@/features/commit";
 import { CommitDetailsModule } from "@/features/commit-details";
 import { FilesModule } from "@/features/files";
+import { ReflogModule } from "@/features/reflog";
 import { RepositoriesModule } from "@/features/repositories";
 import { StashesModule } from "@/features/stashes";
 import type { WorkbenchModule } from "@/features/workbench";
@@ -84,10 +86,18 @@ export const MODULES: readonly WorkbenchModule[] = [
     // Popped out, it shows the chosen file's diff beside the lists.
     popupWide: true,
   },
+  {
+    id: "reflog",
+    title: "Reflog",
+    icon: HistoryIcon,
+    kind: "history",
+    hotkey: "alt+8",
+    component: ReflogModule,
+  },
 ];
 
 /** Module dock on first start and after "Reset layout": groups top to bottom, tabs inside. */
 export const DEFAULT_MODULE_LAYOUT: readonly (readonly string[])[] = [
   ["repositories", "branches"],
-  ["commit-details", "changed-files", "files", "stashes"],
+  ["commit-details", "changed-files", "files", "stashes", "reflog"],
 ];

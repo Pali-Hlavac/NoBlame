@@ -62,6 +62,7 @@ export function OperationDialogs() {
           key={`${String(repoId)}:${request.commit.revision}`}
           repoId={repoId}
           commit={request.commit}
+          restore={request.restore}
           onClose={closeOperationDialog}
         />
       );

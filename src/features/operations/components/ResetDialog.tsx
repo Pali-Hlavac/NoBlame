@@ -22,6 +22,8 @@ import { ResetEffects } from "./ResetEffects";
 interface ResetDialogProps {
   repoId: number;
   commit: StartPoint;
+  /** Restoring an earlier state (from the reflog): start on "keep", so the files follow. */
+  restore?: boolean;
   onClose: () => void;
 }
 
@@ -30,9 +32,9 @@ interface ResetDialogProps {
  * what leaves the branch and, for hard, the uncommitted changes that are lost, named before it
  * runs (the dialog is the confirmation).
  */
-export function ResetDialog({ repoId, commit, onClose }: ResetDialogProps) {
+export function ResetDialog({ repoId, commit, restore = false, onClose }: ResetDialogProps) {
   const id = useId();
-  const [mode, setMode] = useState<ResetModeDto>("mixed");
+  const [mode, setMode] = useState<ResetModeDto>(restore ? "keep" : "mixed");
   const reset = useReset(repoId);
   const target = useCurrentBranch(repoId);
   const hard = mode === "hard";

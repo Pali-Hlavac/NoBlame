@@ -118,6 +118,7 @@
     "allow-open-merge-tool",
     "allow-get-merge-file",
     "allow-get-interactive-plan",
+    "allow-get-reflog",
     "allow-rebase-interactive",
     "allow-save-merged-file",
     "allow-open-external-diff",

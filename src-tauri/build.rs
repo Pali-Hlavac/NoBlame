@@ -112,6 +112,7 @@ const APP_COMMANDS: &[&str] = &[
     "open_merge_tool",
     "get_merge_file",
     "get_interactive_plan",
+    "get_reflog",
     "rebase_interactive",
     "save_merged_file",
     "open_external_diff",

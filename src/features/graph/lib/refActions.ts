@@ -19,6 +19,15 @@ export interface PickSource extends StartPoint {
   parentCount: number;
 }
 
+/** How the reset dialog starts. */
+export interface ResetOptions {
+  /**
+   * Restoring an earlier state (the reflog): start on "keep", so the files follow the branch
+   * and uncommitted changes are kept (git refuses when they are in the way).
+   */
+  restore?: boolean;
+}
+
 /** What can be done with branches and tags of one repository. */
 export interface RefActions {
   /** Checks out a local branch at once. */
@@ -49,7 +58,7 @@ export interface RefActions {
   /** Opens the interactive rebase editor for the commits from `from` up to HEAD. */
   interactiveRebase: (from: StartPoint) => void;
   /** Asks how (soft, mixed, keep, hard), naming what is lost, then moves the current branch. */
-  reset: (commit: StartPoint) => void;
+  reset: (commit: StartPoint, options?: ResetOptions) => void;
 }
 
 /** A hook giving the actions for a repository; the default offers none (stubs stay labelled). */

@@ -8,6 +8,7 @@ use super::interactive::{self, InteractivePlanDto, InteractiveRequestDto, Intera
 use super::merge_view::{self, MergeFileDto, SaveMergedRequestDto};
 use super::pick::{PickRequestDto, PickResultDto, ResetRequestDto};
 use super::rebase::{self, RebaseOutcomeDto, RebasePreviewDto, RebaseRequestDto};
+use super::reflog::{self, ReflogDto};
 use super::service;
 use super::types::{MergeRequestDto, MergeResultDto, SequenceStepDto, StepOutcomeDto};
 use crate::error::CommandResult;
@@ -94,6 +95,18 @@ pub async fn rebase_interactive(
     request: InteractiveRequestDto,
 ) -> CommandResult<InteractiveResultDto> {
     Ok(interactive::start(&sessions, id, request).await?)
+}
+
+/// The reflog of `reference` (`HEAD` or a local branch's full name), newest first, with the
+/// references that have one.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_reflog(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    reference: String,
+) -> CommandResult<ReflogDto> {
+    Ok(reflog::get(&sessions, id, reference).await?)
 }
 
 /// What rebasing the current branch onto `onto` would replay, and how much of it was pushed.

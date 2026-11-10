@@ -53,6 +53,8 @@ One page per user-facing feature: behaviour, edge cases and status.
 - [operations.md](features/operations.md): merging into the current branch, cherry-pick, revert,
   reset and rebase, and the bar for an operation in progress (merge, rebase, cherry-pick, revert) with
   Continue, Skip and Abort
+- [reflog.md](features/reflog.md): the Reflog module (where HEAD or a branch pointed; restore
+  that state, or create a branch there)
 - [compare.md](features/compare.md): the compare tab (files that differ between two revisions, and their diffs)
 
 ## User guide
