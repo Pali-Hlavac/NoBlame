@@ -99,7 +99,12 @@ Settings shown there (stored in `settings.json`, see `src-tauri/src/settings/typ
 | Fetch, pull and push | Show git's output in a window while they run                            | off     |
 | Fetch, pull and push | Close the window when they succeed                                      | on      |
 
-**Keyboard shortcuts** are listed as arriving in M7 (configurable shortcuts).
+**Keyboard shortcuts** lists every shortcut by where it works (General, Tabs, History, Commit,
+Modules). They come from one registry, `src/shared/lib/keybindings.ts` (`KEYBINDINGS`,
+`keysOf(id)`): features read their keys from it instead of writing them down, and a test checks
+that ids and keys are unique. Keys typed inside lists (arrows, Enter, Delete) stay with their
+component; the browser shortcuts the app turns off are in `native-feel.ts`. Changing shortcuts
+is the next step (M7 slice 8).
 
 ## Active repository and selection
 

@@ -7,9 +7,13 @@ import { isMacPlatform } from "@/shared/lib/platform";
 import { openModule } from "../lib/docks";
 import { focusRegion } from "../lib/regions";
 import type { WorkbenchModule } from "../types";
+import { keysOf } from "@/shared/lib/keybindings";
 
 /** Shortcuts that move focus to the next / previous region of the window. */
-export const REGION_HOTKEYS = { next: "f6", previous: "shift+f6" } as const;
+export const REGION_HOTKEYS = {
+  next: keysOf("regions.next"),
+  previous: keysOf("regions.previous"),
+} as const;
 
 /** F6 / Shift+F6 cycle focus between regions; each module's hotkey opens it. */
 export function useWorkbenchHotkeys(modules: readonly WorkbenchModule[]): void {

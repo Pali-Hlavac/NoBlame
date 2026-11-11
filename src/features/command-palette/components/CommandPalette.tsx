@@ -15,8 +15,7 @@ import { kindIconClass } from "@/shared/lib/workKinds";
 import { groupCommands } from "../lib/group";
 import { usePaletteStore } from "../store/palette";
 import type { PaletteCommand } from "../types";
-
-export const PALETTE_HOTKEY = "mod+k";
+import { PALETTE_HOTKEY } from "../lib/hotkey";
 
 /** Searchable list of every registered command, toggled with {@link PALETTE_HOTKEY}. */
 export function CommandPalette({ commands }: { commands: readonly PaletteCommand[] }) {

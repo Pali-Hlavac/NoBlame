@@ -28,6 +28,7 @@ import type { WorkbenchModule } from "@/features/workbench";
 import { WorktreesModule } from "@/features/worktrees";
 
 import { COMMIT_MODULE_ID } from "./commit";
+import { keysOf } from "@/shared/lib/keybindings";
 
 export const MODULES: readonly WorkbenchModule[] = [
   {
@@ -35,7 +36,7 @@ export const MODULES: readonly WorkbenchModule[] = [
     title: "Repositories",
     icon: FolderGitIcon,
     kind: "repositories",
-    hotkey: "alt+1",
+    hotkey: keysOf("module.repositories"),
     component: RepositoriesModule,
   },
   {
@@ -43,7 +44,7 @@ export const MODULES: readonly WorkbenchModule[] = [
     title: "Branches",
     icon: GitBranchIcon,
     kind: "branches",
-    hotkey: "alt+2",
+    hotkey: keysOf("module.branches"),
     component: BranchesModule,
   },
   {
@@ -51,7 +52,7 @@ export const MODULES: readonly WorkbenchModule[] = [
     title: "Commit details",
     icon: GitCommitHorizontalIcon,
     kind: "commit",
-    hotkey: "alt+3",
+    hotkey: keysOf("module.commit-details"),
     component: CommitDetailsModule,
   },
   {
@@ -59,7 +60,7 @@ export const MODULES: readonly WorkbenchModule[] = [
     title: "Stashes",
     icon: ArchiveIcon,
     kind: "stash",
-    hotkey: "alt+4",
+    hotkey: keysOf("module.stashes"),
     component: StashesModule,
   },
   {
@@ -67,7 +68,7 @@ export const MODULES: readonly WorkbenchModule[] = [
     title: "Changed files",
     icon: FileDiffIcon,
     kind: "commit",
-    hotkey: "alt+5",
+    hotkey: keysOf("module.changed-files"),
     component: ChangedFilesModule,
   },
   {
@@ -76,7 +77,7 @@ export const MODULES: readonly WorkbenchModule[] = [
     title: "Files",
     icon: FolderTreeIcon,
     kind: "history",
-    hotkey: "alt+6",
+    hotkey: keysOf("module.files"),
     component: FilesModule,
   },
   {
@@ -85,7 +86,7 @@ export const MODULES: readonly WorkbenchModule[] = [
     title: "Commit",
     icon: GitCommitVerticalIcon,
     kind: "commit",
-    hotkey: "alt+7",
+    hotkey: keysOf("module.commit"),
     component: CommitModule,
     // Popped out, it shows the chosen file's diff beside the lists.
     popupWide: true,
@@ -95,7 +96,7 @@ export const MODULES: readonly WorkbenchModule[] = [
     title: "Reflog",
     icon: HistoryIcon,
     kind: "history",
-    hotkey: "alt+8",
+    hotkey: keysOf("module.reflog"),
     component: ReflogModule,
   },
   {
@@ -103,7 +104,7 @@ export const MODULES: readonly WorkbenchModule[] = [
     title: "Worktrees",
     icon: FoldersIcon,
     kind: "repositories",
-    hotkey: "alt+9",
+    hotkey: keysOf("module.worktrees"),
     component: WorktreesModule,
   },
   {
@@ -111,7 +112,7 @@ export const MODULES: readonly WorkbenchModule[] = [
     title: "Git LFS",
     icon: HardDriveIcon,
     kind: "repositories",
-    hotkey: "alt+0",
+    hotkey: keysOf("module.lfs"),
     component: LfsModule,
   },
 ];

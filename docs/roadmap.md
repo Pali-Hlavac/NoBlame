@@ -1065,6 +1065,13 @@ Slice 7 done (2026-11-11): Git settings ([features/git-config.md](features/git-c
   the owner's); reading and writing the global file is covered by the same code with
   `--global`.
 
+Slice 8, first step (2026-11-11): one keyboard shortcut registry
+(`src/shared/lib/keybindings.ts`): the palette, settings, F6 regions, tabs, find and go to,
+commit, and the ten module shortcuts read their keys from it; **Settings → Keyboard
+shortcuts** lists them by group. Checked in the running app: the list, and Alt+0 still opening
+Git LFS. Next: changing a shortcut in Settings (saved in the settings, checked for clashes),
+then M7 is done.
+
 ### M8: Standalone task windows (prepares phase 2)
 
 - [ ] `noblame log|commit|diff|blame|filehistory|pull|push|fetch|switch|merge|rebase|stash|clone|init <path>` open focused windows

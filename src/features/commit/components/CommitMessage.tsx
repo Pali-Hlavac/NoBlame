@@ -23,9 +23,10 @@ import { CommitOptions } from "./CommitOptions";
 import { CommitOutput } from "./CommitOutput";
 import { MessageMenu } from "./MessageMenu";
 import { SummaryHint } from "./SummaryHint";
+import { keysOf } from "@/shared/lib/keybindings";
 
 /** Commits from the message box. */
-export const COMMIT_HOTKEY = "mod+enter";
+const COMMIT_HOTKEY = keysOf("commit.commit");
 
 /** Comment lines start with this when the config does not say otherwise. */
 const DEFAULT_COMMENT_CHAR = "#";

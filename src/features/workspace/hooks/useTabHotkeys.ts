@@ -2,12 +2,13 @@ import { useHotkey } from "@/shared/hooks/useHotkey";
 import { isDialogOpen } from "@/shared/lib/dialogs";
 
 import { useTabsStore } from "../store/tabs";
+import { keysOf } from "@/shared/lib/keybindings";
 
 /** Keyboard shortcuts for tabs. */
 export const TAB_HOTKEYS = {
-  close: "mod+w",
-  next: "ctrl+tab",
-  previous: "ctrl+shift+tab",
+  close: keysOf("tabs.close"),
+  next: keysOf("tabs.next"),
+  previous: keysOf("tabs.previous"),
 } as const;
 
 /** Registers global tab shortcuts (close, next, previous); ignored while a dialog is open. */

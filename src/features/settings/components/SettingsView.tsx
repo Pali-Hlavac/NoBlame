@@ -12,11 +12,9 @@ import { GraphColumnsSetting } from "./GraphColumnsSetting";
 import { JobsSection } from "./JobsSection";
 import { GitConfigSection } from "./GitConfigSection";
 import { ScriptsSection } from "./ScriptsSection";
+import { ShortcutsSection } from "./ShortcutsSection";
 import { RepositoryButtonsSetting } from "./RepositoryButtonsSetting";
 import { Choice, Section, Toggle } from "./SettingControls";
-
-/** Milestone that makes keyboard shortcuts configurable (shown in the UI as planned). */
-const SHORTCUTS_MILESTONE = "M7";
 
 const WORKING_TREE_OPTIONS: readonly { value: WorkingTreeDisplay; label: string }[] = [
   { value: "rows", label: "Rows at the top of the commit graph" },
@@ -153,12 +151,7 @@ export function SettingsView() {
         <JobsSection />
         <ScriptsSection />
         <GitConfigSection />
-        <Section title="Keyboard shortcuts">
-          <p className="text-sm text-muted-foreground">
-            Changing shortcuts arrives in {SHORTCUTS_MILESTONE}. Until then, the command palette
-            lists each command with its shortcut.
-          </p>
-        </Section>
+        <ShortcutsSection />
       </div>
     </div>
   );

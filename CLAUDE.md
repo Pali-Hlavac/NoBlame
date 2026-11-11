@@ -38,7 +38,8 @@ Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 > the Worktrees module: list, add, open, lock, remove, prune (slice 2); bisect from the commit
 > menu and the bar, marks as graph labels (slice 3); patches created and applied, archives
 > (slice 4); the Git LFS module: pointers or content, download, locks (slice 5); user scripts
-> run on a commit from its menu (slice 6); Git settings, the repository's and the user's (slice 7).
+> run on a commit from its menu (slice 6); Git settings, the repository's and the user's (slice 7); one keyboard shortcut registry listed in
+> Settings (slice 8, first step; changing shortcuts next).
 > Parts marked _(later)_ below are planned and do not exist yet.
 
 ## Architecture
