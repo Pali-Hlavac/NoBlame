@@ -10,6 +10,7 @@ mod git_env;
 mod inspect;
 mod ipc;
 mod jobs;
+mod lfs;
 mod logging;
 mod operations;
 mod patches;

@@ -930,7 +930,7 @@ patches).
 - [x] Submodules: status, init/update, diff of submodule pointers (listing and opening them is in
       the M2.5 Repositories module). Slice 1
 - [x] Worktrees: list, add, remove, open (slice 2)
-- [ ] Git LFS: detect, show pointers vs. content, lock/unlock
+- [x] Git LFS: detect, show pointers vs. content, lock/unlock (slice 5)
 - [x] Bisect workflow (good/bad/skip from the graph) (slice 3)
 - [x] Patches: create (format-patch), apply (am/apply); archive a revision (slice 4)
 - [ ] User scripts / custom commands with placeholders (`{sha}`, `{branch}`, `{file}`) like Git Extensions scripts
@@ -1022,6 +1022,20 @@ Slice 4 done (2026-11-11): patches and archives ([features/patches.md](features/
   the branch that has them, clean on one at `v1.0`) and applied as three commits through the
   app's commands. The system's file dialogs were not clicked (they would open on the owner's
   screen); saving and applying are covered by tests against git.
+
+Slice 5 done (2026-11-11): Git LFS ([features/lfs.md](features/lfs.md)).
+
+- The **Git LFS** module (Alt+0): the LFS files with their sizes, **pointer only** for those
+  whose content is not downloaded, **Download contents** (`git lfs pull` as a job), the locks
+  on the LFS server when asked (lock from a file's row, unlock, forcing asks first), and what to
+  do without git-lfs or without an LFS server.
+- Found while clicking through: with `--json`, `git lfs locks` answers an empty list and
+  succeeds when it cannot reach a server (the reason goes to stderr), so the module said
+  "Nobody holds a lock"; it now shows git-lfs's words and what they mean.
+- Checked in the running app on a clone made with `GIT_LFS_SKIP_SMUDGE=1` (three files, one in
+  a folder with a space): all three pointer only; Download contents ran the job and the badges
+  went; Show locks on the folder remote explained there is no LFS server. Locking against a
+  real server (GitHub, GitLab) was not tried: none is set up for tests.
 
 ### M8: Standalone task windows (prepares phase 2)
 

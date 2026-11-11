@@ -9,7 +9,7 @@ use super::archive::ArchiveRequestDto;
 use super::clone::CloneRequestDto;
 use super::registry::JobRegistry;
 use super::types::{FetchRequestDto, JobDto, JobId, JobOutputDto, PullRequestDto, PushRequestDto};
-use super::{archive, clone, fetch, submodules, sync};
+use super::{archive, clone, fetch, lfs, submodules, sync};
 use crate::error::CommandResult;
 
 /// Running and recent jobs, newest first.
@@ -108,6 +108,13 @@ pub async fn save_archive(
     request: ArchiveRequestDto,
 ) -> CommandResult<Option<JobId>> {
     Ok(archive::start(&window, &registry, request).await?)
+}
+
+/// Starts `git lfs pull` in the repository at `path`: the contents of its LFS files.
+#[tauri::command]
+#[specta::specta]
+pub async fn pull_lfs(registry: State<'_, Arc<JobRegistry>>, path: String) -> CommandResult<JobId> {
+    Ok(lfs::pull(&registry, path).await?)
 }
 
 /// The remotes of the repository at `path`, sorted.

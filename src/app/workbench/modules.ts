@@ -11,6 +11,7 @@ import {
   GitBranchIcon,
   GitCommitHorizontalIcon,
   GitCommitVerticalIcon,
+  HardDriveIcon,
   HistoryIcon,
 } from "lucide-react";
 
@@ -19,6 +20,7 @@ import { ChangedFilesModule } from "@/features/changed-files";
 import { CommitModule } from "@/features/commit";
 import { CommitDetailsModule } from "@/features/commit-details";
 import { FilesModule } from "@/features/files";
+import { LfsModule } from "@/features/lfs";
 import { ReflogModule } from "@/features/reflog";
 import { RepositoriesModule } from "@/features/repositories";
 import { StashesModule } from "@/features/stashes";
@@ -103,6 +105,14 @@ export const MODULES: readonly WorkbenchModule[] = [
     kind: "repositories",
     hotkey: "alt+9",
     component: WorktreesModule,
+  },
+  {
+    id: "lfs",
+    title: "Git LFS",
+    icon: HardDriveIcon,
+    kind: "repositories",
+    hotkey: "alt+0",
+    component: LfsModule,
   },
 ];
 

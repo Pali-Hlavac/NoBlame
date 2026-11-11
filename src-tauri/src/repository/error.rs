@@ -9,6 +9,7 @@ use git_core::difftool::DiffToolError;
 use git_core::graph::GraphError;
 use git_core::history::HistoryError;
 use git_core::ignore::IgnoreError;
+use git_core::lfs::LfsError;
 use git_core::patch::PatchError;
 use git_core::remote::CloneError;
 use git_core::repo::RepoError;
@@ -59,6 +60,9 @@ pub enum RepositoryError {
     /// Staging or committing failed.
     #[error(transparent)]
     Commit(#[from] CommitError),
+    /// A Git LFS command failed.
+    #[error(transparent)]
+    Lfs(#[from] LfsError),
     /// Creating, checking or applying patches, or an archive, failed.
     #[error(transparent)]
     Patch(#[from] PatchError),
@@ -165,6 +169,7 @@ impl From<RepositoryError> for AppError {
             }
             RepositoryError::Compare(error) => compare_error(error),
             RepositoryError::Patch(error) => crate::patches::patch_error(error),
+            RepositoryError::Lfs(error) => crate::lfs::lfs_error(error),
             RepositoryError::Branch(error) => super::branch_error::branch_error(error),
             RepositoryError::Clone(error) => super::branch_error::clone_error(error),
             error @ (RepositoryError::Commit(_)

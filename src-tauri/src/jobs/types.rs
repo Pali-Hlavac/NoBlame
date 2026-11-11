@@ -22,6 +22,8 @@ pub enum JobKindDto {
     SubmoduleUpdate,
     /// `git archive`: the files of a revision saved as a zip or tar.gz file.
     Archive,
+    /// `git lfs pull`: the contents of LFS files downloaded.
+    LfsPull,
 }
 
 /// Where a job is in its life.

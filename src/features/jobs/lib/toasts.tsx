@@ -21,6 +21,7 @@ export const STARTING_LABELS: Readonly<Record<JobKindDto, string>> = {
   clone: "Cloning…",
   submoduleUpdate: "Updating submodules…",
   archive: "Saving the archive…",
+  lfsPull: "Downloading LFS files…",
 };
 
 /** What each kind of job is called in a sentence ("Could not start the fetch"). */
@@ -31,6 +32,7 @@ export const JOB_NOUNS: Readonly<Record<JobKindDto, string>> = {
   clone: "clone",
   submoduleUpdate: "submodule update",
   archive: "archive",
+  lfsPull: "LFS download",
 };
 
 /** Updates and ends that arrived before their job's id did, kept for a few jobs. */

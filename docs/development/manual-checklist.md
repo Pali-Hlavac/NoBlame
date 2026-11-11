@@ -125,6 +125,11 @@ Use `target\debug\noblame.exe` while the dev app runs.
       commits**; **Update to the recorded commit** asks first and lists it, then puts it back.
       A repository's **…** → **Update all submodules**.
   - Notes:
+- [ ] **(new, M7)** Git LFS (Alt+0): in a clone made with `GIT_LFS_SKIP_SMUDGE=1`, the files
+      show **pointer only**; **Download contents** runs a job and the badges go. **Show locks**
+      on a GitHub/GitLab repository lists locks; lock a file from its row, **Unlock** it. On a
+      folder remote the module explains there is no LFS server.
+  - Notes:
 - [ ] **(new, M7)** Patches: right-click a commit → **More** → **Create patches…**; choose
       "The commits after…" and type a tag: the count appears (merges left out). Save one file
       per commit into a folder, then again into the same folder: refused, naming the files.

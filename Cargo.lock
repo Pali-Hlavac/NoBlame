@@ -1632,6 +1632,8 @@ dependencies = [
  "notify",
  "notify-debouncer-mini",
  "rustix",
+ "serde",
+ "serde_json",
  "syntect",
  "tempfile",
  "thiserror 2.0.21",

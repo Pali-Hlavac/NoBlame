@@ -180,6 +180,11 @@ All notable changes to NoBlame are documented here. The format follows
   for all files at once. **Settings → Diff → Merge tool for conflicts** chooses Git's
   `merge.tool`, Visual Studio Code, Beyond Compare, KDiff3, Meld, P4Merge or another tool Git
   knows; it runs through `git mergetool`.
+- Git LFS (M7 slice 5): the **Git LFS** module (Alt+0) lists a repository's LFS files with their
+  sizes, marks those that are **pointer only** (content not downloaded), and **Download
+  contents** runs `git lfs pull` as a background job. **Show locks** asks the LFS server who
+  holds which file; lock a file from its row, **Unlock** (forcing someone else's lock asks
+  first). Without git-lfs, or without an LFS server, the module says so.
 - Patches and archives (M7 slice 4): right-click a commit → **More** → **Create patches…**
   saves the patches of that commit, or of the commits after a branch, tag or commit, into one
   file or one file per commit (merges are left out; files already in the folder are never

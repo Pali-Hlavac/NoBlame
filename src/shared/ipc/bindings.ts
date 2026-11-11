@@ -195,6 +195,14 @@ export const commands = {
 	 *  only to the files (`git apply`). Conflicts come back as an outcome.
 	 */
 	applyPatches: (id: number, paths: string[], mode: ApplyModeDto) => typedError<PatchOutcomeDto, AppError>(__TAURI_INVOKE("apply_patches", { id, paths, mode })),
+	/**  Whether git-lfs is installed, and the repository's LFS files with or without their content. */
+	getLfs: (id: number) => typedError<LfsStateDto, AppError>(__TAURI_INVOKE("get_lfs", { id })),
+	/**  The locks on the LFS server of the repository's remote, with git-lfs's warning, if any. */
+	listLfsLocks: (id: number) => typedError<LfsLocksDto, AppError>(__TAURI_INVOKE("list_lfs_locks", { id })),
+	/**  Locks `path` (relative, `/` separated) on the LFS server; returns what git-lfs said. */
+	lockLfsFile: (id: number, path: string) => typedError<string, AppError>(__TAURI_INVOKE("lock_lfs_file", { id, path })),
+	/**  Unlocks lock `lock_id` (`force`: someone else's); returns what git-lfs said. */
+	unlockLfsFile: (id: number, lockId: string, force: boolean) => typedError<string, AppError>(__TAURI_INVOKE("unlock_lfs_file", { id, lockId, force })),
 	/**
 	 *  Checks out the local branch `name`; returns what git printed. git refuses when local
 	 *  changes would be overwritten.
@@ -266,6 +274,8 @@ export const commands = {
 	 *  cancelled.
 	 */
 	saveArchive: (request: ArchiveRequestDto) => typedError<number | null, AppError>(__TAURI_INVOKE("save_archive", { request })),
+	/**  Starts `git lfs pull` in the repository at `path`: the contents of its LFS files. */
+	pullLfs: (path: string) => typedError<number, AppError>(__TAURI_INVOKE("pull_lfs", { path })),
 	/**  The remotes with their URLs, remote branches and the local branches tracking them. */
 	listRemoteDetails: (id: number) => typedError<RemoteDto[], AppError>(__TAURI_INVOKE("list_remote_details", { id })),
 	/**  Adds a remote (`git remote add`); nothing is fetched yet. */
@@ -1526,7 +1536,9 @@ export type JobKindDto =
 /**  `git submodule update --init --recursive`. */
 "submoduleUpdate" | 
 /**  `git archive`: the files of a revision saved as a zip or tar.gz file. */
-"archive";
+"archive" | 
+/**  `git lfs pull`: the contents of LFS files downloaded. */
+"lfsPull";
 
 /**  Lines of a job's log, from line `from` (counting from its first line) on. */
 export type JobOutputDto = {
@@ -1578,6 +1590,45 @@ export type JobsSettings = {
 	showOutputWindow?: boolean,
 	/**  Close the Git output window by itself once its jobs all succeeded. */
 	closeOutputOnSuccess?: boolean,
+};
+
+/**  A file stored in Git LFS. */
+export type LfsFileDto = {
+	path: string,
+	/**  As git-lfs words it (`3.0 KB`). */
+	size: string,
+	/**  The object id (sha256, hex). */
+	oid: string,
+	/**  False when the working tree has only the pointer (the content was not downloaded). */
+	hasContent: boolean,
+};
+
+/**  A lock on the LFS server. */
+export type LfsLockDto = {
+	id: string,
+	path: string,
+	/**  Who holds it, as the server names them. */
+	owner: string | null,
+	/**  When (RFC 3339). */
+	lockedAt: string,
+};
+
+/**  The locks on the LFS server, and why there may be none. */
+export type LfsLocksDto = {
+	locks: LfsLockDto[],
+	/**  What git-lfs said besides (it lists none when it cannot reach a server, saying why here). */
+	warning: string | null,
+	/**  What that means, when it is a usual case. */
+	hint: string | null,
+};
+
+/**  Git LFS in a repository. */
+export type LfsStateDto = {
+	/**  `git lfs version`; `null` when git-lfs is not installed. */
+	version: string | null,
+	/**  The LFS files of the commit checked out (at most 20,000). */
+	files: LfsFileDto[],
+	total: number,
 };
 
 /**
