@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
-import { formatHotkey } from "@/shared/lib/hotkeys";
+import { useKeymap } from "@/shared/hooks/useKeys";
+import { withHotkey } from "@/shared/lib/hotkeys";
 import { isMacPlatform } from "@/shared/lib/platform";
 import { kindIconClass } from "@/shared/lib/workKinds";
 
@@ -20,6 +21,7 @@ export function ActivityBar({ modules, footer }: ActivityBarProps) {
   const visible = useWorkbenchStore((state) => state.visibleModules);
   const collapsed = useWorkbenchStore((state) => state.sidebarCollapsed);
   const isMac = isMacPlatform();
+  const keysOf = useKeymap();
 
   return (
     <nav
@@ -30,9 +32,11 @@ export function ActivityBar({ modules, footer }: ActivityBarProps) {
       {modules.map((module) => (
         <ActivityBarButton
           key={module.id}
-          label={
-            module.hotkey ? `${module.title} (${formatHotkey(module.hotkey, isMac)})` : module.title
-          }
+          label={withHotkey(
+            module.title,
+            module.keybinding ? keysOf(module.keybinding) : "",
+            isMac,
+          )}
           icon={module.icon}
           iconClassName={kindIconClass(module.kind)}
           pressed={!collapsed && visible.includes(module.id)}

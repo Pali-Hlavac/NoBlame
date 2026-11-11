@@ -16,8 +16,8 @@ export interface WorkbenchModule {
   icon: LucideIcon;
   /** What it is about; colours its icon (`src/shared/lib/workKinds.ts`). */
   kind?: WorkKind;
-  /** Shortcut that opens the module, e.g. `alt+1`. */
-  hotkey?: string;
+  /** Id of the shortcut that opens the module (`module.branches`, in `keybindings.ts`). */
+  keybinding?: string;
   /** The module's content. */
   component: ComponentType;
   /** Its popup (when popped out) is wide, for content beside its lists; narrow otherwise. */

@@ -1,5 +1,6 @@
 import { useAfterDialogClose } from "@/shared/hooks/useAfterDialogClose";
 import { useHotkey } from "@/shared/hooks/useHotkey";
+import { useKeys } from "@/shared/hooks/useKeys";
 import {
   Command,
   CommandEmpty,
@@ -15,13 +16,12 @@ import { kindIconClass } from "@/shared/lib/workKinds";
 import { groupCommands } from "../lib/group";
 import { usePaletteStore } from "../store/palette";
 import type { PaletteCommand } from "../types";
-import { PALETTE_HOTKEY } from "../lib/hotkey";
 
-/** Searchable list of every registered command, toggled with {@link PALETTE_HOTKEY}. */
+/** Searchable list of every registered command, toggled with its shortcut (`palette.open`). */
 export function CommandPalette({ commands }: { commands: readonly PaletteCommand[] }) {
   const open = usePaletteStore((state) => state.open);
   const { setOpen, toggle } = usePaletteStore.getState();
-  useHotkey(PALETTE_HOTKEY, toggle);
+  useHotkey(useKeys("palette.open"), toggle);
   const closing = useAfterDialogClose();
 
   // After closing, so a command that opens a dialog keeps the focus inside it.

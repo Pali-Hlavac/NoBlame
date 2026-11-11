@@ -2,20 +2,17 @@ import { useEffect, useRef } from "react";
 
 import { isDialogOpen } from "@/shared/lib/dialogs";
 import { matchesHotkey } from "@/shared/lib/hotkeys";
+import { keysOf } from "@/shared/lib/keybindings";
 import { isMacPlatform } from "@/shared/lib/platform";
 
 import { openModule } from "../lib/docks";
 import { focusRegion } from "../lib/regions";
 import type { WorkbenchModule } from "../types";
-import { keysOf } from "@/shared/lib/keybindings";
 
-/** Shortcuts that move focus to the next / previous region of the window. */
-export const REGION_HOTKEYS = {
-  next: keysOf("regions.next"),
-  previous: keysOf("regions.previous"),
-} as const;
-
-/** F6 / Shift+F6 cycle focus between regions; each module's hotkey opens it. */
+/**
+ * F6 / Shift+F6 cycle focus between regions; each module's shortcut opens it. The keys are read
+ * on each key press, so shortcuts changed in Settings apply at once.
+ */
 export function useWorkbenchHotkeys(modules: readonly WorkbenchModule[]): void {
   const modulesRef = useRef(modules);
   useEffect(() => {
@@ -26,18 +23,20 @@ export function useWorkbenchHotkeys(modules: readonly WorkbenchModule[]): void {
     const isMac = isMacPlatform();
     const onKeyDown = (event: KeyboardEvent): void => {
       if (isDialogOpen()) return;
-      if (matchesHotkey(event, REGION_HOTKEYS.next, isMac)) {
+      if (matchesHotkey(event, keysOf("regions.next"), isMac)) {
         event.preventDefault();
         focusRegion(1);
         return;
       }
-      if (matchesHotkey(event, REGION_HOTKEYS.previous, isMac)) {
+      if (matchesHotkey(event, keysOf("regions.previous"), isMac)) {
         event.preventDefault();
         focusRegion(-1);
         return;
       }
       const module = modulesRef.current.find(
-        (candidate) => candidate.hotkey && matchesHotkey(event, candidate.hotkey, isMac),
+        (candidate) =>
+          candidate.keybinding !== undefined &&
+          matchesHotkey(event, keysOf(candidate.keybinding), isMac),
       );
       if (module) {
         event.preventDefault();

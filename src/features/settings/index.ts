@@ -1,6 +1,7 @@
 /** Public API of the settings feature. */
 export { useSettings } from "./api/settings";
 export { SettingsView } from "./components/SettingsView";
+export { KeybindingsController } from "./components/KeybindingsController";
 export { ThemeController } from "./components/ThemeController";
 export { ThemeMenu } from "./components/ThemeMenu";
 export { useAppSettings, useChangeSettings } from "./hooks/useAppSettings";

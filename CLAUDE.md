@@ -33,13 +33,13 @@ Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 > and the bar for an operation in progress with Continue, Skip and Abort (slice 1); cherry-pick,
 > revert and reset (slice 2); rebase onto (slice 3); conflicts with ours/theirs and the external
 > merge tool (slice 4); the built-in three-way merge view (slice 5); the interactive rebase editor (slice 6); the
-> Reflog module with "restore this state" (slice 7). M7 in progress: submodules' state,
+> Reflog module with "restore this state" (slice 7). M7 done: submodules' state,
 > initialize and update as a job, the commits between two pointers in the diff tab (slice 1);
 > the Worktrees module: list, add, open, lock, remove, prune (slice 2); bisect from the commit
 > menu and the bar, marks as graph labels (slice 3); patches created and applied, archives
 > (slice 4); the Git LFS module: pointers or content, download, locks (slice 5); user scripts
-> run on a commit from its menu (slice 6); Git settings, the repository's and the user's (slice 7); one keyboard shortcut registry listed in
-> Settings (slice 8, first step; changing shortcuts next).
+> run on a commit from its menu (slice 6); Git settings, the repository's and the user's (slice 7); keyboard shortcuts from one registry,
+> changed in Settings (slice 8). Next: M8 (standalone task windows).
 > Parts marked _(later)_ below are planned and do not exist yet.
 
 ## Architecture

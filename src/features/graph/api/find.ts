@@ -3,12 +3,6 @@ import type { FoundCommit, GoToCommit } from "@/shared/ipc/bindings";
 import { commands, unwrap } from "@/shared/ipc/client";
 
 import { useGraphViewStore } from "../store/graphView";
-import { keysOf } from "@/shared/lib/keybindings";
-
-/** Opens the find bar (Ctrl+F) of the repository tab of `repoPath`. */
-export const FIND_HOTKEY = keysOf("history.find");
-/** Opens "Go to commit" (Ctrl+Shift+G, as in Git Extensions). */
-export const GO_TO_HOTKEY = keysOf("history.goto");
 
 /** Opens the find bar of the repository at `repoPath`. */
 export function openFind(repoPath: string): void {

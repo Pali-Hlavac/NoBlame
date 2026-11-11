@@ -1,7 +1,8 @@
 # Keyboard shortcuts
 
 On macOS, use **⌘** where this page says **Ctrl**, except for switching tabs, which uses
-**Ctrl** on every platform.
+**Ctrl** on every platform. These are the app's own keys; you can change them (see the end of
+this page).
 
 | Shortcut            | Action                                  |
 | ------------------- | --------------------------------------- |
@@ -20,6 +21,7 @@ On macOS, use **⌘** where this page says **Ctrl**, except for switching tabs, 
 | Alt+7               | Show Commit                             |
 | Alt+8               | Show Reflog                             |
 | Alt+9               | Show Worktrees                          |
+| Alt+0               | Show Git LFS                            |
 | Ctrl+Enter (⌘Enter) | Commit, in the commit message box       |
 | Ctrl+, (⌘,)         | Open Settings                           |
 | Ctrl+F (⌘F)         | Find commits in the active repository   |
@@ -49,4 +51,19 @@ Tab shortcuts do nothing while a dialog is open, so they never act on a tab you 
 
 Every button and control can be reached with **Tab** and shows a visible focus ring.
 
-Changing shortcuts is planned for a later version (M7).
+## Changing a shortcut
+
+**Settings** (Ctrl+,) → **Keyboard shortcuts** lists every shortcut with its keys. To change
+one, click its keys, then press the new ones, for example **Ctrl+Shift+F**. It works at once
+and is kept with your settings.
+
+- **Esc** stops without changing it.
+- **Backspace** or **Delete** leaves it without a shortcut (shown as **None**).
+- Keys need **Ctrl**, **Alt** (or **⌘** on a Mac), unless they are a function key such as
+  **F3**; otherwise typing in a text field would trigger them.
+- Keys another shortcut already has are refused, naming that shortcut: change that one first.
+  So are the keys for copy, cut, paste, select all, undo and redo, and Alt+F4.
+- The arrow beside a changed shortcut puts its own keys back; **Reset all shortcuts** at the
+  bottom puts back every one.
+
+The command palette and the button tooltips always show the keys you chose.

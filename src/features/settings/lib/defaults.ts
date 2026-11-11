@@ -26,6 +26,8 @@ export interface AppSettings {
   jobs: Required<JobsSettings>;
   /** User scripts, in menu order. */
   scripts: { name: string; command: string }[];
+  /** Keyboard shortcuts given other keys than the app's (empty keys: no shortcut). */
+  keybindings: { id: string; keys: string }[];
 }
 
 /** The diff settings with every field present, the external tools' too. */
@@ -62,6 +64,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   branches: { sort: "name" },
   jobs: { showOutputWindow: false, closeOutputOnSuccess: true },
   scripts: [],
+  keybindings: [],
 };
 
 /** Fills fields missing from `settings` with their defaults. */
@@ -81,6 +84,10 @@ export function withDefaults(settings: Settings | undefined): AppSettings {
     scripts: (settings?.scripts ?? []).map((script) => ({
       name: script.name ?? "",
       command: script.command ?? "",
+    })),
+    keybindings: (settings?.keybindings ?? []).map((shortcut) => ({
+      id: shortcut.id ?? "",
+      keys: shortcut.keys ?? "",
     })),
   };
 }

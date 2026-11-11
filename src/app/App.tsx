@@ -1,7 +1,12 @@
 import { Toaster } from "sonner";
 
 import { AboutDialog } from "@/features/about";
-import { ThemeController, useSettings, useThemePreference } from "@/features/settings";
+import {
+  KeybindingsController,
+  ThemeController,
+  useSettings,
+  useThemePreference,
+} from "@/features/settings";
 import { TaskWindowView, useWindowContext } from "@/features/windows";
 import { ErrorState } from "@/shared/components/ErrorState";
 
@@ -14,6 +19,7 @@ function Window({ context }: { context: ReturnType<typeof useWindowContext> }) {
   return (
     <>
       <ThemeController />
+      <KeybindingsController />
       {context.error ? (
         <ErrorState
           error={context.error}

@@ -23,7 +23,7 @@ import { useAboutStore } from "@/features/about";
 import type { PaletteCommand } from "@/features/command-palette";
 import { useGitInfo } from "@/features/git-env";
 import { openClone } from "@/features/remotes";
-import { FIND_HOTKEY, GO_TO_HOTKEY, openFind, openGoTo } from "@/features/graph";
+import { openFind, openGoTo } from "@/features/graph";
 import {
   useActiveRepository,
   useCreateRepository,
@@ -32,16 +32,11 @@ import {
 import { THEME_OPTIONS, useThemePreference } from "@/features/settings";
 import { TASKS, TASK_WINDOWS_MILESTONE, useOpenTaskWindow } from "@/features/windows";
 import { openModule, resetLayout, type WorkbenchModule } from "@/features/workbench";
-import {
-  TAB_HOTKEYS,
-  WELCOME_TAB,
-  showCompareTab,
-  useActiveTab,
-  useTabsStore,
-} from "@/features/workspace";
+import { WELCOME_TAB, showCompareTab, useActiveTab, useTabsStore } from "@/features/workspace";
+import { useKeymap } from "@/shared/hooks/useKeys";
 import type { TaskKind } from "@/shared/ipc/bindings";
 
-import { SETTINGS_HOTKEY, openSettings } from "../layout/settingsTab";
+import { openSettings } from "../layout/settingsTab";
 import { useCommitCommands } from "../workbench/commit";
 import { useRemoteCommands } from "../workbench/remoteCommands";
 
@@ -58,6 +53,7 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
   const activeRepository = useActiveRepository();
   const commitCommands = useCommitCommands();
   const remoteCommands = useRemoteCommands();
+  const keysOf = useKeymap();
   const repositoryPath = activeTab?.kind === "repository" ? activeTab.path : null;
 
   const taskCommands = repositoryPath
@@ -79,7 +75,7 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
     label: `Show ${module.title}`,
     icon: module.icon,
     kind: module.kind,
-    hotkey: module.hotkey,
+    hotkey: module.keybinding ? keysOf(module.keybinding) : undefined,
     keywords: ["module", "panel", "sidebar"],
     run: () => {
       openModule(module);
@@ -95,7 +91,7 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
           label: "Find commits…",
           icon: SearchIcon,
           kind: "history",
-          hotkey: FIND_HOTKEY,
+          hotkey: keysOf("history.find"),
           keywords: ["search", "message", "author", "hash"],
           run: () => {
             openFind(historyPath);
@@ -107,7 +103,7 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
           label: "Go to commit…",
           icon: CrosshairIcon,
           kind: "history",
-          hotkey: GO_TO_HOTKEY,
+          hotkey: keysOf("history.goto"),
           keywords: ["jump", "hash", "id", "revision", "branch", "tag"],
           run: () => {
             openGoTo(historyPath);
@@ -183,7 +179,7 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
       group: "Tabs",
       label: "Close current tab",
       icon: XIcon,
-      hotkey: TAB_HOTKEYS.close,
+      hotkey: keysOf("tabs.close"),
       run: () => {
         const { activeTabId, closeTab } = useTabsStore.getState();
         if (activeTabId) closeTab(activeTabId);
@@ -207,7 +203,7 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
       group: "View",
       label: "Open settings",
       icon: SettingsIcon,
-      hotkey: SETTINGS_HOTKEY,
+      hotkey: keysOf("settings.open"),
       keywords: ["preferences", "options"],
       run: openSettings,
     },

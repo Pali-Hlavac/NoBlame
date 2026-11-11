@@ -99,6 +99,12 @@ Use `target\debug\noblame.exe` while the dev app runs.
   - Notes:
 - [ ] Ctrl+, (or the gear at the bottom of the activity bar) opens Settings.
   - Notes:
+- [ ] **(new)** Settings → Keyboard shortcuts: click Find commits' keys and press Ctrl+K: it is
+      refused, naming the command palette, and the palette does not open. Press Ctrl+Shift+F: it
+      is taken; in a repository tab Ctrl+F no longer opens the find bar and Ctrl+Shift+F does;
+      the palette shows Ctrl+Shift+F. Backspace on the palette's keys: None, and the status bar
+      shows no key. **Reset all shortcuts** brings both back. Restart: changed keys are kept.
+  - Notes:
 - [ ] **(new)** Right-click a module's tab → **Pop out**: it leaves the sidebar and opens in a
       popup; nothing behind it reacts. Close it (×, Esc), open it again from its icon or Alt+N:
       it is the popup again, with what you typed still there. **Dock** puts it back in the

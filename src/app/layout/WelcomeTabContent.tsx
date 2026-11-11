@@ -1,6 +1,5 @@
 import { FolderDownIcon, FolderOpenIcon, FolderPlusIcon } from "lucide-react";
 
-import { PALETTE_HOTKEY } from "@/features/command-palette";
 import { GitNotice } from "@/features/git-env";
 import { openClone } from "@/features/remotes";
 import {
@@ -19,7 +18,6 @@ export function WelcomeTabContent() {
   return (
     <div className="h-full overflow-auto">
       <WelcomeView
-        paletteHotkey={PALETTE_HOTKEY}
         notice={<GitNotice className="w-full" />}
         actions={
           <>

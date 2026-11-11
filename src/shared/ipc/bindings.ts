@@ -1622,6 +1622,14 @@ export type JobsSettings = {
 	closeOutputOnSuccess?: boolean,
 };
 
+/**  A keyboard shortcut given other keys than the app's. */
+export type KeybindingOverride = {
+	/**  The shortcut's id (`history.find`); ids the app does not know are kept but unused. */
+	id?: string,
+	/**  Its keys as a combo (`mod+shift+f`); empty for no shortcut. */
+	keys?: string,
+};
+
 /**  A file stored in Git LFS. */
 export type LfsFileDto = {
 	path: string,
@@ -2415,6 +2423,11 @@ export type Settings = {
 	jobs?: JobsSettings,
 	/**  User scripts: git command lines with placeholders, run on a commit from its menu. */
 	scripts?: UserScript[],
+	/**
+	 *  Keyboard shortcuts the user changed (Settings → Keyboard shortcuts); the others keep
+	 *  the app's keys (`src/shared/lib/keybindings.ts`).
+	 */
+	keybindings?: KeybindingOverride[],
 };
 
 /**  Which side's version to keep. */

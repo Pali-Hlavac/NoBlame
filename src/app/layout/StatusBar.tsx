@@ -1,9 +1,10 @@
 import { useAppInfo } from "@/features/about";
-import { PALETTE_HOTKEY, usePaletteStore } from "@/features/command-palette";
+import { usePaletteStore } from "@/features/command-palette";
 import { GitStatusButton } from "@/features/git-env";
 import { JobsIndicator } from "@/features/jobs";
 import { ThemeMenu } from "@/features/settings";
 import { LoaderCircleIcon } from "lucide-react";
+import { useKeys } from "@/shared/hooks/useKeys";
 import { Button } from "@/shared/ui/button";
 import { Kbd } from "@/shared/ui/kbd";
 
@@ -17,6 +18,7 @@ import { WorkStrip } from "./WorkStrip";
 export function StatusBar() {
   const { data: info } = useAppInfo();
   const work = useWork();
+  const palette = useKeys("palette.open");
   return (
     <footer className="relative flex h-7 shrink-0 items-center justify-between border-t border-border bg-muted/40 px-2 text-xs text-muted-foreground">
       <WorkStrip {...work} />
@@ -39,7 +41,7 @@ export function StatusBar() {
             usePaletteStore.getState().setOpen(true);
           }}
         >
-          Commands <Kbd combo={PALETTE_HOTKEY} />
+          Commands {palette ? <Kbd combo={palette} /> : null}
         </Button>
         <ThemeMenu />
       </div>

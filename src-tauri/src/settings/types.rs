@@ -38,6 +38,19 @@ pub struct Settings {
     pub jobs: JobsSettings,
     /// User scripts: git command lines with placeholders, run on a commit from its menu.
     pub scripts: Vec<UserScript>,
+    /// Keyboard shortcuts the user changed (Settings → Keyboard shortcuts); the others keep
+    /// the app's keys (`src/shared/lib/keybindings.ts`).
+    pub keybindings: Vec<KeybindingOverride>,
+}
+
+/// A keyboard shortcut given other keys than the app's.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase", default)]
+pub struct KeybindingOverride {
+    /// The shortcut's id (`history.find`); ids the app does not know are kept but unused.
+    pub id: String,
+    /// Its keys as a combo (`mod+shift+f`); empty for no shortcut.
+    pub keys: String,
 }
 
 /// A user script (Settings → Scripts).

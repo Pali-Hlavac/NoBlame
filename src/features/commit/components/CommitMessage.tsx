@@ -3,7 +3,8 @@ import { useId, useState } from "react";
 
 import { useStatusSummary } from "@/features/working-tree";
 import { toIpcError } from "@/shared/ipc/client";
-import { formatHotkey, matchesHotkey } from "@/shared/lib/hotkeys";
+import { useKeys } from "@/shared/hooks/useKeys";
+import { matchesHotkey, withHotkey } from "@/shared/lib/hotkeys";
 import { isMacPlatform } from "@/shared/lib/platform";
 import { Button } from "@/shared/ui/button";
 
@@ -23,10 +24,8 @@ import { CommitOptions } from "./CommitOptions";
 import { CommitOutput } from "./CommitOutput";
 import { MessageMenu } from "./MessageMenu";
 import { SummaryHint } from "./SummaryHint";
-import { keysOf } from "@/shared/lib/keybindings";
 
 /** Commits from the message box. */
-const COMMIT_HOTKEY = keysOf("commit.commit");
 
 /** Comment lines start with this when the config does not say otherwise. */
 const DEFAULT_COMMENT_CHAR = "#";
@@ -61,6 +60,7 @@ export function CommitMessage({ repoId, repoPath, onCommitted }: CommitMessagePr
   const create = useCreateCommit(repoId);
   const [output, setOutput] = useState<string | null>(null);
   const isMac = isMacPlatform();
+  const commitKeys = useKeys("commit.commit");
   const template = defaults?.template?.text ?? null;
   const commentChar = defaults?.commentChar ?? DEFAULT_COMMENT_CHAR;
   const stripComments = draft.template !== null;
@@ -114,7 +114,7 @@ export function CommitMessage({ repoId, repoPath, onCommitted }: CommitMessagePr
           changeDraft(repoPath, typed(event.target.value));
         }}
         onKeyDown={(event) => {
-          if (!matchesHotkey(event.nativeEvent, COMMIT_HOTKEY, isMac)) return;
+          if (!commitKeys || !matchesHotkey(event.nativeEvent, commitKeys, isMac)) return;
           event.preventDefault();
           commit();
         }}
@@ -140,7 +140,7 @@ export function CommitMessage({ repoId, repoPath, onCommitted }: CommitMessagePr
         <Button
           size="sm"
           disabled={reason !== null || create.isPending}
-          title={reason ?? `Commit (${formatHotkey(COMMIT_HOTKEY, isMac)})`}
+          title={reason ?? withHotkey("Commit", commitKeys, isMac)}
           onClick={commit}
         >
           <GitCommitVerticalIcon aria-hidden />

@@ -1,19 +1,18 @@
 import type { ReactNode } from "react";
 
 import { APP_NAME, APP_TAGLINE, CLI_NAME } from "@/app.config";
+import { useKeymap } from "@/shared/hooks/useKeys";
 import { Kbd } from "@/shared/ui/kbd";
 
-import { TAB_HOTKEYS } from "../hooks/useTabHotkeys";
-
-/** Shortcuts listed on the welcome screen. The palette shortcut is passed in by the app shell. */
+/** Shortcuts listed on the welcome screen (by id in `keybindings.ts`). */
 const WELCOME_SHORTCUTS = [
-  { label: "Close tab", combo: TAB_HOTKEYS.close },
-  { label: "Next tab", combo: TAB_HOTKEYS.next },
-  { label: "Previous tab", combo: TAB_HOTKEYS.previous },
+  { label: "Command palette", id: "palette.open" },
+  { label: "Close tab", id: "tabs.close" },
+  { label: "Next tab", id: "tabs.next" },
+  { label: "Previous tab", id: "tabs.previous" },
 ] as const;
 
 interface WelcomeViewProps {
-  paletteHotkey: string;
   /** Primary calls to action (e.g. "Open repository"), supplied by the app shell. */
   actions?: ReactNode;
   /** Something the user should know first (e.g. git is missing), shown above the actions. */
@@ -23,8 +22,12 @@ interface WelcomeViewProps {
 }
 
 /** Landing tab shown on startup. */
-export function WelcomeView({ paletteHotkey, actions, notice, children }: WelcomeViewProps) {
-  const shortcuts = [{ label: "Command palette", combo: paletteHotkey }, ...WELCOME_SHORTCUTS];
+export function WelcomeView({ actions, notice, children }: WelcomeViewProps) {
+  const keysOf = useKeymap();
+  const shortcuts = WELCOME_SHORTCUTS.map((shortcut) => ({
+    label: shortcut.label,
+    combo: keysOf(shortcut.id),
+  })).filter((shortcut) => shortcut.combo !== "");
   return (
     <div className="mx-auto flex max-w-xl flex-col items-center gap-6 px-6 py-16 text-center">
       <img src="/songbird.png" alt="" className="h-28 w-auto" />

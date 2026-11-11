@@ -8,7 +8,6 @@ export { Workbench } from "./components/Workbench";
 export { WorkbenchToolbar } from "./components/WorkbenchToolbar";
 export { useModuleHost, type ModuleHost } from "./hooks/useModuleHost";
 export { useModulePopupOpen } from "./hooks/useModulePopupOpen";
-export { REGION_HOTKEYS } from "./hooks/useWorkbenchHotkeys";
 export { openModule, openModuleById, resetLayout } from "./lib/docks";
 export type { SavedLayout } from "./lib/layout";
 export type { ToolbarAction, WorkbenchModule } from "./types";

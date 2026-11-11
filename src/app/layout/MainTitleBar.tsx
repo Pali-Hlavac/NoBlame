@@ -1,10 +1,11 @@
 import { SearchIcon } from "lucide-react";
 
-import { PALETTE_HOTKEY, usePaletteStore } from "@/features/command-palette";
+import { usePaletteStore } from "@/features/command-palette";
 import { ActiveRepositoryStatus } from "@/features/repositories";
 import { TitleBar } from "@/features/window-frame";
 import { WorkbenchToolbar } from "@/features/workbench";
-import { formatHotkey } from "@/shared/lib/hotkeys";
+import { useKeys } from "@/shared/hooks/useKeys";
+import { withHotkey } from "@/shared/lib/hotkeys";
 import { isMacPlatform } from "@/shared/lib/platform";
 import { Button } from "@/shared/ui/button";
 import { Tooltip } from "@/shared/ui/tooltip";
@@ -17,7 +18,7 @@ import { useToolbarActions } from "../workbench/toolbar";
  */
 export function MainTitleBar() {
   const actions = useToolbarActions();
-  const paletteLabel = `Command palette (${formatHotkey(PALETTE_HOTKEY, isMacPlatform())})`;
+  const paletteLabel = withHotkey("Command palette", useKeys("palette.open"), isMacPlatform());
   return (
     <TitleBar
       start={<WorkbenchToolbar actions={actions} />}

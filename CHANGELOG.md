@@ -180,8 +180,11 @@ All notable changes to NoBlame are documented here. The format follows
   for all files at once. **Settings → Diff → Merge tool for conflicts** chooses Git's
   `merge.tool`, Visual Studio Code, Beyond Compare, KDiff3, Meld, P4Merge or another tool Git
   knows; it runs through `git mergetool`.
-- Keyboard shortcuts, first step (M7 slice 8): every shortcut now comes from one registry, and
-  **Settings → Keyboard shortcuts** lists them all by where they work. Changing them comes next.
+- Keyboard shortcuts (M7 slice 8): **Settings → Keyboard shortcuts** lists every shortcut by
+  where it works, and each can be changed: click its keys and press new ones (Esc cancels,
+  Backspace leaves it without one). Keys another shortcut has are refused naming it, as are
+  plain letters, copy/paste/undo and Alt+F4. Changes apply at once, also in the palette and the
+  tooltips, and are kept with the settings; one shortcut or all can be reset.
 - Git settings (M7 slice 7): **Settings → Git settings** shows and changes Git's own settings,
   first choosing whose: this repository's (`.git/config`) or your user settings (every
   repository), with the file named. Common settings are listed with what they do (your name and

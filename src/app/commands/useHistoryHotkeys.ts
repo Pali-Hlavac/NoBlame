@@ -1,14 +1,15 @@
-/** Ctrl+F (find) and Ctrl+Shift+G (go to commit) for the active repository's commit list. */
-import { FIND_HOTKEY, GO_TO_HOTKEY, openFind, openGoTo } from "@/features/graph";
+/** Find (Ctrl+F) and go to commit (Ctrl+Shift+G) for the active repository's commit list. */
+import { openFind, openGoTo } from "@/features/graph";
 import { useActiveRepository } from "@/features/repositories";
 import { useHotkey } from "@/shared/hooks/useHotkey";
+import { useKeys } from "@/shared/hooks/useKeys";
 
 export function useHistoryHotkeys(): void {
   const path = useActiveRepository().tab?.path;
-  useHotkey(FIND_HOTKEY, () => {
+  useHotkey(useKeys("history.find"), () => {
     if (path) openFind(path);
   });
-  useHotkey(GO_TO_HOTKEY, () => {
+  useHotkey(useKeys("history.goto"), () => {
     if (path) openGoTo(path);
   });
 }

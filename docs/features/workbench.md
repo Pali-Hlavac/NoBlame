@@ -100,11 +100,30 @@ Settings shown there (stored in `settings.json`, see `src-tauri/src/settings/typ
 | Fetch, pull and push | Close the window when they succeed                                      | on      |
 
 **Keyboard shortcuts** lists every shortcut by where it works (General, Tabs, History, Commit,
-Modules). They come from one registry, `src/shared/lib/keybindings.ts` (`KEYBINDINGS`,
-`keysOf(id)`): features read their keys from it instead of writing them down, and a test checks
-that ids and keys are unique. Keys typed inside lists (arrows, Enter, Delete) stay with their
-component; the browser shortcuts the app turns off are in `native-feel.ts`. Changing shortcuts
-is the next step (M7 slice 8).
+Modules), and each can be changed (M7 slice 8):
+
+- **One registry**, `src/shared/lib/keybindings.ts`: each shortcut's id, label, group and the
+  app's keys (`KEYBINDINGS`; a test checks that ids and keys are unique). Components read the
+  current keys with `useKeys(id)` / `useKeymap()` (`shared/hooks/useKeys.ts`, re-rendering when
+  they change); key handlers outside React call `keysOf(id)` on each key press. Modules name
+  their shortcut by id (`keybinding: "module.lfs"`).
+- **Saved in the settings** as the changed ones only: `keybindings: [{ id, keys }]` (empty keys:
+  no shortcut). `KeybindingsController` (settings feature, mounted next to the theme) hands
+  them to the registry; the settings stay their only record. Ids the app does not know are kept
+  in the file but unused.
+- **Recording**: clicking a shortcut's keys records the next combo (`comboOfEvent`: Ctrl, Cmd
+  on macOS, is written `mod`). The keys pressed there never reach the app's own shortcuts; Esc
+  cancels, Backspace or Delete leaves it without a shortcut, Tab moves on.
+- **Checked** (`settings/lib/shortcuts.ts`): a key needs Ctrl, Alt or Cmd unless it is a
+  function key (otherwise typing would trigger it); copy, cut, paste, select all, undo, redo,
+  Alt+F4 and Cmd+Q are refused; keys another shortcut already has are refused naming it,
+  compared as this platform reads them (`mod+tab` is `ctrl+tab` off macOS). A refused combo
+  says why and recording goes on.
+- **Reset**: one shortcut back to the app's keys (the arrow beside it, refused if another took
+  them meanwhile), or **Reset all shortcuts**.
+
+Keys typed inside lists (arrows, Enter, Delete, F2) stay with their component; the browser
+shortcuts the app turns off are in `native-feel.ts`.
 
 ## Active repository and selection
 
@@ -239,7 +258,7 @@ also be read with the keyboard. Pull and Push are disabled while no branch is ch
 
 - `F6` / `Shift+F6` move focus to the next or previous region: activity bar, modules, toolbar,
   tabs, status bar. A collapsed sidebar is skipped.
-- `Alt+1` … `Alt+9` open a module.
+- `Alt+1` … `Alt+9` and `Alt+0` open a module (keys changeable in Settings, see above).
 - Each module is also in the command palette under **View** ("Show Branches", ...), next to
   **Reset layout**.
 - The commit list, the Branches list and other long lists are listboxes. Arrows, Page Up/Down
