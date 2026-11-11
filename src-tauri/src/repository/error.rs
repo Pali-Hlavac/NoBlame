@@ -13,6 +13,7 @@ use git_core::lfs::LfsError;
 use git_core::patch::PatchError;
 use git_core::remote::CloneError;
 use git_core::repo::RepoError;
+use git_core::script::ScriptError;
 use git_core::signing::SigningError;
 use git_core::stash::StashError;
 use git_core::status::StatusError;
@@ -60,6 +61,12 @@ pub enum RepositoryError {
     /// Staging or committing failed.
     #[error(transparent)]
     Commit(#[from] CommitError),
+    /// A user script cannot run (its command line, a placeholder).
+    #[error(transparent)]
+    Script(#[from] ScriptError),
+    /// No user script has this name (any more).
+    #[error("there is no script named {0}")]
+    NoScript(String),
     /// A Git LFS command failed.
     #[error(transparent)]
     Lfs(#[from] LfsError),
@@ -170,6 +177,7 @@ impl From<RepositoryError> for AppError {
             RepositoryError::Compare(error) => compare_error(error),
             RepositoryError::Patch(error) => crate::patches::patch_error(error),
             RepositoryError::Lfs(error) => crate::lfs::lfs_error(error),
+            error @ (RepositoryError::Script(_) | RepositoryError::NoScript(_)) => script_error(&error),
             RepositoryError::Branch(error) => super::branch_error::branch_error(error),
             RepositoryError::Clone(error) => super::branch_error::clone_error(error),
             error @ (RepositoryError::Commit(_)
@@ -198,6 +206,18 @@ impl From<RepositoryError> for AppError {
                 AppError::new(ErrorCode::Internal, "An internal task failed.")
             }
         }
+    }
+}
+
+/// What a user script that cannot run tells the user.
+fn script_error(error: &RepositoryError) -> AppError {
+    match error {
+        RepositoryError::NoScript(name) => AppError::new(
+            ErrorCode::NotFound,
+            format!("There is no script named {name} any more."),
+        ),
+        _ => AppError::new(ErrorCode::InvalidInput, error.to_string())
+            .with_hint("Change the script in Settings → Scripts."),
     }
 }
 

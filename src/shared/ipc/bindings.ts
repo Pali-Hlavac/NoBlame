@@ -276,6 +276,8 @@ export const commands = {
 	saveArchive: (request: ArchiveRequestDto) => typedError<number | null, AppError>(__TAURI_INVOKE("save_archive", { request })),
 	/**  Starts `git lfs pull` in the repository at `path`: the contents of its LFS files. */
 	pullLfs: (path: string) => typedError<number, AppError>(__TAURI_INVOKE("pull_lfs", { path })),
+	/**  Runs the user script named in `request` on a commit, as a job. */
+	runScript: (request: RunScriptRequestDto) => typedError<number, AppError>(__TAURI_INVOKE("run_script", { request })),
 	/**  The remotes with their URLs, remote branches and the local branches tracking them. */
 	listRemoteDetails: (id: number) => typedError<RemoteDto[], AppError>(__TAURI_INVOKE("list_remote_details", { id })),
 	/**  Adds a remote (`git remote add`); nothing is fetched yet. */
@@ -1538,7 +1540,9 @@ export type JobKindDto =
 /**  `git archive`: the files of a revision saved as a zip or tar.gz file. */
 "archive" | 
 /**  `git lfs pull`: the contents of LFS files downloaded. */
-"lfsPull";
+"lfsPull" | 
+/**  A user script (Settings → Scripts) run on a commit. */
+"script";
 
 /**  Lines of a job's log, from line `from` (counting from its first line) on. */
 export type JobOutputDto = {
@@ -2305,6 +2309,20 @@ export type ResetRequestDto = {
 	mode: ResetModeDto,
 };
 
+/**  A script to run, and the commit it runs on. */
+export type RunScriptRequestDto = {
+	/**  The repository's folder. */
+	path: string,
+	/**  The script's name in Settings (its command is read from there). */
+	name: string,
+	/**  The commit's full id. */
+	sha: string,
+	/**  Its subject line. */
+	subject: string,
+	/**  The branch checked out; `null` when HEAD is detached. */
+	branch: string | null,
+};
+
 /**  The merged file to save. */
 export type SaveMergedRequestDto = {
 	path: string,
@@ -2369,6 +2387,8 @@ export type Settings = {
 	branches?: BranchesSettings,
 	/**  Background jobs (fetch, pull, push). */
 	jobs?: JobsSettings,
+	/**  User scripts: git command lines with placeholders, run on a commit from its menu. */
+	scripts?: UserScript[],
 };
 
 /**  Which side's version to keep. */
@@ -2721,6 +2741,14 @@ export type UpstreamDto = {
 	upstream: string,
 	/**  Configured but missing (deleted on the remote and pruned, or never fetched). */
 	gone: boolean,
+};
+
+/**  A user script (Settings → Scripts). */
+export type UserScript = {
+	/**  Its name in the menu; unique. */
+	name?: string,
+	/**  git's arguments, with placeholders (`log --oneline {sha}`); see `git_core::script`. */
+	command?: string,
 };
 
 /**  Which whitespace changes the diff shows, as git's options name them. */

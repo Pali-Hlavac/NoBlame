@@ -57,6 +57,25 @@ function bisectEntries(here: StartPoint, refActions: RefActions | undefined): Me
   );
 }
 
+/** Run a script: a submenu of the user's scripts, or how to add some. */
+function scriptsEntry(commit: CommitRowDto, refActions: RefActions | undefined): MenuEntry {
+  if (!refActions) return item("scripts", "Run a script…", advanced);
+  if (refActions.scripts.length === 0) {
+    return item("scripts", "Run a script (add scripts in Settings)");
+  }
+  const target = { revision: commit.id, subject: commit.summary };
+  return {
+    type: "submenu",
+    id: "scripts",
+    label: "Run a script",
+    entries: refActions.scripts.map((name) =>
+      item(`script:${name}`, name, undefined, () => {
+        refActions.runScript(target, name);
+      }),
+    ),
+  };
+}
+
 /** The menu for `commit`. */
 export function commitMenu(commit: CommitRowDto, actions: CommitMenuActions): MenuEntry[] {
   const { copy, refs: refActions } = actions;
@@ -220,7 +239,7 @@ export function commitMenu(commit: CommitRowDto, actions: CommitMenuActions): Me
             refActions.saveArchive(here, tag?.name ?? shortId(commit.id));
           }),
       ),
-      item("scripts", "Run a script…", advanced),
+      scriptsEntry(commit, refActions),
     ],
   });
   return entries;

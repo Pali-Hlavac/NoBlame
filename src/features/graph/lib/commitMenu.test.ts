@@ -162,6 +162,8 @@ describe("commitMenu", () => {
       bisect: vi.fn(),
       createPatches: vi.fn(),
       saveArchive: vi.fn(),
+      scripts: [],
+      runScript: vi.fn(),
     };
     const handlers = { ...actions(), refs };
     const row = commit([
@@ -209,6 +211,20 @@ describe("commitMenu", () => {
     archive.run?.();
     // Named after the tag on it.
     expect(refs.saveArchive).toHaveBeenCalledWith(here, "v1.0");
+    // Without scripts, the entry says where to add them.
+    expect(find(entries, "scripts")).toMatchObject({
+      label: "Run a script (add scripts in Settings)",
+    });
+    const withScripts = commitMenu(row, { ...handlers, refs: { ...refs, scripts: ["Stats"] } });
+    const scripts = find(withScripts, "scripts");
+    if (scripts?.type !== "submenu") throw new Error("missing");
+    const stats = scripts.entries[0];
+    if (stats?.type !== "item") throw new Error("missing");
+    stats.run?.();
+    expect(refs.runScript).toHaveBeenCalledWith(
+      { revision: row.id, subject: row.summary },
+      "Stats",
+    );
     for (const mark of ["bad", "good", "skip"] as const) {
       const entry = find(entries, `bisect-${mark}`);
       if (entry?.type !== "item") throw new Error("missing");

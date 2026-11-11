@@ -180,6 +180,11 @@ All notable changes to NoBlame are documented here. The format follows
   for all files at once. **Settings → Diff → Merge tool for conflicts** chooses Git's
   `merge.tool`, Visual Studio Code, Beyond Compare, KDiff3, Meld, P4Merge or another tool Git
   knows; it runs through `git mergetool`.
+- User scripts (M7 slice 6): **Settings → Scripts** saves git commands with placeholders
+  (`{sha}`, `{short}`, `{subject}`, `{branch}`, `{repo}`), such as `log --stat -1 {sha}`.
+  Right-click a commit → **More** → **Run a script** runs one as a background job; its output is
+  in the jobs list and the Git output window. No shell is involved: a value with spaces stays
+  one argument, and one that would read as an option is refused.
 - Git LFS (M7 slice 5): the **Git LFS** module (Alt+0) lists a repository's LFS files with their
   sizes, marks those that are **pointer only** (content not downloaded), and **Download
   contents** runs `git lfs pull` as a background job. **Show locks** asks the LFS server who

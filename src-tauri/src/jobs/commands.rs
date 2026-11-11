@@ -8,9 +8,11 @@ use tauri::{State, WebviewWindow};
 use super::archive::ArchiveRequestDto;
 use super::clone::CloneRequestDto;
 use super::registry::JobRegistry;
+use super::script::RunScriptRequestDto;
 use super::types::{FetchRequestDto, JobDto, JobId, JobOutputDto, PullRequestDto, PushRequestDto};
-use super::{archive, clone, fetch, lfs, submodules, sync};
+use super::{archive, clone, fetch, lfs, script, submodules, sync};
 use crate::error::CommandResult;
+use crate::settings::SettingsStore;
 
 /// Running and recent jobs, newest first.
 #[tauri::command]
@@ -115,6 +117,17 @@ pub async fn save_archive(
 #[specta::specta]
 pub async fn pull_lfs(registry: State<'_, Arc<JobRegistry>>, path: String) -> CommandResult<JobId> {
     Ok(lfs::pull(&registry, path).await?)
+}
+
+/// Runs the user script named in `request` on a commit, as a job.
+#[tauri::command]
+#[specta::specta]
+pub async fn run_script(
+    registry: State<'_, Arc<JobRegistry>>,
+    settings: State<'_, SettingsStore>,
+    request: RunScriptRequestDto,
+) -> CommandResult<JobId> {
+    Ok(script::run(&registry, &settings, request).await?)
 }
 
 /// The remotes of the repository at `path`, sorted.

@@ -24,6 +24,8 @@ pub enum JobKindDto {
     Archive,
     /// `git lfs pull`: the contents of LFS files downloaded.
     LfsPull,
+    /// A user script (Settings → Scripts) run on a commit.
+    Script,
 }
 
 /// Where a job is in its life.

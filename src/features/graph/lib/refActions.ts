@@ -68,6 +68,10 @@ export interface RefActions {
   createPatches: (commit: PickSource) => void;
   /** Asks how (zip or tar.gz), then where, and saves the files of the commit as an archive. */
   saveArchive: (commit: StartPoint, name: string) => void;
+  /** The user scripts' names (Settings → Scripts), in menu order. */
+  scripts: readonly string[];
+  /** Runs the script `name` on the commit (`revision`: its full id) as a job. */
+  runScript: (commit: { revision: string; subject: string }, name: string) => void;
 }
 
 /** A hook giving the actions for a repository; the default offers none (stubs stay labelled). */

@@ -123,6 +123,7 @@ pub fn builder() -> Builder<tauri::Wry> {
             jobs::commands::update_submodules,
             jobs::commands::save_archive,
             jobs::commands::pull_lfs,
+            jobs::commands::run_script,
             branches::remote_commands::list_remote_details,
             branches::remote_commands::add_remote,
             branches::remote_commands::edit_remote,

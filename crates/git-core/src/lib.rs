@@ -22,6 +22,7 @@ pub mod patch;
 pub mod reflog;
 pub mod remote;
 pub mod repo;
+pub mod script;
 pub mod signing;
 pub mod stash;
 pub mod status;

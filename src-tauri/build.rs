@@ -92,6 +92,7 @@ const APP_COMMANDS: &[&str] = &[
     "update_submodules",
     "save_archive",
     "pull_lfs",
+    "run_script",
     "list_remote_details",
     "add_remote",
     "edit_remote",

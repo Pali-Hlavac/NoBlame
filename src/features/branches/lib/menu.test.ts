@@ -7,7 +7,7 @@ function entry(kind: RefEntry["label"]["kind"], name: string, isHead = false): R
   return { label: { kind, name, isHead }, target: "abc", row: 0, commitTime: 0 };
 }
 
-function actions(): RefActions & Record<string, ReturnType<typeof vi.fn>> {
+function actions(): RefActions {
   return {
     checkoutBranch: vi.fn(),
     checkoutCommit: vi.fn(),
@@ -28,6 +28,8 @@ function actions(): RefActions & Record<string, ReturnType<typeof vi.fn>> {
     bisect: vi.fn(),
     createPatches: vi.fn(),
     saveArchive: vi.fn(),
+    scripts: [],
+    runScript: vi.fn(),
   };
 }
 

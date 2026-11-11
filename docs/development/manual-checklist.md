@@ -125,6 +125,11 @@ Use `target\debug\noblame.exe` while the dev app runs.
       commits**; **Update to the recorded commit** asks first and lists it, then puts it back.
       A repository's **…** → **Update all submodules**.
   - Notes:
+- [ ] **(new, M7)** Scripts: Settings → Scripts, add `Tag done` with
+      `git tag -m {subject} done-{short} {sha}` (shown without the leading git). Right-click a
+      commit → More → Run a script → Tag done: the job toast, then the tag in the graph with the
+      subject as its message. `log {commit}` is refused with the placeholders named.
+  - Notes:
 - [ ] **(new, M7)** Git LFS (Alt+0): in a clone made with `GIT_LFS_SKIP_SMUDGE=1`, the files
       show **pointer only**; **Download contents** runs a job and the badges go. **Show locks**
       on a GitHub/GitLab repository lists locks; lock a file from its row, **Unlock** it. On a

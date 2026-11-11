@@ -30,18 +30,18 @@ the tree (used by `get_git_info`, 10 s).
 
 `src-tauri/src/jobs/registry.rs`, managed as `Arc<JobRegistry>`:
 
-| Field                     | Meaning                                                                                                                                                            |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `id`                      | Counts up from 1 for the app run                                                                                                                                   |
-| `kind`                    | `fetch`, `pull`, `push`, `clone` (its `repoPath` is the new folder), `submoduleUpdate`, `archive` (`git archive` into the chosen file), `lfsPull` (`git lfs pull`) |
-| `title`                   | `Fetch`, `Fetch origin`, `Fetch all remotes and prune`                                                                                                             |
-| `repoPath`                | The path the job was started with (the repository need not be open)                                                                                                |
-| `command`                 | The equivalent command line (`GitCommand::display`)                                                                                                                |
-| `state`                   | `running`, `succeeded`, `failed`, `cancelled`                                                                                                                      |
-| `progress`                | The last progress line, parsed: phase (`Remote: ` for the server's), percent, detail                                                                               |
-| `message`                 | How it ended: `2 new, 1 updated`, `Already up to date`, or git's `fatal:` lines                                                                                    |
-| `logLines`                | Lines in the log (at most 5,000; progress updates excluded)                                                                                                        |
-| `startedAt`, `finishedAt` | Seconds since the Unix epoch                                                                                                                                       |
+| Field                     | Meaning                                                                                                                                                                                      |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                      | Counts up from 1 for the app run                                                                                                                                                             |
+| `kind`                    | `fetch`, `pull`, `push`, `clone` (its `repoPath` is the new folder), `submoduleUpdate`, `archive` (`git archive` into the chosen file), `lfsPull` (`git lfs pull`), `script` (a user script) |
+| `title`                   | `Fetch`, `Fetch origin`, `Fetch all remotes and prune`                                                                                                                                       |
+| `repoPath`                | The path the job was started with (the repository need not be open)                                                                                                                          |
+| `command`                 | The equivalent command line (`GitCommand::display`)                                                                                                                                          |
+| `state`                   | `running`, `succeeded`, `failed`, `cancelled`                                                                                                                                                |
+| `progress`                | The last progress line, parsed: phase (`Remote: ` for the server's), percent, detail                                                                                                         |
+| `message`                 | How it ended: `2 new, 1 updated`, `Already up to date`, or git's `fatal:` lines                                                                                                              |
+| `logLines`                | Lines in the log (at most 5,000; progress updates excluded)                                                                                                                                  |
+| `startedAt`, `finishedAt` | Seconds since the Unix epoch                                                                                                                                                                 |
 
 - `start(JobSpec)` records the job, sends `JobUpdated`, and spawns the streaming run on the
   Tauri runtime; it returns the id at once.

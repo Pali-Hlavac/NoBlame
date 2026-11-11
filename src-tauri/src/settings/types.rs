@@ -36,6 +36,18 @@ pub struct Settings {
     pub branches: BranchesSettings,
     /// Background jobs (fetch, pull, push).
     pub jobs: JobsSettings,
+    /// User scripts: git command lines with placeholders, run on a commit from its menu.
+    pub scripts: Vec<UserScript>,
+}
+
+/// A user script (Settings → Scripts).
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase", default)]
+pub struct UserScript {
+    /// Its name in the menu; unique.
+    pub name: String,
+    /// git's arguments, with placeholders (`log --oneline {sha}`); see `git_core::script`.
+    pub command: String,
 }
 
 /// Background job preferences.

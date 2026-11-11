@@ -24,6 +24,8 @@ export interface AppSettings {
   diff: AppDiffSettings;
   branches: Required<BranchesSettings>;
   jobs: Required<JobsSettings>;
+  /** User scripts, in menu order. */
+  scripts: { name: string; command: string }[];
 }
 
 /** The diff settings with every field present, the external tools' too. */
@@ -59,6 +61,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   },
   branches: { sort: "name" },
   jobs: { showOutputWindow: false, closeOutputOnSuccess: true },
+  scripts: [],
 };
 
 /** Fills fields missing from `settings` with their defaults. */
@@ -75,6 +78,10 @@ export function withDefaults(settings: Settings | undefined): AppSettings {
     }),
     branches: { ...DEFAULT_SETTINGS.branches, ...settings?.branches },
     jobs: { ...DEFAULT_SETTINGS.jobs, ...settings?.jobs },
+    scripts: (settings?.scripts ?? []).map((script) => ({
+      name: script.name ?? "",
+      command: script.command ?? "",
+    })),
   };
 }
 

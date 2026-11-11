@@ -7,8 +7,8 @@ history in the commit graph, see what each commit changed, stage and commit, sta
 branches, tags and remotes (fetch, pull, push), merge, cherry-pick, revert, reset and rebase
 (also interactively), resolve conflicts, get lost work back from the reflog, and initialize
 and update submodules, work in several worktrees, find the commit that broke something
-(bisect), create and apply patches or save archives, and work with Git LFS files and locks. Features that come in later versions
-(user scripts) are labelled placeholders, and so are the task windows.
+(bisect), create and apply patches or save archives, work with Git LFS files and locks, and run your own Git commands (scripts). Features that
+come in later versions are labelled placeholders, and so are the task windows.
 
 | Page                                                      | What it covers                               |
 | --------------------------------------------------------- | -------------------------------------------- |
@@ -30,6 +30,7 @@ and update submodules, work in several worktrees, find the commit that broke som
 | [Finding a bad commit](bisect.md)                         | Bisect: which commit brought a problem in    |
 | [Patches and archives](patches.md)                        | Sending commits as files; zip of a commit    |
 | [Git LFS](lfs.md)                                         | Large files: downloading them, locks         |
+| [Scripts](scripts.md)                                     | Your own Git commands, run on a commit       |
 | [Browsing files](browsing-files.md)                       | Every file of a commit; saving one           |
 | [File history](file-history.md)                           | Every commit that changed a file             |
 | [Blame](blame.md)                                         | Who last changed each line of a file         |

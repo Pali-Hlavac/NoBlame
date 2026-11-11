@@ -117,7 +117,7 @@ subject.
 | A submenu per branch or tag on the commit                      | See below; merge and rebase work                 |
 | More ▸ Bisect: mark as bad, good, skip                         | Works ([operations.md](operations.md#bisecting)) |
 | More ▸ Create patches, Save an archive                         | Works ([patches.md](patches.md))                 |
-| More ▸ Run a script                                            | Disabled, **M7**                                 |
+| More ▸ Run a script                                            | Works ([scripts.md](scripts.md))                 |
 
 Each disabled entry names the milestone that delivers it. A branch's submenu offers:
 

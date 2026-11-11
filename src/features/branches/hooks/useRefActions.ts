@@ -11,8 +11,10 @@ import {
   useBisectActions,
 } from "@/features/operations";
 import { openArchive, openCreatePatches } from "@/features/patches";
+import { startJob } from "@/features/jobs";
 import { useActiveRepository } from "@/features/repositories";
-import { toIpcError } from "@/shared/ipc/client";
+import { useAppSettings } from "@/features/settings";
+import { commands, toIpcError, unwrap } from "@/shared/ipc/client";
 
 import { useCheckoutBranch } from "../api/branches";
 import { openBranchDialog } from "../store/dialog";
@@ -28,6 +30,9 @@ export function useRefActions(repoId: number): RefActions {
   const active = useActiveRepository().summary;
   // Archives run as jobs, which open the repository by its folder.
   const path = active?.id === repoId ? active.path : undefined;
+  const branch = active?.head.kind === "branch" ? active.head.name : null;
+  const scriptList = useAppSettings().scripts;
+  const scripts = useMemo(() => scriptList.map((script) => script.name), [scriptList]);
   return useMemo(
     () => ({
       checkoutBranch: (name) => {
@@ -97,7 +102,13 @@ export function useRefActions(repoId: number): RefActions {
       saveArchive: (commit, name) => {
         if (path) openArchive(repoId, path, commit, name);
       },
+      scripts,
+      runScript: (commit, name) => {
+        if (!path) return;
+        const request = { path, name, sha: commit.revision, subject: commit.subject, branch };
+        startJob(unwrap(commands.runScript(request)), "script");
+      },
     }),
-    [bisect, mutate, path, repoId],
+    [bisect, branch, mutate, path, repoId, scripts],
   );
 }

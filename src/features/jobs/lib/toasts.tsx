@@ -22,6 +22,7 @@ export const STARTING_LABELS: Readonly<Record<JobKindDto, string>> = {
   submoduleUpdate: "Updating submodules…",
   archive: "Saving the archive…",
   lfsPull: "Downloading LFS files…",
+  script: "Running the script…",
 };
 
 /** What each kind of job is called in a sentence ("Could not start the fetch"). */
@@ -33,6 +34,7 @@ export const JOB_NOUNS: Readonly<Record<JobKindDto, string>> = {
   submoduleUpdate: "submodule update",
   archive: "archive",
   lfsPull: "LFS download",
+  script: "script",
 };
 
 /** Updates and ends that arrived before their job's id did, kept for a few jobs. */

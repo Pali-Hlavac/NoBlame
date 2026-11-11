@@ -127,6 +127,18 @@ impl GitCommand {
         self
     }
 
+    /// Appends a command line the user wrote themself (a user script in Settings), as written:
+    /// it is their own command, like typing it in a terminal. Values from repositories never go
+    /// through here; scripts fill theirs in with `script::expand_script`, which refuses ones
+    /// that would turn into options.
+    #[must_use]
+    pub fn user_args(mut self, args: impl IntoIterator<Item = String>) -> Self {
+        for arg in args {
+            self.push(arg);
+        }
+        self
+    }
+
     /// Appends a revision (commit id, refname, `HEAD~2`, ...) after validating it.
     pub fn revision(mut self, revision: &str) -> Result<Self, GitError> {
         validate_revision(revision)?;

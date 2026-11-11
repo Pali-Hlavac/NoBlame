@@ -614,7 +614,7 @@ On any commit row:
 | Reset the current branch to here (soft, mixed, hard with confirmation) | Done (M6 slice 2)          |
 | Mark as good / bad (bisect)                                            | Done (M7 slice 3)          |
 | Create a patch; save an archive (zip, tar) of this commit              | Done (M7 slice 4)          |
-| Run a user script with this commit                                     | M7                         |
+| Run a user script with this commit                                     | Done (M7 slice 6)          |
 
 When branches or tags point at the commit, a submenu for each one offers:
 
@@ -933,7 +933,7 @@ patches).
 - [x] Git LFS: detect, show pointers vs. content, lock/unlock (slice 5)
 - [x] Bisect workflow (good/bad/skip from the graph) (slice 3)
 - [x] Patches: create (format-patch), apply (am/apply); archive a revision (slice 4)
-- [ ] User scripts / custom commands with placeholders (`{sha}`, `{branch}`, `{file}`) like Git Extensions scripts
+- [x] User scripts / custom commands with placeholders (`{sha}`, `{branch}`, `{file}`) like Git Extensions scripts (slice 6; git commands, no `{file}` yet)
 - [ ] Settings: repo and global git config editor (explicit), app preferences, keyboard shortcuts
       (configurable in the Settings tab, owner request 2026-10-28; first move every shortcut into
       one keybinding registry, since features register their own today)
@@ -1036,6 +1036,20 @@ Slice 5 done (2026-11-11): Git LFS ([features/lfs.md](features/lfs.md)).
   a folder with a space): all three pointer only; Download contents ran the job and the badges
   went; Show locks on the folder remote explained there is no LFS server. Locking against a
   real server (GitHub, GitLab) was not tried: none is set up for tests.
+
+Slice 6 done (2026-11-11): user scripts ([features/scripts.md](features/scripts.md)).
+
+- **Settings → Scripts**: a name and git's arguments with placeholders (`{sha}`, `{short}`,
+  `{subject}`, `{branch}`, `{repo}`), checked before they are added. Commit menu → **More** →
+  **Run a script** runs one as a job (output in the jobs list and the Git output window). The
+  backend reads the script by name from the settings, splits it into arguments without a shell,
+  fills the placeholders in each argument and refuses a value that would become an option.
+- Found while clicking through: a script typed with a leading `git` was shown as `git git …`
+  (it is now stored without it). At the right edge of the screen the third-level menu opens to
+  the left over its parent; the keyboard (→, Enter) reaches it.
+- Checked in the running app: added `Tag done` (`git tag -m {subject} done-{short} {sha}`) in
+  Settings, ran it on a commit from its menu: the tag `done-156e97c8` with the subject as its
+  message. Not yet: programs other than git, a confirmation option, `{file}`.
 
 ### M8: Standalone task windows (prepares phase 2)
 
