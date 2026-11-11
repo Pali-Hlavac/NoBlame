@@ -10,6 +10,7 @@ pub mod branch;
 pub mod cli;
 pub mod commit;
 pub mod compare;
+pub mod config;
 pub mod diff;
 pub mod difftool;
 pub mod graph;

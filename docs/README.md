@@ -60,6 +60,7 @@ One page per user-facing feature: behaviour, edge cases and status.
 - [worktrees.md](features/worktrees.md): the Worktrees module (list, add, open, lock, remove,
   prune)
 - [patches.md](features/patches.md): creating and applying patches, saving archives
+- [git-config.md](features/git-config.md): Settings → Git settings (the repository's and the user's `git config`)
 - [scripts.md](features/scripts.md): user scripts (git commands with placeholders, run on a commit)
 - [lfs.md](features/lfs.md): the Git LFS module (files with or without content, downloading, locks)
 - [compare.md](features/compare.md): the compare tab (files that differ between two revisions, and their diffs)

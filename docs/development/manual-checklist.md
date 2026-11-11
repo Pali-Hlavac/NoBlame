@@ -125,6 +125,11 @@ Use `target\debug\noblame.exe` while the dev app runs.
       commits**; **Update to the recorded commit** asks first and lists it, then puts it back.
       A repository's **…** → **Update all submodules**.
   - Notes:
+- [ ] **(new, M7)** Git settings: Settings → Git settings with a scratch repository open:
+      "This repository's (name)" and `File: .git/config`; set **Pull by rebasing** to `true`,
+      Save: `git config --local pull.rebase` says true; Remove it. **Your user settings** names
+      `~/.gitconfig` (do not change it on a machine you share).
+  - Notes:
 - [ ] **(new, M7)** Scripts: Settings → Scripts, add `Tag done` with
       `git tag -m {subject} done-{short} {sha}` (shown without the leading git). Right-click a
       commit → More → Run a script → Tag done: the job toast, then the tag in the graph with the

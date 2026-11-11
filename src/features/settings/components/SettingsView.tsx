@@ -10,6 +10,7 @@ import { ExternalToolSetting } from "./ExternalToolSetting";
 import { MergeToolSetting } from "./MergeToolSetting";
 import { GraphColumnsSetting } from "./GraphColumnsSetting";
 import { JobsSection } from "./JobsSection";
+import { GitConfigSection } from "./GitConfigSection";
 import { ScriptsSection } from "./ScriptsSection";
 import { RepositoryButtonsSetting } from "./RepositoryButtonsSetting";
 import { Choice, Section, Toggle } from "./SettingControls";
@@ -151,6 +152,7 @@ export function SettingsView() {
         </Section>
         <JobsSection />
         <ScriptsSection />
+        <GitConfigSection />
         <Section title="Keyboard shortcuts">
           <p className="text-sm text-muted-foreground">
             Changing shortcuts arrives in {SHORTCUTS_MILESTONE}. Until then, the command palette

@@ -180,6 +180,11 @@ All notable changes to NoBlame are documented here. The format follows
   for all files at once. **Settings → Diff → Merge tool for conflicts** chooses Git's
   `merge.tool`, Visual Studio Code, Beyond Compare, KDiff3, Meld, P4Merge or another tool Git
   knows; it runs through `git mergetool`.
+- Git settings (M7 slice 7): **Settings → Git settings** shows and changes Git's own settings,
+  first choosing whose: this repository's (`.git/config`) or your user settings (every
+  repository), with the file named. Common settings are listed with what they do (your name and
+  email, pulling by rebasing, pruning, line endings, signing, …); the file's others follow, and
+  any setting can be added. Nothing is written until Save, Remove or Add.
 - User scripts (M7 slice 6): **Settings → Scripts** saves git commands with placeholders
   (`{sha}`, `{short}`, `{subject}`, `{branch}`, `{repo}`), such as `log --stat -1 {sha}`.
   Right-click a commit → **More** → **Run a script** runs one as a background job; its output is

@@ -195,6 +195,12 @@ export const commands = {
 	 *  only to the files (`git apply`). Conflicts come back as an outcome.
 	 */
 	applyPatches: (id: number, paths: string[], mode: ApplyModeDto) => typedError<PatchOutcomeDto, AppError>(__TAURI_INVOKE("apply_patches", { id, paths, mode })),
+	/**  The settings of `scope`, as seen from repository `id`. */
+	getGitConfig: (id: number, scope: ConfigScopeDto) => typedError<ConfigFileDto, AppError>(__TAURI_INVOKE("get_git_config", { id, scope })),
+	/**  Sets `key` to `value` in `scope` (every value it had is replaced). */
+	setGitConfig: (id: number, scope: ConfigScopeDto, key: string, value: string) => typedError<null, AppError>(__TAURI_INVOKE("set_git_config", { id, scope, key, value })),
+	/**  Removes `key` (every value) from `scope`. */
+	unsetGitConfig: (id: number, scope: ConfigScopeDto, key: string) => typedError<null, AppError>(__TAURI_INVOKE("unset_git_config", { id, scope, key })),
 	/**  Whether git-lfs is installed, and the repository's LFS files with or without their content. */
 	getLfs: (id: number) => typedError<LfsStateDto, AppError>(__TAURI_INVOKE("get_lfs", { id })),
 	/**  The locks on the LFS server of the repository's remote, with git-lfs's warning, if any. */
@@ -931,6 +937,26 @@ export type ComparisonDto = {
 	/**  The second side is the working tree. */
 	worktree: boolean,
 };
+
+/**  One setting. */
+export type ConfigEntryDto = {
+	key: string,
+	value: string,
+};
+
+/**  The settings of one scope. */
+export type ConfigFileDto = {
+	/**  The file, as git names it; `null` when it does not exist yet. */
+	path: string | null,
+	entries: ConfigEntryDto[],
+};
+
+/**  Which settings file. */
+export type ConfigScopeDto = 
+/**  The repository's own (`.git/config`). */
+"local" | 
+/**  The user's, for every repository (`~/.gitconfig`). */
+"global";
 
 /**  A conflicted file. */
 export type ConflictDto = {

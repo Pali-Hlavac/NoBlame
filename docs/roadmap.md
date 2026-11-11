@@ -934,7 +934,7 @@ patches).
 - [x] Bisect workflow (good/bad/skip from the graph) (slice 3)
 - [x] Patches: create (format-patch), apply (am/apply); archive a revision (slice 4)
 - [x] User scripts / custom commands with placeholders (`{sha}`, `{branch}`, `{file}`) like Git Extensions scripts (slice 6; git commands, no `{file}` yet)
-- [ ] Settings: repo and global git config editor (explicit), app preferences, keyboard shortcuts
+- [ ] Settings: repo and global git config editor (explicit; done, slice 7), app preferences, keyboard shortcuts
       (configurable in the Settings tab, owner request 2026-10-28; first move every shortcut into
       one keybinding registry, since features register their own today)
 
@@ -1050,6 +1050,20 @@ Slice 6 done (2026-11-11): user scripts ([features/scripts.md](features/scripts.
 - Checked in the running app: added `Tag done` (`git tag -m {subject} done-{short} {sha}`) in
   Settings, ran it on a commit from its menu: the tag `done-156e97c8` with the subject as its
   message. Not yet: programs other than git, a confirmation option, `{file}`.
+
+Slice 7 done (2026-11-11): Git settings ([features/git-config.md](features/git-config.md)).
+
+- **Settings → Git settings**: whose settings first (this repository's `.git/config`, or the
+  user's for every repository), the file named; common settings named and explained, the
+  file's others listed, any other added; written only on Save, Remove or Add
+  (`git config --replace-all` / `--unset-all`, key and value after `--`).
+- Found while clicking through: the Remove buttons wrapped onto their own lines in the
+  settings column (the name now sits above the field).
+- Checked in the running app on a scratch repository: "This repository's (app)" with
+  `File: .git/config`, its name and email shown; Pull by rebasing set to `true` and saved
+  (`git config --local pull.rebase` said true). The user settings were not opened (they are
+  the owner's); reading and writing the global file is covered by the same code with
+  `--global`.
 
 ### M8: Standalone task windows (prepares phase 2)
 

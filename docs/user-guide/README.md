@@ -31,6 +31,7 @@ come in later versions are labelled placeholders, and so are the task windows.
 | [Patches and archives](patches.md)                        | Sending commits as files; zip of a commit    |
 | [Git LFS](lfs.md)                                         | Large files: downloading them, locks         |
 | [Scripts](scripts.md)                                     | Your own Git commands, run on a commit       |
+| [Git settings](git-settings.md)                           | Your name, pulling, line endings, …          |
 | [Browsing files](browsing-files.md)                       | Every file of a commit; saving one           |
 | [File history](file-history.md)                           | Every commit that changed a file             |
 | [Blame](blame.md)                                         | Who last changed each line of a file         |

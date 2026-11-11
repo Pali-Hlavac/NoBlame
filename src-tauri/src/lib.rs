@@ -6,6 +6,7 @@ mod askpass;
 mod branches;
 pub mod cli;
 pub mod error;
+mod git_config;
 mod git_env;
 mod inspect;
 mod ipc;
