@@ -3,6 +3,7 @@ import { OutputWindow, useJobEvents } from "@/features/jobs";
 import { CommandPalette } from "@/features/command-palette";
 import { CredentialPrompt } from "@/features/credentials";
 import { OperationBanner, OperationDialogs } from "@/features/operations";
+import { PatchDialogs } from "@/features/patches";
 import { RemoteDialogs, openClone } from "@/features/remotes";
 import { RefActionsContext } from "@/features/graph";
 import {
@@ -83,6 +84,7 @@ function MainWorkbench({ saved }: { saved: SavedLayout | null }) {
       <BranchDialogs />
       <RemoteDialogs />
       <OperationDialogs />
+      <PatchDialogs />
       <CredentialPrompt />
       <OutputWindow />
     </div>

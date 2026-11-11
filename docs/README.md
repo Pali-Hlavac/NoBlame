@@ -59,6 +59,7 @@ One page per user-facing feature: behaviour, edge cases and status.
   the commits between two pointers
 - [worktrees.md](features/worktrees.md): the Worktrees module (list, add, open, lock, remove,
   prune)
+- [patches.md](features/patches.md): creating and applying patches, saving archives
 - [compare.md](features/compare.md): the compare tab (files that differ between two revisions, and their diffs)
 
 ## User guide

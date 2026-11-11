@@ -180,6 +180,14 @@ All notable changes to NoBlame are documented here. The format follows
   for all files at once. **Settings → Diff → Merge tool for conflicts** chooses Git's
   `merge.tool`, Visual Studio Code, Beyond Compare, KDiff3, Meld, P4Merge or another tool Git
   knows; it runs through `git mergetool`.
+- Patches and archives (M7 slice 4): right-click a commit → **More** → **Create patches…**
+  saves the patches of that commit, or of the commits after a branch, tag or commit, into one
+  file or one file per commit (merges are left out; files already in the folder are never
+  replaced). **Apply patches…** (the **Commit** button's menu, or the palette) shows what the
+  chosen files hold and checks them first (cleanly, with a three-way merge, with conflicts, or
+  not at all), then makes commits from them (`git am`) or only changes the files
+  (`git apply`). **Save an archive…** writes a commit's files as a zip or tar.gz as a
+  background job, named after its tag.
 - Bisect (M7 slice 3): right-click a commit → **More** → **Bisect: mark as bad** (or good) to
   find the commit that brought a problem in. NoBlame checks out the commit halfway between;
   the bar above the commits says how many are left and has **Good**, **Bad** and **Skip** for

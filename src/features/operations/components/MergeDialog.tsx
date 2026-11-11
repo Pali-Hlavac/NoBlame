@@ -16,7 +16,7 @@ import { useMerge } from "../api/operations";
 import { useCurrentBranch } from "../hooks/useCurrentBranch";
 import { showOutcome } from "../lib/outcome";
 import { MERGE_MODES, mergeToast } from "../lib/words";
-import { Choice } from "./Choice";
+import { Choice } from "@/shared/components/Choice";
 
 interface MergeDialogProps {
   repoId: number;

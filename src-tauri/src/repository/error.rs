@@ -9,6 +9,7 @@ use git_core::difftool::DiffToolError;
 use git_core::graph::GraphError;
 use git_core::history::HistoryError;
 use git_core::ignore::IgnoreError;
+use git_core::patch::PatchError;
 use git_core::remote::CloneError;
 use git_core::repo::RepoError;
 use git_core::signing::SigningError;
@@ -58,6 +59,9 @@ pub enum RepositoryError {
     /// Staging or committing failed.
     #[error(transparent)]
     Commit(#[from] CommitError),
+    /// Creating, checking or applying patches, or an archive, failed.
+    #[error(transparent)]
+    Patch(#[from] PatchError),
     /// Checking out, or changing a branch or tag, failed.
     #[error(transparent)]
     Branch(#[from] BranchError),
@@ -160,6 +164,7 @@ impl From<RepositoryError> for AppError {
                 AppError::new(ErrorCode::InvalidInput, format!("{}.", capitalized(&error.to_string())))
             }
             RepositoryError::Compare(error) => compare_error(error),
+            RepositoryError::Patch(error) => crate::patches::patch_error(error),
             RepositoryError::Branch(error) => super::branch_error::branch_error(error),
             RepositoryError::Clone(error) => super::branch_error::clone_error(error),
             error @ (RepositoryError::Commit(_)

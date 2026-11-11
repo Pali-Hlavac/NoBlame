@@ -200,8 +200,26 @@ export function commitMenu(commit: CommitRowDto, actions: CommitMenuActions): Me
     entries: [
       ...bisectEntries(here, refActions),
       separator("sep-bisect"),
-      item("patch", "Create a patch…", advanced),
-      item("archive", "Save an archive…", advanced),
+      item(
+        "patch",
+        "Create patches…",
+        refActions ? undefined : advanced,
+        refActions &&
+          (() => {
+            refActions.createPatches(picked);
+          }),
+      ),
+      item(
+        "archive",
+        "Save an archive…",
+        refActions ? undefined : advanced,
+        refActions &&
+          (() => {
+            // Named after a tag on it (a release), else its short id.
+            const tag = commit.refs.find((ref) => ref.kind === "tag");
+            refActions.saveArchive(here, tag?.name ?? shortId(commit.id));
+          }),
+      ),
       item("scripts", "Run a script…", advanced),
     ],
   });

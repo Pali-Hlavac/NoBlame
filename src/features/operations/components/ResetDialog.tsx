@@ -16,7 +16,7 @@ import {
 import { useReset } from "../api/history";
 import { useCurrentBranch } from "../hooks/useCurrentBranch";
 import { RESET_MODES } from "../lib/history";
-import { Choice } from "./Choice";
+import { Choice } from "@/shared/components/Choice";
 import { ResetEffects } from "./ResetEffects";
 
 interface ResetDialogProps {

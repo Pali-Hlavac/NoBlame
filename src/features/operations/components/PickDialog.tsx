@@ -15,7 +15,7 @@ import { usePick } from "../api/history";
 import { useCurrentBranch } from "../hooks/useCurrentBranch";
 import { type PickKind, pickToast } from "../lib/history";
 import { showOutcome } from "../lib/outcome";
-import { Choice } from "./Choice";
+import { Choice } from "@/shared/components/Choice";
 
 interface PickDialogProps {
   repoId: number;

@@ -10,6 +10,8 @@ import {
   openReset,
   useBisectActions,
 } from "@/features/operations";
+import { openArchive, openCreatePatches } from "@/features/patches";
+import { useActiveRepository } from "@/features/repositories";
 import { toIpcError } from "@/shared/ipc/client";
 
 import { useCheckoutBranch } from "../api/branches";
@@ -23,6 +25,9 @@ export function useRefActions(repoId: number): RefActions {
   const checkout = useCheckoutBranch(repoId);
   const { mutate } = checkout;
   const bisect = useBisectActions(repoId);
+  const active = useActiveRepository().summary;
+  // Archives run as jobs, which open the repository by its folder.
+  const path = active?.id === repoId ? active.path : undefined;
   return useMemo(
     () => ({
       checkoutBranch: (name) => {
@@ -86,7 +91,13 @@ export function useRefActions(repoId: number): RefActions {
         openReset(repoId, commit, options?.restore === true);
       },
       bisect,
+      createPatches: (commit) => {
+        openCreatePatches(repoId, commit);
+      },
+      saveArchive: (commit, name) => {
+        if (path) openArchive(repoId, path, commit, name);
+      },
     }),
-    [bisect, mutate, repoId],
+    [bisect, mutate, path, repoId],
   );
 }

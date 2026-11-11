@@ -125,6 +125,17 @@ Use `target\debug\noblame.exe` while the dev app runs.
       commits**; **Update to the recorded commit** asks first and lists it, then puts it back.
       A repository's **…** → **Update all submodules**.
   - Notes:
+- [ ] **(new, M7)** Patches: right-click a commit → **More** → **Create patches…**; choose
+      "The commits after…" and type a tag: the count appears (merges left out). Save one file
+      per commit into a folder, then again into the same folder: refused, naming the files.
+      On a branch without those commits, **Commit** ▾ → **Apply patches…**, choose the files:
+      "They apply cleanly", the subjects listed; **Apply** makes the commits. A diff file only
+      offers "Only change the files".
+  - Notes:
+- [ ] **(new, M7)** Archive: right-click a tagged commit → **More** → **Save an archive…**;
+      tar.gz into a folder named after the repository and the tag; the job toast follows it;
+      the file opens with the files inside that folder. Cancel a large one: no file is left.
+  - Notes:
 - [ ] **(new, M7)** Bisect: right-click the newest commit → **More** → **Bisect: mark as bad** →
       **Start bisecting**; mark an older one good. The bar names the commit tested and how many
       are left; **Good** / **Bad** until "Found the first bad commit"; `bad`/`good` labels in the

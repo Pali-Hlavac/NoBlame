@@ -12,6 +12,7 @@ mod ipc;
 mod jobs;
 mod logging;
 mod operations;
+mod patches;
 mod repository;
 mod settings;
 pub mod storage;

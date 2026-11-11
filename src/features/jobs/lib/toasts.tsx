@@ -20,6 +20,7 @@ export const STARTING_LABELS: Readonly<Record<JobKindDto, string>> = {
   push: "Pushing…",
   clone: "Cloning…",
   submoduleUpdate: "Updating submodules…",
+  archive: "Saving the archive…",
 };
 
 /** What each kind of job is called in a sentence ("Could not start the fetch"). */
@@ -29,6 +30,7 @@ export const JOB_NOUNS: Readonly<Record<JobKindDto, string>> = {
   push: "push",
   clone: "clone",
   submoduleUpdate: "submodule update",
+  archive: "archive",
 };
 
 /** Updates and ends that arrived before their job's id did, kept for a few jobs. */

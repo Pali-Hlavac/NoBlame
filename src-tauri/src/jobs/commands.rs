@@ -1,14 +1,15 @@
 //! Tauri boundary for background jobs: listing, logs, cancelling; starting fetch, pull, push
-//! and clone; the remotes to push to.
+//! and clone; submodule updates and archives; the remotes to push to.
 
 use std::sync::Arc;
 
-use tauri::State;
+use tauri::{State, WebviewWindow};
 
+use super::archive::ArchiveRequestDto;
 use super::clone::CloneRequestDto;
 use super::registry::JobRegistry;
 use super::types::{FetchRequestDto, JobDto, JobId, JobOutputDto, PullRequestDto, PushRequestDto};
-use super::{clone, fetch, submodules, sync};
+use super::{archive, clone, fetch, submodules, sync};
 use crate::error::CommandResult;
 
 /// Running and recent jobs, newest first.
@@ -95,6 +96,18 @@ pub async fn update_submodules(
     paths: Vec<String>,
 ) -> CommandResult<JobId> {
     Ok(submodules::update(&registry, path, paths).await?)
+}
+
+/// Asks where, then starts `git archive` of a revision (zip or tar.gz); `null` when the user
+/// cancelled.
+#[tauri::command]
+#[specta::specta]
+pub async fn save_archive(
+    window: WebviewWindow,
+    registry: State<'_, Arc<JobRegistry>>,
+    request: ArchiveRequestDto,
+) -> CommandResult<Option<JobId>> {
+    Ok(archive::start(&window, &registry, request).await?)
 }
 
 /// The remotes of the repository at `path`, sorted.

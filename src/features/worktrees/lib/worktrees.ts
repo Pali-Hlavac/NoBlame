@@ -1,13 +1,9 @@
 /** Words and folders for the Worktrees module. */
 import { shortId } from "@/features/graph";
 import type { ChangeCountsDto, WorktreeDto } from "@/shared/ipc/bindings";
-import { joinPath, parentOf } from "@/shared/lib/paths";
+import { folderName, joinPath, parentOf } from "@/shared/lib/paths";
 
-/** The last part of a folder's path (`topic` for `C:\code\topic`). */
-export function folderName(path: string): string {
-  const parts = path.split(/[\\/]/).filter((part) => part !== "");
-  return parts.at(-1) ?? path;
-}
+export { folderName };
 
 /** What it has checked out, in words: the branch, the commit, or why neither. */
 export function checkedOut(worktree: WorktreeDto): string {

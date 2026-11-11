@@ -16,7 +16,7 @@ import { useRebase, useRebasePreview } from "../api/rebase";
 import { useCurrentBranch } from "../hooks/useCurrentBranch";
 import { showOutcome } from "../lib/outcome";
 import { rebaseToast } from "../lib/rebase";
-import { Choice } from "./Choice";
+import { Choice } from "@/shared/components/Choice";
 import { RebasePreview } from "./RebasePreview";
 
 interface RebaseDialogProps {

@@ -26,7 +26,7 @@ import {
   hasAutosquash,
   problem,
 } from "../lib/todo";
-import { Choice } from "./Choice";
+import { Choice } from "@/shared/components/Choice";
 import { TodoList } from "./TodoList";
 
 interface InteractiveDialogProps {

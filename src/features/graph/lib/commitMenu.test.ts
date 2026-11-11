@@ -160,6 +160,8 @@ describe("commitMenu", () => {
       reset: vi.fn(),
       interactiveRebase: vi.fn(),
       bisect: vi.fn(),
+      createPatches: vi.fn(),
+      saveArchive: vi.fn(),
     };
     const handlers = { ...actions(), refs };
     const row = commit([
@@ -198,6 +200,15 @@ describe("commitMenu", () => {
       entry.run?.();
       expect(action).toHaveBeenCalledWith({ ...here, parentCount: row.parentCount });
     }
+    const patch = find(entries, "patch");
+    if (patch?.type !== "item") throw new Error("missing");
+    patch.run?.();
+    expect(refs.createPatches).toHaveBeenCalledWith({ ...here, parentCount: row.parentCount });
+    const archive = find(entries, "archive");
+    if (archive?.type !== "item") throw new Error("missing");
+    archive.run?.();
+    // Named after the tag on it.
+    expect(refs.saveArchive).toHaveBeenCalledWith(here, "v1.0");
     for (const mark of ["bad", "good", "skip"] as const) {
       const entry = find(entries, `bisect-${mark}`);
       if (entry?.type !== "item") throw new Error("missing");

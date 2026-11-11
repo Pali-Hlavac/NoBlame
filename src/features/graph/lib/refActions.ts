@@ -64,6 +64,10 @@ export interface RefActions {
    * and starts it.
    */
   bisect: (commit: StartPoint, mark: BisectMarkDto) => void;
+  /** Asks which commits ending at this one get patches, then where to save them. */
+  createPatches: (commit: PickSource) => void;
+  /** Asks how (zip or tar.gz), then where, and saves the files of the commit as an archive. */
+  saveArchive: (commit: StartPoint, name: string) => void;
 }
 
 /** A hook giving the actions for a repository; the default offers none (stubs stay labelled). */

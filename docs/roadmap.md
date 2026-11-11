@@ -613,7 +613,7 @@ On any commit row:
 | Cherry-pick / Revert this commit                                       | Done (M6 slice 2)          |
 | Reset the current branch to here (soft, mixed, hard with confirmation) | Done (M6 slice 2)          |
 | Mark as good / bad (bisect)                                            | Done (M7 slice 3)          |
-| Create a patch; save an archive (zip, tar) of this commit              | M7                         |
+| Create a patch; save an archive (zip, tar) of this commit              | Done (M7 slice 4)          |
 | Run a user script with this commit                                     | M7                         |
 
 When branches or tags point at the commit, a submenu for each one offers:
@@ -932,7 +932,7 @@ patches).
 - [x] Worktrees: list, add, remove, open (slice 2)
 - [ ] Git LFS: detect, show pointers vs. content, lock/unlock
 - [x] Bisect workflow (good/bad/skip from the graph) (slice 3)
-- [ ] Patches: create (format-patch), apply (am/apply); archive a revision
+- [x] Patches: create (format-patch), apply (am/apply); archive a revision (slice 4)
 - [ ] User scripts / custom commands with placeholders (`{sha}`, `{branch}`, `{file}`) like Git Extensions scripts
 - [ ] Settings: repo and global git config editor (explicit), app preferences, keyboard shortcuts
       (configurable in the Settings tab, owner request 2026-10-28; first move every shortcut into
@@ -1005,6 +1005,23 @@ Slice 3 done (2026-11-10): bisect ([features/operations.md](features/operations.
   the newest, good on commit 6, then Bad, Good, Good, Good from the bar found commit 13; Show
   it, Stop bisecting (back on main, marks gone); a bisect started in a terminal showed in the
   bar, Skip, and Stop after asking.
+
+Slice 4 done (2026-11-11): patches and archives ([features/patches.md](features/patches.md)).
+
+- Commit menu → **More** → **Create patches…** (the commit, or the commits after a base; one
+  file or one per commit, never replacing files) and **Save an archive…** (zip or tar.gz as a
+  job, named after a tag). **Apply patches…** in the Commit button's menu and the palette:
+  what the files hold, a check first, then commits (`git am --3way`) or only the files
+  (`git apply`, falling back to `--3way`).
+- Found while clicking through: several patch files changing the same lines did not apply
+  together (git applies separate files each to the original; they now go as one stream); a
+  merge commit offered "Only this commit", which has no patch.
+- Checked in the running app on a scratch repository with a tag and a merge: the count after
+  `v1.0` (4 commits, the merge left out), an unknown base explained, the archive dialog named
+  `app-v1.0`, Apply patches from the toolbar; three mails checked (in name order, "conflicts" on
+  the branch that has them, clean on one at `v1.0`) and applied as three commits through the
+  app's commands. The system's file dialogs were not clicked (they would open on the owner's
+  screen); saving and applying are covered by tests against git.
 
 ### M8: Standalone task windows (prepares phase 2)
 

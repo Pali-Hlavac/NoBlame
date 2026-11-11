@@ -20,6 +20,8 @@ pub enum JobKindDto {
     Clone,
     /// `git submodule update --init --recursive`.
     SubmoduleUpdate,
+    /// `git archive`: the files of a revision saved as a zip or tar.gz file.
+    Archive,
 }
 
 /// Where a job is in its life.

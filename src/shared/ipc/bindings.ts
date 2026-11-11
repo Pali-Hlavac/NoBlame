@@ -178,6 +178,23 @@ export const commands = {
 	unlockWorktree: (id: number, folder: string) => typedError<string, AppError>(__TAURI_INVOKE("unlock_worktree", { id, folder })),
 	/**  Forgets worktrees whose folders are gone (`git worktree prune`); returns what git printed. */
 	pruneWorktrees: (id: number) => typedError<string, AppError>(__TAURI_INVOKE("prune_worktrees", { id })),
+	/**  How many commits get a patch, and how many merges are left out. */
+	countPatches: (id: number, commits: PatchCommitsDto) => typedError<PatchCountDto, AppError>(__TAURI_INVOKE("count_patches", { id, commits })),
+	/**
+	 *  Asks where (a file, or a folder for one file per commit), then saves the patches. `null`
+	 *  when cancelled.
+	 */
+	savePatches: (id: number, request: SavePatchesRequestDto) => typedError<SavedPatchesDto | null, AppError>(__TAURI_INVOKE("save_patches", { id, request })),
+	/**
+	 *  What the patch files at `paths` hold, whether they apply (as `mode` would apply them) and
+	 *  the files they change.
+	 */
+	checkPatches: (id: number, paths: string[], mode: ApplyModeDto) => typedError<PatchCheckDto, AppError>(__TAURI_INVOKE("check_patches", { id, paths, mode })),
+	/**
+	 *  Applies the patch files at `paths`, in the order of their names: as commits (`git am`) or
+	 *  only to the files (`git apply`). Conflicts come back as an outcome.
+	 */
+	applyPatches: (id: number, paths: string[], mode: ApplyModeDto) => typedError<PatchOutcomeDto, AppError>(__TAURI_INVOKE("apply_patches", { id, paths, mode })),
 	/**
 	 *  Checks out the local branch `name`; returns what git printed. git refuses when local
 	 *  changes would be overwritten.
@@ -244,6 +261,11 @@ export const commands = {
 	 *  submodules at `paths` (relative to it), or for all of them when `paths` is empty.
 	 */
 	updateSubmodules: (path: string, paths: string[]) => typedError<number, AppError>(__TAURI_INVOKE("update_submodules", { path, paths })),
+	/**
+	 *  Asks where, then starts `git archive` of a revision (zip or tar.gz); `null` when the user
+	 *  cancelled.
+	 */
+	saveArchive: (request: ArchiveRequestDto) => typedError<number | null, AppError>(__TAURI_INVOKE("save_archive", { request })),
 	/**  The remotes with their URLs, remote branches and the local branches tracking them. */
 	listRemoteDetails: (id: number) => typedError<RemoteDto[], AppError>(__TAURI_INVOKE("list_remote_details", { id })),
 	/**  Adds a remote (`git remote add`); nothing is fetched yet. */
@@ -471,6 +493,13 @@ export type AppInfo = {
 	arch: string,
 };
 
+/**  How patches are applied. */
+export type ApplyModeDto = 
+/**  Each mail becomes a commit (`git am`). */
+"commits" | 
+/**  Only the files change (`git apply`). */
+"files";
+
 /**  What applying did. */
 export type ApplyOutcomeDto = {
 	/**  What git printed. */
@@ -497,6 +526,24 @@ export type ApplyStashRequestDto = {
 	pop: boolean,
 	/**  Also restore what was staged (`--index`). */
 	restoreIndex: boolean,
+};
+
+/**  The archive's format. */
+export type ArchiveFormatDto = "zip" | "tarGz";
+
+/**  An archive to save; the app asks where. */
+export type ArchiveRequestDto = {
+	/**  The repository's folder. */
+	path: string,
+	/**  The commit, branch or tag whose files are archived. */
+	revision: string,
+	/**  How the job's title names it (`v1.0`, `a1b2c3d4`). */
+	label: string,
+	format: ArchiveFormatDto,
+	/**  The folder the files go in inside the archive; empty: none. */
+	folder: string,
+	/**  The file name proposed. */
+	fileName: string,
 };
 
 /**  A commit named in the bar. */
@@ -1477,7 +1524,9 @@ export type JobKindDto =
 /**  `git clone`; its `repoPath` is the new repository's folder. */
 "clone" | 
 /**  `git submodule update --init --recursive`. */
-"submoduleUpdate";
+"submoduleUpdate" | 
+/**  `git archive`: the files of a revision saved as a zip or tar.gz file. */
+"archive";
 
 /**  Lines of a job's log, from line `from` (counting from its first line) on. */
 export type JobOutputDto = {
@@ -1664,6 +1713,96 @@ export type OperationDto = {
 export type OperationKindDto = "merge" | "cherryPick" | "revert" | "rebase" | 
 /**  `git am`. */
 "applyMailbox" | "bisect";
+
+/**  The chosen files, whether they apply and the files they change. */
+export type PatchCheckDto = {
+	/**  In the order they apply (by file name). */
+	files: PatchFileDto[],
+	fit: PatchFitDto,
+	/**  The files they change (the first 500). */
+	paths: PatchedPathDto[],
+	/**  How many files they change. */
+	totalPaths: number,
+};
+
+/**  Which commits get patches: `tip` alone, or the commits after `base` up to `tip`. */
+export type PatchCommitsDto = {
+	/**  The newest commit (an id, branch or tag). */
+	tip: string,
+	/**  The commit (or branch, tag) the patches start after; `null`: only `tip`. */
+	base: string | null,
+};
+
+/**  What a patch file holds. */
+export type PatchContentsDto = 
+/**  Mails (from `git format-patch`), each a commit. */
+{ kind: "mailbox"; mails: PatchMailDto[] } | 
+/**  A diff without a message. */
+{ kind: "diff" } | 
+/**  Nothing git could apply. */
+{ kind: "notAPatch" };
+
+/**  How many commits get a patch, and how many merges are left out. */
+export type PatchCountDto = {
+	commits: number,
+	merges: number,
+};
+
+/**  A chosen patch file and what it holds. */
+export type PatchFileDto = {
+	/**  The full path, as chosen. */
+	path: string,
+	/**  The file name. */
+	name: string,
+	contents: PatchContentsDto,
+};
+
+/**  Whether patches apply to the working tree as it is. */
+export type PatchFitDto = 
+/**  As they are. */
+{ kind: "clean" } | 
+/**  With a three-way merge, cleanly. */
+{ kind: "threeWay" } | 
+/**  With a three-way merge leaving conflicts. */
+{ kind: "conflicts" } | 
+/**  Not at all; `message` is git's reason. */
+{ kind: "fails"; message: string };
+
+/**  One mail of a patch file: one commit for `git am`. */
+export type PatchMailDto = {
+	/**  The commit's summary (without `[PATCH 1/3]`). */
+	subject: string,
+	author: string,
+	/**  False for a mail without changes (a cover letter). */
+	hasDiff: boolean,
+};
+
+/**  How applying ended. */
+export type PatchOutcomeDto = 
+/**  Each mail became a commit. */
+"committed" | 
+/**  `git am` stopped on a mail that did not apply; it is in progress. */
+"stopped" | 
+/**  The files changed (not staged). */
+"applied" | 
+/**  A three-way merge changed and staged the files. */
+"merged" | 
+/**  A three-way merge left conflicts to resolve. */
+"conflicts";
+
+/**  Where patches are written. */
+export type PatchOutputDto = 
+/**  One file holding them all, one after the other. */
+"file" | 
+/**  One file per commit in a folder. */
+"folder";
+
+/**  A file the patches change; `null` counts for binary files. */
+export type PatchedPathDto = {
+	path: string,
+	added: number | null,
+	removed: number | null,
+};
 
 /**  What a commit did to the path. */
 export type PathChangeDto = 
@@ -2122,6 +2261,24 @@ export type SaveMergedRequestDto = {
 	text: string,
 	/**  Give every line a CRLF ending (the file's own), as `get_merge_file` said. */
 	crlf: boolean,
+};
+
+/**  Patches to save; the app asks where. */
+export type SavePatchesRequestDto = {
+	commits: PatchCommitsDto,
+	output: PatchOutputDto,
+	/**  The file name proposed (for `file`). */
+	fileName: string,
+};
+
+/**  Patches saved. */
+export type SavedPatchesDto = {
+	/**  The file, or the folder holding the files. */
+	path: string,
+	/**  Commits that got a patch. */
+	commits: number,
+	/**  Files written. */
+	files: number,
 };
 
 /**  What to do with the operation in progress. */
