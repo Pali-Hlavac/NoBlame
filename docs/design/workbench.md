@@ -233,3 +233,5 @@ Ideas from the owner, newest last, with where each one is planned.
   opens as a popup inside the app (not a new window), the rest of the app waits until it is
   closed, its state is kept (a half-written commit message), and a **Dock** button puts it back;
   for every module → done (between M4 slices 3 and 4).
+- 2026-11-12: a setting to close a task window once its action succeeded (a commit, a pull, a
+  push, …), as TortoiseGit does; the default to be decided → M8 (with slice 5 or 6).

@@ -1091,6 +1091,8 @@ Slice 8 done (2026-11-11): keyboard shortcuts ([features/workbench.md](features/
 - [x] Windows reuse the running instance; closing the last task window exits when the main window is not open
       (slice 1: one window per task and path; sessions closed with their window)
 - [ ] Documented CLI reference (`docs/features/cli.md`), `--help` output tested
+- [ ] Setting: close a task window once its action succeeded (commit, pull, push, …), like
+      TortoiseGit (owner request 2026-11-12; default to be decided)
 
 Slices (planned 2026-11-12). A task window is the main window's workbench made for one task:
 the modules and tabs that task needs, opened on the given path, its layout never saved.
