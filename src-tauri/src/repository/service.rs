@@ -15,8 +15,8 @@ use super::graph_types::StashLabel;
 use super::recent::{self, RecentStore};
 use super::sessions::Session;
 use super::{
-    CommitRowDto, GraphFilterDto, GraphSummary, RawBytes, ReloadedGraph, RepoId, RepoSessions,
-    RepoSummary, RepositoryError, watch,
+    CommitRowDto, GraphFilterDto, GraphSummary, PathScopeDto, RawBytes, ReloadedGraph, RepoId,
+    RepoSessions, RepoSummary, RepositoryError, watch,
 };
 use crate::git_env::GitEnvError;
 
@@ -26,9 +26,10 @@ pub async fn open(
     sessions: &RepoSessions,
     recent: &RecentStore,
     path: String,
+    owner: &str,
 ) -> Result<RepoSummary, RepositoryError> {
     let repo = blocking(move || Repository::discover(&PathBuf::from(path))).await??;
-    let (id, session) = sessions.insert(repo);
+    let (id, session) = sessions.insert(repo, owner);
     let summary = RepoSummary::new(id, session.repo.info());
     // Watching a huge tree takes a while on Linux (one inotify watch per folder): not awaited.
     let app = app.clone();
@@ -41,6 +42,17 @@ pub async fn open(
         tracing::warn!(%error, "could not update the recent repositories list");
     }
     Ok(summary)
+}
+
+/// Where `path` lies in the working tree of session `id`; `None` outside it (or bare).
+pub async fn path_scope(
+    sessions: &RepoSessions,
+    id: RepoId,
+    path: String,
+) -> Result<Option<PathScopeDto>, RepositoryError> {
+    let session = sessions.get(id)?;
+    let scope = blocking(move || session.repo.scope_of(&PathBuf::from(path))).await?;
+    Ok(scope.map(PathScopeDto::from))
 }
 
 /// Runs `git init` in `path`, creating the folder if needed. The caller opens it afterwards.

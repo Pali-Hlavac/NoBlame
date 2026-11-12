@@ -11,6 +11,7 @@ use tauri_specta::Event;
 use super::registry::MAIN_WINDOW_LABEL;
 use super::{RepositoriesRequested, WindowContext, WindowError, WindowRegistry};
 use crate::cli::{self, LaunchRequest, LaunchTarget, TaskKind};
+use crate::repository::RepoSessions;
 use crate::settings::{SettingsStore, ThemePreference};
 
 /// Logical size (width, height) of a new main window and its minimum.
@@ -66,10 +67,7 @@ pub fn on_second_instance(app: &AppHandle, argv: Vec<String>, cwd: &str) {
 /// Focuses the main window, creating it if it is not open.
 pub fn show_main_window(app: &AppHandle) -> Result<(), WindowError> {
     if let Some(window) = app.get_webview_window(MAIN_WINDOW_LABEL) {
-        window.unminimize()?;
-        window.show()?;
-        window.set_focus()?;
-        return Ok(());
+        return focus(&window);
     }
     let builder = WebviewWindowBuilder::new(app, MAIN_WINDOW_LABEL, WebviewUrl::default())
         .title(&app.package_info().name)
@@ -80,7 +78,31 @@ pub fn show_main_window(app: &AppHandle) -> Result<(), WindowError> {
         // need for moving tabs. Dropping folders onto the window can use HTML events later.
         .disable_drag_drop_handler()
         .visible(false);
-    show_in_theme(app, &with_custom_title_bar(builder).build()?)
+    let window = with_custom_title_bar(builder).build()?;
+    close_with(app, &window);
+    show_in_theme(app, &window)
+}
+
+/// Brings a window to the front.
+fn focus(window: &WebviewWindow) -> Result<(), WindowError> {
+    window.unminimize()?;
+    window.show()?;
+    window.set_focus()?;
+    Ok(())
+}
+
+/// When `window` closes, forgets what it was for and closes the repository sessions it
+/// opened (its page cannot do that itself any more).
+fn close_with(app: &AppHandle, window: &WebviewWindow) {
+    let handle = app.clone();
+    let label = window.label().to_owned();
+    window.on_window_event(move |event| {
+        if matches!(event, WindowEvent::Destroyed) {
+            handle.state::<WindowRegistry>().forget(&label);
+            let closed = handle.state::<RepoSessions>().remove_owned_by(&label);
+            tracing::debug!(label, closed, "window closed with its repository sessions");
+        }
+    });
 }
 
 /// Gives a window built hidden the background of the saved theme (the system's for "System"),
@@ -128,8 +150,9 @@ fn with_custom_title_bar<R: tauri::Runtime, M: Manager<R>>(
     }
 }
 
-/// Opens a new window for `task` on `path` and returns its label. Call it from async
-/// commands only: creating a window inside a sync command deadlocks on Windows.
+/// Opens a window for `task` on `path` and returns its label; a window already showing that
+/// task on that path is brought to the front instead. Call it from async commands only:
+/// creating a window inside a sync command deadlocks on Windows.
 pub fn open_task_window(
     app: &AppHandle,
     task: TaskKind,
@@ -142,7 +165,15 @@ pub fn open_task_window(
         app.package_info().name
     );
     let registry = app.state::<WindowRegistry>();
-    let label = registry.register_task(WindowContext::Task { task, path });
+    let context = WindowContext::Task { task, path };
+    let open = registry
+        .find(&context)
+        .and_then(|label| app.get_webview_window(&label));
+    if let Some(window) = open {
+        focus(&window)?;
+        return Ok(window.label().to_owned());
+    }
+    let label = registry.register_task(context);
     let built = WebviewWindowBuilder::new(app, &label, WebviewUrl::default())
         .title(title)
         .inner_size(TASK_WINDOW_SIZE.0, TASK_WINDOW_SIZE.1)
@@ -158,14 +189,8 @@ pub fn open_task_window(
             return Err(error.into());
         }
     };
+    close_with(app, &window);
     show_in_theme(app, &window)?;
-    let handle = app.clone();
-    let closed_label = label.clone();
-    window.on_window_event(move |event| {
-        if matches!(event, WindowEvent::Destroyed) {
-            handle.state::<WindowRegistry>().forget(&closed_label);
-        }
-    });
     Ok(label)
 }
 

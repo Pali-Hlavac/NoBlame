@@ -4,6 +4,25 @@ use git_core::repo::{Head, RepoInfo, RepoKind};
 use serde::Serialize;
 use specta::Type;
 
+/// A folder or file inside the working tree (where a task window was opened).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct PathScopeDto {
+    /// Relative to the top of the working tree, with `/`; empty for the top itself.
+    pub relative: String,
+    /// A folder (or the top); `false` for files and paths that do not exist.
+    pub is_folder: bool,
+}
+
+impl From<git_core::repo::PathScope> for PathScopeDto {
+    fn from(scope: git_core::repo::PathScope) -> Self {
+        Self {
+            relative: scope.relative,
+            is_folder: scope.is_folder,
+        }
+    }
+}
+
 /// Identifies an open repository session in later commands.
 pub type RepoId = u32;
 

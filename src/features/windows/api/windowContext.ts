@@ -15,6 +15,11 @@ export function useWindowContext() {
   });
 }
 
+/** Shows `path` in the main window (opening it if needed), like `noblame <path>`. */
+export async function openInMainWindow(path: string): Promise<void> {
+  await unwrap(commands.openInMainWindow(path));
+}
+
 /** Opens a task window, like `noblame <task> <path>` on the command line. */
 export function useOpenTaskWindow() {
   return useMutation({

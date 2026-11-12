@@ -18,10 +18,26 @@ export const commands = {
 	getWindowContext: () => typedError<WindowContext, AppError>(__TAURI_INVOKE("get_window_context")),
 	/**  Repositories requested from the command line since the last call (each returned once). */
 	takeRepositoryRequests: () => __TAURI_INVOKE<string[]>("take_repository_requests"),
-	/**  Opens `task` for `path` in a new window, like `noblame <task> <path>` does. */
+	/**
+	 *  Opens `task` for `path` in a window, like `noblame <task> <path>` does (a window already
+	 *  showing it comes to the front).
+	 */
 	openTaskWindow: (task: TaskKind, path: string) => typedError<null, AppError>(__TAURI_INVOKE("open_task_window", { task, path })),
-	/**  Opens the repository containing `path` (searching parent folders). */
+	/**
+	 *  Shows the main window (opening it if needed) with `path` as a repository tab, like
+	 *  `noblame <path>`: a task window's **Open in NoBlame**.
+	 */
+	openInMainWindow: (path: string) => typedError<null, AppError>(__TAURI_INVOKE("open_in_main_window", { path })),
+	/**
+	 *  Opens the repository containing `path` (searching parent folders). The session belongs
+	 *  to the calling window and is closed with it.
+	 */
 	openRepository: (path: string) => typedError<RepoSummary, AppError>(__TAURI_INVOKE("open_repository", { path })),
+	/**
+	 *  Where `path` lies in the working tree of session `id` (the folder or file a task window
+	 *  shows); `null` outside it.
+	 */
+	getPathScope: (id: number, path: string) => typedError<PathScopeDto | null, AppError>(__TAURI_INVOKE("get_path_scope", { id, path })),
 	/**  Creates a repository in `path` with `git init` (open it with `open_repository` next). */
 	initRepository: (path: string) => typedError<null, AppError>(__TAURI_INVOKE("init_repository", { path })),
 	/**  Closes a repository session (when its tab closes). */
@@ -1905,6 +1921,14 @@ export type PathChangeDto =
 "renamed" | 
 /**  A merge that differs from every parent at the path. */
 "merge";
+
+/**  A folder or file inside the working tree (where a task window was opened). */
+export type PathScopeDto = {
+	/**  Relative to the top of the working tree, with `/`; empty for the top itself. */
+	relative: string,
+	/**  A folder (or the top); `false` for files and paths that do not exist. */
+	isFolder: boolean,
+};
 
 /**  Which way a commit's changes are applied. */
 export type PickKindDto = 

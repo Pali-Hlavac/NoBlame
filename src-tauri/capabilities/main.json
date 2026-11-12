@@ -20,6 +20,7 @@
     "allow-take-repository-requests",
     "allow-open-task-window",
     "allow-open-repository",
+    "allow-get-path-scope",
     "allow-init-repository",
     "allow-close-repository",
     "allow-load-graph",

@@ -1087,9 +1087,48 @@ Slice 8 done (2026-11-11): keyboard shortcuts ([features/workbench.md](features/
 ### M8: Standalone task windows (prepares phase 2)
 
 - [ ] `noblame log|commit|diff|blame|filehistory|pull|push|fetch|switch|merge|rebase|stash|clone|init <path>` open focused windows
-- [ ] Path-scoped views: log and status limited to a folder or file
-- [ ] Windows reuse the running instance; closing the last task window exits when the main window is not open
+- [ ] Path-scoped views: log and status limited to a folder or file (log: slice 1)
+- [x] Windows reuse the running instance; closing the last task window exits when the main window is not open
+      (slice 1: one window per task and path; sessions closed with their window)
 - [ ] Documented CLI reference (`docs/features/cli.md`), `--help` output tested
+
+Slices (planned 2026-11-12). A task window is the main window's workbench made for one task:
+the modules and tabs that task needs, opened on the given path, its layout never saved.
+
+1. **The frame and Log**: task windows show a workbench with the task's modules and tabs and
+   a bar naming the task, the repository and the path, with **Open in NoBlame** (the main
+   window). Repository sessions belong to the window that opened them and close with it. The
+   same task on the same path focuses its window instead of opening a second one. `log` shows
+   the graph limited to the folder or file given (the path filter).
+2. **Commit and Diff**: the Commit module and the working tree's changes, limited to the
+   folder or file given (path-scoped status).
+3. **Blame and File history** of the file (or folder) given.
+4. **Fetch, Pull and Push**: the dialogs, the job's progress and output, credentials asked in
+   that window.
+5. **Switch, Merge, Rebase and Stash**: the branch and operation dialogs on the repository.
+6. **Clone and Create repository**, then the CLI reference and `--help` checked by tests; ADR
+   0015 brought up to date.
+
+Slice 1 done (2026-11-12): the task window frame and Log ([features/cli.md](features/cli.md#task-windows-m8),
+[architecture/cli-and-windows.md](architecture/cli-and-windows.md#task-windows-m8)).
+
+- A task window is a workbench with the task's modules and tabs (`src/app/tasks/specs.ts`),
+  layout not saved, under a bar naming the task, repository and folder with **Open in
+  NoBlame**; the dialogs and the credential prompt are mounted as in the main window. Task
+  windows got the repository commands (`capabilities/task.json`).
+- `log`: the graph filtered to the path (`get_path_scope`, then the path filter before the
+  graph first loads).
+- One window per task and path; repository sessions belong to the window that opened them and
+  close with it (`RepoSessions::remove_owned_by`).
+- Checked in the running app: `noblame log <repo>\src` (3 of 5 commits, `src` in the filter
+  bar; only this window opened), the same command again (focused, no second window), `log
+<repo>\docs` (a second window, 1 commit), **Open in NoBlame** (the main window with the
+  repository tab), closing the main window (task windows stayed; 3 sessions closed), then each
+  task window (1 session each; the app ended with the last). Fixed on the way: **Open in
+  NoBlame** opened the folder given, so the tab was named after it; it now opens the
+  repository's top folder. Noticed: in development every `noblame.exe` run rewrites the
+  bindings, the hot reload resets the "layout not saved" switch and the task window's save is
+  refused (dev only).
 
 ### M9: Polish and release
 

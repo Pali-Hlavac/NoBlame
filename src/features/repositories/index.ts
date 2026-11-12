@@ -9,6 +9,8 @@ export { useRepositoryChanges } from "./hooks/useRepositoryChanges";
 export { useRepositoryPath } from "./hooks/useRepositoryPath";
 export { useSessionCleanup } from "./hooks/useSessionCleanup";
 export { useRecentRepositories } from "./api/recent";
+export { fetchPathScope } from "./api/scope";
+export { useRepositorySession } from "./api/session";
 export { submoduleKeys } from "./api/submodules";
 export {
   openRepositories,

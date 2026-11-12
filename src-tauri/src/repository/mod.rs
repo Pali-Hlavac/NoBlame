@@ -27,7 +27,7 @@ pub use graph_types::{
 };
 pub(crate) use service::blocking;
 pub use sessions::RepoSessions;
-pub use types::{RepoId, RepoSummary};
+pub use types::{PathScopeDto, RepoId, RepoSummary};
 pub use watch::RepositoryChanged;
 
 use tauri::{App, Manager};

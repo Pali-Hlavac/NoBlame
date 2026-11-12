@@ -23,10 +23,10 @@ Both helpers turn every failure into an `IpcError { code, message, hint }`. `cod
 Every command is listed in `APP_COMMANDS` in `src-tauri/build.rs`, which generates an
 `allow-<kebab-name>` permission. Each capability file grants permissions to window labels:
 
-| Capability               | Windows  | Grants                                                                          |
-| ------------------------ | -------- | ------------------------------------------------------------------------------- |
-| `capabilities/main.json` | `main`   | Every app command, `dialog:allow-open`, `core:event:default`                    |
-| `capabilities/task.json` | `task-*` | Read-only commands, settings and window context; no dialogs, no opening windows |
+| Capability               | Windows  | Grants                                                                                                                                          |
+| ------------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `capabilities/main.json` | `main`   | Every app command, `dialog:allow-open`, `core:event:default`                                                                                    |
+| `capabilities/task.json` | `task-*` | The repository commands task views use, `open_in_main_window`; not the main window's frame buttons, tab requests, recent list, groups or layout |
 
 A command that returns "not allowed" is missing from `APP_COMMANDS` or from a capability.
 
@@ -46,32 +46,35 @@ specta marks every field optional in the bindings; the frontend fills them with 
 | `get_git_info` | `git_env` | yes | `Result<GitInfo>` | Locates git again and reports path, version, support |
 | `get_window_context` | `windows` | no | `Result<WindowContext>` | What the calling window is: `main` or `task` + task + path |
 | `take_repository_requests` | `windows` | no | `string[]` | Drains repositories requested from the command line |
-| `open_task_window` | `windows` | yes | `Result<null>` | Opens a task window, like `noblame <task> <path>` |
+| `open_task_window` | `windows` | yes | `Result<null>` | Opens a task window, like `noblame <task> <path>`; one already showing that task and path comes to the front |
+| `open_in_main_window` | `windows` | yes | `Result<null>` | Shows the main window with a repository tab, like `noblame <path>` (a task window's **Open in NoBlame**) |
 
 ### Repository commands (M2)
 
-All of them are granted to the main window only (`capabilities/main.json`). `id` is the session id
-returned by `open_repository`; a session lives as long as its tab.
+They are granted to the main window and, except the recent list and groups, to task windows
+(M8). `id` is the session id returned by `open_repository`; a session lives as long as its tab,
+and belongs to the window that opened it: closing that window closes it (M8).
 
-| Command                    | Async | Returns                         | Purpose                                                                                                        |
-| -------------------------- | ----- | ------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `open_repository`          | yes   | `Result<RepoSummary>`           | Finds the repository containing a path, opens a session, records recent                                        |
-| `init_repository`          | yes   | `Result<null>`                  | Runs `git init -- <path>`; the caller opens it next with `open_repository`                                     |
-| `close_repository`         | no    | `null`                          | Forgets a session (when its tab closes)                                                                        |
-| `load_graph`               | yes   | `Result<GraphSummary>`          | Builds the graph on a blocking thread (cached; `reload` forces a rebuild)                                      |
-| `get_graph_block`          | yes   | `Result<unknown>` (ArrayBuffer) | One block of 256 rows in the binary format below                                                               |
-| `get_ancestry_block`       | yes   | `Result<unknown>` (ArrayBuffer) | Highlight overlay of one block for the history of `row` (format below)                                         |
-| `get_commit_rows`          | yes   | `Result<CommitRowDto[]>`        | Text columns (id, summary, author, date, refs, stashes made on it) for up to 500 rows                          |
-| `reload_graph`             | yes   | `Result<ReloadedGraph>`         | Rebuilds the graph; maps the selected `row` to that commit's new row                                           |
-| `set_graph_filter`         | yes   | `Result<ReloadedGraph>`         | Shows only what a `GraphFilterDto` keeps (ADR 0021); maps `row` like a reload                                  |
-| `find_commit`              | yes   | `Result<FoundCommit>`           | Match of a query after/before a row, wrapping; `{ row, position, total }`                                      |
-| `go_to_commit`             | yes   | `Result<GoToCommit>`            | Resolves a revision; `{ id, row, status: shown \| hiddenByFilter \| notInGraph }`                              |
-| `refresh_repository`       | yes   | `Result<RepoSummary>`           | Re-reads HEAD and the other repository facts                                                                   |
-| `write_commit_graph`       | yes   | `Result<RepoSummary>`           | Runs `git commit-graph write --reachable --changed-paths`                                                      |
-| `list_recent_repositories` | yes   | `Result<RecentRepository[]>`    | Recently opened repositories, newest first, with an `exists` flag                                              |
-| `remove_recent_repository` | yes   | `Result<RecentRepository[]>`    | Removes one entry and returns the rest                                                                         |
-| `get_repository_groups`    | yes   | `Result<RepositoryGroupsDto>`   | The groups of the Repositories module, in order, and the grouped paths whose folders are gone                  |
-| `save_repository_groups`   | yes   | `Result<RepositoryGroupsDto>`   | Replaces the groups (the whole list; repeated ids and paths dropped, names trimmed) and returns what was saved |
+| Command                    | Async | Returns                         | Purpose                                                                                                                                      |
+| -------------------------- | ----- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `open_repository`          | yes   | `Result<RepoSummary>`           | Finds the repository containing a path, opens a session, records recent                                                                      |
+| `get_path_scope`           | yes   | `Result<PathScopeDto \| null>`  | Where a path lies in the session's working tree (relative with `/`, folder or not); `null` outside it. Task windows show that folder or file |
+| `init_repository`          | yes   | `Result<null>`                  | Runs `git init -- <path>`; the caller opens it next with `open_repository`                                                                   |
+| `close_repository`         | no    | `null`                          | Forgets a session (when its tab closes)                                                                                                      |
+| `load_graph`               | yes   | `Result<GraphSummary>`          | Builds the graph on a blocking thread (cached; `reload` forces a rebuild)                                                                    |
+| `get_graph_block`          | yes   | `Result<unknown>` (ArrayBuffer) | One block of 256 rows in the binary format below                                                                                             |
+| `get_ancestry_block`       | yes   | `Result<unknown>` (ArrayBuffer) | Highlight overlay of one block for the history of `row` (format below)                                                                       |
+| `get_commit_rows`          | yes   | `Result<CommitRowDto[]>`        | Text columns (id, summary, author, date, refs, stashes made on it) for up to 500 rows                                                        |
+| `reload_graph`             | yes   | `Result<ReloadedGraph>`         | Rebuilds the graph; maps the selected `row` to that commit's new row                                                                         |
+| `set_graph_filter`         | yes   | `Result<ReloadedGraph>`         | Shows only what a `GraphFilterDto` keeps (ADR 0021); maps `row` like a reload                                                                |
+| `find_commit`              | yes   | `Result<FoundCommit>`           | Match of a query after/before a row, wrapping; `{ row, position, total }`                                                                    |
+| `go_to_commit`             | yes   | `Result<GoToCommit>`            | Resolves a revision; `{ id, row, status: shown \| hiddenByFilter \| notInGraph }`                                                            |
+| `refresh_repository`       | yes   | `Result<RepoSummary>`           | Re-reads HEAD and the other repository facts                                                                                                 |
+| `write_commit_graph`       | yes   | `Result<RepoSummary>`           | Runs `git commit-graph write --reachable --changed-paths`                                                                                    |
+| `list_recent_repositories` | yes   | `Result<RecentRepository[]>`    | Recently opened repositories, newest first, with an `exists` flag                                                                            |
+| `remove_recent_repository` | yes   | `Result<RecentRepository[]>`    | Removes one entry and returns the rest                                                                                                       |
+| `get_repository_groups`    | yes   | `Result<RepositoryGroupsDto>`   | The groups of the Repositories module, in order, and the grouped paths whose folders are gone                                                |
+| `save_repository_groups`   | yes   | `Result<RepositoryGroupsDto>`   | Replaces the groups (the whole list; repeated ids and paths dropped, names trimmed) and returns what was saved                               |
 
 ### Inspect and workbench commands (M2.5)
 

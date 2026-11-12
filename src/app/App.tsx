@@ -7,11 +7,12 @@ import {
   useSettings,
   useThemePreference,
 } from "@/features/settings";
-import { TaskWindowView, useWindowContext } from "@/features/windows";
+import { useWindowContext } from "@/features/windows";
 import { ErrorState } from "@/shared/components/ErrorState";
 
 import { MainWindow } from "./layout/MainWindow";
 import { StartupCurtain } from "./layout/StartupCurtain";
+import { TaskWindow } from "./layout/TaskWindow";
 
 /** The main window or a task window, with the dialogs and toasts every window has. */
 function Window({ context }: { context: ReturnType<typeof useWindowContext> }) {
@@ -30,7 +31,7 @@ function Window({ context }: { context: ReturnType<typeof useWindowContext> }) {
       ) : context.data?.kind === "main" ? (
         <MainWindow />
       ) : context.data ? (
-        <TaskWindowView task={context.data.task} path={context.data.path} />
+        <TaskWindow task={context.data.task} path={context.data.path} />
       ) : null}
       <AboutDialog />
       <Toaster theme={preference} position="bottom-right" richColors closeButton />

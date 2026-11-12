@@ -44,10 +44,10 @@ exits. The running instance parses them with the same `cli::parse` and calls
 `tauri.conf.json` declares **no windows**; Rust opens them, so `noblame commit <path>` does not
 open the main window as well.
 
-| Label    | Opened by                                           | Content                                   |
-| -------- | --------------------------------------------------- | ----------------------------------------- |
-| `main`   | `noblame`, `noblame <path>`, `noblame browse`       | Sidebar, repository tabs, status bar      |
-| `task-N` | `noblame <task> <path>`, `open_task_window` command | One task for one path (placeholder in M1) |
+| Label    | Opened by                                           | Content                                                              |
+| -------- | --------------------------------------------------- | -------------------------------------------------------------------- |
+| `main`   | `noblame`, `noblame <path>`, `noblame browse`       | Sidebar, repository tabs, status bar                                 |
+| `task-N` | `noblame <task> <path>`, `open_task_window` command | One task for one path (M8; placeholders for the tasks not built yet) |
 
 - `WindowRegistry` (managed state) maps task labels to their `WindowContext` and holds the queue
   of repositories the main window should open. A task window forgets its entry when destroyed.
@@ -60,14 +60,41 @@ open the main window as well.
   title bar icon is the app icon.
 - Windows are created only from the setup hook, the single-instance callback or `async`
   commands; creating a window from a sync command deadlocks on Windows.
-- When the last window closes the app exits (Tauri default). M8 decides whether task windows are
-  reused per path and refines closing behaviour.
+- **One window per task and path** (M8): `open_task_window` finds the open window with the same
+  `WindowContext` (`WindowRegistry::find`) and brings it to the front instead of opening a
+  second one. Paths are compared as typed (absolute, normalized by the parser).
+- **Repository sessions belong to a window** (M8): `open_repository` records the calling
+  window's label, and when any window is destroyed `close_with` forgets its context and closes
+  its sessions (`RepoSessions::remove_owned_by`). The page cannot close them itself once its
+  window is gone.
+- When the last window closes the app exits (Tauri default): closing the main window leaves
+  open task windows running, and closing the last task window ends the app when the main
+  window is not open.
+
+## Task windows (M8)
+
+A task window is the main window's workbench made for one task (`src/app/layout/TaskWindow.tsx`,
+`src/app/tasks/specs.ts`): the system's title bar, a bar naming the task, the repository and the
+folder or file (`TaskBar`, with **Open in NoBlame**: the main window with the repository's top
+folder), and a `Workbench` with the task's modules and tabs. Its layout is never saved
+(`persist={false}`) and it has no command palette or status bar. On start the window:
+
+1. opens the repository containing the path (`open_repository` searches upwards);
+2. asks where the path lies in it (`get_path_scope`: relative with `/`, folder or file);
+3. readies the session for the task (`log`: the graph filter's path, so only the history of
+   that folder or file shows, and the filter bar can clear it);
+4. opens the task's tabs (`log`: the repository's graph, titled with its name).
+
+A path outside any repository shows the error with Retry. Tasks without a spec still show the
+labelled placeholder (`TaskWindowView`). The dialogs, the credential prompt and the Git output
+window are mounted as in the main window (`WindowParts.tsx`), so the graph's menus work there.
 
 ## Capabilities
 
-Task windows get a narrower capability (`capabilities/task.json`, `task-*`) than the main
-window (`capabilities/main.json`). Every new command must be granted explicitly to the windows
-that need it.
+Task windows get their own capability (`capabilities/task.json`, `task-*`): the repository
+commands their views use and `open_in_main_window`, but not the main window's frame buttons
+(they have the system's), repository requests, recent list, groups or layout. Every new command
+must be granted explicitly to the windows that need it.
 
 ## Phase 2 contract
 

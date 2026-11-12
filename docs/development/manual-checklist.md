@@ -99,6 +99,12 @@ Use `target\debug\noblame.exe` while the dev app runs.
   - Notes:
 - [ ] Ctrl+, (or the gear at the bottom of the activity bar) opens Settings.
   - Notes:
+- [ ] **(new)** With NoBlame closed, `noblame log <repo>/<folder>`: only the Log window opens,
+      the bar names Log, the repository and the folder, the graph shows only that folder's
+      commits and the filter bar shows the folder. Run it again: the same window comes to the
+      front. **Open in NoBlame**: the main window with the repository's tab (every commit).
+      Close the main window: the Log window stays; close it: NoBlame ends.
+  - Notes:
 - [ ] **(new)** Settings → Keyboard shortcuts: click Find commits' keys and press Ctrl+K: it is
       refused, naming the command palette, and the palette does not open. Press Ctrl+Shift+F: it
       is taken; in a repository tab Ctrl+F no longer opens the find bar and Ctrl+Shift+F does;

@@ -1,5 +1,6 @@
 /** Public API of the commit graph feature. */
 export { graphKeys, useGraphSummary } from "./api/graph";
+export { showOnlyPath } from "./api/filter";
 export { goToCommit, openFind, openGoTo } from "./api/find";
 export { refKeys, useRefs } from "./api/refs";
 export { reloadGraph } from "./api/reload";

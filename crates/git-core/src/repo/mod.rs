@@ -5,11 +5,13 @@
 
 mod error;
 mod info;
+mod scope;
 
 use std::path::Path;
 
 pub use error::RepoError;
 pub use info::{Head, RepoInfo, RepoKind};
+pub use scope::{PathScope, scope_in};
 
 /// A repository opened for reading. Cheap to clone and safe to share between threads; call
 /// [`Repository::local`] to get a `gix::Repository` for the current thread.
@@ -58,6 +60,11 @@ impl Repository {
     /// A handle for the current thread. Creating one is cheap (no file access).
     pub fn local(&self) -> gix::Repository {
         self.inner.to_thread_local()
+    }
+
+    /// Where `path` lies inside the working tree; `None` outside it or without one (bare).
+    pub fn scope_of(&self, path: &Path) -> Option<PathScope> {
+        scope_in(self.info.work_dir.as_deref()?, path)
     }
 
     /// Re-reads HEAD and the other facts in [`RepoInfo`] (after commits, checkouts, ...).

@@ -1,0 +1,98 @@
+import { useEffect, useMemo } from "react";
+
+import { APP_NAME } from "@/app.config";
+
+import { useJobEvents } from "@/features/jobs";
+import { repositoryName, useRepositoryChanges, useSessionCleanup } from "@/features/repositories";
+import { TASKS, TaskBar, TaskWindowView } from "@/features/windows";
+import { Workbench, useModulePopupOpen } from "@/features/workbench";
+import { useTabHotkeys } from "@/features/workspace";
+import { ErrorState } from "@/shared/components/ErrorState";
+import { LoadingState } from "@/shared/components/LoadingState";
+import type { TaskKind } from "@/shared/ipc/bindings";
+
+import { useHistoryHotkeys } from "../commands/useHistoryHotkeys";
+import { TASK_SPECS, type TaskSpec } from "../tasks/specs";
+import { useTaskTarget } from "../tasks/useTaskTarget";
+import { MODULES } from "../workbench/modules";
+import { renderTab } from "./renderTab";
+import { RepositoryContexts, WindowDialogs } from "./WindowParts";
+
+interface TaskWindowProps {
+  task: TaskKind;
+  /** The path given on the command line. */
+  path: string;
+}
+
+/**
+ * A task window (`noblame log <path>`, ADR 0015): the bar naming the task and the workbench
+ * with the task's modules and tabs. Tasks not built yet show their placeholder.
+ */
+export function TaskWindow({ task, path }: TaskWindowProps) {
+  const spec = TASK_SPECS[task];
+  useEffect(() => {
+    // As the window's own title (set in Rust), for tools that list pages by title.
+    document.title = `${TASKS[task].title} — ${repositoryName(path)} — ${APP_NAME}`;
+  }, [task, path]);
+  if (!spec) return <TaskWindowView task={task} path={path} />;
+  return <PreparedTask task={task} path={path} spec={spec} />;
+}
+
+function PreparedTask({ task, path, spec }: TaskWindowProps & { spec: TaskSpec }) {
+  const { session, target } = useTaskTarget(path, spec);
+  // A popped-out module's popup is modal: the window behind waits until it closes.
+  const popupOpen = useModulePopupOpen();
+  const error = session.error ?? target.error;
+  const retry = (): void => {
+    void (session.error ? session.refetch() : target.refetch());
+  };
+  return (
+    <div className="flex h-screen flex-col bg-background text-foreground" inert={popupOpen}>
+      <TaskBar
+        task={task}
+        path={path}
+        repository={session.data}
+        scope={target.data?.scope?.relative}
+      />
+      {error ? (
+        <ErrorState
+          error={error}
+          title={`Could not open ${repositoryName(path)}`}
+          onRetry={retry}
+          className="flex-1 justify-center"
+        />
+      ) : target.data ? (
+        <TaskWorkbench spec={spec} />
+      ) : (
+        <LoadingState label="Opening repository…" className="flex-1" />
+      )}
+    </div>
+  );
+}
+
+/** The workbench of a task window: the task's modules, its layout never saved. */
+function TaskWorkbench({ spec }: { spec: TaskSpec }) {
+  const modules = useMemo(
+    () => MODULES.filter((module) => spec.modules.includes(module.id)),
+    [spec],
+  );
+  useSessionCleanup();
+  useRepositoryChanges();
+  useJobEvents();
+  useTabHotkeys();
+  useHistoryHotkeys();
+  return (
+    <>
+      <RepositoryContexts>
+        <Workbench
+          modules={modules}
+          defaultModuleLayout={spec.moduleLayout}
+          renderTab={renderTab}
+          saved={null}
+          persist={false}
+        />
+      </RepositoryContexts>
+      <WindowDialogs />
+    </>
+  );
+}

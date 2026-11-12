@@ -6,7 +6,7 @@ import { Group, Panel, Separator, usePanelRef, type PanelSize } from "react-resi
 import type { WorkspaceTab } from "@/features/workspace";
 
 import { useWorkbenchHotkeys } from "../hooks/useWorkbenchHotkeys";
-import { docks, scheduleLayoutSave } from "../lib/docks";
+import { docks, keepLayout, scheduleLayoutSave } from "../lib/docks";
 import type { SavedLayout } from "../lib/layout";
 import { restoreWorkbench } from "../lib/restore";
 import { useWorkbenchStore } from "../store/workbench";
@@ -37,6 +37,8 @@ interface WorkbenchProps {
   saved: SavedLayout | null;
   /** Buttons at the bottom of the activity bar. */
   activityBarFooter?: ReactNode;
+  /** Save layout changes (default); task windows start from the default layout every time. */
+  persist?: boolean;
 }
 
 /**
@@ -45,8 +47,12 @@ interface WorkbenchProps {
  */
 export function Workbench(props: WorkbenchProps) {
   const { modules, defaultModuleLayout, renderTab, saved, activityBarFooter } = props;
-  // Runs once, during the first render, so restored tabs exist before anything reads them.
-  const [restored] = useState(() => restoreWorkbench(saved));
+  // Runs once, during the first render, so restored tabs exist before anything reads them;
+  // and before the docks mount, whose first layout events would save.
+  const [restored] = useState(() => {
+    keepLayout(props.persist ?? true);
+    return restoreWorkbench(saved);
+  });
   const epoch = useWorkbenchStore((state) => state.layoutEpoch);
   const collapsed = useWorkbenchStore((state) => state.sidebarCollapsed);
   // Read once per layout: react-resizable-panels re-registers a panel whenever `defaultSize`

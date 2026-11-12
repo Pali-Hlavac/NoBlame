@@ -44,8 +44,19 @@ Example:
 noblame commit ~/src/my-project
 ```
 
-**Placeholder in this version**: task windows show their task and path and say which milestone
+At the top of a task window you see the task, the repository and the folder or file it is
+about. **Open in NoBlame** shows that repository in the main window.
+
+- **`log`** shows the commits of the repository. Given a folder or a file, it shows only the
+  commits that changed it; the path appears in the graph's filter bar, where **Clear** shows
+  every commit. Beside the graph are Branches, Commit details, Changed files and Files.
+
+**Not done yet**: the other task windows show their task and path and say which milestone
 delivers them. They do not commit, push or change anything yet.
+
+Running the same task on the same folder again brings its window to the front instead of
+opening another one. You can close the main window and keep task windows open; NoBlame ends when
+its last window closes.
 
 ## NoBlame is already running
 

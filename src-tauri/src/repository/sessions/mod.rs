@@ -175,6 +175,8 @@ pub struct RepoSessions {
 struct Inner {
     next_id: RepoId,
     sessions: HashMap<RepoId, Arc<Session>>,
+    /// The label of the window that opened each session.
+    owners: HashMap<RepoId, String>,
 }
 
 impl RepoSessions {
@@ -186,8 +188,8 @@ impl RepoSessions {
         }
     }
 
-    /// Registers an opened repository and returns its new id.
-    pub fn insert(&self, repo: Repository) -> (RepoId, Arc<Session>) {
+    /// Registers a repository opened by the window labelled `owner` and returns its new id.
+    pub fn insert(&self, repo: Repository, owner: &str) -> (RepoId, Arc<Session>) {
         let mut inner = self.lock();
         inner.next_id += 1;
         let id = inner.next_id;
@@ -210,6 +212,7 @@ impl RepoSessions {
             writes: tokio::sync::Mutex::default(),
         });
         inner.sessions.insert(id, Arc::clone(&session));
+        inner.owners.insert(id, owner.to_owned());
         (id, session)
     }
 
@@ -224,7 +227,25 @@ impl RepoSessions {
 
     /// Forgets a session; its memory is freed once running commands finish.
     pub fn remove(&self, id: RepoId) {
-        self.lock().sessions.remove(&id);
+        let mut inner = self.lock();
+        inner.sessions.remove(&id);
+        inner.owners.remove(&id);
+    }
+
+    /// Forgets every session the window labelled `owner` opened (it closed); returns how many.
+    pub fn remove_owned_by(&self, owner: &str) -> usize {
+        let mut inner = self.lock();
+        let ids: Vec<RepoId> = inner
+            .owners
+            .iter()
+            .filter(|(_, label)| label.as_str() == owner)
+            .map(|(id, _)| *id)
+            .collect();
+        for id in &ids {
+            inner.sessions.remove(id);
+            inner.owners.remove(id);
+        }
+        ids.len()
     }
 
     fn lock(&self) -> MutexGuard<'_, Inner> {
@@ -240,3 +261,6 @@ fn renew(slot: &Mutex<CancellationToken>) -> CancellationToken {
     *current = CancellationToken::new();
     current.clone()
 }
+
+#[cfg(test)]
+mod tests;

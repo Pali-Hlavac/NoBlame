@@ -21,10 +21,13 @@ export const docks: {
   documents: DockviewApi | null;
   /** The modules the workbench was given, so features can open one by id. */
   registered: readonly WorkbenchModule[];
+  /** The layout is saved (the main window); a task window's never is. */
+  persist: boolean;
 } = {
   modules: null,
   documents: null,
   registered: [],
+  persist: true,
 };
 
 /** Current layout of both docks and the sidebar. */
@@ -41,9 +44,15 @@ export function snapshotLayout(): SavedLayout {
 
 let saveTimer: ReturnType<typeof setTimeout> | undefined;
 
+/** Whether layout changes are saved: the main window's are, a task window's never. */
+export function keepLayout(persist: boolean): void {
+  docks.persist = persist;
+}
+
 /** Saves the layout shortly after the last change (drags and resizes fire many events). */
 export function scheduleLayoutSave(): void {
   clearTimeout(saveTimer);
+  if (!docks.persist) return;
   saveTimer = setTimeout(() => {
     saveLayout(snapshotLayout()).catch((error: unknown) => {
       console.warn("Saving the workbench layout failed", error);
@@ -54,7 +63,7 @@ export function scheduleLayoutSave(): void {
 /** Forgets the saved layout and rebuilds both docks with the default one. */
 export async function resetLayout(): Promise<void> {
   clearTimeout(saveTimer);
-  await saveLayout(null);
+  if (docks.persist) await saveLayout(null);
   useWorkbenchStore.getState().resetLayout();
 }
 

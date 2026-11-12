@@ -180,6 +180,12 @@ All notable changes to NoBlame are documented here. The format follows
   for all files at once. **Settings → Diff → Merge tool for conflicts** chooses Git's
   `merge.tool`, Visual Studio Code, Beyond Compare, KDiff3, Meld, P4Merge or another tool Git
   knows; it runs through `git mergetool`.
+- Task windows (M8 slice 1): `noblame log <path>` opens a Log window with the commit graph,
+  only the commits that changed the folder or file given (shown in the filter bar), and
+  Branches, Commit details, Changed files and Files beside it. A bar names the task, the
+  repository and the path, with **Open in NoBlame** to show the repository in the main window.
+  The same task on the same path brings its window to the front instead of opening another;
+  closing the main window leaves task windows open; a window's repositories are closed with it.
 - Keyboard shortcuts (M7 slice 8): **Settings → Keyboard shortcuts** lists every shortcut by
   where it works, and each can be changed: click its keys and press new ones (Esc cancels,
   Backspace leaves it without one). Keys another shortcut has are refused naming it, as are

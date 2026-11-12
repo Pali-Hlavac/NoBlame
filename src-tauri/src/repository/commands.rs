@@ -6,21 +6,35 @@ use super::find;
 use super::groups::{self, GroupsStore, RepositoryGroup, RepositoryGroupsDto};
 use super::recent::{self, RecentRepository, RecentStore};
 use super::{
-    CommitRowDto, FoundCommit, GoToCommit, GraphFilterDto, GraphSummary, RawBytes, ReloadedGraph,
-    RepoId, RepoSessions, RepoSummary, service,
+    CommitRowDto, FoundCommit, GoToCommit, GraphFilterDto, GraphSummary, PathScopeDto, RawBytes,
+    ReloadedGraph, RepoId, RepoSessions, RepoSummary, service,
 };
 use crate::error::CommandResult;
 
-/// Opens the repository containing `path` (searching parent folders).
+/// Opens the repository containing `path` (searching parent folders). The session belongs
+/// to the calling window and is closed with it.
 #[tauri::command]
 #[specta::specta]
 pub async fn open_repository(
     app: tauri::AppHandle,
+    window: tauri::WebviewWindow,
     sessions: State<'_, RepoSessions>,
     recent: State<'_, RecentStore>,
     path: String,
 ) -> CommandResult<RepoSummary> {
-    Ok(service::open(&app, &sessions, &recent, path).await?)
+    Ok(service::open(&app, &sessions, &recent, path, window.label()).await?)
+}
+
+/// Where `path` lies in the working tree of session `id` (the folder or file a task window
+/// shows); `null` outside it.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_path_scope(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    path: String,
+) -> CommandResult<Option<PathScopeDto>> {
+    Ok(service::path_scope(&sessions, id, path).await?)
 }
 
 /// Re-reads HEAD and the other facts of an open repository.

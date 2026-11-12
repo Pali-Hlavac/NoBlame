@@ -2,8 +2,10 @@
 
 use tauri::{AppHandle, State, WebviewWindow};
 
+use std::path::PathBuf;
+
 use super::{WindowContext, WindowError, WindowRegistry, service};
-use crate::cli::TaskKind;
+use crate::cli::{LaunchRequest, LaunchTarget, TaskKind};
 use crate::error::CommandResult;
 
 /// What the calling window is for: the main window or a task window and its target.
@@ -28,7 +30,21 @@ pub fn take_repository_requests(registry: State<'_, WindowRegistry>) -> Vec<Stri
     paths
 }
 
-/// Opens `task` for `path` in a new window, like `noblame <task> <path>` does.
+/// Shows the main window (opening it if needed) with `path` as a repository tab, like
+/// `noblame <path>`: a task window's **Open in NoBlame**.
+#[tauri::command]
+#[specta::specta]
+pub async fn open_in_main_window(app: AppHandle, path: String) -> CommandResult<()> {
+    let request = LaunchRequest {
+        target: LaunchTarget::Main,
+        path: Some(PathBuf::from(path)),
+    };
+    service::launch(&app, request)?;
+    Ok(())
+}
+
+/// Opens `task` for `path` in a window, like `noblame <task> <path>` does (a window already
+/// showing it comes to the front).
 #[tauri::command]
 #[specta::specta]
 pub async fn open_task_window(app: AppHandle, task: TaskKind, path: String) -> CommandResult<()> {

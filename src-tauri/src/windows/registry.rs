@@ -33,6 +33,15 @@ impl WindowRegistry {
         label
     }
 
+    /// The label of the open task window showing `context`, if any (it is reused).
+    pub fn find(&self, context: &WindowContext) -> Option<String> {
+        self.lock()
+            .contexts
+            .iter()
+            .find(|(_, open)| *open == context)
+            .map(|(label, _)| label.clone())
+    }
+
     /// Forgets a window (after it closed or failed to open).
     pub fn forget(&self, label: &str) {
         self.lock().contexts.remove(label);
@@ -78,8 +87,11 @@ mod tests {
         let second = registry.register_task(context.clone());
         assert_ne!(first, second);
         assert!(first.starts_with(TASK_WINDOW_PREFIX));
-        assert_eq!(registry.context(&first), Some(context));
+        assert_eq!(registry.context(&first), Some(context.clone()));
+        assert!(registry.find(&context).is_some());
         registry.forget(&first);
+        registry.forget(&second);
+        assert_eq!(registry.find(&context), None);
         assert_eq!(registry.context(&first), None);
         assert_eq!(
             registry.context(MAIN_WINDOW_LABEL),
