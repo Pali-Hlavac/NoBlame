@@ -49,6 +49,7 @@ const STATUS: WorkingTreeStatusDto = {
     { ...file("src/new.ts", "renamed"), previousPath: "src/old.ts", newId: ID, worktree: false },
   ],
   operation: null,
+  stagedOutside: 0,
   unstaged: [file("src/both.ts", "conflicted"), file("src/main.ts", "modified")],
 };
 

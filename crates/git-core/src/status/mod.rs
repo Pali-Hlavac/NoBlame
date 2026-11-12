@@ -6,6 +6,7 @@
 //! matter most on huge working trees (`docs/architecture/git-engine.md`).
 
 mod parse;
+mod scoped;
 mod summary;
 
 use std::path::Path;
@@ -16,6 +17,7 @@ use tokio_util::sync::CancellationToken;
 
 use crate::cli::{Git, GitError};
 
+pub use scoped::{staged_outside, working_tree_status_in};
 pub use summary::{ChangeCounts, StatusSummary};
 
 /// Files listed at most in each list; the summary still counts them all.
@@ -143,7 +145,18 @@ pub async fn working_tree_status(
     untracked: UntrackedFiles,
     cancel: &CancellationToken,
 ) -> Result<WorkingTreeStatus, StatusError> {
-    let output = git
+    read_status(git, work_dir, untracked, None, cancel).await
+}
+
+/// Runs `git status`, of everything or (`scope`) of one folder or file only.
+async fn read_status(
+    git: &Git,
+    work_dir: &Path,
+    untracked: UntrackedFiles,
+    scope: Option<&str>,
+    cancel: &CancellationToken,
+) -> Result<WorkingTreeStatus, StatusError> {
+    let command = git
         .command()
         .current_dir(work_dir)
         .read_only()
@@ -151,9 +164,12 @@ pub async fn working_tree_status(
         .arg(match untracked {
             UntrackedFiles::All => "--untracked-files=all",
             UntrackedFiles::No => "--untracked-files=no",
-        })
-        .run(cancel)
-        .await?;
+        });
+    let command = match scope {
+        Some(scope) => command.literal_pathspecs().paths([scope]),
+        None => command,
+    };
+    let output = command.run(cancel).await?;
     WorkingTreeStatus::parse(&output.stdout)
 }
 

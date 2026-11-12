@@ -95,7 +95,7 @@ describe("uncommitted file counts", () => {
         name: "open, 3 changed and 1 deleted files not committed",
       }),
     ).toHaveLength(2);
-    expect(ipc.getStatus).toHaveBeenCalledWith(7);
+    expect(ipc.getStatus).toHaveBeenCalledWith(7, null);
     expect(ipc.getChangeCounts).not.toHaveBeenCalledWith("/r/open");
     // A clean repository shows nothing.
     expect(await screen.findByRole("button", { name: "api" })).toHaveTextContent(/^api$/);

@@ -21,6 +21,9 @@ Popping it out replaced the earlier setting (Settings → Committing, module or 
 From a repository's **…** menu, the repository's tab is shown first (or the repository opened),
 since both work on the active repository.
 
+In a task window (`noblame commit <path>`, M8) the module fills the sidebar beside the diff tab,
+limited to the folder or file given: see [cli.md](cli.md#task-windows-m8).
+
 ## Content (`CommitPanel`)
 
 - **Changes** (changed, untracked, conflicted) above **Staged**, each a virtualized

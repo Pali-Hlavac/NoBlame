@@ -44,6 +44,11 @@ export function snapshotLayout(): SavedLayout {
 
 let saveTimer: ReturnType<typeof setTimeout> | undefined;
 
+/** Opens the sidebar at `widthPx` (a task window's, before the workbench first lays out). */
+export function presetSidebar(widthPx: number): void {
+  useWorkbenchStore.setState({ sidebarWidthPx: widthPx, sidebarCollapsed: false });
+}
+
 /** Whether layout changes are saved: the main window's are, a task window's never. */
 export function keepLayout(persist: boolean): void {
   docks.persist = persist;

@@ -4,7 +4,7 @@
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { statusKeys } from "@/features/working-tree";
+import { statusKeys, statusScope } from "@/features/working-tree";
 import type { CommitRequestDto } from "@/shared/ipc/bindings";
 import { commands, unwrap } from "@/shared/ipc/client";
 
@@ -21,7 +21,11 @@ export interface IndexChange {
   paths?: readonly string[];
 }
 
-function runIndexChange(repoId: number, { stage, paths }: IndexChange): Promise<null> {
+function runIndexChange(repoId: number, change: IndexChange): Promise<null> {
+  const { stage } = change;
+  // In a task window limited to a folder, "all" means all of that folder.
+  const scope = statusScope();
+  const paths = change.paths ?? (scope === null ? undefined : [scope]);
   if (paths === undefined) {
     return unwrap(stage ? commands.stageAllFiles(repoId) : commands.unstageAllFiles(repoId));
   }

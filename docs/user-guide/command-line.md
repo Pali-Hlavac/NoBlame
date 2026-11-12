@@ -50,6 +50,12 @@ about. **Open in NoBlame** shows that repository in the main window.
 - **`log`** shows the commits of the repository. Given a folder or a file, it shows only the
   commits that changed it; the path appears in the graph's filter bar, where **Clear** shows
   every commit. Beside the graph are Branches, Commit details, Changed files and Files.
+- **`commit`** shows the changes to commit beside their diffs. Given a folder, it lists only
+  the changes in that folder, and **Stage all** stages only those. If files elsewhere are
+  already staged, the window says so: committing takes them too. Given a file, its diff shows
+  at once.
+- **`diff`** lists the changes of the folder (or the file) beside the diff of the one you
+  choose; given a file, its diff shows at once. You can stage or discard parts of it there.
 
 **Not done yet**: the other task windows show their task and path and say which milestone
 delivers them. They do not commit, push or change anything yet.

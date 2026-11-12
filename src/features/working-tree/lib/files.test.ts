@@ -12,6 +12,7 @@ const STATUS: WorkingTreeStatusDto = {
   },
   staged: [],
   operation: null,
+  stagedOutside: 0,
   unstaged: [],
 };
 

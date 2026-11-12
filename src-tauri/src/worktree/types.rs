@@ -132,16 +132,24 @@ pub struct WorkingTreeStatusDto {
     pub unstaged: Vec<WorkingFileDto>,
     /// The operation in progress (a merge stopped by conflicts, a rebase, ...), if any.
     pub operation: Option<OperationDto>,
+    /// Staged files outside the folder or file the status was limited to (a commit takes them
+    /// too); 0 for the whole working tree.
+    pub staged_outside: u32,
 }
 
 impl WorkingTreeStatusDto {
     /// The status `git status` reported, with the operation in progress read beside it.
-    pub(super) fn new(status: WorkingTreeStatus, operation: Option<OperationDto>) -> Self {
+    pub(super) fn new(
+        status: WorkingTreeStatus,
+        operation: Option<OperationDto>,
+        staged_outside: usize,
+    ) -> Self {
         Self {
             summary: status.summary.into(),
             staged: status.staged.into_iter().map(Into::into).collect(),
             unstaged: status.unstaged.into_iter().map(Into::into).collect(),
             operation,
+            staged_outside: u32::try_from(staged_outside).unwrap_or(u32::MAX),
         }
     }
 }

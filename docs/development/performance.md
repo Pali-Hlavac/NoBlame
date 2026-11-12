@@ -267,6 +267,15 @@ and cost nothing extra. Parsing counts all files, not only the 5,000 listed. Col
 much larger trees will be slower; the setting is off by default for that reason. The
 120,000-file tree took 946 s to `git add` once (Defender scanning each new file).
 
+### Status of one folder (M8 slice 2, 2026-11-12)
+
+Task windows read the status of the folder they were opened on: `git status ... -- <folder>`,
+and beside it `git diff --cached --name-only` for the files staged elsewhere (both at once).
+On synthetic-1m (40,000 files, warm, Windows 11, git 2.56.0): the whole tree 75–81 ms, one
+folder of 50 files 63–67 ms, `diff --cached` 59–60 ms. On a tree this small starting git
+dominates; the folder's status pays off on trees where the scan costs more than that. A
+checked-out 100k+ file tree is still to be measured.
+
 ### Bisect counts (M7 slice 3, 2026-11-10)
 
 `git rev-list --bisect-vars` (how many commits are left) on the Linux kernel: v6.0..v6.1

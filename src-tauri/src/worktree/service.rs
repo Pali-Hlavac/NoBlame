@@ -6,7 +6,9 @@ use std::path::PathBuf;
 use git_core::cli::Git;
 use git_core::diff::{DiffError, parse_object_id, read_worktree_file, worktree_version};
 use git_core::repo::{RepoKind, Repository};
-use git_core::status::{UntrackedFiles, working_tree_status};
+use git_core::status::{
+    UntrackedFiles, staged_outside, working_tree_status, working_tree_status_in,
+};
 use tokio::sync::Semaphore;
 use tokio_util::sync::CancellationToken;
 
@@ -28,6 +30,7 @@ static COUNT_PERMITS: Semaphore = Semaphore::const_new(COUNT_RUNS);
 pub async fn status(
     sessions: &RepoSessions,
     id: RepoId,
+    scope: Option<String>,
 ) -> Result<Option<WorkingTreeStatusDto>, RepositoryError> {
     let session = sessions.get(id)?;
     let Some(work_dir) = work_dir(&session.repo) else {
@@ -36,9 +39,20 @@ pub async fn status(
     let repo = session.repo.clone();
     let untracked = blocking(move || UntrackedFiles::configured(&repo.local())).await?;
     let git = Git::locate().map_err(GitEnvError::from)?;
-    let status = working_tree_status(&git, &work_dir, untracked, &CancellationToken::new()).await?;
+    let cancel = CancellationToken::new();
+    let (status, outside) = match scope.as_deref().filter(|scope| !scope.is_empty()) {
+        // Two git runs at once: the second only compares the index with HEAD.
+        Some(scope) => tokio::try_join!(
+            working_tree_status_in(&git, &work_dir, untracked, scope, &cancel),
+            staged_outside(&git, &work_dir, scope, &cancel),
+        )?,
+        None => (
+            working_tree_status(&git, &work_dir, untracked, &cancel).await?,
+            0,
+        ),
+    };
     let operation = current_operation(&session.repo).await?;
-    Ok(Some(WorkingTreeStatusDto::new(status, operation)))
+    Ok(Some(WorkingTreeStatusDto::new(status, operation, outside)))
 }
 
 /// The uncommitted files of the repository at `path` (no session: it need not be open), counted

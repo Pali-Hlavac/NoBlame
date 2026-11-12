@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { fetchPathScope, useRepositorySession } from "@/features/repositories";
+import { setStatusScope } from "@/features/working-tree";
 import { useTabsStore } from "@/features/workspace";
 
 import type { TaskSpec, TaskTarget } from "./specs";
@@ -18,6 +19,8 @@ export function useTaskTarget(path: string, spec: TaskSpec) {
     queryFn: async (): Promise<TaskTarget> => {
       if (!summary) throw new Error("the repository is not open yet");
       const target = { path, summary, scope: await fetchPathScope(summary.id, path) };
+      // Everything in the window shows the status of that folder or file only.
+      setStatusScope(target.scope?.relative ?? null);
       await spec.prepare?.(target);
       const tabs = spec.tabs(target);
       useTabsStore.getState().replaceTabs(tabs, tabs[0]?.id ?? null);

@@ -6,7 +6,8 @@ running app. Architecture: [cli-and-windows.md](../architecture/cli-and-windows.
 
 Status: **M1: parsing, forwarding and windows done. M8 in progress**: the task window frame,
 `log` (limited to the folder or file given), one window per task and path, and sessions closed
-with their window (slice 1). The other tasks are still labelled placeholders.
+with their window (slice 1); `commit` and `diff`, with the status of the folder or file given
+(slice 2). The other tasks are still labelled placeholders.
 
 M2: a path passed on the very first launch (`noblame <path>` while NoBlame is not running) now
 opens its tab; development builds lost it because React StrictMode drained the request queue
@@ -70,11 +71,21 @@ Each task window has a bar with the task, the repository and the folder or file 
 tab. Below it is a workbench with the task's modules and tabs; arranging them works as in the
 main window but is not kept.
 
-| Task  | Modules                                        | Tabs                                                          |
-| ----- | ---------------------------------------------- | ------------------------------------------------------------- |
-| `log` | Branches; Commit details, Changed files, Files | The graph, filtered to the folder or file given (path filter) |
+| Task     | Modules                                        | Tabs                                                          |
+| -------- | ---------------------------------------------- | ------------------------------------------------------------- |
+| `log`    | Branches; Commit details, Changed files, Files | The graph, filtered to the folder or file given (path filter) |
+| `commit` | Commit (440 px wide)                           | Diff (the file given, if any), the graph (filtered)           |
+| `diff`   | Changed files: the working tree's changes      | Diff (the file given, if any), the graph (filtered)           |
 
-A path outside a repository shows "… is not a Git repository" with Retry.
+Everything in a task window shows the status of the folder or file given: the Commit lists,
+Changed files and the graph's working tree row. **Stage all** and **Unstage all** act on that
+path only; files staged elsewhere stay staged, and the Commit form says "Also commits N files
+staged outside `<path>`" because a commit takes the whole index. A `diff` or `commit` window
+opened on a file shows its diff at once: its unstaged changes, or its staged ones when it has
+only those.
+
+A path outside a repository shows "… is not a Git repository" with Retry. A file path opens the
+repository around it; a file that no longer exists cannot be opened (its folder can).
 
 Verified 2026-11-12 (slice 1, Windows 11, dev build): `noblame log <repo>\src` opened only the
 Log window, with 3 of 5 commits and `src` in the filter bar; running it again focused that window
@@ -82,6 +93,14 @@ Log window, with 3 of 5 commits and `src` in the filter bar; running it again fo
 NoBlame** opened the main window with the repository's tab; closing the main window left both
 task windows running, each window closed its repository sessions, and closing the last task
 window ended the app.
+
+Verified 2026-11-12 (slice 2): `noblame commit <repo>\src` with `src/deep/a.txt` changed,
+`src/new.txt` new, `docs/b.md` changed and `README.md` staged: the lists showed the two `src`
+files only, the form "Also commits 1 file staged outside src"; **Stage all** staged the two
+`src` files (`docs/b.md` stayed unstaged), choosing `a.txt` showed its diff, **Unstage all**
+left `README.md` staged. `noblame diff <repo>\src\deep\a.txt` opened with that file's diff
+and Changed files listing it (after fixing: a file path failed to open, "path is not a
+directory").
 
 ## Verified (2026-10-27, Windows 11)
 

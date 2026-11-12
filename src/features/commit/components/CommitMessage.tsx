@@ -1,7 +1,7 @@
 import { GitCommitVerticalIcon } from "lucide-react";
 import { useId, useState } from "react";
 
-import { useStatusSummary } from "@/features/working-tree";
+import { statusScope, useWorkingTreeStatus } from "@/features/working-tree";
 import { toIpcError } from "@/shared/ipc/client";
 import { useKeys } from "@/shared/hooks/useKeys";
 import { matchesHotkey, withHotkey } from "@/shared/lib/hotkeys";
@@ -55,7 +55,10 @@ function blocker(draft: CommitDraft, stored: string, staged: number | undefined)
 export function CommitMessage({ repoId, repoPath, onCommitted }: CommitMessageProps) {
   const id = useId();
   const draft = useDraft(repoPath);
-  const staged = useStatusSummary(repoId).data?.staged;
+  const status = useWorkingTreeStatus(repoId).data;
+  // Limited to a folder (a task window), the files staged elsewhere are committed too.
+  const outside = status?.stagedOutside ?? 0;
+  const staged = status ? status.summary.staged + outside : undefined;
   const defaults = useCommitDefaults(repoId).data;
   const create = useCreateCommit(repoId);
   const [output, setOutput] = useState<string | null>(null);
@@ -148,6 +151,12 @@ export function CommitMessage({ repoId, repoPath, onCommitted }: CommitMessagePr
         </Button>
         {reason && <span className="text-xs text-muted-foreground">{reason}</span>}
       </div>
+      {outside > 0 && (
+        <p className="text-xs text-warning">
+          Also commits {outside} {outside === 1 ? "file" : "files"} staged outside{" "}
+          <span className="font-mono">{statusScope()}</span>.
+        </p>
+      )}
       {create.error ? (
         <CommitOutput tone="error" text={toIpcError(create.error).message} />
       ) : (

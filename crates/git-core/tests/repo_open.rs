@@ -23,6 +23,22 @@ fn opens_a_normal_repository_from_a_subfolder() {
 }
 
 #[test]
+fn opens_the_repository_of_a_file() {
+    let fixture = Fixture::new();
+    let file = fixture.path().join("src").join("main.rs");
+    std::fs::create_dir_all(file.parent().unwrap()).unwrap();
+    std::fs::write(
+        &file,
+        "fn main() {}
+",
+    )
+    .unwrap();
+
+    let repo = Repository::discover(&file).unwrap();
+    assert!(repo.info().work_dir.as_ref().unwrap().ends_with("repo"));
+}
+
+#[test]
 fn a_new_repository_has_an_unborn_branch() {
     let fixture = Fixture::new();
     let repo = Repository::discover(&fixture.path()).unwrap();

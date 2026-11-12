@@ -105,6 +105,11 @@ Use `target\debug\noblame.exe` while the dev app runs.
       front. **Open in NoBlame**: the main window with the repository's tab (every commit).
       Close the main window: the Log window stays; close it: NoBlame ends.
   - Notes:
+- [ ] **(new)** In a repository with changes in a folder and elsewhere, and one file staged
+      elsewhere: `noblame commit <repo>/<folder>` lists only the folder's changes and says "Also
+      commits 1 file staged outside …"; **Stage all** stages only the folder's files.
+      `noblame diff <repo>/<folder>/<file>` opens with that file's diff.
+  - Notes:
 - [ ] **(new)** Settings → Keyboard shortcuts: click Find commits' keys and press Ctrl+K: it is
       refused, naming the command palette, and the palette does not open. Press Ctrl+Shift+F: it
       is taken; in a repository tab Ctrl+F no longer opens the find bar and Ctrl+Shift+F does;

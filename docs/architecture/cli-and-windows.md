@@ -81,9 +81,19 @@ folder), and a `Workbench` with the task's modules and tabs. Its layout is never
 
 1. opens the repository containing the path (`open_repository` searches upwards);
 2. asks where the path lies in it (`get_path_scope`: relative with `/`, folder or file);
-3. readies the session for the task (`log`: the graph filter's path, so only the history of
-   that folder or file shows, and the filter bar can clear it);
-4. opens the task's tabs (`log`: the repository's graph, titled with its name).
+3. limits the window's status to that folder or file (`setStatusScope` in the working-tree
+   feature: `get_status` gets the scope, so `git status` only looks there; **Stage all** and
+   **Unstage all** stage that path, and the commit form names the files staged elsewhere,
+   which a commit takes too);
+4. readies the session for the task (the graph filter's path, so only the history of that
+   folder or file shows, and the filter bar can clear it; `commit` and `diff` select the
+   working tree changes and, given a file, choose it for the diff tab: unstaged, or staged when
+   it has only that);
+5. opens the task's tabs (the repository's graph, titled with its name; `commit` and `diff`
+   the diff tab first).
+
+`Repository::discover` starts in a file's folder, so a file path opens its repository; a path
+that does not exist still fails (so a mistyped task name still reads as a missing folder).
 
 A path outside any repository shows the error with Retry. Tasks without a spec still show the
 labelled placeholder (`TaskWindowView`). The dialogs, the credential prompt and the Git output

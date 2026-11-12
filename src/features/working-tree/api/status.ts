@@ -4,6 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import type { WorkingTreeStatusDto } from "@/shared/ipc/bindings";
 import { commands, unwrap } from "@/shared/ipc/client";
 
+import { statusScope } from "../lib/scope";
+
 /** Everything under `all(repoId)` is read again when the working tree changes. */
 export const statusKeys = {
   all: (repoId: number) => ["status", repoId] as const,
@@ -15,11 +17,16 @@ export const statusKeys = {
 function statusQuery(repoId: number, enabled: boolean) {
   return {
     queryKey: statusKeys.status(repoId),
-    queryFn: () => unwrap(commands.getStatus(repoId)),
+    queryFn: () => unwrap(commands.getStatus(repoId, statusScope())),
     enabled,
     staleTime: 0,
     refetchOnWindowFocus: "always" as const,
   };
+}
+
+/** Reads the status once, outside React (a task window choosing its file before it renders). */
+export function fetchStatus(repoId: number): Promise<WorkingTreeStatusDto | null> {
+  return unwrap(commands.getStatus(repoId, statusScope()));
 }
 
 /**

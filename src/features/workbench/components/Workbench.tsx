@@ -6,7 +6,7 @@ import { Group, Panel, Separator, usePanelRef, type PanelSize } from "react-resi
 import type { WorkspaceTab } from "@/features/workspace";
 
 import { useWorkbenchHotkeys } from "../hooks/useWorkbenchHotkeys";
-import { docks, keepLayout, scheduleLayoutSave } from "../lib/docks";
+import { docks, keepLayout, presetSidebar, scheduleLayoutSave } from "../lib/docks";
 import type { SavedLayout } from "../lib/layout";
 import { restoreWorkbench } from "../lib/restore";
 import { useWorkbenchStore } from "../store/workbench";
@@ -39,6 +39,8 @@ interface WorkbenchProps {
   activityBarFooter?: ReactNode;
   /** Save layout changes (default); task windows start from the default layout every time. */
   persist?: boolean;
+  /** The sidebar's width when there is no saved layout (default: the store's). */
+  sidebarWidthPx?: number;
 }
 
 /**
@@ -51,6 +53,7 @@ export function Workbench(props: WorkbenchProps) {
   // and before the docks mount, whose first layout events would save.
   const [restored] = useState(() => {
     keepLayout(props.persist ?? true);
+    if (!saved && props.sidebarWidthPx) presetSidebar(props.sidebarWidthPx);
     return restoreWorkbench(saved);
   });
   const epoch = useWorkbenchStore((state) => state.layoutEpoch);

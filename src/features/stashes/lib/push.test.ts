@@ -25,6 +25,7 @@ const STATUS: WorkingTreeStatusDto = {
   },
   staged: [file("b.txt", "modified"), file("new/c.txt", "renamed", "old/c.txt")],
   operation: null,
+  stagedOutside: 0,
   unstaged: [file("b.txt", "modified"), file("a.txt", "untracked")],
 };
 const FORM = { message: "wip", keepIndex: false, includeUntracked: false };

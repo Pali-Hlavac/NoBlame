@@ -314,9 +314,10 @@ export const commands = {
 	answerCredential: (id: number, answer: string | null) => __TAURI_INVOKE<boolean>("answer_credential", { id, answer }),
 	/**
 	 *  The working tree status: counts, staged files and unstaged ones (`null` for a bare
-	 *  repository).
+	 *  repository). With `scope` (relative, with `/`), of that folder or file only, as task
+	 *  windows show it.
 	 */
-	getStatus: (id: number) => typedError<WorkingTreeStatusDto | null, AppError>(__TAURI_INVOKE("get_status", { id })),
+	getStatus: (id: number, scope: string | null) => typedError<WorkingTreeStatusDto | null, AppError>(__TAURI_INVOKE("get_status", { id, scope })),
 	/**
 	 *  The uncommitted files of the repository at `path`, open or not, counted once each as new,
 	 *  changed or deleted (`null` for a bare repository). Runs `git status`.
@@ -2895,6 +2896,11 @@ export type WorkingTreeStatusDto = {
 	unstaged: WorkingFileDto[],
 	/**  The operation in progress (a merge stopped by conflicts, a rebase, ...), if any. */
 	operation: OperationDto | null,
+	/**
+	 *  Staged files outside the folder or file the status was limited to (a commit takes them
+	 *  too); 0 for the whole working tree.
+	 */
+	stagedOutside: number,
 };
 
 /**  What a new worktree checks out. */

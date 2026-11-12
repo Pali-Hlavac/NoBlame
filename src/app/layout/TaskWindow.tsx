@@ -90,6 +90,7 @@ function TaskWorkbench({ spec }: { spec: TaskSpec }) {
           renderTab={renderTab}
           saved={null}
           persist={false}
+          sidebarWidthPx={spec.sidebarWidthPx}
         />
       </RepositoryContexts>
       <WindowDialogs />

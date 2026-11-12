@@ -44,3 +44,14 @@ describe("the log task", () => {
     ]);
   });
 });
+
+describe("the commit and diff tasks", () => {
+  it("open the diff tab first, with the repository's graph behind it", () => {
+    for (const task of ["commit", "diff"] as const) {
+      const spec = TASK_SPECS[task];
+      expect(spec?.tabs(target("src")).map((tab) => tab.kind)).toEqual(["diff", "repository"]);
+    }
+    expect(TASK_SPECS.commit?.modules).toEqual(["commit"]);
+    expect(TASK_SPECS.diff?.modules).toEqual(["changed-files"]);
+  });
+});

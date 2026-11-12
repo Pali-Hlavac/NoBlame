@@ -10,14 +10,16 @@ use crate::error::CommandResult;
 use crate::repository::{RawBytes, RepoId, RepoSessions};
 
 /// The working tree status: counts, staged files and unstaged ones (`null` for a bare
-/// repository).
+/// repository). With `scope` (relative, with `/`), of that folder or file only, as task
+/// windows show it.
 #[tauri::command]
 #[specta::specta]
 pub async fn get_status(
     sessions: State<'_, RepoSessions>,
     id: RepoId,
+    scope: Option<String>,
 ) -> CommandResult<Option<WorkingTreeStatusDto>> {
-    Ok(service::status(&sessions, id).await?)
+    Ok(service::status(&sessions, id, scope).await?)
 }
 
 /// The uncommitted files of the repository at `path`, open or not, counted once each as new,

@@ -1087,7 +1087,7 @@ Slice 8 done (2026-11-11): keyboard shortcuts ([features/workbench.md](features/
 ### M8: Standalone task windows (prepares phase 2)
 
 - [ ] `noblame log|commit|diff|blame|filehistory|pull|push|fetch|switch|merge|rebase|stash|clone|init <path>` open focused windows
-- [ ] Path-scoped views: log and status limited to a folder or file (log: slice 1)
+- [x] Path-scoped views: log and status limited to a folder or file (log: slice 1; status: slice 2)
 - [x] Windows reuse the running instance; closing the last task window exits when the main window is not open
       (slice 1: one window per task and path; sessions closed with their window)
 - [ ] Documented CLI reference (`docs/features/cli.md`), `--help` output tested
@@ -1129,6 +1129,21 @@ Slice 1 done (2026-11-12): the task window frame and Log ([features/cli.md](feat
   repository's top folder. Noticed: in development every `noblame.exe` run rewrites the
   bindings, the hot reload resets the "layout not saved" switch and the task window's save is
   refused (dev only).
+
+Slice 2 done (2026-11-12): Commit and Diff windows ([features/cli.md](features/cli.md#task-windows-m8)).
+
+- The window's status is limited to the folder or file given (`get_status` with a scope: `git
+status -- <path>`, and the staged files elsewhere counted by `git diff --cached`); Stage all
+  and Unstage all act on that path; the Commit form says what else a commit takes.
+- `commit`: the Commit module beside the diff tab; `diff`: Changed files beside it. Opened on a
+  file, its diff shows at once.
+- Checked in the running app on a scratch repository (changes in `src` and `docs`, `README.md`
+  staged): the Commit window listed only `src` and said "Also commits 1 file staged outside
+  src"; Stage all staged only the `src` files; the chosen file's diff showed; Unstage all left
+  `README.md` staged; `noblame diff <file>` opened on that file's diff. Fixed on the way: a file
+  path failed to open ("path is not a directory"); discovery now starts in the file's folder.
+  Noticed: the empty diff tab says to choose a file in Changed files (Alt+5), which the Commit
+  window does not offer; choosing it in the Commit lists works.
 
 ### M9: Polish and release
 

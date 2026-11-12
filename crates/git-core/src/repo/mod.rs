@@ -30,8 +30,13 @@ impl std::fmt::Debug for Repository {
 }
 
 impl Repository {
-    /// Finds the repository containing `path` (searching upwards) and opens it.
+    /// Finds the repository containing `path` (searching upwards) and opens it. `path` may be
+    /// a file (`noblame diff src/main.rs`): the search starts in its folder.
     pub fn discover(path: &Path) -> Result<Self, RepoError> {
+        let path = match path.parent() {
+            Some(folder) if path.is_file() => folder,
+            _ => path,
+        };
         let trust = gix::sec::trust::Mapping {
             full: gix::open::Options::default(),
             // Like git: a repository that is not ours and not in `safe.directory` is refused.
