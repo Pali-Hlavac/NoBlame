@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { fetchPathScope, useRepositorySession } from "@/features/repositories";
+import { showOutputOfEveryJob } from "@/features/jobs";
 import { setStatusScope } from "@/features/working-tree";
 import { useTabsStore } from "@/features/workspace";
 
@@ -21,6 +22,8 @@ export function useTaskTarget(path: string, spec: TaskSpec) {
       const target = { path, summary, scope: await fetchPathScope(summary.id, path) };
       // Everything in the window shows the status of that folder or file only.
       setStatusScope(target.scope?.relative ?? null);
+      // No status bar: the Git output window is how its jobs show their progress.
+      showOutputOfEveryJob();
       await spec.prepare?.(target);
       const tabs = spec.tabs(target);
       useTabsStore.getState().replaceTabs(tabs, tabs[0]?.id ?? null);

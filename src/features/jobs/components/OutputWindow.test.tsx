@@ -5,6 +5,7 @@ import userEvent from "@testing-library/user-event";
 import type { JobDto } from "@/shared/ipc/bindings";
 
 import { useJobEvents } from "../hooks/useJobEvents";
+import { forgetOwnJobs, ownJob } from "../lib/own";
 import { closeOutput } from "../store/output";
 import { OutputWindow } from "./OutputWindow";
 
@@ -56,7 +57,9 @@ function job(overrides: Partial<JobDto> = {}): JobDto {
   };
 }
 
-function emit(update: JobDto) {
+/** A job update; `own`: this window started the job. */
+function emit(update: JobDto, own = true) {
+  if (own) ownJob(update.id);
   act(() => {
     for (const listener of ipc.listeners) listener({ payload: { job: update } });
   });
@@ -95,6 +98,25 @@ describe("Git output window", () => {
     vi.clearAllMocks();
     ipc.listeners.length = 0;
     closeOutput();
+    forgetOwnJobs();
+  });
+
+  it("stays closed for a job another window started", async () => {
+    await renderWindow({ showOutputWindow: true, closeOutputOnSuccess: false });
+    emit(job(), false);
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("opens when this window learns it started a job after its first event", async () => {
+    await renderWindow({ showOutputWindow: true, closeOutputOnSuccess: false });
+    emit(job(), false);
+    act(() => {
+      ownJob(job().id);
+    });
+    expect(await screen.findByRole("dialog")).toBeVisible();
   });
 
   it("opens for a new job, streams its output reading only new lines, and closes", async () => {

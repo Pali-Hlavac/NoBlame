@@ -1154,6 +1154,24 @@ Slice 3 done (2026-11-12): Blame and File history windows ([features/cli.md](fea
   commit shown in Commit details), File history of `src` (3 commits), Blame of `docs` (the
   explanation).
 
+Slice 4 done (2026-11-12): Fetch, Pull and Push windows ([features/cli.md](features/cli.md#task-windows-m8)).
+
+- The graph and Branches, with the task's dialog opened at once and from the bar: a new Pull
+  and Fetch dialog (`src/app/tasks/RemoteTaskDialog.tsx`; the choices the toolbar offers), the
+  existing Push dialog. Pull and push refuse a detached HEAD with a hint.
+- Jobs: every window gets job events, so only the window that started a job shows its output
+  window and toasts (`features/jobs/lib/own.ts`); task windows show the output window for every
+  job they start. Credential prompts still show in every window (answering one closes the
+  others).
+- Checked in the running app on a scratch repository with a bare remote: pull (fast-forward,
+  output and toast in the Pull window), pull and push with the main window open (nothing
+  there), push (remote updated), fetch all remotes (Branches showed master one behind).
+  Noticed: in development each `noblame.exe` run rewrites the bindings and the hot reload
+  remounts open task windows, which then open their dialog again (dev only).
+
+Paused here at the owner's request (2026-11-12). Next: slice 5 (Switch, Merge, Rebase and
+Stash), then slice 6 (Clone, Create repository, the CLI reference and `--help` tests).
+
 ### M9: Polish and release
 
 - [ ] Third-party licence notices shipped with the installers (for example generated with

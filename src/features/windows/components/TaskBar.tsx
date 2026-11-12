@@ -16,13 +16,15 @@ interface TaskBarProps {
   repository?: { name: string; path: string };
   /** The folder or file inside it the window shows (relative); empty for all of it. */
   scope?: string;
+  /** The task's own button (`Pull…`), which opens its dialog again. */
+  action?: { label: string; onClick: () => void };
 }
 
 /**
  * The top of a task window: which task, on which repository and folder or file, and a way
  * to the main window with that repository.
  */
-export function TaskBar({ task, path, repository, scope }: TaskBarProps) {
+export function TaskBar({ task, path, repository, scope, action }: TaskBarProps) {
   const open = (): void => {
     // The repository's top folder: its tab there is the whole repository, titled with its name.
     openInMainWindow(repository?.path ?? path).catch((error: unknown) => {
@@ -41,10 +43,15 @@ export function TaskBar({ task, path, repository, scope }: TaskBarProps) {
         <span className="truncate text-foreground">{repository?.name ?? path}</span>
         {scope ? <span className="truncate font-mono text-xs select-text">{scope}</span> : null}
       </p>
+      {action ? (
+        <Button variant="outline" size="sm" className="ml-auto" onClick={action.onClick}>
+          {action.label}
+        </Button>
+      ) : null}
       <Button
         variant="ghost"
         size="sm"
-        className="ml-auto"
+        className={action ? undefined : "ml-auto"}
         title="Show this repository in the main window"
         onClick={open}
       >

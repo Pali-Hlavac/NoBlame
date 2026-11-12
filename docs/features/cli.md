@@ -7,7 +7,8 @@ running app. Architecture: [cli-and-windows.md](../architecture/cli-and-windows.
 Status: **M1: parsing, forwarding and windows done. M8 in progress**: the task window frame,
 `log` (limited to the folder or file given), one window per task and path, and sessions closed
 with their window (slice 1); `commit` and `diff`, with the status of the folder or file given
-(slice 2); `blame` and `filehistory` (slice 3). The other tasks are still labelled placeholders.
+(slice 2); `blame` and `filehistory` (slice 3); `fetch`, `pull` and `push` (slice 4). The other
+tasks are still labelled placeholders.
 
 M2: a path passed on the very first launch (`noblame <path>` while NoBlame is not running) now
 opens its tab; development builds lost it because React StrictMode drained the request queue
@@ -71,13 +72,14 @@ Each task window has a bar with the task, the repository and the folder or file 
 tab. Below it is a workbench with the task's modules and tabs; arranging them works as in the
 main window but is not kept.
 
-| Task          | Modules                                        | Tabs                                                          |
-| ------------- | ---------------------------------------------- | ------------------------------------------------------------- |
-| `log`         | Branches; Commit details, Changed files, Files | The graph, filtered to the folder or file given (path filter) |
-| `commit`      | Commit (440 px wide)                           | Diff (the file given, if any), the graph (filtered)           |
-| `diff`        | Changed files: the working tree's changes      | Diff (the file given, if any), the graph (filtered)           |
-| `blame`       | Commit details, Changed files                  | Blame of the file as in `HEAD`, the graph (filtered)          |
-| `filehistory` | Commit details, Changed files                  | History of the file or folder, the graph (filtered)           |
+| Task                    | Modules                                        | Tabs                                                          |
+| ----------------------- | ---------------------------------------------- | ------------------------------------------------------------- |
+| `log`                   | Branches; Commit details, Changed files, Files | The graph, filtered to the folder or file given (path filter) |
+| `commit`                | Commit (440 px wide)                           | Diff (the file given, if any), the graph (filtered)           |
+| `diff`                  | Changed files: the working tree's changes      | Diff (the file given, if any), the graph (filtered)           |
+| `blame`                 | Commit details, Changed files                  | Blame of the file as in `HEAD`, the graph (filtered)          |
+| `filehistory`           | Commit details, Changed files                  | History of the file or folder, the graph (filtered)           |
+| `fetch`, `pull`, `push` | Branches                                       | The graph; the task's dialog opens at once                    |
 
 Everything in a task window shows the status of the folder or file given: the Commit lists,
 Changed files and the graph's working tree row. **Stage all** and **Unstage all** act on that
@@ -89,6 +91,15 @@ only those.
 `blame` needs a file: on a folder the window says "Blame shows the lines of a file, and this
 is a folder" and suggests File history. `filehistory` on the top of the repository shows its
 graph (the whole history). Choosing a line's or a row's commit shows it in Commit details.
+
+`fetch`, `pull` and `push` open their dialog when the window opens, and again from the bar's
+button (**Fetch…**, **Pull…**, **Push…**). Fetch asks which (the default remote, all remotes,
+and prune), Pull how (as configured, merge, rebase, fast-forward only), Push is the Push dialog
+of the current branch (remote, name there, upstream, tags, force). The job runs in the
+background and the window's Git output window shows it, also when Settings turns that window
+off for the main window; only the window that started a job shows its output and its toasts.
+Pull and push need HEAD on a branch; on a detached HEAD the window says so. A credential prompt
+shows in every open window; answering it in one closes it in the others.
 
 A path outside a repository shows "… is not a Git repository" with Retry. A file path opens the
 repository around it; a file that no longer exists cannot be opened (its folder can).
@@ -112,6 +123,14 @@ Verified 2026-11-12 (slice 3): `noblame blame <repo>\src\deep\a.txt` blamed the 
 HEAD (two lines, two commits); clicking a line's commit showed it in Commit details;
 `noblame filehistory <repo>\src` listed the 3 commits that changed `src`; `noblame blame
 <repo>\docs` explained that a folder cannot be blamed.
+
+Verified 2026-11-12 (slice 4), on a scratch repository with a local bare remote and a second
+clone pushing to it: `noblame pull` opened the Pull dialog; **Pull** fast-forwarded (output
+window and toast in the Pull window, the graph and Branches updated); with the main window open
+beside it, a second pull and a push from a Push window showed nothing in the main window;
+`noblame push` opened the Push dialog of `master` and pushed (remote updated);
+`noblame fetch`, **Fetch all remotes**: `origin/master` moved, Branches showed master one
+behind.
 
 ## Verified (2026-10-27, Windows 11)
 

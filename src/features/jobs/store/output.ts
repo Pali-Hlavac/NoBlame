@@ -13,6 +13,19 @@ const CLOSED: OutputWindowState = { open: false, jobIds: [], selected: null };
 
 export const useOutputWindow = create<OutputWindowState>(() => CLOSED);
 
+/** A task window shows every job it starts, whatever the setting says (its only progress). */
+let everyJob = false;
+
+/** Shows the output of every job this window starts (task windows: they have no status bar). */
+export function showOutputOfEveryJob(): void {
+  everyJob = true;
+}
+
+/** Whether this window shows every job it starts. */
+export function showsOutputOfEveryJob(): boolean {
+  return everyJob;
+}
+
 /**
  * How a job joins the window: `replace` its jobs (they all ended: a new action starts afresh),
  * `add` it to the list (others still run, as in a batch), or add and `select` it (the user

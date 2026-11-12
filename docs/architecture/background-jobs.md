@@ -87,9 +87,14 @@ failure messages pass through `redact_credentials`. See
   job id when it comes. `JobUpdated` events then show the title, phase and a small bar
   (`JobToastProgress`) with **Cancel**; the end replaces the same toast. A job that ended
   before its id came was announced in a toast of its own, so the starting toast is dismissed.
-- `hooks/useJobEvents.ts`: mounted once in the main window; merges `JobUpdated` into the list,
-  updates job toasts and announces how a job ended (failures with **Show log**), except jobs of
-  a batch.
+- `hooks/useJobEvents.ts`: mounted once in each window (main and task windows); merges
+  `JobUpdated` into the list, updates job toasts and announces how a job ended (failures with
+  **Show log**), except jobs of a batch. Events reach every window, so only the window that
+  started a job (`lib/own.ts`: `trackJob` and `startBatch` record its id; an event that comes
+  before the id is remembered and shown once it does) opens the Git output window for it and
+  toasts it. A task window has no status bar: it shows the output window for every job it
+  starts (`showOutputOfEveryJob`), whatever the setting says. Credential prompts still show in
+  every window; answering one closes the others (`CredentialClosed`).
 - `lib/followUp.ts`: `afterJob(id, onEnd)` runs something when a job ended (the Clone dialog
   opens the new repository); ends that arrive before the start's reply are kept (20 at most).
 - `lib/batch.ts`: `startBatch(title, starts)` starts one job per repository (Pull all, Push

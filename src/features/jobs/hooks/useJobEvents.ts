@@ -8,9 +8,10 @@ import { events, type JobDto } from "@/shared/ipc/bindings";
 import { jobKeys, withJob } from "../api/jobs";
 import { batchJobEnded } from "../lib/batch";
 import { jobEnded } from "../lib/followUp";
+import { isOwnJob, onLateOwnJob } from "../lib/own";
 import { repositoryName } from "../lib/format";
 import { showJobProgress, takeJobToast } from "../lib/toasts";
-import { useOutputWindow, showOutput } from "../store/output";
+import { showOutput, showsOutputOfEveryJob, useOutputWindow } from "../store/output";
 import { showJobs } from "../store/panel";
 
 /**
@@ -53,9 +54,19 @@ function announce(job: JobDto): void {
 
 /**
  * Keeps the jobs list current from `JobUpdated` events, opens the Git output window for new jobs
- * when `showOutputWindow` (Settings), and announces finished jobs. Mounted once, in the main
- * window.
+ * when `showOutputWindow` (Settings), and announces finished jobs. Mounted once in each window;
+ * the list has every job, but only the window that started a job shows and announces it.
  */
+function showNewJob(queryClient: ReturnType<typeof useQueryClient>, id: number): void {
+  // Joins jobs still running (a batch); after they all ended, a new action starts afresh.
+  const jobs = queryClient.getQueryData<JobDto[]>(jobKeys.list());
+  const { jobIds } = useOutputWindow.getState();
+  const running = jobs?.some(
+    (other) => other.id !== id && jobIds.includes(other.id) && other.state === "running",
+  );
+  showOutput(id, running ? "add" : "replace");
+}
+
 export function useJobEvents(): void {
   const queryClient = useQueryClient();
   const { showOutputWindow } = useAppSettings().jobs;
@@ -65,18 +76,24 @@ export function useJobEvents(): void {
     showOutputRef.current = showOutputWindow;
   }, [showOutputWindow]);
   useEffect(() => {
+    const showsOutput = (): boolean => showOutputRef.current || showsOutputOfEveryJob();
+    // A job whose first event came before this window knew it started it.
+    onLateOwnJob((id) => {
+      const job = queryClient
+        .getQueryData<JobDto[]>(jobKeys.list())
+        ?.find((each) => each.id === id);
+      if (job?.state === "running" && showsOutput()) showNewJob(queryClient, id);
+    });
     const unlisten = events.jobUpdated.listen(({ payload: { job } }) => {
       const jobs = queryClient.getQueryData<JobDto[]>(jobKeys.list());
       const before = jobs?.find((other) => other.id === job.id);
       queryClient.setQueryData<JobDto[]>(jobKeys.list(), (list) => withJob(list, job));
-      if (before === undefined && job.state === "running" && showOutputRef.current) {
-        // Joins jobs still running (a batch); after they all ended, a new action starts afresh.
-        const { jobIds } = useOutputWindow.getState();
-        const running = jobs?.some(
-          (other) => jobIds.includes(other.id) && other.state === "running",
-        );
-        showOutput(job.id, running ? "add" : "replace");
+      const isNew = before === undefined && job.state === "running";
+      if (!isOwnJob(job.id, isNew)) {
+        jobEnded(job);
+        return;
       }
+      if (isNew && showsOutput()) showNewJob(queryClient, job.id);
       if (job.state === "running") showJobProgress(job);
       if (job.state !== "running" && before?.state !== job.state) {
         jobEnded(job);
@@ -85,6 +102,7 @@ export function useJobEvents(): void {
       }
     });
     return () => {
+      onLateOwnJob(null);
       void unlisten.then((stop) => {
         stop();
       });

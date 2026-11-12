@@ -12,7 +12,9 @@ import { LoadingState } from "@/shared/components/LoadingState";
 import type { TaskKind } from "@/shared/ipc/bindings";
 
 import { useHistoryHotkeys } from "../commands/useHistoryHotkeys";
-import { TASK_SPECS, type TaskSpec } from "../tasks/specs";
+import { RemoteTaskDialog } from "../tasks/RemoteTaskDialog";
+import { currentBranch } from "../tasks/remote";
+import { TASK_SPECS, type TaskSpec, type TaskTarget } from "../tasks/specs";
 import { useTaskTarget } from "../tasks/useTaskTarget";
 import { MODULES } from "../workbench/modules";
 import { renderTab } from "./renderTab";
@@ -53,6 +55,7 @@ function PreparedTask({ task, path, spec }: TaskWindowProps & { spec: TaskSpec }
         path={path}
         repository={session.data}
         scope={target.data?.scope?.relative}
+        action={actionOf(spec, target.data)}
       />
       {error ? (
         <ErrorState
@@ -62,7 +65,7 @@ function PreparedTask({ task, path, spec }: TaskWindowProps & { spec: TaskSpec }
           className="flex-1 justify-center"
         />
       ) : target.data ? (
-        <TaskWorkbench spec={spec} />
+        <TaskWorkbench spec={spec} target={target.data} />
       ) : (
         <LoadingState label="Opening repository…" className="flex-1" />
       )}
@@ -70,8 +73,23 @@ function PreparedTask({ task, path, spec }: TaskWindowProps & { spec: TaskSpec }
   );
 }
 
-/** The workbench of a task window: the task's modules, its layout never saved. */
-function TaskWorkbench({ spec }: { spec: TaskSpec }) {
+/** The bar's button that opens the task's dialog again (Pull…), once the window is ready. */
+function actionOf(spec: TaskSpec, target: TaskTarget | undefined) {
+  const { start, startLabel } = spec;
+  if (!start || !startLabel || !target) return undefined;
+  return {
+    label: startLabel,
+    onClick: () => {
+      start(target);
+    },
+  };
+}
+
+/**
+ * The workbench of a task window: the task's modules, its layout never saved. A task with a
+ * dialog (Pull, Push) opens it once the window is ready.
+ */
+function TaskWorkbench({ spec, target }: { spec: TaskSpec; target: TaskTarget }) {
   const modules = useMemo(
     () => MODULES.filter((module) => spec.modules.includes(module.id)),
     [spec],
@@ -81,6 +99,10 @@ function TaskWorkbench({ spec }: { spec: TaskSpec }) {
   useJobEvents();
   useTabHotkeys();
   useHistoryHotkeys();
+  useEffect(() => {
+    // Opening is idempotent, so StrictMode's second run changes nothing.
+    spec.start?.(target);
+  }, [spec, target]);
   return (
     <>
       <RepositoryContexts>
@@ -94,6 +116,7 @@ function TaskWorkbench({ spec }: { spec: TaskSpec }) {
         />
       </RepositoryContexts>
       <WindowDialogs />
+      <RemoteTaskDialog repoPath={target.summary.path} branch={currentBranch(target)} />
     </>
   );
 }

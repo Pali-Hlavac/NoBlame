@@ -180,6 +180,10 @@ All notable changes to NoBlame are documented here. The format follows
   for all files at once. **Settings → Diff → Merge tool for conflicts** chooses Git's
   `merge.tool`, Visual Studio Code, Beyond Compare, KDiff3, Meld, P4Merge or another tool Git
   knows; it runs through `git mergetool`.
+- Fetch, Pull and Push windows (M8 slice 4): `noblame fetch|pull|push <path>` opens the
+  repository's graph with its question at once (Fetch from where, Pull how, the Push dialog),
+  and again from the window's bar; git's output shows in the window while the job runs. Job
+  toasts and the Git output window now show only in the window that started the job.
 - Blame and File history windows (M8 slice 3): `noblame blame <file>` blames the file as it is
   in the last commit, `noblame filehistory <path>` lists the commits that changed a file or
   folder; the chosen commit's details and files show beside them. Blame on a folder says it

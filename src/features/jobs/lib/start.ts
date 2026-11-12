@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import type { JobKindDto } from "@/shared/ipc/bindings";
 import { toIpcError } from "@/shared/ipc/client";
 
+import { ownJob } from "./own";
 import { JOB_NOUNS, bindJobToast, startingToast } from "./toasts";
 
 /**
@@ -18,6 +19,7 @@ export function trackJob(started: Promise<number>, kind: JobKindDto): Promise<nu
   const toastId = startingToast(kind);
   started.then(
     (id) => {
+      ownJob(id);
       bindJobToast(id, toastId);
     },
     () => {

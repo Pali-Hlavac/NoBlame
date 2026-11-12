@@ -42,7 +42,8 @@ Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 > changed in Settings (slice 8). M8 in progress: task windows as a workbench made for one task,
 > one window per task and path, sessions closed with their window; `log` limited to a folder or
 > file (slice 1); `commit` and `diff` with the status of that folder or file (slice 2); `blame`
-> and `filehistory` (slice 3).
+> and `filehistory` (slice 3); `fetch`, `pull`, `push` with their dialogs, job output only in the
+> window that started the job (slice 4). Next: slice 5 (switch, merge, rebase, stash).
 > Parts marked _(later)_ below are planned and do not exist yet.
 
 ## Architecture

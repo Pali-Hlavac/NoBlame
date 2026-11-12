@@ -60,6 +60,10 @@ about. **Open in NoBlame** shows that repository in the main window.
   a line's commit to see it beside. Blame needs a file; for a folder, use `filehistory`.
 - **`filehistory`** lists the commits that changed a file or a folder. Choose one to see its
   details and files.
+- **`fetch`**, **`pull`** and **`push`** ask first: Fetch from where, Pull how, Push where
+  to. Then git's output shows in the window while it works, and a message says how it went.
+  If you closed the question, the button at the top (**Pull…**) asks again. Pull and Push need
+  a current branch.
 
 **Not done yet**: the other task windows show their task and path and say which milestone
 delivers them. They do not commit, push or change anything yet.

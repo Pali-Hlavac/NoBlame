@@ -10,6 +10,7 @@ import { toIpcError } from "@/shared/ipc/client";
 
 import { showJobs } from "../store/panel";
 import { repositoryName } from "./format";
+import { ownJob } from "./own";
 
 /** Lines of a summary toast naming repositories; the rest are counted. */
 const MAX_SUMMARY_LINES = 6;
@@ -48,6 +49,7 @@ export function startBatch(
     start().then(
       (id) => {
         batchOfJob.set(id, batch);
+        ownJob(id);
       },
       (error: unknown) => {
         const { message, hint } = toIpcError(error);

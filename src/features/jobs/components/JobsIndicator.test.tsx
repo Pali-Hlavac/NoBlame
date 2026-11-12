@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import type { JobDto } from "@/shared/ipc/bindings";
 
 import { useJobEvents } from "../hooks/useJobEvents";
+import { ownJob } from "../lib/own";
 import { useJobsPanel } from "../store/panel";
 import { JobsIndicator } from "./JobsIndicator";
 
@@ -109,6 +110,9 @@ describe("JobsIndicator", () => {
   });
 
   it("follows job events and announces how a job ended", async () => {
+    // This window started both.
+    ownJob(job().id);
+    ownJob(8);
     ipc.listJobs.mockResolvedValue([]);
     renderIndicator();
     await act(async () => {

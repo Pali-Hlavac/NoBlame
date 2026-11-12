@@ -114,6 +114,11 @@ Use `target\debug\noblame.exe` while the dev app runs.
       shows it in Commit details. `noblame filehistory <repo>/<folder>`: the folder's commits.
       `noblame blame <repo>/<folder>`: says a folder cannot be blamed.
   - Notes:
+- [ ] **(new)** With a remote that has new commits: `noblame pull <repo>` asks how to pull;
+      **Pull**: git's output in the window, a toast, the graph updated, and nothing in the
+      main window if it is open. `noblame push <repo>` after a commit: the Push dialog, then
+      the push. `noblame fetch <repo>`: Fetch all remotes.
+  - Notes:
 - [ ] **(new)** Settings → Keyboard shortcuts: click Find commits' keys and press Ctrl+K: it is
       refused, naming the command palette, and the palette does not open. Press Ctrl+Shift+F: it
       is taken; in a repository tab Ctrl+F no longer opens the find bar and Ctrl+Shift+F does;

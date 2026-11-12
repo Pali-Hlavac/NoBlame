@@ -3,12 +3,13 @@
  * the path it was given. Tasks without an entry still show the placeholder.
  */
 import { showOnlyPath } from "@/features/graph";
-import { repositoryTab } from "@/features/repositories";
 import { BLAME_TAB, DIFF_TAB, HISTORY_TAB, type WorkspaceTab } from "@/features/workspace";
 import type { PathScopeDto, RepoSummary, TaskKind } from "@/shared/ipc/bindings";
 
 import { chooseScopedFile } from "./choose";
+import { graphTab } from "./graphTab";
 import { blameScopedFile, showScopedHistory } from "./inspect";
+import { REMOTE_SPECS } from "./remote";
 
 /** The repository a task window was opened in, and where in it. */
 export interface TaskTarget {
@@ -30,11 +31,10 @@ export interface TaskSpec {
   prepare?: (target: TaskTarget) => Promise<void>;
   /** The tabs the window opens with; the first is active. */
   tabs: (target: TaskTarget) => WorkspaceTab[];
-}
-
-/** The repository tab of a task window, titled with the repository's name. */
-function graphTab({ path, summary }: TaskTarget): WorkspaceTab {
-  return { ...repositoryTab(path), title: summary.name };
+  /** Opens the task's dialog: once the window has opened, and from the bar's button. */
+  start?: (target: TaskTarget) => void;
+  /** That button's label (`Pull…`). */
+  startLabel?: string;
 }
 
 /** The graph shows only the history of the folder or file the window was opened on. */
@@ -56,6 +56,7 @@ const CHANGES_SIDEBAR_PX = 360;
 const INSPECT_MODULES = ["commit-details", "changed-files"] as const;
 
 export const TASK_SPECS: Partial<Record<TaskKind, TaskSpec>> = {
+  ...REMOTE_SPECS,
   log: {
     modules: ["branches", "commit-details", "changed-files", "files"],
     moduleLayout: [["branches"], ["commit-details", "changed-files", "files"]],
