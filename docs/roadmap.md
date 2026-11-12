@@ -1145,6 +1145,15 @@ status -- <path>`, and the staged files elsewhere counted by `git diff --cached`
   Noticed: the empty diff tab says to choose a file in Changed files (Alt+5), which the Commit
   window does not offer; choosing it in the Commit lists works.
 
+Slice 3 done (2026-11-12): Blame and File history windows ([features/cli.md](features/cli.md#task-windows-m8)).
+
+- `blame`: the file as it is in `HEAD` (resolved with `go_to_commit`), beside Commit details and
+  Changed files; a folder is refused with a hint. `filehistory`: the history tab of the file or
+  folder (the top of the repository: its graph).
+- Checked in the running app: Blame of `src/deep/a.txt` (two lines, two commits; a line's
+  commit shown in Commit details), File history of `src` (3 commits), Blame of `docs` (the
+  explanation).
+
 ### M9: Polish and release
 
 - [ ] Third-party licence notices shipped with the installers (for example generated with

@@ -31,6 +31,9 @@ file's renames. Status: M3 slice 8 (2026-10-31), ADR [0022](../adr/0022-file-his
 - **Reloads**: after a change outside the app, or a filter change, the history is read again
   and the rows point at the new graph.
 
+In a task window (`noblame filehistory <path>`, M8) the history tab opens on the file or folder
+given, beside Commit details and Changed files: see [cli.md](cli.md#task-windows-m8).
+
 ## How it works
 
 - `git_core::history::file_history`:

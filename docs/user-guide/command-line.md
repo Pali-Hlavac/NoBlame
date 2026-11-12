@@ -56,6 +56,10 @@ about. **Open in NoBlame** shows that repository in the main window.
   at once.
 - **`diff`** lists the changes of the folder (or the file) beside the diff of the one you
   choose; given a file, its diff shows at once. You can stage or discard parts of it there.
+- **`blame`** shows who last changed each line of a file, as it is in your last commit. Click
+  a line's commit to see it beside. Blame needs a file; for a folder, use `filehistory`.
+- **`filehistory`** lists the commits that changed a file or a folder. Choose one to see its
+  details and files.
 
 **Not done yet**: the other task windows show their task and path and say which milestone
 delivers them. They do not commit, push or change anything yet.

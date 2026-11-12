@@ -4,10 +4,11 @@
  */
 import { showOnlyPath } from "@/features/graph";
 import { repositoryTab } from "@/features/repositories";
-import { DIFF_TAB, type WorkspaceTab } from "@/features/workspace";
+import { BLAME_TAB, DIFF_TAB, HISTORY_TAB, type WorkspaceTab } from "@/features/workspace";
 import type { PathScopeDto, RepoSummary, TaskKind } from "@/shared/ipc/bindings";
 
 import { chooseScopedFile } from "./choose";
+import { blameScopedFile, showScopedHistory } from "./inspect";
 
 /** The repository a task window was opened in, and where in it. */
 export interface TaskTarget {
@@ -51,6 +52,9 @@ async function prepareChanges(target: TaskTarget): Promise<void> {
 const COMMIT_SIDEBAR_PX = 440;
 const CHANGES_SIDEBAR_PX = 360;
 
+/** Beside a blame or a history: the chosen commit. */
+const INSPECT_MODULES = ["commit-details", "changed-files"] as const;
+
 export const TASK_SPECS: Partial<Record<TaskKind, TaskSpec>> = {
   log: {
     modules: ["branches", "commit-details", "changed-files", "files"],
@@ -71,5 +75,26 @@ export const TASK_SPECS: Partial<Record<TaskKind, TaskSpec>> = {
     sidebarWidthPx: CHANGES_SIDEBAR_PX,
     prepare: prepareChanges,
     tabs: (target) => [DIFF_TAB, graphTab(target)],
+  },
+  // A line's or a row's commit is selected: its details and files are beside it.
+  blame: {
+    modules: INSPECT_MODULES,
+    moduleLayout: [INSPECT_MODULES],
+    prepare: async (target) => {
+      await limitGraph(target);
+      await blameScopedFile(target);
+    },
+    tabs: (target) => [BLAME_TAB, graphTab(target)],
+  },
+  fileHistory: {
+    modules: INSPECT_MODULES,
+    moduleLayout: [INSPECT_MODULES],
+    prepare: async (target) => {
+      await limitGraph(target);
+      showScopedHistory(target);
+    },
+    // The top of the repository has no file history: its graph is the whole history.
+    tabs: (target) =>
+      target.scope?.relative ? [HISTORY_TAB, graphTab(target)] : [graphTab(target)],
   },
 };

@@ -41,7 +41,8 @@ Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 > run on a commit from its menu (slice 6); Git settings, the repository's and the user's (slice 7); keyboard shortcuts from one registry,
 > changed in Settings (slice 8). M8 in progress: task windows as a workbench made for one task,
 > one window per task and path, sessions closed with their window; `log` limited to a folder or
-> file (slice 1).
+> file (slice 1); `commit` and `diff` with the status of that folder or file (slice 2); `blame`
+> and `filehistory` (slice 3).
 > Parts marked _(later)_ below are planned and do not exist yet.
 
 ## Architecture

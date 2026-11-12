@@ -110,6 +110,10 @@ Use `target\debug\noblame.exe` while the dev app runs.
       commits 1 file staged outside …"; **Stage all** stages only the folder's files.
       `noblame diff <repo>/<folder>/<file>` opens with that file's diff.
   - Notes:
+- [ ] **(new)** `noblame blame <repo>/<file>`: the blame of the file; clicking a line's commit
+      shows it in Commit details. `noblame filehistory <repo>/<folder>`: the folder's commits.
+      `noblame blame <repo>/<folder>`: says a folder cannot be blamed.
+  - Notes:
 - [ ] **(new)** Settings → Keyboard shortcuts: click Find commits' keys and press Ctrl+K: it is
       refused, naming the command palette, and the palette does not open. Press Ctrl+Shift+F: it
       is taken; in a repository tab Ctrl+F no longer opens the find bar and Ctrl+Shift+F does;

@@ -28,6 +28,9 @@ it. Status: M3 slice 8 (2026-10-31), ADR [0022](../adr/0022-file-history-and-bla
 - The lines are the file tab's: numbers, syntax colours, virtualized and paged. Binary files,
   pictures and files over 64 MB are named instead of shown; a submodule cannot be blamed.
 
+In a task window (`noblame blame <file>`, M8) the blame tab opens on the file as it is in
+`HEAD`, beside Commit details and Changed files: see [cli.md](cli.md#task-windows-m8).
+
 ## How it works
 
 - `git_core::blame::blame` runs `git blame --incremental <commit> -- <path>` (ADR 0022: faster

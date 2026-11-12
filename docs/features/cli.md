@@ -7,7 +7,7 @@ running app. Architecture: [cli-and-windows.md](../architecture/cli-and-windows.
 Status: **M1: parsing, forwarding and windows done. M8 in progress**: the task window frame,
 `log` (limited to the folder or file given), one window per task and path, and sessions closed
 with their window (slice 1); `commit` and `diff`, with the status of the folder or file given
-(slice 2). The other tasks are still labelled placeholders.
+(slice 2); `blame` and `filehistory` (slice 3). The other tasks are still labelled placeholders.
 
 M2: a path passed on the very first launch (`noblame <path>` while NoBlame is not running) now
 opens its tab; development builds lost it because React StrictMode drained the request queue
@@ -71,11 +71,13 @@ Each task window has a bar with the task, the repository and the folder or file 
 tab. Below it is a workbench with the task's modules and tabs; arranging them works as in the
 main window but is not kept.
 
-| Task     | Modules                                        | Tabs                                                          |
-| -------- | ---------------------------------------------- | ------------------------------------------------------------- |
-| `log`    | Branches; Commit details, Changed files, Files | The graph, filtered to the folder or file given (path filter) |
-| `commit` | Commit (440 px wide)                           | Diff (the file given, if any), the graph (filtered)           |
-| `diff`   | Changed files: the working tree's changes      | Diff (the file given, if any), the graph (filtered)           |
+| Task          | Modules                                        | Tabs                                                          |
+| ------------- | ---------------------------------------------- | ------------------------------------------------------------- |
+| `log`         | Branches; Commit details, Changed files, Files | The graph, filtered to the folder or file given (path filter) |
+| `commit`      | Commit (440 px wide)                           | Diff (the file given, if any), the graph (filtered)           |
+| `diff`        | Changed files: the working tree's changes      | Diff (the file given, if any), the graph (filtered)           |
+| `blame`       | Commit details, Changed files                  | Blame of the file as in `HEAD`, the graph (filtered)          |
+| `filehistory` | Commit details, Changed files                  | History of the file or folder, the graph (filtered)           |
 
 Everything in a task window shows the status of the folder or file given: the Commit lists,
 Changed files and the graph's working tree row. **Stage all** and **Unstage all** act on that
@@ -83,6 +85,10 @@ path only; files staged elsewhere stay staged, and the Commit form says "Also co
 staged outside `<path>`" because a commit takes the whole index. A `diff` or `commit` window
 opened on a file shows its diff at once: its unstaged changes, or its staged ones when it has
 only those.
+
+`blame` needs a file: on a folder the window says "Blame shows the lines of a file, and this
+is a folder" and suggests File history. `filehistory` on the top of the repository shows its
+graph (the whole history). Choosing a line's or a row's commit shows it in Commit details.
 
 A path outside a repository shows "… is not a Git repository" with Retry. A file path opens the
 repository around it; a file that no longer exists cannot be opened (its folder can).
@@ -101,6 +107,11 @@ files only, the form "Also commits 1 file staged outside src"; **Stage all** sta
 left `README.md` staged. `noblame diff <repo>\src\deep\a.txt` opened with that file's diff
 and Changed files listing it (after fixing: a file path failed to open, "path is not a
 directory").
+
+Verified 2026-11-12 (slice 3): `noblame blame <repo>\src\deep\a.txt` blamed the file at
+HEAD (two lines, two commits); clicking a line's commit showed it in Commit details;
+`noblame filehistory <repo>\src` listed the 3 commits that changed `src`; `noblame blame
+<repo>\docs` explained that a folder cannot be blamed.
 
 ## Verified (2026-10-27, Windows 11)
 

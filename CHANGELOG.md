@@ -180,6 +180,10 @@ All notable changes to NoBlame are documented here. The format follows
   for all files at once. **Settings → Diff → Merge tool for conflicts** chooses Git's
   `merge.tool`, Visual Studio Code, Beyond Compare, KDiff3, Meld, P4Merge or another tool Git
   knows; it runs through `git mergetool`.
+- Blame and File history windows (M8 slice 3): `noblame blame <file>` blames the file as it is
+  in the last commit, `noblame filehistory <path>` lists the commits that changed a file or
+  folder; the chosen commit's details and files show beside them. Blame on a folder says it
+  needs a file.
 - Commit and Diff windows (M8 slice 2): `noblame commit <path>` shows the Commit module beside
   the diff, and `noblame diff <path>` the changed files beside it, both limited to the folder or
   file given (`git status` looks only there). **Stage all** and **Unstage all** act on that
