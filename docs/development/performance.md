@@ -151,6 +151,11 @@ blocks that are only passed through, that jump took 644 ms.
 - Highlighting the newest commit's history: 5.8 ms; jumping to the last block 1.5 s (the lit
   replay still uses the row-by-row step).
 
+Rows with the message body (2026-11-13): each row now also carries the rest of its message on
+one line (at most 300 characters), cut from the message already decoded for the subject. On
+the Linux kernel the first screen took 529–582 ms (graph 474–525 ms, then block 0 and 60 rows of
+text in 55 ms), within the noise of a warm run.
+
 ### Reusing the commit index (ADR 0010, 2026-10-28)
 
 `graph_spike`, release build, while the owner's dev app was running:

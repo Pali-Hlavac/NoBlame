@@ -31,6 +31,30 @@ export function splitPath(path: string): { name: string; folder: string } {
     : { name: path.slice(slash + 1), folder: path.slice(0, slash) };
 }
 
+/** Compares names as people read them: case aside, numbers by value (`file2` before `file10`). */
+const NAME_ORDER = new Intl.Collator(undefined, { sensitivity: "base", numeric: true });
+
+/**
+ * Orders two paths folder by folder, so a folder's files stay together (`src/a/x` before
+ * `src/a-b/x`, which byte order would swap); paths equal but for case keep git's order.
+ */
+export function comparePaths(a: string, b: string): number {
+  const left = a.split("/");
+  const right = b.split("/");
+  const shared = Math.min(left.length, right.length);
+  for (let index = 0; index < shared; index++) {
+    const order = NAME_ORDER.compare(left[index] ?? "", right[index] ?? "");
+    if (order !== 0) return order;
+  }
+  if (left.length !== right.length) return left.length - right.length;
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
+/** `files` sorted by their whole path (see {@link comparePaths}). */
+export function sortedByPath<T extends { path: string }>(files: readonly T[]): T[] {
+  return [...files].sort((a, b) => comparePaths(a.path, b.path));
+}
+
 /** Accessible description of one row, e.g. "main.ts, modified, in src/app". */
 export function describeFile(file: ListedFile): string {
   const { name, folder } = splitPath(file.path);

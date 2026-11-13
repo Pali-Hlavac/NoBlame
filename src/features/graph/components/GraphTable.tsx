@@ -80,7 +80,12 @@ export function GraphTable({ repoId, repoPath, hasWorkingTree, summary }: GraphT
   const autoGraphWidth =
     GRAPH_PADDING_PX * 2 +
     Math.min(Math.max(summary.maxLanes, 1), MAX_VISIBLE_LANES) * LANE_WIDTH_PX;
-  const { layout: columns, dateDisplay, actions } = useColumnLayout(size.width, autoGraphWidth);
+  const {
+    layout: columns,
+    dateDisplay,
+    showMessageBody,
+    actions,
+  } = useColumnLayout(size.width, autoGraphWidth);
   const nowMs = useNow(RELATIVE_DATE_REFRESH_MS, dateDisplay === "relative");
 
   const pages = pagesFor(
@@ -221,6 +226,7 @@ export function GraphTable({ repoId, repoPath, hasWorkingTree, summary }: GraphT
                 rows={rows}
                 columns={columns}
                 dateDisplay={dateDisplay}
+                showMessageBody={showMessageBody}
                 nowMs={nowMs}
                 rowText={rowText}
                 selectedIndex={selectedIndex}

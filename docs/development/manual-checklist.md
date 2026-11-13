@@ -114,6 +114,10 @@ Use `target\debug\noblame.exe` while the dev app runs.
       shows it in Commit details. `noblame filehistory <repo>/<folder>`: the folder's commits.
       `noblame blame <repo>/<folder>`: says a folder cannot be blamed.
   - Notes:
+- [ ] **(new)** Column menu → **Rest of the message**: commit bodies show greyed after the
+      subject; off again hides them. Settings → Commit → folder first: the Commit lists show
+      `folder/` greyed before the name, sorted by path.
+  - Notes:
 - [ ] **(new)** With a remote that has new commits: `noblame pull <repo>` asks how to pull;
       **Pull**: git's output in the window, a toast, the graph updated, and nothing in the
       main window if it is open. `noblame push <repo>` after a commit: the Push dialog, then

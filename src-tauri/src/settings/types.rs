@@ -3,6 +3,7 @@
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
+pub use super::commit::CommitSettings;
 pub use super::diff::DiffSettings;
 pub use super::graph::GraphSettings;
 
@@ -34,6 +35,8 @@ pub struct Settings {
     pub diff: DiffSettings,
     /// Branches module.
     pub branches: BranchesSettings,
+    /// Commit module.
+    pub commit: CommitSettings,
     /// Background jobs (fetch, pull, push).
     pub jobs: JobsSettings,
     /// User scripts: git command lines with placeholders, run on a commit from its menu.

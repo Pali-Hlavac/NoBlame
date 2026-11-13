@@ -22,6 +22,8 @@ interface GraphRowsProps {
   columns: ColumnLayout;
   /** How the date column shows dates, and the time relative dates count from. */
   dateDisplay: DateDisplay;
+  /** The message column shows the rest of the message, greyed, after the subject. */
+  showMessageBody: boolean;
   nowMs: number;
   /** Text of a commit, by graph row. */
   rowText: (row: number) => CommitRowDto | undefined;
@@ -41,11 +43,13 @@ interface CommitCellProps {
   /** By the highlighted commit's author. */
   byAuthor: boolean;
   dateDisplay: DateDisplay;
+  showMessageBody: boolean;
   nowMs: number;
 }
 
 /** One column of a commit row. */
-function CommitCell({ id, text, byAuthor, dateDisplay, nowMs }: CommitCellProps) {
+function CommitCell(props: CommitCellProps) {
+  const { id, text, byAuthor, dateDisplay, nowMs } = props;
   switch (id) {
     case "graph":
       // The canvas draws the graph below this empty cell.
@@ -59,7 +63,12 @@ function CommitCell({ id, text, byAuthor, dateDisplay, nowMs }: CommitCellProps)
           {text.stashes.map((stash) => (
             <StashBadge key={stash.index} stash={stash} />
           ))}
-          <span className="truncate">{text.summary}</span>
+          <span className="truncate">
+            {text.summary}
+            {props.showMessageBody && text.body && (
+              <span className="ml-2 text-muted-foreground">{text.body}</span>
+            )}
+          </span>
         </span>
       );
     case "author":
@@ -169,6 +178,7 @@ export function GraphRows(props: GraphRowsProps) {
               text={text}
               byAuthor={byAuthor}
               dateDisplay={props.dateDisplay}
+              showMessageBody={props.showMessageBody}
               nowMs={props.nowMs}
             />
           ))

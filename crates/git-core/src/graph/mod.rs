@@ -25,7 +25,9 @@ pub use ancestry::Ancestry;
 pub use commit_details::{
     CommitDetails, CommitLink, MAX_CONTAINING_REFS, Signature, commit_details,
 };
-pub use details::{CommitRow, CommitText, MAX_ROWS_PER_PAGE, commit_rows, commit_text};
+pub use details::{
+    CommitRow, CommitText, MAX_BODY_CHARS, MAX_ROWS_PER_PAGE, commit_rows, commit_text,
+};
 pub use encode::{
     ANCESTRY_FORMAT_VERSION, BLOCK_FORMAT_VERSION, FLAG_HEAD, FLAG_MERGE, encode_ancestry_block,
     encode_block,

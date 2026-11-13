@@ -1,5 +1,6 @@
 import type {
   BranchesSettings,
+  CommitSettings,
   JobsSettings,
   DiffSettings,
   ExternalDiffTool,
@@ -23,6 +24,7 @@ export interface AppSettings {
   repositories: Required<RepositoriesSettings>;
   diff: AppDiffSettings;
   branches: Required<BranchesSettings>;
+  commit: Required<CommitSettings>;
   jobs: Required<JobsSettings>;
   /** User scripts, in menu order. */
   scripts: { name: string; command: string }[];
@@ -44,6 +46,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     workingTree: "rows",
     columns: [...DEFAULT_GRAPH_COLUMNS],
     dateDisplay: "absolute",
+    showMessageBody: false,
   },
   repositories: {
     showActionsMenu: true,
@@ -62,6 +65,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     mergeTool: { kind: "git", name: "" },
   },
   branches: { sort: "name" },
+  commit: { fileDisplay: "nameFirst" },
   jobs: { showOutputWindow: false, closeOutputOnSuccess: true },
   scripts: [],
   keybindings: [],
@@ -80,6 +84,7 @@ export function withDefaults(settings: Settings | undefined): AppSettings {
       mergeTool: { ...DEFAULT_SETTINGS.diff.mergeTool, ...settings?.diff?.mergeTool },
     }),
     branches: { ...DEFAULT_SETTINGS.branches, ...settings?.branches },
+    commit: { ...DEFAULT_SETTINGS.commit, ...settings?.commit },
     jobs: { ...DEFAULT_SETTINGS.jobs, ...settings?.jobs },
     scripts: (settings?.scripts ?? []).map((script) => ({
       name: script.name ?? "",

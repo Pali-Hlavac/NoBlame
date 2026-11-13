@@ -9,6 +9,7 @@ function commit(refs: RefLabel[] = []): CommitRowDto {
     row: 0,
     id: "0123456789abcdef0123456789abcdef01234567",
     summary: "Fix the parser",
+    body: "",
     authorName: "Ada",
     authorEmail: "ada@example.com",
     authorTime: 0,

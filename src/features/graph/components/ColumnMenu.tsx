@@ -71,7 +71,8 @@ const DROPDOWN_KIT: MenuKit = {
 };
 
 function ColumnMenuItems({ kit }: { kit: MenuKit }) {
-  const { columns, dateDisplay, setColumns, setDateDisplay, resetColumns } = useGraphColumns();
+  const graph = useGraphColumns();
+  const { columns, dateDisplay, setColumns, setDateDisplay, resetColumns } = graph;
   return (
     <>
       <kit.Label>Columns</kit.Label>
@@ -91,6 +92,15 @@ function ColumnMenuItems({ kit }: { kit: MenuKit }) {
           {GRAPH_COLUMN_TITLES[column.id]}
         </kit.CheckboxItem>
       ))}
+      <kit.CheckboxItem
+        checked={graph.showMessageBody}
+        onCheckedChange={graph.setShowMessageBody}
+        onSelect={(event) => {
+          event.preventDefault();
+        }}
+      >
+        Rest of the message
+      </kit.CheckboxItem>
       <kit.Separator />
       <kit.Label>Dates</kit.Label>
       <kit.RadioGroup

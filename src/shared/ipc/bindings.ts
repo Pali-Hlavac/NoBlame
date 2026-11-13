@@ -880,6 +880,8 @@ export type CommitRowDto = {
 	id: string,
 	/**  First line of the message. */
 	summary: string,
+	/**  The rest of the message on one line (shortened); empty without one. */
+	body: string,
 	/**  Author name. */
 	authorName: string,
 	/**  Author e-mail. */
@@ -892,6 +894,12 @@ export type CommitRowDto = {
 	refs: RefLabel[],
 	/**  Stashes made on this commit (it is their base), newest first. */
 	stashes: StashLabel[],
+};
+
+/**  Commit module preferences. */
+export type CommitSettings = {
+	/**  How the Changes and Staged lists show each file. */
+	fileDisplay?: FileDisplay,
 };
 
 /**  The configured `commit.template`: its text, or why it could not be read. */
@@ -1293,6 +1301,13 @@ export type FileDiffDto = {
 	newSize: string,
 };
 
+/**  How a list shows a file's name and folder. */
+export type FileDisplay = 
+/**  The name, then its folder greyed; in git's order. */
+"nameFirst" | 
+/**  The folder greyed, then the name; sorted by the whole path, folder by folder. */
+"pathFirst";
+
 /**  A path's history: how many commits, its earlier names, and whether it is complete. */
 export type FileHistoryDto = {
 	/**  Commits in the history. */
@@ -1434,6 +1449,8 @@ export type GraphSettings = {
 	columns?: GraphColumn[],
 	/**  Dates as a date and time, or as the time since ("3 h ago"). */
 	dateDisplay?: DateDisplay,
+	/**  The message column shows the rest of the message, greyed, after the subject. */
+	showMessageBody?: boolean,
 };
 
 /**  Size and shape of a loaded graph. */
@@ -2444,6 +2461,8 @@ export type Settings = {
 	diff?: DiffSettings,
 	/**  Branches module. */
 	branches?: BranchesSettings,
+	/**  Commit module. */
+	commit?: CommitSettings,
 	/**  Background jobs (fetch, pull, push). */
 	jobs?: JobsSettings,
 	/**  User scripts: git command lines with placeholders, run on a commit from its menu. */

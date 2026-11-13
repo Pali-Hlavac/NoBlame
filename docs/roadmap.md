@@ -1174,6 +1174,18 @@ Slice 4 done (2026-11-12): Fetch, Pull and Push windows ([features/cli.md](featu
 Paused here at the owner's request (2026-11-12). Next: slice 5 (Switch, Merge, Rebase and
 Stash), then slice 6 (Clone, Create repository, the CLI reference and `--help` tests).
 
+Quality of life before slice 5 (owner request 2026-11-13; see the ideas inbox in
+[design/workbench.md](design/workbench.md#ideas-inbox)):
+
+- [x] Graph: the rest of the commit message, greyed, after the subject (setting, off by default)
+- [x] Commit module: files folder first, sorted by the whole path (setting; name first stays the
+      default)
+- [ ] Commit module: several files chosen at once (Ctrl, Shift, Ctrl+Shift) and staged together
+- [ ] Icons in context menus, coloured by kind of work (the commit graph's menu first)
+- [ ] Module stacks: two or more modules in one tab, one above the other; framed together in
+      the activity bar
+- [ ] Activity bar: drag to reorder (stacks move together), lock, hide icons under "…"
+
 ### M9: Polish and release
 
 - [ ] Third-party licence notices shipped with the installers (for example generated with

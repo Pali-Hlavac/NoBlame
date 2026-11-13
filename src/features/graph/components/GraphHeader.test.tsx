@@ -71,6 +71,17 @@ describe("GraphHeader", () => {
     });
   });
 
+  it("switches the rest of the message on from the columns menu", async () => {
+    const user = userEvent.setup();
+    renderHeader();
+    await user.click(await screen.findByRole("button", { name: "Columns" }));
+    await user.click(screen.getByRole("menuitemcheckbox", { name: "Rest of the message" }));
+    await waitFor(() => {
+      const saved = ipc.updateSettings.mock.calls.at(-1)?.[0] as Settings | undefined;
+      expect(saved?.graph?.showMessageBody).toBe(true);
+    });
+  });
+
   it("resizes a column with the arrow keys and resets it with Delete", async () => {
     const user = userEvent.setup();
     renderHeader();

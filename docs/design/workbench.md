@@ -235,3 +235,16 @@ Ideas from the owner, newest last, with where each one is planned.
   for every module → done (between M4 slices 3 and 4).
 - 2026-11-12: a setting to close a task window once its action succeeded (a commit, a pull, a
   push, …), as TortoiseGit does; the default to be decided → M8 (with slice 5 or 6).
+- 2026-11-13, quality of life before M8 slice 5 (all implemented at once):
+  - Combine two module tabs into one that shows them one above the other (Commit details over
+    Changed files); in the activity bar their icons sit together in a frame.
+  - Reorder the activity bar's icons by dragging (combined ones move together); a right-click
+    menu to lock the order and to hide icons, which then move under a "…" button above
+    Settings.
+  - A setting for the Commit module's files: the folder before the name, sorted by the whole
+    path, or as before (the folder stays grey) → done.
+  - Several files chosen at once in the Commit module, as in Windows (Ctrl, Shift, Ctrl+Shift),
+    to stage them together.
+  - Icons in context menus (not every item), coloured by what the item does: in the commit
+    graph's menu a branch icon before branches, a globe before remote branches.
+  - A setting to show the rest of the commit message in the graph, greyed → done.

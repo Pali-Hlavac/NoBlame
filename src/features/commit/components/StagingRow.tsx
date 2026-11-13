@@ -20,6 +20,8 @@ function stopRowPress(event: MouseEvent): void {
 interface StagingRowProps {
   file: WorkingFileDto;
   active: boolean;
+  /** The folder before the name (Settings → Commit). */
+  pathFirst: boolean;
   verb: StagingVerb;
   busy: boolean;
   onToggle: () => void;
@@ -33,7 +35,7 @@ export function StagingRow(props: StagingRowProps) {
   const Icon = verb.icon;
   return (
     <div className="group/row relative h-full">
-      <ChangedFileRow file={file} active={active} />
+      <ChangedFileRow file={file} active={active} pathFirst={props.pathFirst} />
       <span
         className={cn(
           "absolute top-1/2 right-1 flex -translate-y-1/2 gap-0.5 opacity-0 group-hover/row:opacity-100",

@@ -15,9 +15,17 @@ const STATUS_CLASSES: Readonly<Record<WorkingStatusDto, string>> = {
   conflicted: "text-destructive",
 };
 
+interface ChangedFileRowProps {
+  file: ListedFile;
+  active: boolean;
+  /** The folder (greyed) before the name, instead of after it. */
+  pathFirst?: boolean;
+}
+
 /** One file: status letter, name, folder, and the old name of a rename. */
-export function ChangedFileRow({ file, active }: { file: ListedFile; active: boolean }) {
+export function ChangedFileRow({ file, active, pathFirst = false }: ChangedFileRowProps) {
   const { name, folder } = splitPath(file.path);
+  const nameClass = cn("shrink-0 truncate", file.status === "deleted" && "line-through");
   return (
     <div
       className={cn(
@@ -38,12 +46,25 @@ export function ChangedFileRow({ file, active }: { file: ListedFile; active: boo
       {file.submodule && (
         <PackageIcon className="size-3.5 shrink-0 text-kind-submodules" aria-hidden />
       )}
-      <span className={cn("shrink-0 truncate", file.status === "deleted" && "line-through")}>
-        {name}
-      </span>
-      <span className="min-w-0 truncate text-xs text-muted-foreground">
-        {file.previousPath ? `← ${file.previousPath}` : folder}
-      </span>
+      {pathFirst ? (
+        // One run of text: the folder gives way first, so the name stays readable.
+        <span className="flex min-w-0 items-baseline">
+          {folder && <span className="min-w-0 truncate text-muted-foreground">{folder}/</span>}
+          <span className={nameClass}>{name}</span>
+          {file.previousPath && (
+            <span className="ml-2 min-w-0 truncate text-xs text-muted-foreground">
+              ← {file.previousPath}
+            </span>
+          )}
+        </span>
+      ) : (
+        <>
+          <span className={nameClass}>{name}</span>
+          <span className="min-w-0 truncate text-xs text-muted-foreground">
+            {file.previousPath ? `← ${file.previousPath}` : folder}
+          </span>
+        </>
+      )}
     </div>
   );
 }

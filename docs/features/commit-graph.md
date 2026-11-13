@@ -13,7 +13,7 @@ merges, message, author and path are done. Stash labels are done (M4 slice 5).
 | Column  | Content                                                                                  |
 | ------- | ---------------------------------------------------------------------------------------- |
 | Graph   | Lanes and commit nodes drawn on a canvas; capped at 16 lanes wide (wider graphs are cut) |
-| Message | Reference labels, then the first line of the commit message                              |
+| Message | Reference labels, then the first line of the commit message (and the rest, greyed)       |
 | Author  | Initials badge and author name (e-mail in the tooltip); see "Initials badges" below      |
 | Date    | Author date, local time, medium date and short time                                      |
 | Commit  | The first 8 characters of the commit id                                                  |
@@ -21,8 +21,13 @@ merges, message, author and path are done. Stash labels are done (M4 slice 5).
 Columns are chosen in Settings (`graph.columns`: order, `visible`, `width`; `graph.dateDisplay`:
 `absolute` or `relative`), from the column header or Settings → Commit graph:
 
-- The header's right-click menu and its columns button (same items): show or hide columns, the
-  date display, **Reset columns**. The message cannot be hidden.
+- The header's right-click menu and its columns button (same items): show or hide columns,
+  **Rest of the message**, the date display, **Reset columns**. The message cannot be hidden.
+- **Rest of the message** (`graph.showMessageBody`, off by default; also Settings → Commit
+  graph): the message column shows the body after the subject, greyed, as one line. Each row
+  carries it (`CommitRowDto.body`: whitespace runs as one space, at most 300 characters,
+  `MAX_BODY_CHARS`), taken from the message already decoded for the subject (owner request
+  2026-11-13).
 - Dragging a title moves its column (HTML drag and drop, `application/x-noblame-graph-column`);
   the graph stays first. Settings lists the columns with move up / down buttons for the
   keyboard.

@@ -1,4 +1,5 @@
-//! Commit graph preferences: highlight, working tree rows, columns and how dates are shown.
+//! Commit graph preferences: highlight, working tree rows, columns, how dates are shown and
+//! whether the message's body is.
 
 use serde::{Deserialize, Serialize};
 use specta::Type;
@@ -16,6 +17,8 @@ pub struct GraphSettings {
     pub columns: Vec<GraphColumn>,
     /// Dates as a date and time, or as the time since ("3 h ago").
     pub date_display: DateDisplay,
+    /// The message column shows the rest of the message, greyed, after the subject.
+    pub show_message_body: bool,
 }
 
 /// Where the working tree changes (staged, unstaged, untracked, conflicted) are shown.
@@ -91,6 +94,7 @@ impl Default for GraphSettings {
             .map(column)
             .to_vec(),
             date_display: DateDisplay::default(),
+            show_message_body: false,
         }
     }
 }

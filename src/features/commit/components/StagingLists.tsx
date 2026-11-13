@@ -1,7 +1,9 @@
 import { ChevronsDownIcon, ChevronsUpIcon, FolderXIcon, MinusIcon, PlusIcon } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
+import { sortedByPath } from "@/features/changed-files";
 import { select, selectFile, useSelectedFile, useSelection } from "@/features/selection";
+import { useAppSettings } from "@/features/settings";
 import {
   filesOf,
   totalOf,
@@ -61,6 +63,16 @@ export function StagingLists({ repoId, repoPath, showDiff }: StagingListsProps) 
   const discard = useDiscardFiles(repoId);
   const [discarding, setDiscarding] = useState<DiscardPlan | null>(null);
   const [ignoring, setIgnoring] = useState<string | null>(null);
+  const pathFirst = useAppSettings().commit.fileDisplay === "pathFirst";
+  const data = status.data ?? null;
+  // Each list as it is shown: git's order, or sorted by the whole path with the folder first.
+  const shown = useMemo(() => {
+    const list = (kind: WorkingTreeKind) => {
+      const files = data ? filesOf(data, kind) : [];
+      return pathFirst ? sortedByPath(files) : files;
+    };
+    return { worktree: list("worktree"), index: list("index") };
+  }, [data, pathFirst]);
 
   if (status.error) {
     return (
@@ -75,7 +87,7 @@ export function StagingLists({ repoId, repoPath, showDiff }: StagingListsProps) 
   if (status.data === undefined) {
     return <LoadingState label="Reading the status…" className="flex-1" />;
   }
-  if (status.data === null) {
+  if (data === null) {
     return (
       <EmptyState
         icon={FolderXIcon}
@@ -85,8 +97,6 @@ export function StagingLists({ repoId, repoPath, showDiff }: StagingListsProps) 
       />
     );
   }
-  const data = status.data;
-
   const choose = (kind: WorkingTreeKind, file: WorkingFileDto): void => {
     select(repoPath, { kind });
     selectFile(repoPath, file.path);
@@ -96,7 +106,7 @@ export function StagingLists({ repoId, repoPath, showDiff }: StagingListsProps) 
   /** Keeps a diff on screen: the next file of the list, or the moved file in its new list. */
   const moveChoice = (kind: WorkingTreeKind, file: WorkingFileDto, index: number): void => {
     if (selection?.kind !== kind || chosenPath !== file.path) return;
-    const next = neighbour(filesOf(data, kind), index);
+    const next = neighbour(shown[kind], index);
     if (next) selectFile(repoPath, next.path);
     else select(repoPath, { kind: kind === "worktree" ? "index" : "worktree" });
   };
@@ -108,7 +118,8 @@ export function StagingLists({ repoId, repoPath, showDiff }: StagingListsProps) 
         repoId={repoId}
         repoPath={repoPath}
         title={stage ? "Changes" : "Staged"}
-        files={filesOf(data, kind)}
+        files={shown[kind]}
+        pathFirst={pathFirst}
         total={totalOf(data.summary, kind)}
         verb={stage ? STAGE : UNSTAGE}
         chosen={selection?.kind === kind ? chosenPath : undefined}
@@ -155,7 +166,7 @@ export function StagingLists({ repoId, repoPath, showDiff }: StagingListsProps) 
         onDiscardAll={
           stage
             ? () => {
-                const files = filesOf(data, kind);
+                const files = shown[kind];
                 const truncated = totalOf(data.summary, kind) > files.length;
                 setDiscarding(discardPlan(files, { all: true, truncated }));
               }

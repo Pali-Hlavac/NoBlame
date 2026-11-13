@@ -1,4 +1,4 @@
-import type { BranchSort, WorkingTreeDisplay } from "@/shared/ipc/bindings";
+import type { BranchSort, FileDisplay, WorkingTreeDisplay } from "@/shared/ipc/bindings";
 
 import { useAppSettings, useChangeSettings } from "../hooks/useAppSettings";
 import { useDiffSettings } from "../hooks/useDiffSettings";
@@ -79,6 +79,11 @@ const BRANCH_SORT_OPTIONS: readonly { value: BranchSort; label: string }[] = [
   { value: "lastCommit", label: "By last commit, newest first" },
 ];
 
+const FILE_DISPLAY_OPTIONS: readonly { value: FileDisplay; label: string }[] = [
+  { value: "nameFirst", label: "The name, then its folder" },
+  { value: "pathFirst", label: "The folder, then the name, sorted by the whole path" },
+];
+
 /** The Settings tab: every preference, saved as soon as it changes. */
 export function SettingsView() {
   const settings = useAppSettings();
@@ -110,6 +115,14 @@ export function SettingsView() {
               }));
             }}
           />
+          <Toggle
+            label="Show the rest of the message"
+            description="The message column shows the commit message's body, greyed, after its subject (as one line)."
+            checked={settings.graph.showMessageBody}
+            onChange={(showMessageBody) => {
+              change((current) => ({ ...current, graph: { ...current.graph, showMessageBody } }));
+            }}
+          />
           <GraphColumnsSetting />
         </Section>
         <DiffSection />
@@ -120,6 +133,16 @@ export function SettingsView() {
             value={settings.branches.sort}
             onChange={(sort) => {
               change((current) => ({ ...current, branches: { ...current.branches, sort } }));
+            }}
+          />
+        </Section>
+        <Section title="Commit">
+          <Choice
+            legend="Files in the Changes and Staged lists"
+            options={FILE_DISPLAY_OPTIONS}
+            value={settings.commit.fileDisplay}
+            onChange={(fileDisplay) => {
+              change((current) => ({ ...current, commit: { ...current.commit, fileDisplay } }));
             }}
           />
         </Section>

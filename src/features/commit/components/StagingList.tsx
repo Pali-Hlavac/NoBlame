@@ -28,6 +28,8 @@ interface StagingListProps {
   /** All the files on this side; the list stops at 5,000. */
   total: number;
   verb: StagingVerb;
+  /** Rows show the folder before the name (Settings → Commit). */
+  pathFirst: boolean;
   /** Path of the file shown in the diff, when it is in this list. */
   chosen: string | undefined;
   busy: boolean;
@@ -141,6 +143,7 @@ export function StagingList(props: StagingListProps) {
                   <StagingRow
                     file={file}
                     active={active}
+                    pathFirst={props.pathFirst}
                     verb={verb}
                     busy={busy}
                     onToggle={() => {

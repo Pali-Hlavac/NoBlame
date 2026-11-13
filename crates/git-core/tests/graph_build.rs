@@ -3,7 +3,7 @@
 
 mod support;
 
-use git_core::graph::{Graph, RefKind, commit_rows};
+use git_core::graph::{Graph, MAX_BODY_CHARS, RefKind, commit_rows};
 use git_core::repo::Repository;
 use noblame_repo_gen::{Preset, generate, write_commit_graph};
 use support::Fixture;
@@ -133,6 +133,19 @@ fn non_utf8_messages_are_shown_lossily() {
     let (repo, graph) = build(&fixture.path());
     let row = &commit_rows(&repo, &graph, 0, 1).unwrap()[0];
     assert_eq!(row.summary, "caf\u{fffd}");
+    assert_eq!(row.body, "");
+}
+
+#[test]
+fn rows_carry_the_rest_of_the_message_on_one_line() {
+    let fixture = Fixture::new();
+    let long = "word ".repeat(100);
+    fixture.commit(&format!("Subject\n\nFirst  line\nsecond\tline\n\n{long}"));
+    let (repo, graph) = build(&fixture.path());
+    let row = &commit_rows(&repo, &graph, 0, 1).unwrap()[0];
+    assert_eq!(row.summary, "Subject");
+    assert!(row.body.starts_with("First line second line word word"));
+    assert_eq!(row.body.chars().count(), MAX_BODY_CHARS);
 }
 
 #[test]

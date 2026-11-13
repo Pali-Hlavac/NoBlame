@@ -30,6 +30,11 @@ limited to the folder or file given: see [cli.md](cli.md#task-windows-m8).
   `StagingList` with its count and **Stage all** / **Unstage all**. Rows reuse `ChangedFileRow`;
   a **+** / **−** button shows on hover and on the active row; **Space** moves the active row,
   Enter or a click chooses it.
+- **Files shown** (Settings → Commit, `commit.fileDisplay`, owner request 2026-11-13): the name
+  first with its folder greyed after it, in git's order (`nameFirst`, the default), or the folder
+  greyed then the name, sorted by the whole path (`pathFirst`): folder by folder, case aside,
+  numbers by value (`comparePaths` in `features/changed-files`), so `src/a/` comes before
+  `src/a-b/`. The Changed files module keeps its layout.
 - Choosing a file selects the matching working tree row (`select(repoPath, { kind })`) and the
   file (`selectFile`), so the graph, Changed files and the diff tab agree with the module.
 - When the chosen file moves to the other list, the next file of its list is chosen (or the one

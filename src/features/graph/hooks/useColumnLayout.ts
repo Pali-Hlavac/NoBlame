@@ -21,13 +21,19 @@ export interface ColumnActions {
 export function useColumnLayout(
   tableWidthPx: number,
   autoGraphWidthPx: number,
-): { layout: ColumnLayout; dateDisplay: DateDisplay; actions: ColumnActions } {
-  const { columns, dateDisplay, setColumns } = useGraphColumns();
+): {
+  layout: ColumnLayout;
+  dateDisplay: DateDisplay;
+  showMessageBody: boolean;
+  actions: ColumnActions;
+} {
+  const { columns, dateDisplay, showMessageBody, setColumns } = useGraphColumns();
   const [dragged, setDragged] = useState<{ id: GraphColumnId; widthPx: number } | null>(null);
   const shown = dragged ? updateColumn(columns, dragged.id, { width: dragged.widthPx }) : columns;
   return {
     layout: layoutColumns(tableWidthPx, autoGraphWidthPx, shown),
     dateDisplay,
+    showMessageBody,
     actions: {
       preview: (id, widthPx) => {
         setDragged({ id, widthPx });

@@ -29,6 +29,9 @@ The **Changes** list has the files you changed, new files (**?**) and files with
 - Staging a file with conflicts tells Git you have resolved them. NoBlame asks first; check that
   no conflict markers (`<<<<<<<`, `>>>>>>>`) are left in the file.
 
+Settings → Commit chooses how files are listed: the name first with its folder after it, or
+the folder first (greyed) and the name after it, sorted by the whole path.
+
 On a very large working tree, staging thousands of files can take a few seconds. The list says
 **Staging…** meanwhile.
 

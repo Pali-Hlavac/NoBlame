@@ -102,6 +102,8 @@ pub struct CommitRowDto {
     pub id: String,
     /// First line of the message.
     pub summary: String,
+    /// The rest of the message on one line (shortened); empty without one.
+    pub body: String,
     /// Author name.
     pub author_name: String,
     /// Author e-mail.
@@ -132,6 +134,7 @@ impl From<CommitRow> for CommitRowDto {
             row: row.row,
             id: row.id,
             summary: row.summary,
+            body: row.body,
             author_name: row.author_name,
             author_email: row.author_email,
             // Exact to the second up to the year 287 million: f64 holds 53-bit integers.

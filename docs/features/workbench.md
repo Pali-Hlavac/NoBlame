@@ -93,6 +93,8 @@ Settings shown there (stored in `settings.json`, see `src-tauri/src/settings/typ
 | Appearance           | Theme (System, Light, Dark)                                             | System  |
 | Commit graph         | Highlight the selected commit                                           | on      |
 | Commit graph         | Show uncommitted changes as (rows, header summary, not shown)           | rows    |
+| Commit graph         | Show the rest of the message (greyed, after the subject)                | off     |
+| Commit               | Files in the lists: name then folder, or folder then name by path       | name    |
 | Repositories         | Show the actions button (…) on repositories                             | on      |
 | Repositories         | Show the number of uncommitted files beside repositories                | off     |
 | Repositories         | Quick buttons: Pull, Push on repositories; Pull all, Push all on groups | none    |

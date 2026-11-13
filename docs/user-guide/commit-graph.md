@@ -16,6 +16,8 @@ You choose the columns:
 - Right-click the column titles, or click the columns button at the right end of them, to show
   or hide columns, show dates as **Date and time** or **Time since** ("3 h ago"; hover to see
   the date), or **Reset columns**. The message is always shown.
+- **Rest of the message** in the same menu (or Settings → Commit graph) shows the rest of each
+  commit message in grey after its first line.
 - Drag a column title onto another one to move it. The graph stays first.
 - Drag the line at the right edge of a title to make the column wider or narrower. Double-click
   the line to go back to the usual width. With the keyboard: Tab to the line, then Left or Right
