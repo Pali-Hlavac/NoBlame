@@ -32,6 +32,7 @@ Stashes and the toolbar arrive in M4 and M5.
 "preserve-pixel-size"`, owner request 2026-10-30).
 - **Popped-out modules**: a module's tab menu (right-click) has **Pop out**; the module then
   opens in a popup over the window instead of the dock (see below).
+- **Stacks** and the activity bar's arrangement: see below (owner request 2026-11-13).
 - **Document dock**: Welcome and repository tabs. Drag a tab to an edge to split the dock left,
   right, above or below. New tabs open in the focused group.
 - **Title bar** (custom, `features/window-frame`):
@@ -78,6 +79,52 @@ tab inside a Radix context menu) → **Pop out** or **Close**.
 - Modules ask `useModuleHost()` whether they are docked or in a popup, and can close it; only
   Commit uses it (diff beside the lists, closing after a commit).
 - **Reset layout** docks every module again.
+
+## Stacking modules
+
+Owner request 2026-11-13: modules shown together in one dock tab, one above the other.
+
+- **The model** (`lib/stacks.ts`): a stack is its module ids, top to bottom, with each module's
+  share of the height (`sizes`, percent; `null` for equal shares). A module is in at most one
+  stack. The stacks live in the workbench store and are saved with the layout (`stacks`).
+- **In the dock** a stack is one panel whose id names its modules (`stack:commit-details+changed-files`),
+  titled "Commit details + Changed files". `ModuleStackView` shows the modules in a vertical
+  react-resizable-panels group, each under a small header (icon, title), with splitters; the
+  sizes are read once when it mounts and saved when a drag ends.
+- **Keeping the dock in step** (`syncStacks` in `lib/stackDock.ts`, run after every stack change
+  and when the dock is restored): a module open on its own that is now stacked moves into its
+  stack's panel; the panel of a stack that changed or ended gives way to its modules' panels,
+  in the same group. So making, changing and ending a stack is a store change plus this pass.
+- **Opening** (activity bar, Alt+N, toolbar, palette, `openModuleById`): a stacked module opens
+  its stack's panel. The activity bar and `toggleModule` see every module of the stack in front
+  as visible.
+- **Menus** (`StackMenuItems`, in the module tab's menu and the activity bar's): **Stack with** /
+  **Add to this stack** (modules that are not stacked or popped out; the new module goes at the
+  bottom), **Take out of the stack** (a stack left with one module ends), **Unstack**. A stack's
+  tab has no **Pop out**; a popped-out module offers no stacking.
+- **Reset layout** ends every stack.
+
+## Arranging the activity bar
+
+Owner request 2026-11-13 (`lib/activityBar.ts`, `lib/barActions.ts`, `hooks/useBarDrag.ts`):
+
+- **Units**: each module is an icon; a stack's icons form one unit, framed (`role="group"`, named
+  after its modules), at the place of its first module, with one "showing" bar for the frame.
+- **Order** (`activityBar.order`, saved with the layout): module ids; modules missing from it
+  (new ones) follow in the registry's order. Dragging a unit onto another (HTML drag and drop,
+  `application/x-noblame-module-icon`) drops it before (upper half) or after (lower half);
+  **Move up** / **Move down** in its menu do the same with the keyboard. Making a stack gathers
+  its modules where the first one is.
+- **Hidden** (`activityBar.hidden`): units whose first module is listed sit under the **…**
+  button above the footer (`ActivityBarOverflow`): its items open the module; **Show in the
+  activity bar** brings one or all back. Hidden modules keep their shortcuts and palette entries.
+- **Locked** (`activityBar.locked`): no dragging, moving, hiding or showing; **Reset the order**
+  is disabled too. **Reset layout** keeps the lock and clears the order and hidden icons.
+- The bar's right-click menu (`ActivityBarMenu`) is for the icon under the pointer (set by its
+  `contextmenu` event, cleared first in the capture phase), or for the bar itself on empty
+  space: the stack entries, **Move up**, **Move down**, **Hide (under …)**, **Lock the icons**,
+  **Show all icons**, **Reset the order**.
+- Task windows start with no stacks and the default order, and keep changes only while open.
 
 ## Settings button
 
@@ -219,13 +266,16 @@ also be read with the keyboard. Pull and Push are disabled while no branch is ch
 
 ## Layout persistence
 
-- One layout for all repositories: both docks, the open tabs, the sidebar width and state, and
-  the popped-out modules (`popouts`; a layout without it has none).
+- One layout for all repositories: both docks, the open tabs, the sidebar width and state, the
+  popped-out modules (`popouts`; a layout without it has none), the stacks (`stacks`) and the
+  activity bar's order, hidden icons and lock (`activityBar`); layouts saved before these have
+  none and the default bar.
   It is saved 0.5 s after the last change into `workbench-layout.json` in the app config folder,
   and restored on the next start.
 - Restored tabs in the background do not open their repositories until they are first shown.
 - **Reset layout** (command palette) forgets the saved layout and rebuilds both docks with the
-  default arrangement; popped-out modules are docked again. Open tabs stay open.
+  default arrangement; popped-out modules are docked again, stacks end, the activity bar gets
+  its default order with every icon shown (a lock stays). Open tabs stay open.
 - A saved layout from another version, or one that cannot be read, is ignored and the default
   is used. Modules that no longer exist are dropped from a restored layout.
 

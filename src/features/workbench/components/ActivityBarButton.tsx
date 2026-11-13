@@ -11,6 +11,8 @@ interface ActivityBarButtonProps {
   iconClassName?: string;
   /** Shows a bar on the left, like VS Code, while what it opens is visible. */
   pressed: boolean;
+  /** Draw the bar for `pressed` (off inside a stack's frame, which draws it once). */
+  indicator?: boolean;
   onClick: () => void;
 }
 
@@ -20,6 +22,7 @@ export function ActivityBarButton({
   icon: Icon,
   iconClassName,
   pressed,
+  indicator = true,
   onClick,
 }: ActivityBarButtonProps) {
   return (
@@ -29,8 +32,10 @@ export function ActivityBarButton({
         aria-pressed={pressed}
         className={cn(
           "relative flex size-9 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring",
+          pressed && "text-foreground",
           pressed &&
-            "text-foreground before:absolute before:inset-y-1.5 before:-left-1 before:w-0.5 before:rounded-full before:bg-primary",
+            indicator &&
+            "before:absolute before:inset-y-1.5 before:-left-1 before:w-0.5 before:rounded-full before:bg-primary",
         )}
         onClick={onClick}
       >

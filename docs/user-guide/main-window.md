@@ -49,6 +49,27 @@ it again. You can also drag the line between the sidebar and the tabs to change 
 Modules sit in the sidebar as tabs. Drag a module's tab to move it: next to another tab, or to
 an edge to place it above or below the others.
 
+### Arranging the activity bar
+
+- **Move an icon**: drag it up or down the bar. With the keyboard, right-click it (Shift+F10)
+  and choose **Move up** or **Move down**.
+- **Hide an icon**: right-click it and choose **Hide**. Hidden icons move under the **…** button
+  above the gear; click **…** to open one of their modules, or choose **Show in the activity
+  bar** to bring it back. Their shortcuts keep working.
+- **Lock the icons**: right-click the bar and tick **Lock the icons**, so nothing moves or hides
+  by accident. **Reset the order** puts the icons back in their original order.
+
+### Stacking modules
+
+Two or more modules can share one tab, one above the other, for example Commit details over
+Changed files. Right-click a module's tab (or its icon) and choose **Stack with**, then the
+module to show below it. The stack's modules each have a small header; drag the line between
+them to share the height differently.
+
+In the activity bar a stack's icons sit together in a frame and move together. Clicking any of
+them opens the stack. To change a stack, right-click its tab or icons: **Add to this stack**,
+**Take out of the stack** (one module gets its own tab again) or **Unstack** (all of them do).
+
 ### Popping a module out
 
 Right-click a module's tab in the sidebar and choose **Pop out**. The module leaves the sidebar
@@ -167,11 +188,12 @@ version. See [Opening repositories](opening-repositories.md).
 ## NoBlame remembers your layout
 
 When you start NoBlame again, it reopens your tabs and puts the modules and tabs back where you
-left them, popped-out modules included. A repository in a tab you have not looked at yet is only opened when you switch to
+left them, popped-out modules, stacks and the order of the activity bar included. A repository in a tab you have not looked at yet is only opened when you switch to
 that tab.
 
 To go back to the original arrangement, open the command palette and run **Reset layout**. Your
-tabs stay open.
+tabs stay open; stacks end, and the activity bar shows every icon in its original order (a
+locked bar stays locked).
 
 ## Welcome tab
 

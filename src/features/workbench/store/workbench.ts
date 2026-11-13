@@ -1,7 +1,12 @@
-/** UI state of the workbench frame (sidebar, which modules are showing, popped-out modules). */
+/**
+ * UI state of the workbench frame: the sidebar, which modules are showing, popped-out modules,
+ * module stacks and the activity bar's arrangement.
+ */
 import { create } from "zustand";
 
+import { DEFAULT_ACTIVITY_BAR, type ActivityBarLayout } from "../lib/activityBar";
 import { DEFAULT_SIDEBAR_WIDTH_PX } from "../lib/layout";
+import type { ModuleStack } from "../lib/stacks";
 
 interface WorkbenchState {
   /** The module dock is hidden (the activity bar stays). */
@@ -17,6 +22,10 @@ interface WorkbenchState {
   popup: string | null;
   /** Popped-out modules shown at least once: their popups stay mounted (and keep state). */
   mountedPopups: string[];
+  /** Modules shown together, one above the other (see `lib/stacks.ts`). */
+  stacks: ModuleStack[];
+  /** Order, hidden icons and lock of the activity bar. */
+  activityBar: ActivityBarLayout;
   /** Bumped by "Reset layout"; the docks remount with the default layout. */
   layoutEpoch: number;
   setSidebarCollapsed: (collapsed: boolean) => void;
@@ -28,6 +37,9 @@ interface WorkbenchState {
   dock: (id: string) => void;
   showPopup: (id: string) => void;
   closePopup: () => void;
+  setStacks: (stacks: ModuleStack[]) => void;
+  setActivityBar: (patch: Partial<ActivityBarLayout>) => void;
+  /** Default docks, no stacks, the bar's default order; the bar stays locked if it was. */
   resetLayout: () => void;
 }
 
@@ -43,6 +55,8 @@ export const useWorkbenchStore = create<WorkbenchState>()((set) => ({
   poppedOut: [],
   popup: null,
   mountedPopups: [],
+  stacks: [],
+  activityBar: DEFAULT_ACTIVITY_BAR,
   layoutEpoch: 0,
   setSidebarCollapsed: (sidebarCollapsed) => {
     set({ sidebarCollapsed });
@@ -73,6 +87,12 @@ export const useWorkbenchStore = create<WorkbenchState>()((set) => ({
   closePopup: () => {
     set({ popup: null });
   },
+  setStacks: (stacks) => {
+    set({ stacks });
+  },
+  setActivityBar: (patch) => {
+    set((state) => ({ activityBar: { ...state.activityBar, ...patch } }));
+  },
   resetLayout: () => {
     set((state) => ({
       sidebarCollapsed: false,
@@ -80,6 +100,8 @@ export const useWorkbenchStore = create<WorkbenchState>()((set) => ({
       poppedOut: [],
       popup: null,
       mountedPopups: [],
+      stacks: [],
+      activityBar: { ...DEFAULT_ACTIVITY_BAR, locked: state.activityBar.locked },
       layoutEpoch: state.layoutEpoch + 1,
     }));
   },

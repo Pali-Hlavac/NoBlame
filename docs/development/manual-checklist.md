@@ -118,6 +118,16 @@ Use `target\debug\noblame.exe` while the dev app runs.
       subject; off again hides them. Settings → Commit → folder first: the Commit lists show
       `folder/` greyed before the name, sorted by path.
   - Notes:
+- [ ] **(new)** Right-click the Commit details tab → **Stack with** → Changed files: one tab
+      "Commit details + Changed files" with both, a splitter between them; in the activity bar
+      both icons framed together. Drag the splitter, restart: the sizes stay. Alt+3 and Alt+5
+      open the stack. **Unstack**: two tabs again.
+  - Notes:
+- [ ] **(new)** Drag the Stashes icon to the top of the activity bar; right-click Reflog →
+      **Hide**: a **…** button appears above the gear, and opens Reflog. Right-click the bar →
+      **Lock the icons**: dragging does nothing. Restart: order, hidden icon and lock kept.
+      **Reset layout**: default order, nothing hidden, still locked.
+  - Notes:
 - [ ] **(new)** Commit module with several changed files: click one, Ctrl+click two more,
       Space: all three are staged. Shift+click a range in Staged, right-click it: **Unstage N
       files**. Ctrl+A then **↶**: one question naming the files.

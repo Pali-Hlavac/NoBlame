@@ -5,14 +5,22 @@ import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/shared/ui/context-menu";
 
 import { popOutModule } from "../lib/popups";
+import { idsOfStackPanel, isStackPanelId } from "../lib/stacks";
+import { StackMenuItems } from "./StackMenuItems";
 
-/** A module's tab in the dock, with a right-click menu to pop the module out or close it. */
+/**
+ * A module's tab in the dock, with a right-click menu: stack it with another module (or change
+ * or end its stack), pop it out (not a stack), close it.
+ */
 export function ModuleTab(props: IDockviewPanelHeaderProps) {
   const { api } = props;
+  const stacked = isStackPanelId(api.id);
+  const [moduleId = api.id] = stacked ? idsOfStackPanel(api.id) : [api.id];
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
@@ -22,14 +30,18 @@ export function ModuleTab(props: IDockviewPanelHeaderProps) {
         </div>
       </ContextMenuTrigger>
       <ContextMenuContent>
-        <ContextMenuItem
-          onSelect={() => {
-            popOutModule(api.id);
-          }}
-        >
-          <PictureInPicture2Icon aria-hidden />
-          Pop out
-        </ContextMenuItem>
+        <StackMenuItems moduleId={moduleId} />
+        <ContextMenuSeparator />
+        {!stacked && (
+          <ContextMenuItem
+            onSelect={() => {
+              popOutModule(api.id);
+            }}
+          >
+            <PictureInPicture2Icon aria-hidden />
+            Pop out
+          </ContextMenuItem>
+        )}
         <ContextMenuItem
           onSelect={() => {
             api.close();

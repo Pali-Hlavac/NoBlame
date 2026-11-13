@@ -54,12 +54,31 @@ describe("parseSavedLayout", () => {
       documents: null,
       sidebar: { widthPx: DEFAULT_SIDEBAR_WIDTH_PX, collapsed: false },
       popouts: [],
+      stacks: [],
+      activityBar: { order: [], hidden: [], locked: false },
     });
   });
 
   it("keeps the popped-out modules", () => {
     const parsed = parseSavedLayout({ version: LAYOUT_VERSION, popouts: ["commit", 4] });
     expect(parsed?.popouts).toEqual(["commit"]);
+  });
+
+  it("keeps stacks and the activity bar, dropping what cannot be read", () => {
+    const parsed = parseSavedLayout({
+      version: LAYOUT_VERSION,
+      stacks: [
+        { modules: ["commit-details", "changed-files"], sizes: [40, 60] },
+        { modules: ["changed-files", "files"] },
+        { modules: ["branches"] },
+        "junk",
+      ],
+      activityBar: { order: ["branches", 3], hidden: ["lfs"], locked: true },
+    });
+    expect(parsed?.stacks).toEqual([
+      { modules: ["commit-details", "changed-files"], sizes: [40, 60] },
+    ]);
+    expect(parsed?.activityBar).toEqual({ order: ["branches"], hidden: ["lfs"], locked: true });
   });
 });
 

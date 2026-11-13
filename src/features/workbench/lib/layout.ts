@@ -6,6 +6,9 @@ import type { SerializedDockview } from "dockview-react";
 
 import { isWorkspaceTab, type WorkspaceTab } from "@/features/workspace";
 
+import { parseActivityBar, type ActivityBarLayout } from "./activityBar";
+import { parseStacks, type ModuleStack } from "./stacks";
+
 /** Bump when the shape changes incompatibly; older layouts are then ignored (default layout). */
 export const LAYOUT_VERSION = 1;
 
@@ -26,6 +29,10 @@ export interface SavedLayout {
   sidebar: SidebarLayout;
   /** Modules popped out of the dock (they open in a popup). Missing in older layouts. */
   popouts: string[];
+  /** Modules shown together in one tab. Missing in older layouts. */
+  stacks: ModuleStack[];
+  /** The activity bar's order, hidden icons and lock. Missing in older layouts. */
+  activityBar: ActivityBarLayout;
 }
 
 /** Panel parameters of a document panel. */
@@ -33,7 +40,7 @@ export interface DocumentParams {
   tab: WorkspaceTab;
 }
 
-/** Panel parameters of a module panel. */
+/** Panel parameters of a module panel (a stack's panel: its first module). */
 export interface ModuleParams {
   moduleId: string;
 }
@@ -69,6 +76,8 @@ export function parseSavedLayout(value: unknown): SavedLayout | null {
     popouts: Array.isArray(value.popouts)
       ? value.popouts.filter((id): id is string => typeof id === "string")
       : [],
+    stacks: parseStacks(value.stacks),
+    activityBar: parseActivityBar(value.activityBar),
   };
 }
 

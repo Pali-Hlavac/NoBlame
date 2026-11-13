@@ -13,14 +13,26 @@ import { EmptyState } from "@/shared/components/EmptyState";
 import { docks, MODULE_COMPONENT, scheduleLayoutSave } from "../lib/docks";
 import { DOCK_THEME } from "../lib/theme";
 import type { ModuleParams } from "../lib/layout";
+import { syncStacks } from "../lib/stackDock";
+import { isStackPanelId, modulesOfPanel, stackOfPanel } from "../lib/stacks";
 import { useWorkbenchStore } from "../store/workbench";
 import type { WorkbenchModule } from "../types";
+import { ModuleStackView } from "./ModuleStackView";
 import { ModuleTab } from "./ModuleTab";
 
 const ModulesContext = createContext<ReadonlyMap<string, WorkbenchModule>>(new Map());
 
-function ModulePanel({ params }: IDockviewPanelProps<ModuleParams>) {
-  const module = useContext(ModulesContext).get(params.moduleId);
+function ModulePanel({ params, api }: IDockviewPanelProps<ModuleParams>) {
+  const byId = useContext(ModulesContext);
+  const stack = useWorkbenchStore((state) => stackOfPanel(state.stacks, api.id));
+  if (isStackPanelId(api.id)) {
+    return stack ? (
+      <div className="h-full overflow-hidden bg-muted/30">
+        <ModuleStackView stack={stack} byId={byId} />
+      </div>
+    ) : null;
+  }
+  const module = byId.get(params.moduleId);
   if (!module) return null;
   const Content = module.component;
   return (
@@ -78,9 +90,13 @@ function addDefaultModules(
 
 /** Mirrors which modules are open and in front into the store (for the activity bar). */
 function publishModules(api: DockviewApi): void {
-  const open = api.panels.map((panel) => panel.id);
-  const visible = api.groups.flatMap((group) => group.activePanel?.id ?? []);
-  useWorkbenchStore.getState().setModules(open, visible);
+  const { stacks, setModules } = useWorkbenchStore.getState();
+  const modulesOf = (panelId: string) => modulesOfPanel(stacks, panelId);
+  const open = api.panels.flatMap((panel) => modulesOf(panel.id));
+  const visible = api.groups.flatMap((group) =>
+    group.activePanel ? modulesOf(group.activePanel.id) : [],
+  );
+  setModules(open, visible);
 }
 
 interface ModuleDockProps {
@@ -109,6 +125,8 @@ export function ModuleDock({ modules, defaultLayout, saved }: ModuleDockProps) {
 
   const onReady = ({ api }: DockviewReadyEvent): void => {
     docks.modules = api;
+    // Before the workbench's effect would: restoring stacks below needs the modules' titles.
+    docks.registered = modules;
     try {
       if (saved) api.fromJSON(saved);
     } catch (error) {
@@ -116,10 +134,14 @@ export function ModuleDock({ modules, defaultLayout, saved }: ModuleDockProps) {
       api.clear();
     }
     if (!saved || api.totalPanels === 0) addDefaultModules(api, defaultLayout, byId);
+    syncStacks(api);
     // Modules removed from the app since the layout was saved, and popped-out ones.
-    const { poppedOut } = useWorkbenchStore.getState();
+    const { poppedOut, stacks } = useWorkbenchStore.getState();
     for (const panel of [...api.panels]) {
-      if (!byId.has(panel.id) || poppedOut.includes(panel.id)) panel.api.close();
+      const known = isStackPanelId(panel.id)
+        ? stackOfPanel(stacks, panel.id) !== undefined
+        : byId.has(panel.id) && !poppedOut.includes(panel.id);
+      if (!known) panel.api.close();
     }
     publishModules(api);
     const onChange = (): void => {

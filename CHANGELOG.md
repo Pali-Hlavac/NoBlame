@@ -182,6 +182,13 @@ All notable changes to NoBlame are documented here. The format follows
   knows; it runs through `git mergetool`.
 - Commit graph: **Rest of the message** (column menu, Settings → Commit graph) shows each
   commit's message body, greyed, after its subject (owner request 2026-11-13).
+- Module stacks: **Stack with** in a module tab's or icon's menu shows modules one above the
+  other in one tab (Commit details over Changed files), framed together in the activity bar;
+  **Add to this stack**, **Take out of the stack**, **Unstack**; the shares of the height are
+  saved (owner request 2026-11-13).
+- Activity bar: drag icons to reorder them (stacks move together), **Move up** / **Move down**,
+  **Hide** icons under a **…** button above Settings, **Lock the icons**, **Reset the order**;
+  saved with the layout (owner request 2026-11-13).
 - Commit module: choose several files (Ctrl+click, Shift+click, Ctrl+Shift+click, Shift+arrows,
   Ctrl+A) and stage, unstage or discard them together with Space, a row's button or the menu
   (owner request 2026-11-13).

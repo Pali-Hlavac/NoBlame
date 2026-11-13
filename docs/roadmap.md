@@ -1183,9 +1183,12 @@ Quality of life before slice 5 (owner request 2026-11-13; see the ideas inbox in
 - [x] Commit module: several files chosen at once (Ctrl, Shift, Ctrl+Shift) and staged together
 - [x] Icons in context menus, coloured by kind of work: the commit graph's and the Branches
       module's (`shared/lib/actionIcons.ts`)
-- [ ] Module stacks: two or more modules in one tab, one above the other; framed together in
+- [x] Module stacks: two or more modules in one tab, one above the other; framed together in
       the activity bar
-- [ ] Activity bar: drag to reorder (stacks move together), lock, hide icons under "…"
+- [x] Activity bar: drag to reorder (stacks move together), lock, hide icons under "…"
+
+Done 2026-11-13, with tests; not clicked through in the running app (the owner's dev app was
+running, and a second instance would forward to it): see the manual checklist.
 
 ### M9: Polish and release
 

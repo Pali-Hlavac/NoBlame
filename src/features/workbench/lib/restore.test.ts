@@ -28,6 +28,8 @@ function savedLayout(): SavedLayout {
     documents,
     sidebar: { collapsed: false, widthPx: 280 },
     popouts: ["commit"],
+    stacks: [{ modules: ["commit-details", "changed-files"], sizes: null }],
+    activityBar: { order: ["branches"], hidden: ["lfs"], locked: true },
   };
 }
 
@@ -41,6 +43,11 @@ describe("restoreWorkbench", () => {
     expect(restoreWorkbench(saved)).toBe(saved);
     expect(useTabsStore.getState().tabs).toEqual([repo]);
     expect(useWorkbenchStore.getState().poppedOut).toEqual(["commit"]);
+    expect(useWorkbenchStore.getState().stacks[0]?.modules).toEqual([
+      "commit-details",
+      "changed-files",
+    ]);
+    expect(useWorkbenchStore.getState().activityBar.hidden).toEqual(["lfs"]);
   });
 
   it("applies a layout once, so a remount keeps the tabs opened since", () => {
