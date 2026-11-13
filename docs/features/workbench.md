@@ -283,7 +283,17 @@ their icon. One colour means one thing everywhere (owner, 2026-11-03):
 | `submodules`   | violet | Submodule rows and submodule entries in Changed files and Files (own token, same hue now) |
 
 Without a kind (Settings, About, Copy path, Rename) an icon keeps the text colour; icons on
-filled (primary) buttons keep the button's text colour. The colours are the `--kind-*` tokens in
+filled (primary) buttons keep the button's text colour.
+
+**Menu icons** (owner request 2026-11-13): the commit graph's context menu and the Branches
+module's show an icon before most entries, one per action wherever it appears
+(`src/shared/lib/actionIcons.ts`, by entry id; `MenuIcon` draws it). It takes the colour of the
+kind of work the action does: branch actions (check out, create a branch or tag, merge, rebase,
+push, upstream) violet, compare, browse, highlight and bisect teal, cherry-pick, revert and
+patches green; Delete is red (`text-destructive`); Copy and Rename keep the text colour. The
+references on a commit are submenus with a branch icon (branches), a globe (remote branches) or
+a tag. Entries without an icon keep its room when others in the same menu have one, so the
+labels line up. The colours are the `--kind-*` tokens in
 `src/app/styles.css` (light and dark); recolouring a kind is a change there only.
 
 ## Adding a module

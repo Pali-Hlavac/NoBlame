@@ -48,6 +48,24 @@ describe("CommitContextMenu", () => {
     expect(toggle).toHaveBeenCalled();
   });
 
+  it("shows a branch icon before branches and a globe before remote branches", async () => {
+    renderMenu({
+      ...COMMIT,
+      refs: [
+        { kind: "branch", name: "main", isHead: false },
+        { kind: "remote", name: "origin/main", isHead: false },
+      ],
+    });
+    fireEvent.contextMenu(screen.getByTestId("list"));
+    const branch = await screen.findByRole("menuitem", { name: "Branch main" });
+    const remote = screen.getByRole("menuitem", { name: "Remote branch origin/main" });
+    expect(branch.querySelector("svg.lucide-git-branch")).toHaveClass("text-kind-branches");
+    expect(remote.querySelector("svg.lucide-globe")).toHaveClass("text-kind-branches");
+    // Entries without an icon keep its room, so the labels line up.
+    const more = screen.getByRole("menuitem", { name: "More" });
+    expect(more.firstElementChild).toHaveClass("size-4");
+  });
+
   it("has no menu without a selected commit", () => {
     renderMenu(undefined);
     fireEvent.contextMenu(screen.getByTestId("list"));

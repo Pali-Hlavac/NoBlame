@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 
+import { MenuIcon } from "@/shared/components/MenuIcon";
 import type { RefEntry } from "@/shared/ipc/bindings";
+import { actionIcon } from "@/shared/lib/actionIcons";
 import { copyToClipboard } from "@/shared/lib/clipboard";
 import {
   ContextMenu,
@@ -53,6 +55,7 @@ export function BranchContextMenu({ repoId, entry, upstream, children }: BranchC
               <ContextMenuSeparator key={item.id} />
             ) : (
               <ContextMenuItem key={item.id} onSelect={item.run}>
+                <MenuIcon icon={actionIcon(item.id)} reserve />
                 {item.label}
               </ContextMenuItem>
             ),

@@ -246,5 +246,6 @@ Ideas from the owner, newest last, with where each one is planned.
   - Several files chosen at once in the Commit module, as in Windows (Ctrl, Shift, Ctrl+Shift),
     to stage them together.
   - Icons in context menus (not every item), coloured by what the item does: in the commit
-    graph's menu a branch icon before branches, a globe before remote branches.
+    graph's menu a branch icon before branches, a globe before remote branches → done (the
+    commit graph's and the Branches module's menus).
   - A setting to show the rest of the commit message in the graph, greyed → done.

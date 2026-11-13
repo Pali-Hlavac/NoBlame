@@ -182,6 +182,9 @@ All notable changes to NoBlame are documented here. The format follows
   knows; it runs through `git mergetool`.
 - Commit graph: **Rest of the message** (column menu, Settings → Commit graph) shows each
   commit's message body, greyed, after its subject (owner request 2026-11-13).
+- Icons in the commit graph's and the Branches module's context menus, coloured by the kind of
+  work each action does: a branch icon before branches, a globe before remote branches
+  (owner request 2026-11-13).
 - Commit module: Settings → Commit can list files folder first, sorted by the whole path,
   instead of name first (owner request 2026-11-13).
 - Fetch, Pull and Push windows (M8 slice 4): `noblame fetch|pull|push <path>` opens the

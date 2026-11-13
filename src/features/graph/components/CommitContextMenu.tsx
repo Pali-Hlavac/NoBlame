@@ -3,7 +3,9 @@ import { toast } from "sonner";
 
 import { WORKING_TREE } from "@/features/selection";
 import { openModuleById } from "@/features/workbench";
+import { MenuIcon } from "@/shared/components/MenuIcon";
 import type { CommitRowDto } from "@/shared/ipc/bindings";
+import { actionIcon } from "@/shared/lib/actionIcons";
 import { commands, toIpcError, unwrap } from "@/shared/ipc/client";
 import { copyToClipboard } from "@/shared/lib/clipboard";
 import {
@@ -23,8 +25,12 @@ import { commitMenu, type MenuEntry } from "../lib/commitMenu";
 import { shortId } from "../lib/format";
 import { RefActionsContext } from "../lib/refActions";
 
+/** The entries of one menu level; icons by entry id (`shared/lib/actionIcons.ts`). */
 function Entries({ entries }: { entries: readonly MenuEntry[] }) {
+  // Labels line up when some entries of this level have an icon and others do not.
+  const reserve = entries.some((entry) => entry.type !== "separator" && actionIcon(entry.id));
   return entries.map((entry) => {
+    const icon = <MenuIcon icon={actionIcon(entry.id)} reserve={reserve} />;
     switch (entry.type) {
       case "separator":
         return <ContextMenuSeparator key={entry.id} />;
@@ -32,6 +38,7 @@ function Entries({ entries }: { entries: readonly MenuEntry[] }) {
         return (
           <ContextMenuSub key={entry.id}>
             <ContextMenuSubTrigger>
+              {icon}
               <span className="max-w-64 truncate">{entry.label}</span>
             </ContextMenuSubTrigger>
             <ContextMenuSubContent>
@@ -49,6 +56,7 @@ function Entries({ entries }: { entries: readonly MenuEntry[] }) {
               if (!stub) entry.run?.();
             }}
           >
+            {icon}
             <span className="flex-1">{entry.label}</span>
             {entry.milestone && (
               <span className="text-xs text-muted-foreground">{entry.milestone}</span>
