@@ -32,7 +32,7 @@ function named(paths: readonly string[]): string {
   return more > 0 ? `${shown} and ${more.toLocaleString()} more` : shown;
 }
 
-/** The plan for `files` (one, or all listed); `null` when none of them can be discarded. */
+/** The plan for `files` (chosen, or all listed); `null` when none of them can be discarded. */
 export function discardPlan(
   files: readonly WorkingFileDto[],
   { all, truncated }: { all: boolean; truncated: boolean },
@@ -42,14 +42,14 @@ export function discardPlan(
   const untracked = kept.filter((file) => file.status === "untracked").map((file) => file.path);
   if (kept.length === 0) return null;
   const plan = { files: { tracked, untracked } };
-  if (!all && untracked.length === 1) {
+  if (!all && kept.length === 1 && untracked.length === 1) {
     return {
       ...plan,
       title: `Delete ${untracked[0] ?? ""}?`,
       description: `It is a new file Git does not track, so it is deleted for good (not moved to the recycle bin). ${NO_UNDO}`,
     };
   }
-  if (!all) {
+  if (!all && kept.length === 1) {
     return {
       ...plan,
       title: `Discard the changes to ${tracked[0] ?? ""}?`,
@@ -70,7 +70,9 @@ export function discardPlan(
   ].filter(Boolean);
   return {
     ...plan,
-    title: "Discard all changes in the working tree?",
+    title: all
+      ? "Discard all changes in the working tree?"
+      : `Discard the changes to ${count(kept.length, "file", "files")}?`,
     description: [`${parts.join("; ")}.`, ...notes, NO_UNDO].join(" "),
   };
 }

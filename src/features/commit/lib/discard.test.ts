@@ -25,6 +25,15 @@ describe("discardPlan", () => {
     expect(added?.description).toContain("deleted for good");
   });
 
+  it("names how many chosen files it discards", () => {
+    const plan = discardPlan([file("a", "modified"), file("b", "untracked")], {
+      all: false,
+      truncated: false,
+    });
+    expect(plan?.title).toBe("Discard the changes to 2 files?");
+    expect(plan?.description).toContain("1 changed file goes back to the staged version (a)");
+    expect(plan?.description).toContain("1 new file is deleted (b)");
+  });
   it("counts everything, leaves conflicts alone and says what was not listed", () => {
     const plan = discardPlan(
       [

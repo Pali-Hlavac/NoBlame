@@ -118,6 +118,10 @@ Use `target\debug\noblame.exe` while the dev app runs.
       subject; off again hides them. Settings → Commit → folder first: the Commit lists show
       `folder/` greyed before the name, sorted by path.
   - Notes:
+- [ ] **(new)** Commit module with several changed files: click one, Ctrl+click two more,
+      Space: all three are staged. Shift+click a range in Staged, right-click it: **Unstage N
+      files**. Ctrl+A then **↶**: one question naming the files.
+  - Notes:
 - [ ] **(new)** With a remote that has new commits: `noblame pull <repo>` asks how to pull;
       **Pull**: git's output in the window, a toast, the graph updated, and nothing in the
       main window if it is open. `noblame push <repo>` after a commit: the Push dialog, then

@@ -40,6 +40,8 @@ interface FileContextMenuProps {
   /** The file with the list's cursor; no menu while there is none. */
   file: MenuFile | undefined;
   actions?: readonly MenuAction[];
+  /** Several files are chosen: the menu names how many and offers only the list's actions. */
+  count?: number;
   /** The list; right-clicking a row moves the cursor first, so the menu is that row's. */
   children: ReactNode;
 }
@@ -54,8 +56,29 @@ export function FileContextMenu({
   repoPath,
   file,
   actions,
+  count,
   children,
 }: FileContextMenuProps) {
+  if (count !== undefined && count > 1) {
+    return (
+      <ContextMenu modal={false}>
+        <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
+        <ContextMenuContent aria-label={`Actions for ${count.toLocaleString()} files`}>
+          <ContextMenuLabel>{count.toLocaleString()} files</ContextMenuLabel>
+          <ContextMenuSeparator />
+          {actions?.map((action) => (
+            <ContextMenuItem
+              key={action.label}
+              disabled={action.disabled}
+              onSelect={action.onSelect}
+            >
+              {action.label}
+            </ContextMenuItem>
+          ))}
+        </ContextMenuContent>
+      </ContextMenu>
+    );
+  }
   return (
     <ContextMenu modal={false}>
       <ContextMenuTrigger asChild disabled={!file}>

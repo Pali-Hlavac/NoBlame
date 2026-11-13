@@ -4,6 +4,25 @@ import { useElementSize } from "@/shared/hooks/useElementSize";
 import { cn } from "@/shared/lib/cn";
 import { nextRow } from "@/shared/lib/listNavigation";
 
+/** How a row was reached, for lists that choose several rows (Ctrl or Cmd, Shift, a right click). */
+export interface RowGesture {
+  /** Ctrl, or Cmd on macOS. */
+  ctrl: boolean;
+  shift: boolean;
+  /** A mouse press, or a key (arrows, Page Up/Down, Home/End, Enter). */
+  via: "pointer" | "key";
+  /** Not the primary button (a right click opening the context menu). */
+  secondary: boolean;
+}
+
+function gestureOf(
+  event: { ctrlKey: boolean; metaKey: boolean; shiftKey: boolean },
+  via: RowGesture["via"],
+  secondary = false,
+): RowGesture {
+  return { ctrl: event.ctrlKey || event.metaKey, shift: event.shiftKey, via, secondary };
+}
+
 /** Rows rendered above and below the visible ones, so fast scrolling shows no gaps. */
 const OVERSCAN_ROWS = 8;
 
@@ -16,9 +35,11 @@ interface VirtualListProps {
   label: string;
   /** Row with keyboard focus (highlighted); controlled by the caller. */
   activeIndex: number | undefined;
-  onActiveChange: (index: number) => void;
+  onActiveChange: (index: number, gesture: RowGesture) => void;
   /** Enter, or pressing the mouse on a row. */
-  onActivate: (index: number) => void;
+  onActivate: (index: number, gesture: RowGesture) => void;
+  /** Rows chosen besides the active one (lists that choose several); the active row when unset. */
+  selected?: (index: number) => boolean;
   /** Content of one row. */
   renderRow: (index: number, active: boolean) => ReactNode;
   /** Accessible text of one row (screen readers announce it). */
@@ -29,7 +50,7 @@ interface VirtualListProps {
    */
   tree?: { level: (index: number) => number; expanded: (index: number) => boolean | undefined };
   /** Keys the list does not handle itself (a tree's Left and Right); true when handled. */
-  onKey?: (key: string, activeIndex: number | undefined) => boolean;
+  onKey?: (key: string, activeIndex: number | undefined, event: KeyboardEvent) => boolean;
   /** The rows rendered (on screen plus overscan) changed: fetch their pages. */
   onRangeChange?: (first: number, last: number) => void;
   className?: string;
@@ -73,17 +94,17 @@ export function VirtualList(props: VirtualListProps) {
   const onKeyDown = (event: KeyboardEvent): void => {
     if (event.key === "Enter" && activeIndex !== undefined) {
       event.preventDefault();
-      onActivate(activeIndex);
+      onActivate(activeIndex, gestureOf(event, "key"));
       return;
     }
-    if (props.onKey?.(event.key, activeIndex)) {
+    if (props.onKey?.(event.key, activeIndex, event)) {
       event.preventDefault();
       return;
     }
     const next = nextRow(event.key, activeIndex, count, Math.floor(size.height / rowHeight));
     if (next === null) return;
     event.preventDefault();
-    onActiveChange(next);
+    onActiveChange(next, gestureOf(event, "key"));
   };
 
   const rows = [];
@@ -94,7 +115,7 @@ export function VirtualList(props: VirtualListProps) {
         key={index}
         id={`${idPrefix}-${index}`}
         role={props.tree ? "treeitem" : "option"}
-        aria-selected={active}
+        aria-selected={props.selected ? props.selected(index) : active}
         aria-label={props.rowLabel(index)}
         aria-level={props.tree?.level(index)}
         aria-expanded={props.tree?.expanded(index)}
@@ -102,8 +123,14 @@ export function VirtualList(props: VirtualListProps) {
         style={{ top: index * rowHeight, height: rowHeight }}
         tabIndex={-1}
         onMouseDown={(event) => {
-          onActiveChange(index);
-          if (event.button === 0) onActivate(index);
+          const gesture = gestureOf(event, "pointer", event.button !== 0);
+          // Shift+click chooses a range of rows, not the text between them.
+          if (event.shiftKey) {
+            event.preventDefault();
+            scrollRef.current?.focus({ preventScroll: true });
+          }
+          onActiveChange(index, gesture);
+          if (event.button === 0) onActivate(index, gesture);
         }}
       >
         {props.renderRow(index, active)}
@@ -116,6 +143,7 @@ export function VirtualList(props: VirtualListProps) {
       ref={scrollRef}
       role={props.tree ? "tree" : "listbox"}
       aria-label={label}
+      aria-multiselectable={props.selected ? true : undefined}
       aria-activedescendant={
         activeIndex !== undefined && activeIndex >= first && activeIndex <= last
           ? `${idPrefix}-${activeIndex}`

@@ -1180,7 +1180,7 @@ Quality of life before slice 5 (owner request 2026-11-13; see the ideas inbox in
 - [x] Graph: the rest of the commit message, greyed, after the subject (setting, off by default)
 - [x] Commit module: files folder first, sorted by the whole path (setting; name first stays the
       default)
-- [ ] Commit module: several files chosen at once (Ctrl, Shift, Ctrl+Shift) and staged together
+- [x] Commit module: several files chosen at once (Ctrl, Shift, Ctrl+Shift) and staged together
 - [x] Icons in context menus, coloured by kind of work: the commit graph's and the Branches
       module's (`shared/lib/actionIcons.ts`)
 - [ ] Module stacks: two or more modules in one tab, one above the other; framed together in

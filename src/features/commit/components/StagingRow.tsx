@@ -7,7 +7,7 @@ import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/button";
 
 import { canDiscard } from "../lib/discard";
-import type { StagingVerb } from "./StagingList";
+import type { StagingVerb } from "../lib/verbs";
 
 /** A row's small button, shown on hover and on the active row. */
 const ROW_BUTTON_CLASSES = "size-5 bg-background/80";
@@ -19,30 +19,43 @@ function stopRowPress(event: MouseEvent): void {
 
 interface StagingRowProps {
   file: WorkingFileDto;
+  /** The list's cursor: its file's diff shows. */
   active: boolean;
+  /** Chosen (one of the files the list's actions take). */
+  selected: boolean;
+  /** Several files are chosen: the cursor is outlined so it stands out among them. */
+  many: boolean;
+  /** How many files the row's buttons act on (all chosen ones when it is one of them). */
+  count: number;
   /** The folder before the name (Settings → Commit). */
   pathFirst: boolean;
   verb: StagingVerb;
   busy: boolean;
   onToggle: () => void;
-  onDiscard?: (file: WorkingFileDto) => void;
-  onIgnore?: (file: WorkingFileDto) => void;
+  onDiscard?: () => void;
+  onIgnore?: () => void;
 }
 
 /** A file in the Commit module's lists, with its buttons (on hover and on the active row). */
 export function StagingRow(props: StagingRowProps) {
-  const { file, active, verb, busy, onToggle } = props;
+  const { file, active, verb, busy, count } = props;
   const Icon = verb.icon;
+  const what = count > 1 ? `${count.toLocaleString()} files` : file.path;
   return (
-    <div className="group/row relative h-full">
-      <ChangedFileRow file={file} active={active} pathFirst={props.pathFirst} />
+    <div
+      className={cn(
+        "group/row relative h-full",
+        active && props.many && "outline outline-1 -outline-offset-1 outline-ring",
+      )}
+    >
+      <ChangedFileRow file={file} active={props.selected} pathFirst={props.pathFirst} />
       <span
         className={cn(
           "absolute top-1/2 right-1 flex -translate-y-1/2 gap-0.5 opacity-0 group-hover/row:opacity-100",
           active && "opacity-100",
         )}
       >
-        {props.onIgnore && file.status === "untracked" && (
+        {props.onIgnore && count === 1 && file.status === "untracked" && (
           <Button
             variant="ghost"
             size="icon"
@@ -52,9 +65,7 @@ export function StagingRow(props: StagingRowProps) {
             title="Ignore (add to .gitignore)…"
             className={ROW_BUTTON_CLASSES}
             onMouseDown={stopRowPress}
-            onClick={() => {
-              props.onIgnore?.(file);
-            }}
+            onClick={props.onIgnore}
           >
             <EyeOffIcon aria-hidden />
           </Button>
@@ -65,13 +76,11 @@ export function StagingRow(props: StagingRowProps) {
             size="icon"
             tabIndex={-1}
             disabled={busy}
-            aria-label={`Discard ${file.path}…`}
+            aria-label={`Discard ${what}…`}
             title="Discard the changes…"
             className={ROW_BUTTON_CLASSES}
             onMouseDown={stopRowPress}
-            onClick={() => {
-              props.onDiscard?.(file);
-            }}
+            onClick={props.onDiscard}
           >
             <Undo2Icon aria-hidden />
           </Button>
@@ -81,13 +90,11 @@ export function StagingRow(props: StagingRowProps) {
           size="icon"
           tabIndex={-1}
           disabled={busy}
-          aria-label={`${verb.label} ${file.path}`}
+          aria-label={`${verb.label} ${what}`}
           title={`${verb.label} (Space)`}
           className={ROW_BUTTON_CLASSES}
           onMouseDown={stopRowPress}
-          onClick={() => {
-            onToggle();
-          }}
+          onClick={props.onToggle}
         >
           <Icon aria-hidden />
         </Button>

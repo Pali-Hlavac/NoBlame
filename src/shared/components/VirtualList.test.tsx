@@ -35,9 +35,9 @@ describe("VirtualList", () => {
     fireEvent.keyDown(list, { key: "ArrowDown" });
     expect(screen.getByRole("option", { name: "Item 1" })).toHaveAttribute("aria-selected", "true");
     fireEvent.keyDown(list, { key: "Enter" });
-    expect(onActivate).toHaveBeenLastCalledWith(1);
+    expect(onActivate).toHaveBeenLastCalledWith(1, expect.objectContaining({ via: "key" }));
     fireEvent.mouseDown(screen.getByRole("option", { name: "Item 3" }));
-    expect(onActivate).toHaveBeenLastCalledWith(3);
+    expect(onActivate).toHaveBeenLastCalledWith(3, expect.objectContaining({ via: "pointer" }));
     expect(list).toHaveAttribute("aria-activedescendant", expect.stringContaining("-3"));
   });
 });

@@ -1,24 +1,10 @@
-import { LoaderCircleIcon, Undo2Icon, type LucideIcon } from "lucide-react";
+import { LoaderCircleIcon, Undo2Icon } from "lucide-react";
 
-import { describeFile } from "@/features/changed-files";
 import type { WorkingFileDto } from "@/shared/ipc/bindings";
-import { VirtualList } from "@/shared/components/VirtualList";
 import { Button } from "@/shared/ui/button";
 
-import { StagingMenu } from "./StagingMenu";
-import { StagingRow } from "./StagingRow";
-
-/** Height of one row, in CSS pixels. */
-const ROW_HEIGHT_PX = 26;
-
-/** What the list's buttons do: "Stage" or "Unstage", with their icons. */
-export interface StagingVerb {
-  label: string;
-  /** Shown while git moves files out of this list, e.g. "Staging…". */
-  working: string;
-  icon: LucideIcon;
-  allIcon: LucideIcon;
-}
+import type { StagingVerb } from "../lib/verbs";
+import { StagingFiles } from "./StagingFiles";
 
 interface StagingListProps {
   repoId: number;
@@ -37,10 +23,11 @@ interface StagingListProps {
   working: boolean;
   empty: string;
   onChoose: (file: WorkingFileDto) => void;
-  onToggle: (file: WorkingFileDto, index: number) => void;
+  /** Stages or unstages these files (one, or the chosen ones). */
+  onToggle: (files: WorkingFileDto[]) => void;
   onToggleAll: () => void;
-  /** Throws away a file's changes (after asking); the Changes list only. */
-  onDiscard?: (file: WorkingFileDto) => void;
+  /** Throws these files' changes away (after asking); the Changes list only. */
+  onDiscard?: (files: WorkingFileDto[]) => void;
   /** Throws away every listed change (after asking). */
   onDiscardAll?: () => void;
   /** Adds an untracked file to an ignore file (after asking how). */
@@ -50,11 +37,10 @@ interface StagingListProps {
 /**
  * Changed or staged files under a bar with their count and a button that moves all of them.
  * Each row has a button (on hover) that moves the file to the other list; Space does the same
- * for the active row, Enter or a click shows its diff.
+ * for the chosen files, Enter or a click shows its diff (see `StagingFiles`).
  */
 export function StagingList(props: StagingListProps) {
-  const { files, verb, chosen, busy, onChoose, onToggle } = props;
-  const activeIndex = chosen === undefined ? -1 : files.findIndex((file) => file.path === chosen);
+  const { files, verb, busy } = props;
   const AllIcon = verb.allIcon;
   return (
     <section aria-label={props.title} className="flex min-h-24 flex-1 flex-col">
@@ -99,64 +85,20 @@ export function StagingList(props: StagingListProps) {
       {files.length === 0 ? (
         <p className="p-3 text-sm text-muted-foreground">{props.empty}</p>
       ) : (
-        <StagingMenu
+        <StagingFiles
           repoId={props.repoId}
           repoPath={props.repoPath}
-          file={files[activeIndex]}
-          index={activeIndex}
-          verb={verb.label}
+          title={props.title}
+          files={files}
+          verb={verb}
+          pathFirst={props.pathFirst}
+          chosen={props.chosen}
           busy={busy}
-          onChoose={onChoose}
-          onToggle={onToggle}
+          onChoose={props.onChoose}
+          onToggle={props.onToggle}
           onDiscard={props.onDiscard}
           onIgnore={props.onIgnore}
-        >
-          <div className="flex min-h-0 flex-1 flex-col">
-            <VirtualList
-              className="flex-1"
-              label={props.title}
-              count={files.length}
-              rowHeight={ROW_HEIGHT_PX}
-              activeIndex={activeIndex < 0 ? undefined : activeIndex}
-              onActiveChange={(index) => {
-                const file = files[index];
-                if (file) onChoose(file);
-              }}
-              onActivate={(index) => {
-                const file = files[index];
-                if (file) onChoose(file);
-              }}
-              onKey={(key, index) => {
-                const file = index === undefined ? undefined : files[index];
-                if (key !== " " || !file || index === undefined || busy) return false;
-                onToggle(file, index);
-                return true;
-              }}
-              rowLabel={(index) => {
-                const file = files[index];
-                return file ? describeFile(file) : "";
-              }}
-              renderRow={(index, active) => {
-                const file = files[index];
-                if (!file) return null;
-                return (
-                  <StagingRow
-                    file={file}
-                    active={active}
-                    pathFirst={props.pathFirst}
-                    verb={verb}
-                    busy={busy}
-                    onToggle={() => {
-                      onToggle(file, index);
-                    }}
-                    onDiscard={props.onDiscard}
-                    onIgnore={props.onIgnore}
-                  />
-                );
-              }}
-            />
-          </div>
-        </StagingMenu>
+        />
       )}
     </section>
   );

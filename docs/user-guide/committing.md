@@ -25,6 +25,10 @@ The **Changes** list has the files you changed, new files (**?**) and files with
 - Click a file to see its diff.
 - Point at a file and click **+** to stage it, or **−** to unstage it. With the keyboard, move to
   the file with the arrows and press **Space**.
+- To move several files, choose them first, as in your file manager: **Ctrl+click** (⌘+click on
+  a Mac) adds or removes a file, **Shift+click** chooses every file from the last one you
+  clicked, **Ctrl+Shift+click** adds those, **Ctrl+A** chooses all. Then press **Space**, click
+  **+** (or **−**) on one of them, or right-click them: what you do applies to all of them.
 - **Stage all** and **Unstage all** move every file at once.
 - Staging a file with conflicts tells Git you have resolved them. NoBlame asks first; check that
   no conflict markers (`<<<<<<<`, `>>>>>>>`) are left in the file.

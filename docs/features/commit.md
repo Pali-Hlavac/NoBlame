@@ -30,6 +30,18 @@ limited to the folder or file given: see [cli.md](cli.md#task-windows-m8).
   `StagingList` with its count and **Stage all** / **Unstage all**. Rows reuse `ChangedFileRow`;
   a **+** / **−** button shows on hover and on the active row; **Space** moves the active row,
   Enter or a click chooses it.
+- **Several files at once** (owner request 2026-11-13; `StagingFiles`, `lib/pick.ts`): each list
+  keeps its own choice, as a file manager does. A click chooses one file; Ctrl+click (Cmd on
+  macOS) adds or removes one; Shift+click chooses from the last plain click to here;
+  Ctrl+Shift+click adds that range; Shift+arrows extend, Ctrl+arrows move without choosing,
+  Ctrl+Space adds or removes the cursor's file, Ctrl+A chooses every listed file. The cursor
+  (outlined when several are chosen) is the file whose diff shows. **Space**, a chosen row's
+  **+** / **−** / **↶** and the menu act on every chosen file ("Stage 3 files", "Discard the
+  changes to 3 files…"; with conflicted files the question says how many it marks resolved).
+  A right click on a chosen file keeps the choice; on another file it chooses that one. The
+  choice lapses when the cursor moves from outside (another file shown, the next file after
+  staging). `VirtualList` passes each press and move with its keys (`RowGesture`) and marks
+  chosen rows with `aria-selected` (`aria-multiselectable`).
 - **Files shown** (Settings → Commit, `commit.fileDisplay`, owner request 2026-11-13): the name
   first with its folder greyed after it, in git's order (`nameFirst`, the default), or the folder
   greyed then the name, sorted by the whole path (`pathFirst`): folder by folder, case aside,

@@ -244,7 +244,7 @@ Ideas from the owner, newest last, with where each one is planned.
   - A setting for the Commit module's files: the folder before the name, sorted by the whole
     path, or as before (the folder stays grey) → done.
   - Several files chosen at once in the Commit module, as in Windows (Ctrl, Shift, Ctrl+Shift),
-    to stage them together.
+    to stage them together → done.
   - Icons in context menus (not every item), coloured by what the item does: in the commit
     graph's menu a branch icon before branches, a globe before remote branches → done (the
     commit graph's and the Branches module's menus).

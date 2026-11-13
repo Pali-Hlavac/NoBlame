@@ -1,11 +1,8 @@
-import { ChevronsDownIcon, ChevronsUpIcon, FolderXIcon, MinusIcon, PlusIcon } from "lucide-react";
-import { useMemo, useState } from "react";
+import { FolderXIcon } from "lucide-react";
+import { useState } from "react";
 
-import { sortedByPath } from "@/features/changed-files";
 import { select, selectFile, useSelectedFile, useSelection } from "@/features/selection";
-import { useAppSettings } from "@/features/settings";
 import {
-  filesOf,
   totalOf,
   useDiscardFiles,
   useWorkingTreeStatus,
@@ -20,22 +17,11 @@ import { LoadingState } from "@/shared/components/LoadingState";
 
 import { useIndexChange, type IndexChange } from "../api/commit";
 import { discardPlan, type DiscardPlan } from "../lib/discard";
-import { indexPaths, neighbour } from "../lib/files";
+import { useShownFiles } from "../hooks/useShownFiles";
+import { indexPaths, neighbour, resolveQuestion } from "../lib/files";
 import { IgnoreDialog } from "./IgnoreDialog";
-import { StagingList, type StagingVerb } from "./StagingList";
-
-const STAGE: StagingVerb = {
-  label: "Stage",
-  working: "Staging…",
-  icon: PlusIcon,
-  allIcon: ChevronsDownIcon,
-};
-const UNSTAGE: StagingVerb = {
-  label: "Unstage",
-  working: "Unstaging…",
-  icon: MinusIcon,
-  allIcon: ChevronsUpIcon,
-};
+import { STAGE, UNSTAGE } from "../lib/verbs";
+import { StagingList } from "./StagingList";
 
 /** A change waiting for the user to confirm it. */
 interface Pending {
@@ -63,16 +49,8 @@ export function StagingLists({ repoId, repoPath, showDiff }: StagingListsProps) 
   const discard = useDiscardFiles(repoId);
   const [discarding, setDiscarding] = useState<DiscardPlan | null>(null);
   const [ignoring, setIgnoring] = useState<string | null>(null);
-  const pathFirst = useAppSettings().commit.fileDisplay === "pathFirst";
   const data = status.data ?? null;
-  // Each list as it is shown: git's order, or sorted by the whole path with the folder first.
-  const shown = useMemo(() => {
-    const list = (kind: WorkingTreeKind) => {
-      const files = data ? filesOf(data, kind) : [];
-      return pathFirst ? sortedByPath(files) : files;
-    };
-    return { worktree: list("worktree"), index: list("index") };
-  }, [data, pathFirst]);
+  const { lists: shown, pathFirst } = useShownFiles(data);
 
   if (status.error) {
     return (
@@ -103,10 +81,12 @@ export function StagingLists({ repoId, repoPath, showDiff }: StagingListsProps) 
     if (showDiff) showDiffTab();
   };
 
-  /** Keeps a diff on screen: the next file of the list, or the moved file in its new list. */
-  const moveChoice = (kind: WorkingTreeKind, file: WorkingFileDto, index: number): void => {
-    if (selection?.kind !== kind || chosenPath !== file.path) return;
-    const next = neighbour(shown[kind], index);
+  /** Keeps a diff on screen: the next file that stays in the list, or the other list. */
+  const moveChoice = (kind: WorkingTreeKind, files: readonly WorkingFileDto[]): void => {
+    const moved = new Set(files.map((file) => file.path));
+    if (selection?.kind !== kind || chosenPath === undefined || !moved.has(chosenPath)) return;
+    const index = shown[kind].findIndex((file) => file.path === chosenPath);
+    const next = neighbour(shown[kind], index, moved);
     if (next) selectFile(repoPath, next.path);
     else select(repoPath, { kind: kind === "worktree" ? "index" : "worktree" });
   };
@@ -129,13 +109,14 @@ export function StagingLists({ repoId, repoPath, showDiff }: StagingListsProps) 
         onChoose={(file) => {
           choose(kind, file);
         }}
-        onToggle={(file, index) => {
-          const change = { stage, paths: indexPaths(file) };
-          if (file.status === "conflicted") {
-            setPending({ title: `Mark ${file.path} as resolved?`, change });
+        onToggle={(files) => {
+          const change = { stage, paths: indexPaths(files) };
+          const question = resolveQuestion(files);
+          if (question !== null) {
+            setPending({ title: question, change });
             return;
           }
-          moveChoice(kind, file, index);
+          moveChoice(kind, files);
           indexChange.mutate(change);
         }}
         onToggleAll={() => {
@@ -151,8 +132,8 @@ export function StagingLists({ repoId, repoPath, showDiff }: StagingListsProps) 
         }}
         onDiscard={
           stage
-            ? (file) => {
-                setDiscarding(discardPlan([file], { all: false, truncated: false }));
+            ? (files) => {
+                setDiscarding(discardPlan(files, { all: false, truncated: false }));
               }
             : undefined
         }
