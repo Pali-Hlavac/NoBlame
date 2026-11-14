@@ -78,5 +78,7 @@ Architecture decision records: [adr/README.md](adr/README.md).
 - [standards.md](development/standards.md): code standards and conventions
 - [testing.md](development/testing.md): test layers, fixtures, the synthetic repository generator
 - [performance.md](development/performance.md): benchmarks, large repositories, recorded numbers
+- [dependencies.md](development/dependencies.md): vulnerability, licence and source checks of
+  third-party packages (`cargo-deny`, `pnpm audit`)
 - [release.md](development/release.md): versioning and releases
 - [troubleshooting.md](development/troubleshooting.md): known build and runtime problems

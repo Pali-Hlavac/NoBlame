@@ -52,6 +52,9 @@ the file earlier (it took 11 s for Linux), or show rows while indexing. Decide i
 - [x] ESLint/Prettier/rustfmt/clippy, file-size check, husky + lint-staged + commitlint
 - [~] CI workflow (lint, types, tests on Linux/Windows/macOS): written; not run yet because the
   repository has no GitHub remote. Linux and macOS have not been built locally either.
+- [~] Dependency audit (added 2026-11-14): `cargo-deny` (advisories, licences, crates.io only)
+  and `pnpm audit` in `.github/workflows/dependencies.yml`, also weekly; `pnpm deps:check`
+  locally. Passes locally; the workflow has not run yet (no GitHub remote).
 - [x] `CLAUDE.md`, docs skeleton, `project-brief.md`, ADRs 0001-0007 + 0015, CHANGELOG. ADR 0008
       stays in M2 as the ADR plan below says (this line used to say 0001-0008).
 

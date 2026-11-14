@@ -26,6 +26,7 @@
     "bindings": "cargo test -p noblame --lib export_bindings",
     "repos:generate": "cargo run --release -p noblame-repo-gen --",
     "bench": "cargo bench --workspace",
+    "deps:check": "pnpm audit --prod && pnpm audit --audit-level high && cargo deny check",
     "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm lint:rust && pnpm test:rust",
     "prepare": "husky"
   },

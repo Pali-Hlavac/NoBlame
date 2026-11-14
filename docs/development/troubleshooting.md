@@ -6,6 +6,13 @@
 or Smart App Control blocks freshly built, unsigned executables. Add an exclusion for the
 repository folder (it holds `target/`).
 
+**`cargo install` fails with "Access is denied", or the installed tool will not start
+(Windows).** Same cause: `cargo install` builds in `%TEMP%` and installs into `~/.cargo/bin`,
+both outside the exclusion. Build and install inside the repository instead, for example
+`cargo install cargo-deny --locked --root target/tools --target-dir target/cargo-install`,
+then run `target/tools/bin/cargo-deny.exe check` (or put that folder on `PATH`), or add an
+exclusion for `~/.cargo/bin`.
+
 **`cargo test` exits with `STATUS_ENTRYPOINT_NOT_FOUND` (Windows).** The Common-Controls
 manifest is missing. `src-tauri/build.rs` embeds `windows-app-manifest.xml` through linker
 arguments for every artifact; check that this code is still there.

@@ -1,0 +1,67 @@
+# cargo-deny: known vulnerabilities, licences and where crates come from.
+# Run locally with `pnpm deps:check` (needs `cargo install cargo-deny --locked`); CI runs it in
+# .github/workflows/dependencies.yml. See docs/development/dependencies.md.
+
+[graph]
+# Check every platform the app ships on, not only the one cargo-deny runs on.
+targets = [
+  "x86_64-pc-windows-msvc",
+  "aarch64-pc-windows-msvc",
+  "x86_64-unknown-linux-gnu",
+  "aarch64-unknown-linux-gnu",
+  "x86_64-apple-darwin",
+  "aarch64-apple-darwin",
+]
+
+[advisories]
+# Every advisory fails the check unless it is listed here with the reason it does not reach us.
+# Review this list when updating Tauri, syntect or specta: entries should disappear.
+# Not listed because "unsound" advisories are reported only for our direct dependencies
+# (cargo-deny's default `unsound = "workspace"`): RUSTSEC-2024-0429, glib 0.18 VariantStrIter,
+# Linux only via Tauri's gtk3 stack (fixed only in glib 0.20, which the gtk3 bindings will not
+# get); NoBlame never iterates GVariant strings.
+# A withdrawn (yanked) release fails too; `cargo update -p <crate>` usually fixes it.
+yanked = "deny"
+ignore = [
+  { id = "RUSTSEC-2025-0141", reason = "bincode unmaintained: syntect and two-face use it only to load the syntax sets built into the binary, never data from repositories" },
+  { id = "RUSTSEC-2024-0436", reason = "paste unmaintained: compile-time macro used by specta, no runtime code" },
+  { id = "RUSTSEC-2024-0370", reason = "proc-macro-error unmaintained: compile-time macro of glib-macros (Linux, Tauri's gtk3 stack), no runtime code" },
+  { id = "RUSTSEC-2026-0370", reason = "zvariant unmaintained: Linux D-Bus for tauri-plugin-opener and single-instance, talks only to the local session bus" },
+  { id = "RUSTSEC-2026-0371", reason = "zbus_names unmaintained: as zvariant" },
+  { id = "RUSTSEC-2026-0372", reason = "zvariant_derive unmaintained: as zvariant, compile-time macro" },
+]
+
+[licenses]
+# Permissive licences only, plus MPL-2.0 (file-level copyleft: it binds changes to those
+# crates' own files, not NoBlame) which Tauri's HTML parsing and `dirs` need. No GPL/LGPL/AGPL.
+allow = [
+  "0BSD",
+  "Apache-2.0",
+  "Apache-2.0 WITH LLVM-exception",
+  "BSD-2-Clause",
+  "BSD-3-Clause",
+  "CC0-1.0",
+  "ISC",
+  "MIT",
+  "MIT-0",
+  "MPL-2.0",
+  "Unicode-3.0",
+  "Unlicense",
+  "Zlib",
+]
+confidence-threshold = 0.9
+# Our own crates have no licence yet (docs/roadmap.md, open question) and are not published.
+private = { ignore = true }
+
+[bans]
+# Tauri pulls several versions of windows-sys, bitflags and friends; duplicates are not a risk.
+multiple-versions = "allow"
+# `*` versions could pull anything; path dependencies inside the workspace are fine.
+wildcards = "deny"
+allow-wildcard-paths = true
+
+[sources]
+# Only crates.io: no git dependencies or other registries without a review.
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]

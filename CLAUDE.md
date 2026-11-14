@@ -172,7 +172,8 @@ React feature component
 | History and blame timing      | `cargo run --release -p git-core --example history_spike -- <repo> <path>`                |
 | Compare timing                | `cargo run --release -p git-core --example compare_spike -- <repo> <base> <target>`       |
 | Status timing                 | `cargo run --release -p git-core --example status_spike -- <repo>`                        |
-| Everything CI runs            | `pnpm check`                                                                              |
+| Dependency audit              | `pnpm deps:check` (needs `cargo-deny`; see `docs/development/dependencies.md`)            |
+| Everything CI runs            | `pnpm check` (the dependency audit runs as its own workflow)                              |
 
 ## Gotchas
 

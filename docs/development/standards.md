@@ -68,3 +68,5 @@ Conventional Commits (`feat:`, `fix:`, `perf:`, `docs:`, `test:`, `chore:`, `ref
 
 Check the licence of every new dependency (no GPL code in the app). Pin pre-releases exactly and
 record fragile pins in CLAUDE.md → Gotchas. Never copy code from Git Extensions or TortoiseGit.
+Run `pnpm deps:check` after adding or updating dependencies; CI checks advisories, licences and
+sources too ([dependencies.md](dependencies.md)).

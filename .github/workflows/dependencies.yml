@@ -1,0 +1,47 @@
+name: Dependencies
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # New advisories are published without any change here: check every Monday.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: dependencies-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust:
+    name: Rust crates (cargo-deny)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      # Policy and the accepted advisories live in deny.toml.
+      - name: Advisories
+        uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check advisories
+      - name: Licences, bans and sources
+        if: ${{ !cancelled() }}
+        uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check licenses bans sources
+
+  npm:
+    name: npm packages (pnpm audit)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # pnpm audit reads pnpm-lock.yaml; no install needed.
+      - name: Shipped packages (any severity)
+        run: pnpm audit --prod
+      - name: Dev tooling (high and critical)
+        if: ${{ !cancelled() }}
+        run: pnpm audit --audit-level high

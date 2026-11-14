@@ -456,6 +456,11 @@ All notable changes to NoBlame are documented here. The format follows
   100k or 1M commits, merges, octopus merges, thousands of branches and tags.
 - Tooling: ESLint, Prettier, rustfmt, clippy (pedantic), file-size check, husky + lint-staged +
   commitlint, CI on Linux, Windows and macOS.
+- Dependency audit: `cargo-deny` checks Rust crates for advisories, yanked releases, licences
+  (permissive and MPL-2.0 only) and sources (crates.io only); `pnpm audit` checks npm packages.
+  Runs in CI on pushes, pull requests and weekly, and locally with `pnpm deps:check`. The
+  accepted advisories and their reasons are in `deny.toml`. `async-executor` moved from the
+  yanked 1.14.0 to 1.14.1.
 - Documentation: project brief, getting started, architecture, feature pages, user guide,
   ADRs 0001–0007 and 0015, development guides.
 
