@@ -121,4 +121,36 @@ describe("uncommitted file counts", () => {
     expect(ipc.getChangeCounts).not.toHaveBeenCalled();
     expect(ipc.getStatus).not.toHaveBeenCalled();
   });
+
+  it("counts the submodules too", async () => {
+    ipc.listSubmodules.mockResolvedValue({
+      status: "ok",
+      data: [
+        {
+          name: "libs/core",
+          path: "libs/core",
+          workDir: "/r/open/libs/core",
+          url: null,
+          initialized: true,
+          recorded: "b".repeat(40),
+          checkedOut: "b".repeat(40),
+          children: [],
+        },
+      ],
+    });
+    ipc.getChangeCounts.mockImplementation((path: string) =>
+      Promise.resolve({
+        status: "ok",
+        data:
+          path === "/r/open/libs/core"
+            ? { added: 0, changed: 4, deleted: 0 }
+            : { added: 0, changed: 0, deleted: 0 },
+      }),
+    );
+    renderModule(true);
+    // Under the open repository and under it in the group.
+    const rows = await screen.findAllByRole("button", { name: /^libs\/core, 4 changed/ });
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toHaveTextContent("~4");
+  });
 });

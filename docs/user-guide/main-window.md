@@ -116,8 +116,8 @@ Under **Recent** are the repositories you opened before. Hover over one and clic
 it from the list. The buttons at the top open or create a repository.
 
 To see which repositories have work that is not committed yet, switch on **Settings →
-Repositories → Show the number of uncommitted files beside repositories**. Each repository then
-shows, at the right, how many files are new (**+**, green), changed (**~**, yellow) and deleted
+Repositories → Show the number of uncommitted files beside repositories**. Each repository (and
+each submodule) then shows, at the right, how many files are new (**+**, green), changed (**~**, yellow) and deleted
 (**−**, red); point at the numbers to read them in words. A repository without changes shows
 nothing. Repositories that are not open are checked again whenever you come back to NoBlame;
 on very large ones that takes a moment.

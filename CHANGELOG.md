@@ -193,6 +193,8 @@ All notable changes to NoBlame are documented here. The format follows
   2026-11-16).
 - Command palette: **Create a branch…**, at the commit selected in the graph or else at HEAD
   (owner request 2026-11-16).
+- Repositories module: submodules show their uncommitted file counts too (Settings →
+  Repositories; owner request 2026-11-16).
 - Commit graph: a branch whose upstream is at another commit has an arrow in its label (up or
   down), and the upstream's label one back; clicking it selects the other commit (owner request
   2026-11-16, as in Git Extensions).

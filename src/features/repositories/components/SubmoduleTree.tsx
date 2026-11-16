@@ -7,6 +7,7 @@ import type { SubmoduleDto } from "@/shared/ipc/bindings";
 import { openRepositories } from "../hooks/useOpenRepository";
 import { repositoryTab } from "../lib/path";
 import { hasNewCommits, submoduleTitle } from "../lib/submodules";
+import { RepositoryChangeCounts } from "./ChangeCounts";
 import { OpenTabsContext } from "./openTabsContext";
 import { RepositoryActions } from "./RepositoryActionsMenu";
 import { RepositoryTreeRow } from "./RepositoryTreeRow";
@@ -60,9 +61,16 @@ export function SubmoduleNode({ submodule, parent, depth }: SubmoduleNodeProps) 
           emphasized={isOpen}
           dimmed={!submodule.initialized}
           badge={
-            hasNewCommits(submodule) && (
-              <span className="mr-1 shrink-0 text-xs text-muted-foreground">new commits</span>
-            )
+            <>
+              {hasNewCommits(submodule) && (
+                <span className="mr-1 shrink-0 text-xs text-muted-foreground">new commits</span>
+              )}
+              <RepositoryChangeCounts
+                path={submodule.workDir}
+                sessionPath={isOpen ? submodule.workDir : undefined}
+                available={submodule.initialized}
+              />
+            </>
           }
           actions={
             submodule.initialized ? (

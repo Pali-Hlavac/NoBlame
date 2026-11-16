@@ -127,8 +127,8 @@ cached. Deleting the folder is always safe.
 
 Owner request 2026-11-02, M4 slice 7. With **Settings → Repositories → Show the number of
 uncommitted files beside repositories** (off by default), each repository row in the
-Repositories module (Open, Groups, Recent; not submodules) shows its uncommitted files at the
-right end: `+3 ~2 −1` for new, changed and deleted files, zeros left out, nothing when the
+Repositories module (Open, Groups, Recent, and initialized submodules since 2026-11-16) shows
+its uncommitted files at the right end: `+3 ~2 −1` for new, changed and deleted files, zeros left out, nothing when the
 working tree is clean or the repository is bare. Pointing at it says "3 new, 2 changed and 1
 deleted files not committed"; screen readers read that after the name.
 

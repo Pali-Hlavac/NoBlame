@@ -1205,7 +1205,7 @@ The owner's notes of 2026-11-16 (see the ideas inbox):
 - [x] Settings: search
 - [x] Command palette: **Create a branch**
 - [x] Create a branch dialog: nothing outside it
-- [ ] Repositories module: uncommitted file counts for submodules
+- [x] Repositories module: uncommitted file counts for submodules
 - [ ] Commit module: more room for the lists
 - [ ] Submodule graph: labels for the main repository's local branches
 
