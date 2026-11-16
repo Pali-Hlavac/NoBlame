@@ -4,6 +4,7 @@ pub mod commands;
 mod commit;
 mod diff;
 mod graph;
+mod submodules;
 mod types;
 
 pub use diff::{

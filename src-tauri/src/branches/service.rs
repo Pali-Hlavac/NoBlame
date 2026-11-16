@@ -31,7 +31,7 @@ pub(super) fn git_dir_or_work_tree(repo: &Repository) -> PathBuf {
 }
 
 /// The work tree; checking out needs one.
-fn work_tree(repo: &Repository) -> Result<PathBuf, RepositoryError> {
+pub(super) fn work_tree(repo: &Repository) -> Result<PathBuf, RepositoryError> {
     let info = repo.info();
     info.work_dir
         .clone()

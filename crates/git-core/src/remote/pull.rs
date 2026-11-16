@@ -19,11 +19,16 @@ pub enum PullMode {
 
 /// `git pull --progress --no-edit [mode]` in `work_dir`: the current branch from its upstream.
 /// `--no-edit` keeps git from opening an editor for a merge message (there is no terminal).
-pub fn pull_command(git: &Git, work_dir: &Path, mode: PullMode) -> GitCommand {
-    let command = git
+/// With `submodules`, `--recurse-submodules`: the submodules are fetched too and then updated
+/// to the commits the branch records.
+pub fn pull_command(git: &Git, work_dir: &Path, mode: PullMode, submodules: bool) -> GitCommand {
+    let mut command = git
         .command()
         .current_dir(work_dir)
         .args(["pull", "--progress", "--no-edit"]);
+    if submodules {
+        command = command.arg("--recurse-submodules");
+    }
     match mode {
         PullMode::Default => command,
         PullMode::Merge => command.arg("--no-rebase"),

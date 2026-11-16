@@ -22,6 +22,9 @@ pub struct FetchOptions {
     pub target: FetchTarget,
     /// Remove remote branches that are gone on the remote (`--prune`).
     pub prune: bool,
+    /// Fetch every submodule too (`--recurse-submodules`); otherwise git's
+    /// `fetch.recurseSubmodules` decides (by default only those with new pointers).
+    pub submodules: bool,
 }
 
 /// The command for `options`, with `--progress` so a job can show how far it got (git
@@ -47,6 +50,10 @@ fn command_for(
     }
     if options.prune {
         command = command.arg("--prune");
+    }
+    // Fetching every remote: the submodules once, with the first.
+    if options.submodules && !append {
+        command = command.arg("--recurse-submodules");
     }
     match &options.target {
         FetchTarget::Default => {}
@@ -80,6 +87,7 @@ pub fn fetch_commands(
             let single = FetchOptions {
                 target: FetchTarget::Remote(remote),
                 prune: options.prune,
+                submodules: options.submodules,
             };
             command_for(git, dir, &single, index > 0)
         })

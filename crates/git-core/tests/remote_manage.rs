@@ -152,6 +152,7 @@ async fn fetches_every_remote_one_by_one_with_progress() {
     let options = FetchOptions {
         target: FetchTarget::All,
         prune: true,
+        submodules: false,
     };
     let commands = fetch_commands(&git(), &work, &open(&work), &options).unwrap();
     let lines: Vec<_> = commands.iter().map(GitCommand::display).collect();

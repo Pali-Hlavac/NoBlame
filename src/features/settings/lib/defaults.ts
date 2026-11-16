@@ -2,6 +2,7 @@ import type {
   BranchesSettings,
   CommitSettings,
   JobsSettings,
+  SubmoduleSettings,
   DiffSettings,
   ExternalDiffTool,
   ExternalMergeTool,
@@ -26,6 +27,7 @@ export interface AppSettings {
   branches: Required<BranchesSettings>;
   commit: Required<CommitSettings>;
   jobs: Required<JobsSettings>;
+  submodules: Required<SubmoduleSettings>;
   /** User scripts, in menu order. */
   scripts: { name: string; command: string }[];
   /** Keyboard shortcuts given other keys than the app's (empty keys: no shortcut). */
@@ -67,6 +69,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   branches: { sort: "name" },
   commit: { fileDisplay: "nameFirst" },
   jobs: { showOutputWindow: false, closeOutputOnSuccess: true },
+  submodules: { fetchSubmodules: true, updateAfterPullAndCheckout: false },
   scripts: [],
   keybindings: [],
 };
@@ -86,6 +89,7 @@ export function withDefaults(settings: Settings | undefined): AppSettings {
     branches: { ...DEFAULT_SETTINGS.branches, ...settings?.branches },
     commit: { ...DEFAULT_SETTINGS.commit, ...settings?.commit },
     jobs: { ...DEFAULT_SETTINGS.jobs, ...settings?.jobs },
+    submodules: { ...DEFAULT_SETTINGS.submodules, ...settings?.submodules },
     scripts: (settings?.scripts ?? []).map((script) => ({
       name: script.name ?? "",
       command: script.command ?? "",

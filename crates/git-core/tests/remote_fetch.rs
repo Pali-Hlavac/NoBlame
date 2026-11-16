@@ -35,6 +35,7 @@ async fn fetches_prunes_and_counts_what_changed() {
     let options = FetchOptions {
         target: FetchTarget::Remote("origin".into()),
         prune: true,
+        submodules: false,
     };
     let command = fetch_command(&git, &clone, &options).unwrap();
     assert!(
@@ -77,6 +78,7 @@ async fn an_unknown_remote_fails_with_gits_message() {
     let options = FetchOptions {
         target: FetchTarget::Remote("nowhere".into()),
         prune: false,
+        submodules: false,
     };
     let output = fetch_command(&Git::locate().unwrap(), &fixture.path(), &options)
         .unwrap()
@@ -89,6 +91,32 @@ async fn an_unknown_remote_fails_with_gits_message() {
     let dashed = FetchOptions {
         target: FetchTarget::Remote("--upload-pack=evil".into()),
         prune: false,
+        submodules: false,
     };
     assert!(fetch_command(&Git::locate().unwrap(), &fixture.path(), &dashed).is_err());
+}
+
+#[test]
+fn submodules_are_fetched_once_and_pulled_on_request() {
+    let fixture = Fixture::new();
+    let git = Git::locate().unwrap();
+    let options = FetchOptions {
+        target: FetchTarget::Default,
+        prune: true,
+        submodules: true,
+    };
+    let line = fetch_command(&git, &fixture.path(), &options)
+        .unwrap()
+        .display();
+    assert_eq!(line, "git fetch --progress --prune --recurse-submodules");
+    let pull = git_core::remote::pull_command(
+        &git,
+        &fixture.path(),
+        git_core::remote::PullMode::Default,
+        true,
+    );
+    assert_eq!(
+        pull.display(),
+        "git pull --progress --no-edit --recurse-submodules"
+    );
 }

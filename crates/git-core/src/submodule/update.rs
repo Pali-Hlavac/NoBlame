@@ -24,6 +24,15 @@ pub fn update_command(git: &Git, work_dir: &Path, paths: &[String]) -> GitComman
     }
 }
 
+/// `git submodule update --recursive --progress` in `work_dir`: every submodule already set up
+/// is moved to the commit the repository records (after a checkout); none is cloned. Run it
+/// with [`GitCommand::stream`](crate::cli::GitCommand::stream).
+pub fn follow_command(git: &Git, work_dir: &Path) -> GitCommand {
+    git.command()
+        .current_dir(work_dir)
+        .args(["submodule", "update", "--recursive", "--progress"])
+}
+
 /// How many submodules an update moved, from git's output (`Submodule path 'x': checked out
 /// '<id>'`, also `rebased into` and `merged in`).
 pub fn updated_count(output: &str) -> usize {

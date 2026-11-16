@@ -8,6 +8,7 @@ import { TooltipProvider } from "@/shared/ui/tooltip";
 
 import { hasNewCommits, submoduleTitle, withNewCommits } from "../lib/submodules";
 import { RepositoriesModule } from "./RepositoriesModule";
+import { SubmoduleUpdateDialog } from "./SubmoduleUpdateDialog";
 
 const ipc = vi.hoisted(() => ({
   listRecentRepositories: vi.fn(),
@@ -46,6 +47,7 @@ function renderModule() {
     <QueryClientProvider client={client}>
       <TooltipProvider>
         <RepositoriesModule />
+        <SubmoduleUpdateDialog />
       </TooltipProvider>
     </QueryClientProvider>,
   );

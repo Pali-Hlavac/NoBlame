@@ -23,6 +23,7 @@ use tauri::{App, Manager};
 use crate::askpass::Askpass;
 
 pub use registry::JobRegistry;
+pub use submodules::follow as follow_submodules;
 pub use types::JobUpdated;
 
 /// Starts the askpass service and makes it and the job registry available to commands.

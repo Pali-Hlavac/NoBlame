@@ -193,6 +193,10 @@ All notable changes to NoBlame are documented here. The format follows
   2026-11-16).
 - Command palette: **Create a branch…**, at the commit selected in the graph or else at HEAD
   (owner request 2026-11-16).
+- Submodules follow their repository (owner request 2026-11-16): fetch includes them
+  (Settings → Submodules, on); pull and checkout can update them (setting, off); a bar offers
+  the update when submodules are not on the recorded commits; **Check out the recorded commit**
+  on a changed submodule in the Commit module and Changed files.
 - Repositories module: submodules show their uncommitted file counts too (Settings →
   Repositories; owner request 2026-11-16).
 - Commit graph: a branch whose upstream is at another commit has an arrow in its label (up or

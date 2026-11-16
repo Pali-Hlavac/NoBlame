@@ -157,6 +157,8 @@ Settings shown there (stored in `settings.json`, see `src-tauri/src/settings/typ
 | Repositories         | Quick buttons: Pull, Push on repositories; Pull all, Push all on groups | none    |
 | Fetch, pull and push | Show git's output in a window while they run                            | off     |
 | Fetch, pull and push | Close the window when they succeed                                      | on      |
+| Submodules           | Fetch the submodules too                                                | on      |
+| Submodules           | Update the submodules after pull and checkout                           | off     |
 
 **Keyboard shortcuts** lists every shortcut by where it works (General, Tabs, History, Commit,
 Modules), and each can be changed (M7 slice 8):

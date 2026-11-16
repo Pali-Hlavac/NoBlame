@@ -3,6 +3,7 @@
 //! managing remotes. See `docs/features/branches.md` and `docs/features/remotes.md`.
 
 pub mod commands;
+mod follow;
 pub mod remote_commands;
 mod remote_types;
 mod remotes;

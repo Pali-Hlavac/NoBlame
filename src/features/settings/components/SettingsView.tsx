@@ -13,6 +13,7 @@ import { JobsSection } from "./JobsSection";
 import { GitConfigSection } from "./GitConfigSection";
 import { ScriptsSection } from "./ScriptsSection";
 import { ShortcutsSection } from "./ShortcutsSection";
+import { SubmodulesSection } from "./SubmodulesSection";
 import { RepositoryButtonsSetting } from "./RepositoryButtonsSetting";
 import { Choice, Section, Toggle } from "./SettingControls";
 import { SettingsSearch } from "./SettingsSearch";
@@ -174,6 +175,7 @@ export function SettingsView() {
             <RepositoryButtonsSetting />
           </Section>
           <JobsSection />
+          <SubmodulesSection />
           <ScriptsSection />
           <GitConfigSection />
           <ShortcutsSection />

@@ -17,12 +17,15 @@ use git_core::diff::parse_object_id;
 
 use crate::git_env::GitEnvError;
 use crate::repository::{RepositoryError, blocking};
+use crate::settings::SettingsStore;
 
 /// Starts `git pull` of the current branch.
 pub async fn pull(
     registry: &Arc<JobRegistry>,
+    settings: &SettingsStore,
     request: PullRequestDto,
 ) -> Result<JobId, RepositoryError> {
+    let submodules = settings.load()?.submodules.update_after_pull_and_checkout;
     let target = JobTarget::open(&request.path).await?;
     let work_tree = target.work_tree()?;
     let branch = target
@@ -46,7 +49,7 @@ pub async fn pull(
         kind: JobKindDto::Pull,
         title,
         repo_path: request.path,
-        steps: vec![pull_command(&target.git, &work_tree, mode)],
+        steps: vec![pull_command(&target.git, &work_tree, mode, submodules)],
         describe: Box::new(|output| describe_pull(&output.stdout_lossy(), &output.stderr_lossy())),
         hint: Some(pull_hint),
         on_end: None,

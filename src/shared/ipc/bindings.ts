@@ -2470,6 +2470,8 @@ export type Settings = {
 	commit?: CommitSettings,
 	/**  Background jobs (fetch, pull, push). */
 	jobs?: JobsSettings,
+	/**  How submodules follow the repository (fetch, pull, checkout). */
+	submodules?: SubmoduleSettings,
 	/**  User scripts: git command lines with placeholders, run on a commit from its menu. */
 	scripts?: UserScript[],
 	/**
@@ -2696,6 +2698,21 @@ export type SubmoduleLogDto =
 {
 	kind: "log",
 } & PointerLogDto;
+
+/**  How submodules follow the repository they are in. */
+export type SubmoduleSettings = {
+	/**
+	 *  Fetch also fetches every submodule (`--recurse-submodules`). On by default; off leaves
+	 *  it to git (`fetch.recurseSubmodules`, by default only when new pointers arrive).
+	 */
+	fetchSubmodules?: boolean,
+	/**
+	 *  After a pull or a checkout, the submodules are updated to the commits the repository now
+	 *  records (`git pull --recurse-submodules`, `git submodule update`). Off by default: a bar
+	 *  offers it instead.
+	 */
+	updateAfterPullAndCheckout?: boolean,
+};
 
 /**  What a coloured part of a line is. */
 export type SyntaxClassDto = 

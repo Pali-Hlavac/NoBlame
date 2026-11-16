@@ -3,7 +3,9 @@
 
 use std::sync::Arc;
 
-use git_core::submodule::{submodule_dir, submodule_hint, update_command, updated_count};
+use git_core::submodule::{
+    follow_command, submodule_dir, submodule_hint, update_command, updated_count,
+};
 
 use super::registry::{JobRegistry, JobSpec};
 use super::target::JobTarget;
@@ -32,6 +34,29 @@ pub async fn update(
         title,
         repo_path: path,
         steps: vec![update_command(&target.git, &work_tree, &paths)],
+        describe: Box::new(|output| describe(updated_count(&output.combined()))),
+        hint: Some(submodule_hint),
+        on_end: None,
+    }))
+}
+
+/// After a checkout: starts `git submodule update --recursive` in the repository whose work
+/// tree is `work_tree` (shown as `path`), so the submodules already set up follow the commits it
+/// now records. `None` when it has no submodules (no `.gitmodules`).
+pub fn follow(
+    registry: &Arc<JobRegistry>,
+    git: &git_core::cli::Git,
+    work_tree: &std::path::Path,
+    path: String,
+) -> Option<JobId> {
+    if !work_tree.join(".gitmodules").is_file() {
+        return None;
+    }
+    Some(registry.start(JobSpec {
+        kind: JobKindDto::SubmoduleUpdate,
+        title: "Update submodules to the recorded commits".to_owned(),
+        repo_path: path,
+        steps: vec![follow_command(git, work_tree)],
         describe: Box::new(|output| describe(updated_count(&output.combined()))),
         hint: Some(submodule_hint),
         on_end: None,

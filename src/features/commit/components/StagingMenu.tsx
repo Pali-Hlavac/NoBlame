@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import { FileContextMenu, type MenuAction } from "@/features/file-menu";
 import { openConflicts, showMergeView, useOpenMergeTool } from "@/features/operations";
+import { isMovedSubmodule, useCheckOutRecorded } from "@/features/repositories";
 import type { WorkingFileDto } from "@/shared/ipc/bindings";
 
 import { canDiscard } from "../lib/discard";
@@ -23,10 +24,16 @@ interface StagingMenuProps {
   children: ReactNode;
 }
 
+/** The props the menu's actions read, with what moves submodules back. */
+interface ActionProps extends StagingMenuProps {
+  checkOutRecorded: (paths: readonly string[]) => void;
+}
+
 /** Stage, discard: what the menu offers for several chosen files. */
-function manyActions(props: StagingMenuProps): MenuAction[] {
+function manyActions(props: ActionProps): MenuAction[] {
   const { files, busy, onDiscard } = props;
   const count = `${files.length.toLocaleString()} files`;
+  const moved = files.filter(isMovedSubmodule).map((file) => file.path);
   const actions: MenuAction[] = [
     {
       label: `${props.verb} ${count}`,
@@ -45,12 +52,21 @@ function manyActions(props: StagingMenuProps): MenuAction[] {
       },
     });
   }
+  if (moved.length > 0) {
+    actions.push({
+      label: `Check out the recorded commits of ${moved.length.toLocaleString()} submodules`,
+      disabled: busy,
+      onSelect: () => {
+        props.checkOutRecorded(moved);
+      },
+    });
+  }
   return actions;
 }
 
 /** Resolve a conflicted file, show its diff, stage it, discard or ignore it. */
 function oneFileActions(
-  props: StagingMenuProps,
+  props: ActionProps,
   file: WorkingFileDto,
   openMergeTool: (path: string) => void,
 ): MenuAction[] {
@@ -102,6 +118,15 @@ function oneFileActions(
       },
     });
   }
+  if (isMovedSubmodule(file)) {
+    actions.push({
+      label: "Check out the recorded commit",
+      disabled: busy,
+      onSelect: () => {
+        props.checkOutRecorded([file.path]);
+      },
+    });
+  }
   if (onIgnore && file.status === "untracked") {
     actions.push({
       label: "Ignore…",
@@ -122,11 +147,13 @@ function oneFileActions(
 export function StagingMenu(props: StagingMenuProps) {
   const { file, files } = props;
   const openMergeTool = useOpenMergeTool(props.repoId);
+  const checkOutRecorded = useCheckOutRecorded(props.repoPath);
+  const withHelpers = { ...props, checkOutRecorded };
   const many = files.length > 1;
   const actions = many
-    ? manyActions(props)
+    ? manyActions(withHelpers)
     : file
-      ? oneFileActions(props, file, openMergeTool)
+      ? oneFileActions(withHelpers, file, openMergeTool)
       : [];
   return (
     <FileContextMenu

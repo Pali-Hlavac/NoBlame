@@ -26,6 +26,23 @@ If a submodule with new commits would be moved back, NoBlame asks first and list
 Nothing is lost: the commits made there are still in that submodule's branches or its reflog.
 If the submodule has uncommitted changes in the way, Git refuses and says so.
 
+## Keeping submodules on the recorded commits
+
+When your repository records other submodule commits than the ones checked out (for example
+after a pull or after switching branches), a bar above the commits says which submodules are
+not on the recorded commits. Click **Update** to put them there, or **×** to leave them as they
+are; the bar comes back when the recorded commits change again.
+
+You can also right-click such a submodule in the Commit module or in Changed files and choose
+**Check out the recorded commit**.
+
+In **Settings → Submodules**:
+
+- **Fetch the submodules too** (on): every fetch also fetches your submodules.
+- **Update the submodules after pull and checkout** (off): pulling and switching branches move
+  the submodules to the recorded commits by themselves. Submodules you have not downloaded yet
+  are left alone.
+
 ## What changed in a submodule
 
 When you choose a submodule in **Changed files**, the diff shows which commit it pointed to

@@ -10,7 +10,7 @@ export const submoduleKeys = {
 };
 
 /** Submodules change rarely and outside the app, so they refresh when the window regains focus. */
-function submodulesQuery(path: string) {
+export function submodulesQuery(path: string) {
   return queryOptions({
     queryKey: submoduleKeys.byPath(path),
     queryFn: () => unwrap(commands.listSubmodules(path)),
@@ -46,4 +46,12 @@ export function startSubmoduleUpdate(
     // `startJob` says why it did not start.
     () => undefined,
   );
+}
+
+/** A working tree file that is a submodule checked out at another commit than recorded. */
+export function isMovedSubmodule(file: {
+  submodule: boolean;
+  submoduleChanges: { newCommits: boolean } | null;
+}): boolean {
+  return file.submodule && file.submoduleChanges?.newCommits === true;
 }

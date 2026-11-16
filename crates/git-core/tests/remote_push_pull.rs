@@ -133,7 +133,13 @@ async fn refuses_behind_pushes_and_ff_only_pulls_then_merges() {
     assert_eq!(summarize_push(&rejected.stdout_lossy()).rejected, 1);
     assert!(push_hint(&rejected.stdout_lossy()).is_some_and(|hint| hint.contains("Pull")));
 
-    let ff_only = run(pull_command(&git(), &s.work, PullMode::FastForwardOnly)).await;
+    let ff_only = run(pull_command(
+        &git(),
+        &s.work,
+        PullMode::FastForwardOnly,
+        false,
+    ))
+    .await;
     assert!(!ff_only.success());
     assert!(
         pull_hint(&ff_only.stderr_lossy()).is_some(),
@@ -141,7 +147,7 @@ async fn refuses_behind_pushes_and_ff_only_pulls_then_merges() {
         ff_only.stderr_lossy()
     );
 
-    let merged = run(pull_command(&git(), &s.work, PullMode::Merge)).await;
+    let merged = run(pull_command(&git(), &s.work, PullMode::Merge, false)).await;
     assert!(merged.success(), "{}", merged.stderr_lossy());
     assert!(
         describe_pull(&merged.stdout_lossy(), &merged.stderr_lossy()).starts_with("Merged"),

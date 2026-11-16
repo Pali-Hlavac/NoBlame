@@ -1,16 +1,20 @@
 //! Tauri boundary for checking out, and for creating, renaming and deleting branches and tags
 //! (the list is `list_refs`), and for their upstreams.
 
+use std::sync::Arc;
+
 use tauri::State;
 
-use super::service;
 use super::types::{
     BranchTrackingDto, CreateBranchRequestDto, CreateTagRequestDto, RefTargetDto,
     RenameBranchRequestDto, SetUpstreamRequestDto, UniqueCommitsDto, UpstreamDto,
 };
 use super::upstream;
+use super::{follow, service};
 use crate::error::CommandResult;
+use crate::jobs::JobRegistry;
 use crate::repository::{RepoId, RepoSessions};
+use crate::settings::SettingsStore;
 
 /// Checks out the local branch `name`; returns what git printed. git refuses when local
 /// changes would be overwritten.
@@ -18,10 +22,14 @@ use crate::repository::{RepoId, RepoSessions};
 #[specta::specta]
 pub async fn checkout_branch(
     sessions: State<'_, RepoSessions>,
+    registry: State<'_, Arc<JobRegistry>>,
+    settings: State<'_, SettingsStore>,
     id: RepoId,
     name: String,
 ) -> CommandResult<String> {
-    Ok(service::checkout_branch(&sessions, id, name).await?)
+    let output = service::checkout_branch(&sessions, id, name).await?;
+    follow::after_checkout(&registry, &settings, &sessions, id);
+    Ok(output)
 }
 
 /// Checks out a commit without a branch (detached HEAD).
@@ -29,10 +37,14 @@ pub async fn checkout_branch(
 #[specta::specta]
 pub async fn checkout_commit(
     sessions: State<'_, RepoSessions>,
+    registry: State<'_, Arc<JobRegistry>>,
+    settings: State<'_, SettingsStore>,
     id: RepoId,
     commit: String,
 ) -> CommandResult<String> {
-    Ok(service::checkout_commit(&sessions, id, commit).await?)
+    let output = service::checkout_commit(&sessions, id, commit).await?;
+    follow::after_checkout(&registry, &settings, &sessions, id);
+    Ok(output)
 }
 
 /// Creates a branch, and checks it out when asked.
@@ -40,10 +52,17 @@ pub async fn checkout_commit(
 #[specta::specta]
 pub async fn create_branch(
     sessions: State<'_, RepoSessions>,
+    registry: State<'_, Arc<JobRegistry>>,
+    settings: State<'_, SettingsStore>,
     id: RepoId,
     request: CreateBranchRequestDto,
 ) -> CommandResult<String> {
-    Ok(service::create(&sessions, id, request).await?)
+    let checkout = request.checkout;
+    let output = service::create(&sessions, id, request).await?;
+    if checkout {
+        follow::after_checkout(&registry, &settings, &sessions, id);
+    }
+    Ok(output)
 }
 
 /// Renames a branch, checked first to still point where the user saw it.

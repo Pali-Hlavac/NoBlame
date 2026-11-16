@@ -42,9 +42,10 @@ pub fn cancel_job(registry: State<'_, Arc<JobRegistry>>, id: JobId) -> bool {
 #[specta::specta]
 pub async fn fetch_repository(
     registry: State<'_, Arc<JobRegistry>>,
+    settings: State<'_, SettingsStore>,
     request: FetchRequestDto,
 ) -> CommandResult<JobId> {
-    Ok(fetch::start(&registry, request).await?)
+    Ok(fetch::start(&registry, &settings, request).await?)
 }
 
 /// Starts `git pull` of the current branch; progress and the result come as `JobUpdated`.
@@ -52,9 +53,10 @@ pub async fn fetch_repository(
 #[specta::specta]
 pub async fn pull_repository(
     registry: State<'_, Arc<JobRegistry>>,
+    settings: State<'_, SettingsStore>,
     request: PullRequestDto,
 ) -> CommandResult<JobId> {
-    Ok(sync::pull(&registry, request).await?)
+    Ok(sync::pull(&registry, &settings, request).await?)
 }
 
 /// Starts `git push` (a branch, a tag, or deleting one on the remote).

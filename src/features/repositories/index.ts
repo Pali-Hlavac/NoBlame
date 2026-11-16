@@ -11,7 +11,9 @@ export { useSessionCleanup } from "./hooks/useSessionCleanup";
 export { useRecentRepositories } from "./api/recent";
 export { fetchPathScope } from "./api/scope";
 export { useRepositorySession } from "./api/session";
-export { submoduleKeys } from "./api/submodules";
+export { isMovedSubmodule, submoduleKeys } from "./api/submodules";
+export { SubmoduleUpdateDialog } from "./components/SubmoduleUpdateDialog";
+export { useCheckOutRecorded } from "./hooks/useSubmoduleUpdate";
 export {
   openRepositories,
   pickFolder,

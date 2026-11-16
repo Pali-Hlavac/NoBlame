@@ -8,8 +8,8 @@ use std::path::Path;
 use git_core::cli::Git;
 use git_core::repo::Repository;
 use git_core::submodule::{
-    PointerChange, SubmoduleEntry, list_submodules, pointer_log, submodule_dir, update_command,
-    updated_count,
+    PointerChange, SubmoduleEntry, follow_command, list_submodules, pointer_log, submodule_dir,
+    update_command, updated_count,
 };
 use support::Fixture;
 use tokio_util::sync::CancellationToken;
@@ -159,4 +159,39 @@ fn submodule_paths_stay_inside_the_work_tree() {
     for path in ["", "../other", "deps/../../x", "/etc"] {
         assert!(submodule_dir(root, path).is_err(), "{path}");
     }
+}
+
+#[tokio::test]
+async fn following_moves_only_submodules_already_set_up() {
+    let fixture = Fixture::new();
+    let (one, two) = superproject(&fixture);
+    // The fixture records `two` on a branch, then goes back to the commit recording `one`.
+    let leaf = fixture.path().join("deps/leaf");
+    fixture.run(&leaf, &["checkout", "--quiet", &two]);
+    fixture.git(&["switch", "--quiet", "--create", "newer"]);
+    fixture.git(&["commit", "--quiet", "--all", "-m", "leaf at two"]);
+    fixture.git(&["switch", "--quiet", "-"]);
+    assert_eq!(
+        list(&fixture.path())[0].checked_out.as_deref(),
+        Some(two.as_str())
+    );
+
+    let output = follow_command(&git(), &fixture.path())
+        .output(&CancellationToken::new())
+        .await
+        .unwrap();
+    assert!(output.success(), "{}", output.combined());
+    assert_eq!(
+        list(&fixture.path())[0].checked_out.as_deref(),
+        Some(one.as_str())
+    );
+
+    // The clone never set its submodule up: following leaves it so.
+    let clone = fixture.sibling("clone");
+    let output = follow_command(&git(), &clone)
+        .output(&CancellationToken::new())
+        .await
+        .unwrap();
+    assert!(output.success(), "{}", output.combined());
+    assert!(!list(&clone)[0].initialized);
 }

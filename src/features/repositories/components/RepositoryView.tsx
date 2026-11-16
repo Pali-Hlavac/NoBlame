@@ -14,6 +14,7 @@ import { useCreateRepository } from "../hooks/useOpenRepository";
 import { RepositoryBannerContext } from "../lib/actions";
 import { CommitGraphNotice } from "./CommitGraphNotice";
 import { RepositoryHeader } from "./RepositoryHeader";
+import { SubmoduleBar } from "./SubmoduleBar";
 
 /** One repository tab: header, commit-graph offer and the commit graph. */
 export function RepositoryView({ tab }: { tab: RepositoryTab }) {
@@ -53,6 +54,9 @@ export function RepositoryView({ tab }: { tab: RepositoryTab }) {
       <RepositoryHeader summary={session.data} />
       <CommitGraphNotice summary={session.data} tabPath={tab.path} />
       {session.data.kind !== "bare" && banner?.(session.data.id)}
+      {session.data.kind !== "bare" && (
+        <SubmoduleBar repoId={session.data.id} path={session.data.path} />
+      )}
       <div className="min-h-0 flex-1">
         <GraphView
           repoId={session.data.id}

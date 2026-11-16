@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { FileContextMenu, type MenuFile } from "@/features/file-menu";
+import { FileContextMenu, type MenuAction, type MenuFile } from "@/features/file-menu";
 import { selectFile, useSelectedFile } from "@/features/selection";
 import { showDiffTab } from "@/features/workspace";
 import { VirtualList } from "@/shared/components/VirtualList";
@@ -21,6 +21,8 @@ interface FileListProps<F extends ListedFile> {
   empty: string;
   /** A file as its context menu needs it (the version to save, the commit to blame). */
   menuFile: (file: F) => MenuFile;
+  /** More of the menu's actions for a file, after **Show diff**. */
+  moreActions?: (file: F) => MenuAction[];
 }
 
 /**
@@ -56,6 +58,7 @@ export function FileList<F extends ListedFile>(props: FileListProps<F>) {
                 choose(current);
               },
             },
+            ...(current && props.moreActions ? props.moreActions(current) : []),
           ]}
         >
           <div className="flex min-h-0 flex-1 flex-col">

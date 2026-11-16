@@ -3,7 +3,7 @@ import { useCallback } from "react";
 
 import type { SubmoduleDto } from "@/shared/ipc/bindings";
 
-import { startSubmoduleUpdate } from "../api/submodules";
+import { startSubmoduleUpdate, submodulesQuery } from "../api/submodules";
 import { withNewCommits } from "../lib/submodules";
 import { useSubmoduleUpdateStore } from "../store/submoduleUpdate";
 
@@ -26,5 +26,31 @@ export function useSubmoduleUpdate(): (
       else useSubmoduleUpdateStore.getState().setRequest({ parent, paths, moved });
     },
     [queryClient],
+  );
+}
+
+/**
+ * **Check out the recorded commit**: moves the submodules at `paths` of the repository at
+ * `repoPath` back to the commits it records, as a job, after the same question (they have new
+ * commits). The submodule list is read fresh for the question's commits.
+ */
+export function useCheckOutRecorded(repoPath: string): (paths: readonly string[]) => void {
+  const queryClient = useQueryClient();
+  const update = useSubmoduleUpdate();
+  return useCallback(
+    (paths) => {
+      queryClient.query({ ...submodulesQuery(repoPath), staleTime: 0 }).then(
+        (submodules) => {
+          const chosen = submodules.filter((submodule) => paths.includes(submodule.path));
+          if (chosen.length === 0) startSubmoduleUpdate(queryClient, repoPath, paths);
+          else update(repoPath, chosen, false);
+        },
+        // Unreadable list: git still says what it moved (and refuses what is in the way).
+        () => {
+          startSubmoduleUpdate(queryClient, repoPath, paths);
+        },
+      );
+    },
+    [queryClient, repoPath, update],
   );
 }

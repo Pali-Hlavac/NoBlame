@@ -39,6 +39,32 @@ a submodule's pointers in the diff tab.
   changes in the way, a folder that already has files, a commit the server does not have (not
   pushed), then the clone hints (credentials, host, URL).
 
+## Following the repository
+
+Owner request 2026-11-16: submodules follow the commits their repository records.
+
+- **Fetch** passes `--recurse-submodules` (Settings → Submodules → **Fetch the submodules too**,
+  on by default; with **Fetch all**, only the first remote's fetch): every submodule is
+  fetched. Off, git's `fetch.recurseSubmodules` decides (by default the ones whose pointers
+  changed).
+- **Update the submodules after pull and checkout** (off by default): pull runs `git pull
+--recurse-submodules` (fetches and updates in the same job); a checkout that succeeded
+  (`checkout_branch`, `checkout_commit`, `create_branch` with checkout) starts a job running
+  `git submodule update --recursive` (`follow_command`, no `--init`: submodules not set up are
+  left alone), when the repository has a `.gitmodules` (`branches/follow.rs`).
+- **The bar** above the commits (`SubmoduleBar`): when the working tree status shows
+  submodules with new commits (checked out at another commit than the index records), "x is
+  not on the commit this repository records" with **Update it/them** and ×. × hides it for
+  that state: the paths with their recorded and checked-out commits (`lib/drift.ts`); a pull or
+  checkout that records others shows it again. The submodule list is read again whenever the
+  status changes, while the bar shows.
+- **Check out the recorded commit** in the right-click menu of a submodule with new commits in
+  the Commit module's lists (several chosen: "of N submodules") and in Changed files for the
+  working tree.
+- The bar and the menus go through the same question as **Update to the recorded commit**
+  (`SubmoduleUpdateDialog`, now mounted once per window), since they move submodules with new
+  commits; then the update job.
+
 ## The diff of a submodule
 
 Choosing a submodule in Changed files (a commit's, or the working tree's) shows, instead of a
@@ -77,7 +103,8 @@ and 450 ms cold, the way back 70 ms ([performance.md](../development/performance
 
 ## Not yet
 
-- Change counts of submodules in the Repositories module, and a submodule's own status there.
+- A submodule's own status in the Repositories module (its change counts show since
+  2026-11-16).
 - `git submodule sync` (URLs changed in `.gitmodules`), adding and removing submodules,
   `foreach`.
 - Clicking a listed commit to show it in the submodule's graph.

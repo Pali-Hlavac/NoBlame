@@ -1,5 +1,6 @@
 import { FolderXIcon } from "lucide-react";
 
+import { isMovedSubmodule, useCheckOutRecorded } from "@/features/repositories";
 import {
   filesOf,
   totalOf,
@@ -22,6 +23,7 @@ interface WorkingTreeFilesProps {
 /** The files of a working tree row: changed, untracked and conflicted ones, or staged ones. */
 export function WorkingTreeFiles({ repoId, repoPath, kind }: WorkingTreeFilesProps) {
   const status = useWorkingTreeStatus(repoId);
+  const checkOutRecorded = useCheckOutRecorded(repoPath);
   if (status.error) {
     return (
       <ErrorState
@@ -51,6 +53,18 @@ export function WorkingTreeFiles({ repoId, repoPath, kind }: WorkingTreeFilesPro
       repoId={repoId}
       repoPath={repoPath}
       menuFile={(file) => ({ path: file.path })}
+      moreActions={(file) =>
+        isMovedSubmodule(file)
+          ? [
+              {
+                label: "Check out the recorded commit",
+                onSelect: () => {
+                  checkOutRecorded([file.path]);
+                },
+              },
+            ]
+          : []
+      }
       files={files}
       header={
         <span className="flex-1">

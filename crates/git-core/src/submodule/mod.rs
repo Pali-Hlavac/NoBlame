@@ -10,7 +10,7 @@ pub use list::{MAX_SUBMODULE_DEPTH, SubmoduleEntry, list_submodules};
 pub use log::{
     MAX_POINTER_COMMITS, PointerChange, PointerCommit, PointerLog, pointer_log, submodule_dir,
 };
-pub use update::{submodule_hint, update_command, updated_count};
+pub use update::{follow_command, submodule_hint, update_command, updated_count};
 
 use crate::cli::GitError;
 

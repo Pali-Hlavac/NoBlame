@@ -16,6 +16,7 @@ import {
   GroupActionsContext,
   RepositoryActionsContext,
   RepositoryBannerContext,
+  SubmoduleUpdateDialog,
 } from "@/features/repositories";
 
 import { GROUP_ACTIONS, REPOSITORY_ACTIONS } from "../workbench/repositoryActions";
@@ -42,7 +43,10 @@ export function RepositoryContexts({ children }: { children: ReactNode }) {
   );
 }
 
-/** The dialogs those actions open, the credential prompt and the Git output window. */
+/**
+ * The dialogs those actions open (the submodule update's question included: the bar and the
+ * file menus ask it too), the credential prompt and the Git output window.
+ */
 export function WindowDialogs() {
   return (
     <>
@@ -50,6 +54,7 @@ export function WindowDialogs() {
       <RemoteDialogs />
       <OperationDialogs />
       <PatchDialogs />
+      <SubmoduleUpdateDialog />
       <CredentialPrompt />
       <OutputWindow />
     </>

@@ -10,12 +10,15 @@ use super::target::JobTarget;
 use super::types::{FetchRequestDto, FetchTargetDto, JobId, JobKindDto};
 use crate::git_env::GitEnvError;
 use crate::repository::RepositoryError;
+use crate::settings::SettingsStore;
 
 /// Starts `git fetch` as a job and returns its id.
 pub async fn start(
     registry: &Arc<JobRegistry>,
+    settings: &SettingsStore,
     request: FetchRequestDto,
 ) -> Result<JobId, RepositoryError> {
+    let submodules = settings.load()?.submodules.fetch_submodules;
     let target_repo = JobTarget::open(&request.path).await?;
     let target = match request.target {
         FetchTargetDto::Default => FetchTarget::Default,
@@ -26,6 +29,7 @@ pub async fn start(
     let options = FetchOptions {
         target,
         prune: request.prune,
+        submodules,
     };
     // Fetch all: one fetch per remote, so each shows its progress.
     let steps = fetch_commands(
