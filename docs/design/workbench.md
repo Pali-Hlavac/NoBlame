@@ -251,21 +251,21 @@ Ideas from the owner, newest last, with where each one is planned.
     commit graph's and the Branches module's menus).
   - A setting to show the rest of the commit message in the graph, greyed → done.
 - 2026-11-16, the owner's notes (owner's answers in brackets):
-  - Choosing the working tree row highlights the current branch's history, as choosing HEAD.
+  - Choosing the working tree row highlights the current branch's history, as choosing HEAD → done.
   - The document tabs remember the order they were used in, also when the layout changes (a
-    dock group closes); closing a tab shows the one used last, not the neighbour.
+    dock group closes); closing a tab shows the one used last, not the neighbour → done.
   - Bug: staging with Space and then moving with the arrows, the list starts to scroll instead
-    of moving to the next file.
+    of moving to the next file → fixed (focus kept in the list).
   - The graph links a local branch and its upstream: an arrow by the label (ahead or behind)
-    selects the other's commit, as Git Extensions does.
-  - Search in the Files module's tree (a box that filters the whole tree).
+    selects the other's commit, as Git Extensions does → done.
+  - Search in the Files module's tree (a box that filters the whole tree) → done.
   - Submodules follow the main repository (all four): Fetch and Pull include the submodules;
     a setting to update them after pull and checkout; a bar offering to update them when they
-    are not on the recorded commits; **Check out the recorded commit** on a changed submodule.
-  - Search in Settings.
-  - **Create a branch** in the command palette.
-  - Bug: the Create a branch dialog sometimes has parts outside it.
-  - Uncommitted file counts for submodules too.
+    are not on the recorded commits; **Check out the recorded commit** on a changed submodule → done.
+  - Search in Settings → done.
+  - **Create a branch** in the command palette → done.
+  - Bug: the Create a branch dialog sometimes has parts outside it → fixed (all dialogs).
+  - Uncommitted file counts for submodules too → done.
   - The Commit module: little height for the two lists, the bottom left part squeezes them;
-    in the popped-out module a draggable splitter to see more of the paths; "impress me".
-  - A submodule's graph labels the commits the main repository's local branches record.
+    in the popped-out module a draggable splitter to see more of the paths; "impress me" → done (splitters, a compact and foldable message area).
+  - A submodule's graph labels the commits the main repository's local branches record → done.

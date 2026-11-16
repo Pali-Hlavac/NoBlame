@@ -1209,6 +1209,16 @@ The owner's notes of 2026-11-16 (see the ideas inbox):
 - [x] Commit module: more room for the lists
 - [x] Submodule graph: labels for the main repository's local branches
 
+Done 2026-11-16, with tests. Checked in the running app on a scratch repository with a
+submodule and a bare remote: the upstream arrows (both ways), the working tree row's highlight,
+Settings search, the Files filter, the Commit lists (Space twice, then the arrows move; the
+compact and folded message area, the splitter beside the diff), **Check out the recorded
+commit** (asks first), the submodule bar (Update), the superproject labels in the submodule's
+graph, Create a branch from the palette, closing a tab (the one used before shows), and a
+checkout with "update after pull and checkout" on (the submodule followed). Seen once and not
+reproduced since: after closing Settings with its ×, the Settings button did not open it again
+until the page reloaded (the dock kept a disposed panel).
+
 ### M9: Polish and release
 
 - [ ] Third-party licence notices shipped with the installers (for example generated with
