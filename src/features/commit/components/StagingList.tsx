@@ -43,7 +43,7 @@ export function StagingList(props: StagingListProps) {
   const { files, verb, busy } = props;
   const AllIcon = verb.allIcon;
   return (
-    <section aria-label={props.title} className="flex min-h-24 flex-1 flex-col">
+    <section aria-label={props.title} className="flex h-full min-h-0 flex-col">
       <div className="flex shrink-0 items-center gap-2 border-b border-border px-2 py-1 text-xs text-muted-foreground">
         <span className="flex-1 font-medium text-foreground">
           {props.title}{" "}

@@ -1,5 +1,5 @@
 import { GitCommitVerticalIcon } from "lucide-react";
-import { useId, useState } from "react";
+import { type KeyboardEvent, useId, useState } from "react";
 
 import { statusScope, useWorkingTreeStatus } from "@/features/working-tree";
 import { toIpcError } from "@/shared/ipc/client";
@@ -20,8 +20,12 @@ import {
   typed,
   useDraft,
 } from "../store/draft";
+import { useCommitLayout } from "../store/layout";
+import { AuthorLine } from "./AuthorLine";
 import { CommitOptions } from "./CommitOptions";
 import { CommitOutput } from "./CommitOutput";
+import { MessageBox } from "./MessageBox";
+import { FoldedSummary, MessageFold } from "./MessageFold";
 import { MessageMenu } from "./MessageMenu";
 import { SummaryHint } from "./SummaryHint";
 
@@ -62,6 +66,7 @@ export function CommitMessage({ repoId, repoPath, onCommitted }: CommitMessagePr
   const defaults = useCommitDefaults(repoId).data;
   const create = useCreateCommit(repoId);
   const [output, setOutput] = useState<string | null>(null);
+  const folded = useCommitLayout((state) => state.folded);
   const isMac = isMacPlatform();
   const commitKeys = useKeys("commit.commit");
   const template = defaults?.template?.text ?? null;
@@ -87,9 +92,37 @@ export function CommitMessage({ repoId, repoPath, onCommitted }: CommitMessagePr
     );
   };
 
+  const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>): void => {
+    if (!commitKeys || !matchesHotkey(event.nativeEvent, commitKeys, isMac)) return;
+    event.preventDefault();
+    commit();
+  };
+  const commitButton = (
+    <Button
+      size="sm"
+      className="h-7"
+      disabled={reason !== null || create.isPending}
+      title={reason ?? withHotkey("Commit", commitKeys, isMac)}
+      onClick={commit}
+    >
+      <GitCommitVerticalIcon aria-hidden />
+      {create.isPending ? "Committing…" : draft.amend ? "Amend" : "Commit"}
+    </Button>
+  );
+
+  if (folded) {
+    return (
+      <div className="flex shrink-0 items-center gap-2 border-t border-border px-2 py-1.5">
+        <MessageFold />
+        <FoldedSummary message={draft.message} />
+        {commitButton}
+      </div>
+    );
+  }
   return (
-    <div className="flex shrink-0 flex-col gap-2 border-t border-border p-2">
-      <div className="flex min-w-0 items-center justify-between gap-2">
+    <div className="flex shrink-0 flex-col gap-1.5 border-t border-border p-2">
+      <div className="flex min-w-0 items-center gap-1">
+        <MessageFold />
         <MessageMenu
           repoId={repoId}
           template={template}
@@ -100,27 +133,21 @@ export function CommitMessage({ repoId, repoPath, onCommitted }: CommitMessagePr
             changeDraft(repoPath, fromRecent(message));
           }}
         />
-        <SummaryHint message={stored} />
+        <span className="ml-auto min-w-0">
+          <SummaryHint message={stored} />
+        </span>
       </div>
       <label htmlFor={`${id}-message`} className="sr-only">
         Commit message
       </label>
-      <textarea
+      <MessageBox
         id={`${id}-message`}
         value={draft.message}
-        placeholder="Commit message"
-        rows={4}
-        spellCheck
-        aria-describedby={stripComments ? `${id}-comments` : undefined}
-        className="min-h-16 resize-y rounded-md border border-border bg-background px-2 py-1.5 font-mono text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
-        onChange={(event) => {
-          changeDraft(repoPath, typed(event.target.value));
+        describedBy={stripComments ? `${id}-comments` : undefined}
+        onChange={(message) => {
+          changeDraft(repoPath, typed(message));
         }}
-        onKeyDown={(event) => {
-          if (!commitKeys || !matchesHotkey(event.nativeEvent, commitKeys, isMac)) return;
-          event.preventDefault();
-          commit();
-        }}
+        onKeyDown={onKeyDown}
       />
       {stripComments && (
         <span id={`${id}-comments`} className="text-xs text-muted-foreground">
@@ -133,24 +160,24 @@ export function CommitMessage({ repoId, repoPath, onCommitted }: CommitMessagePr
           {defaults.template.problem}
         </span>
       )}
-      <CommitOptions
-        repoId={repoId}
-        repoPath={repoPath}
-        draft={draft}
-        configuredAuthor={defaults?.author ?? null}
+      <AuthorLine
+        configured={defaults?.author ?? null}
+        author={draft.author}
+        amend={draft.amend}
+        onChange={(author) => {
+          changeDraft(repoPath, { author });
+        }}
       />
-      <div className="flex items-center gap-2">
-        <Button
-          size="sm"
-          disabled={reason !== null || create.isPending}
-          title={reason ?? withHotkey("Commit", commitKeys, isMac)}
-          onClick={commit}
-        >
-          <GitCommitVerticalIcon aria-hidden />
-          {create.isPending ? "Committing…" : draft.amend ? "Amend" : "Commit"}
-        </Button>
-        {reason && <span className="text-xs text-muted-foreground">{reason}</span>}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <CommitOptions
+          repoId={repoId}
+          repoPath={repoPath}
+          draft={draft}
+          configuredAuthor={defaults?.author ?? null}
+        />
+        <span className="ml-auto">{commitButton}</span>
       </div>
+      {reason && <span className="text-xs text-muted-foreground">{reason}</span>}
       {outside > 0 && (
         <p className="text-xs text-warning">
           Also commits {outside} {outside === 1 ? "file" : "files"} staged outside{" "}

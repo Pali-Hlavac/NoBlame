@@ -5,6 +5,7 @@ import userEvent from "@testing-library/user-event";
 import type { CommitDefaultsDto } from "@/shared/ipc/bindings";
 
 import { useDraftStore } from "../store/draft";
+import { readCommitLayout, useCommitLayout } from "../store/layout";
 import { CommitMessage } from "./CommitMessage";
 
 const ipc = vi.hoisted(() => ({
@@ -41,6 +42,7 @@ describe("CommitMessage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     useDraftStore.setState({ drafts: {} });
+    useCommitLayout.setState({ folded: false });
     ipc.getStatus.mockResolvedValue({
       status: "ok",
       data: { summary: { staged: 1, unstaged: 0, untracked: 0, conflicted: 0 } },
@@ -92,9 +94,12 @@ describe("CommitMessage", () => {
 
   it("commits as someone else once the author reads Name <email>", async () => {
     renderMessage();
-    expect(await screen.findByText("Author: Ada Lovelace <ada@example.com>")).toBeVisible();
+    const change = await screen.findByRole("button", { name: "Change the author" });
+    await waitFor(() => {
+      expect(change.title).toContain("Author: Ada Lovelace <ada@example.com>.");
+    });
     fireEvent.change(messageBox(), { target: { value: "Apply the patch" } });
-    fireEvent.click(screen.getByRole("button", { name: "Change" }));
+    fireEvent.click(change);
     const author = screen.getByRole("textbox", { name: "Author" });
     fireEvent.change(author, { target: { value: "Grace Hopper" } });
     expect(screen.getByText("Write it as Name <email>.")).toBeVisible();
@@ -112,7 +117,8 @@ describe("CommitMessage", () => {
       });
     });
     // The override is for one commit.
-    expect(await screen.findByText("Author: Ada Lovelace <ada@example.com>")).toBeVisible();
+    expect(await screen.findByRole("button", { name: "Change the author" })).toBeVisible();
+    expect(screen.queryByRole("textbox", { name: "Author" })).toBeNull();
   });
 
   it("measures the summary and warns about a second line", () => {
@@ -120,5 +126,18 @@ describe("CommitMessage", () => {
     fireEvent.change(messageBox(), { target: { value: `${"x".repeat(60)}\nmore` } });
     expect(screen.getByText("Leave line 2 empty")).toBeVisible();
     expect(screen.getByText(/60\/50/)).toHaveClass("text-warning");
+  });
+
+  it("folds to the summary and the Commit button, and back", async () => {
+    const user = userEvent.setup();
+    renderMessage();
+    fireEvent.change(messageBox(), { target: { value: "Fold me\n\nBody" } });
+    await user.click(screen.getByRole("button", { name: "Fold the message to one line" }));
+    expect(screen.queryByRole("textbox", { name: "Commit message" })).toBeNull();
+    expect(screen.getByText("Fold me")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Commit" })).toBeVisible();
+    expect(readCommitLayout().folded).toBe(true);
+    await user.click(screen.getByRole("button", { name: "Show the whole message" }));
+    expect(messageBox().value).toBe("Fold me\n\nBody");
   });
 });

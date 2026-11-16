@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import { useFetchHeadMessage } from "../api/commit";
 import { type CommitDraft, amendOff, amendOn, changeDraft, draftOf } from "../store/draft";
-import { AuthorLine } from "./AuthorLine";
+import { AuthorButton } from "./AuthorLine";
 
 interface CommitOptionsProps {
   repoId: number;
@@ -15,14 +15,16 @@ interface CommitOptionsProps {
 function Check({
   checked,
   onChange,
+  title,
   children,
 }: {
   checked: boolean;
   onChange: (checked: boolean) => void;
+  title: string;
   children: ReactNode;
 }) {
   return (
-    <label className="flex items-center gap-1.5">
+    <label className="flex items-center gap-1.5 text-sm" title={title}>
       <input
         type="checkbox"
         className="size-4 accent-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
@@ -36,7 +38,7 @@ function Check({
   );
 }
 
-/** Amend last commit, Sign off, and who the commit is by. */
+/** Amend, Sign off, and who the commit is by (a button; the author line is apart). */
 export function CommitOptions({ repoId, repoPath, draft, configuredAuthor }: CommitOptionsProps) {
   const fetchHeadMessage = useFetchHeadMessage(repoId);
 
@@ -56,28 +58,32 @@ export function CommitOptions({ repoId, repoPath, draft, configuredAuthor }: Com
   };
 
   return (
-    <div className="flex flex-col gap-1">
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-        <Check checked={draft.amend} onChange={toggleAmend}>
-          Amend last commit
-        </Check>
-        <Check
-          checked={draft.signOff}
-          onChange={(signOff) => {
-            changeDraft(repoPath, { signOff });
-          }}
-        >
-          Sign off
-        </Check>
-      </div>
-      <AuthorLine
-        configured={configuredAuthor}
-        author={draft.author}
-        amend={draft.amend}
-        onChange={(author) => {
-          changeDraft(repoPath, { author });
+    <>
+      <Check
+        checked={draft.amend}
+        onChange={toggleAmend}
+        title="Change the last commit instead of adding one"
+      >
+        Amend
+      </Check>
+      <Check
+        checked={draft.signOff}
+        onChange={(signOff) => {
+          changeDraft(repoPath, { signOff });
         }}
-      />
-    </div>
+        title="Add a Signed-off-by line with your name"
+      >
+        Sign off
+      </Check>
+      {draft.author === null && (
+        <AuthorButton
+          configured={configuredAuthor}
+          amend={draft.amend}
+          onChange={(author) => {
+            changeDraft(repoPath, { author });
+          }}
+        />
+      )}
+    </>
   );
 }

@@ -55,9 +55,17 @@ limited to the folder or file given: see [cli.md](cli.md#task-windows-m8).
   conflict resolved.
 - While git runs, the buttons are disabled and the list being emptied says **Staging…** or
   **Unstaging…** (on 40,000 changed files `git add` takes about 13 s).
-- The message box (Ctrl/⌘+Enter commits), **Amend last commit**, **Sign off**, the author, the
-  Commit button (labelled **Amend** when amending) and why it is disabled. See
+- The message box (Ctrl/⌘+Enter commits), **Amend**, **Sign off**, the author, the Commit
+  button (labelled **Amend** when amending) and why it is disabled. See
   [The message](#the-message-slice-4).
+- **Layout** (owner request 2026-11-16, "little height for the two lists"): a splitter between
+  Changes and Staged (`ListsSplit`); the message area takes its content's height (at most 70 %),
+  kept small: the box is one line while empty and not focused and grows with the message (3 to
+  10 lines, `MessageBox`), Amend, Sign off, an author button and the Commit button share one
+  row, the author line shows only for another author. **Message ▾** folds the area to one line
+  (its summary and the Commit button, `MessageFold`). Popped out, a splitter between the lists
+  and the diff (240 px at least each side). The shares, the width and the fold are remembered
+  in this window's storage (`store/layout.ts`, like the theme).
 - Ticking Amend with an empty box fills in the last commit's message (`get_head_message`);
   unticking takes it away again unless it was edited.
 - **Discard**: a **↶** button on Changes rows (not conflicted files or submodules) and in the
@@ -91,9 +99,9 @@ character) each time it mounts.
   read only from config files gix trusts (the repository's own config only when it is owned by
   the user), `~` expanded, relative paths taken from the working tree; at most 64 KB. When it
   cannot be read, a warning names it.
-- **Author**: the line under the options shows the configured author (`author.*`, `user.*`,
-  `GIT_AUTHOR_*`, via gix), "kept from the last commit" while amending, or "not configured".
-  **Change** opens a field for `Name <email>` (checked as typed, and again in Rust by
+- **Author**: the person button beside the options names the configured author in its tooltip
+  (`author.*`, `user.*`, `GIT_AUTHOR_*`, via gix), "kept from the last commit" while amending,
+  or "not configured". Clicking it opens a field for `Name <email>` (checked as typed, and again in Rust by
   `Identity::parse`); the commit runs `git commit --author=<it>`; × goes back to the configured
   one. The override is cleared by a commit.
 - **Summary hints** (`SummaryHint`, `lib/message.ts`): the summary's length (grapheme clusters,

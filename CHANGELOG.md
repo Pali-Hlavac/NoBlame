@@ -193,6 +193,10 @@ All notable changes to NoBlame are documented here. The format follows
   2026-11-16).
 - Command palette: **Create a branch…**, at the commit selected in the graph or else at HEAD
   (owner request 2026-11-16).
+- Commit module: more room for the lists (owner request 2026-11-16): a splitter between
+  Changes and Staged; the message box is one line until used and grows with the message;
+  Amend, Sign off, the author and Commit share one row; **Message** folds the area to one line;
+  popped out, the lists and the diff have a splitter. All remembered.
 - A submodule's commit graph labels the commits its superproject's local branches record
   (`app: main`; owner request 2026-11-16).
 - Submodules follow their repository (owner request 2026-11-16): fetch includes them

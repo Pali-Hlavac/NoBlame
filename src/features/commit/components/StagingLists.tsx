@@ -21,6 +21,7 @@ import { useShownFiles } from "../hooks/useShownFiles";
 import { indexPaths, neighbour, resolveQuestion } from "../lib/files";
 import { IgnoreDialog } from "./IgnoreDialog";
 import { STAGE, UNSTAGE } from "../lib/verbs";
+import { ListsSplit } from "./ListsSplit";
 import { StagingList } from "./StagingList";
 
 /** A change waiting for the user to confirm it. */
@@ -159,9 +160,7 @@ export function StagingLists({ repoId, repoPath, showDiff }: StagingListsProps) 
 
   return (
     <>
-      {list("worktree")}
-      <div className="border-t border-border" />
-      {list("index")}
+      <ListsSplit changes={list("worktree")} staged={list("index")} />
       <ConfirmDialog
         open={pending !== null}
         onOpenChange={(open) => {

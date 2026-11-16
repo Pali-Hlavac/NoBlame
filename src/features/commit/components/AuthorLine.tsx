@@ -14,30 +14,32 @@ interface AuthorLineProps {
   onChange: (author: string | null) => void;
 }
 
-/** Who the commit is by: the configured author, or someone else typed as `Name <email>`. */
-export function AuthorLine({ configured, author, amend, onChange }: AuthorLineProps) {
+/**
+ * Who the commit is by, as a small button beside the options: the configured author in its
+ * tooltip; clicking it types someone else (the author line below).
+ */
+export function AuthorButton({ configured, amend, onChange }: Omit<AuthorLineProps, "author">) {
+  const who = amend ? "kept from the last commit" : (configured ?? "not configured");
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="size-6"
+      aria-label="Change the author"
+      title={`Author: ${who}. Click to commit as someone else.`}
+      onClick={() => {
+        onChange("");
+      }}
+    >
+      <UserPenIcon aria-hidden />
+    </Button>
+  );
+}
+
+/** Someone else as the author, typed as `Name <email>`; × goes back to the configured one. */
+export function AuthorLine({ configured, author, onChange }: AuthorLineProps) {
   const id = useId();
-  if (author === null) {
-    const who = amend ? "kept from the last commit" : (configured ?? "not configured");
-    return (
-      <div className="flex min-w-0 items-center gap-1 text-xs text-muted-foreground">
-        <span className="min-w-0 truncate" title={configured ?? undefined}>
-          Author: {who}
-        </span>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-6 px-1.5"
-          onClick={() => {
-            onChange("");
-          }}
-        >
-          <UserPenIcon aria-hidden />
-          Change
-        </Button>
-      </div>
-    );
-  }
+  if (author === null) return null;
   const invalid = author.trim() !== "" && !isAuthor(author);
   return (
     <div className="flex flex-col gap-1">

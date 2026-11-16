@@ -1206,7 +1206,7 @@ The owner's notes of 2026-11-16 (see the ideas inbox):
 - [x] Command palette: **Create a branch**
 - [x] Create a branch dialog: nothing outside it
 - [x] Repositories module: uncommitted file counts for submodules
-- [ ] Commit module: more room for the lists
+- [x] Commit module: more room for the lists
 - [x] Submodule graph: labels for the main repository's local branches
 
 ### M9: Polish and release

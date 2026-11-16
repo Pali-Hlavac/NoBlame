@@ -76,10 +76,16 @@ A file with conflicts can only be staged whole.
 
 ## The message and committing
 
+To give the file lists more room, drag the line between **Changes** and **Staged**, or click
+**Message** to fold the message area to one line: the start of your message and the **Commit**
+button. Click it again to write. The box itself stays one line high until you click into it.
+When the Commit module is popped out, drag the line between the lists and the diff to see more
+of the paths. NoBlame remembers all of this.
+
 Write the message in the box: the first line is the summary, then an empty line, then the
 details. Press **Ctrl+Enter** (⌘Enter on macOS) or click **Commit**.
 
-- **Amend last commit** replaces the last commit with a new one: what you staged is added to it,
+- **Amend** replaces the last commit with a new one: what you staged is added to it,
   and its message is filled in for you to edit. Untick it to take that message away again. Do
   not amend a commit you have already pushed, unless you mean to rewrite it.
 - **Sign off** adds a `Signed-off-by:` line with your name, as some projects require.
@@ -97,8 +103,8 @@ commit. Lines starting with `#` (or your `core.commentChar`) are left out of the
 does, and the line under the box says so. **Commit** waits until you have filled the template in.
 **Recent → Start from the template** brings it back.
 
-Under the options, **Author** shows who the commit will be by: your name and e-mail from Git.
-To commit someone else's work (a patch they sent), click **Change** and type their
+The person button beside **Sign off** says who the commit will be by (point at it): your name
+and e-mail from Git. To commit someone else's work (a patch they sent), click it and type their
 `Name <email>`; you stay the committer. Click **×** to go back to yourself. The next commit is
 yours again.
 

@@ -174,12 +174,12 @@ describe("CommitPanel", () => {
   it("fills in the last message for Amend and takes it away again", async () => {
     ipc.getHeadMessage.mockResolvedValue({ status: "ok", data: "Old subject\n\nBody\n" });
     renderPanel();
-    fireEvent.click(await screen.findByRole("checkbox", { name: "Amend last commit" }));
+    fireEvent.click(await screen.findByRole("checkbox", { name: "Amend" }));
     await waitFor(() => {
       expect(messageBox().value).toBe("Old subject\n\nBody");
     });
     expect(screen.getByRole("button", { name: "Amend" })).toBeEnabled();
-    fireEvent.click(screen.getByRole("checkbox", { name: "Amend last commit" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Amend" }));
     expect(messageBox().value).toBe("");
   });
 
