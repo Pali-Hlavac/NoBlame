@@ -36,11 +36,18 @@ interface TabsState {
    * non-repository tab (for example the diff) is focused, so modules keep following it.
    */
   activeRepositoryTabId: string | null;
+  /**
+   * Open tabs by when they were last focused, the most recent first. Kept here, not in the dock,
+   * so rearranging the dock (a group closing, tabs moved) does not forget it; closing the focused
+   * tab shows the one used before it.
+   */
+  recent: string[];
   /** Opens the tab, or focuses it if a tab with the same id is already open. */
   openTab: (tab: WorkspaceTab) => void;
   /**
    * Closes the tab. When it was active, `nextActiveId`, else the registered fallback's choice
-   * ({@link setCloseFallback}), else its right neighbor (or the new last tab) becomes active.
+   * ({@link setCloseFallback}), else the tab used before it, else its right neighbor (or the new
+   * last tab) becomes active.
    */
   closeTab: (id: string, nextActiveId?: string | null) => void;
   activateTab: (id: string) => void;
@@ -50,6 +57,12 @@ interface TabsState {
   cycleTab: (offset: number) => void;
   /** Replaces every tab, for example with the tabs of a restored layout. */
   replaceTabs: (tabs: WorkspaceTab[], activeTabId: string | null) => void;
+}
+
+/** `recent` with `id` first (when there is one). */
+function touch(recent: readonly string[], id: string | null): string[] {
+  const rest = recent.filter((other) => other !== id);
+  return id === null ? rest : [id, ...rest];
 }
 
 /** The repository tab that should be the active repository after `activeTabId` changes. */
@@ -80,6 +93,7 @@ export const useTabsStore = create<TabsState>()((set) => ({
   tabs: [WELCOME_TAB],
   activeTabId: WELCOME_TAB.id,
   activeRepositoryTabId: null,
+  recent: [WELCOME_TAB.id],
 
   openTab: (tab) => {
     set((state) => {
@@ -90,6 +104,7 @@ export const useTabsStore = create<TabsState>()((set) => ({
         tabs,
         activeTabId: tab.id,
         activeRepositoryTabId: nextRepositoryTab(tabs, tab.id, state.activeRepositoryTabId),
+        recent: touch(state.recent, tab.id),
       };
     });
   },
@@ -103,12 +118,20 @@ export const useTabsStore = create<TabsState>()((set) => ({
       if (activeTabId === id) {
         const preferredId = nextActiveId ?? closeFallback?.(id);
         const preferred = tabs.find((tab) => tab.id === preferredId);
-        activeTabId = (preferred ?? tabs[Math.min(index, tabs.length - 1)])?.id ?? null;
+        const usedLast = state.recent.find(
+          (other) => other !== id && tabs.some((t) => t.id === other),
+        );
+        activeTabId =
+          preferred?.id ?? usedLast ?? tabs[Math.min(index, tabs.length - 1)]?.id ?? null;
       }
       return {
         tabs,
         activeTabId,
         activeRepositoryTabId: nextRepositoryTab(tabs, activeTabId, state.activeRepositoryTabId),
+        recent: touch(
+          state.recent.filter((other) => other !== id),
+          activeTabId,
+        ),
       };
     });
   },
@@ -117,6 +140,7 @@ export const useTabsStore = create<TabsState>()((set) => ({
     set((state) => ({
       activeTabId: id,
       activeRepositoryTabId: nextRepositoryTab(state.tabs, id, state.activeRepositoryTabId),
+      recent: touch(state.recent, id),
     }));
   },
 
@@ -137,17 +161,26 @@ export const useTabsStore = create<TabsState>()((set) => ({
       return {
         activeTabId: next,
         activeRepositoryTabId: nextRepositoryTab(state.tabs, next, state.activeRepositoryTabId),
+        recent: touch(state.recent, next),
       };
     });
   },
 
   replaceTabs: (tabs, activeTabId) => {
     const active = tabs.some((tab) => tab.id === activeTabId) ? activeTabId : (tabs[0]?.id ?? null);
-    set({
+    set((state) => ({
       tabs,
       activeTabId: active,
       activeRepositoryTabId: nextRepositoryTab(tabs, active, null),
-    });
+      // The order of the tabs that stay open is kept; the others follow in tab order.
+      recent: touch(
+        [
+          ...state.recent.filter((id) => tabs.some((tab) => tab.id === id)),
+          ...tabs.map((tab) => tab.id).filter((id) => !state.recent.includes(id)),
+        ],
+        active,
+      ),
+    }));
   },
 }));
 

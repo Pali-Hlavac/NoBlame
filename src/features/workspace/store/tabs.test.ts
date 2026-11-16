@@ -16,6 +16,7 @@ beforeEach(() => {
     tabs: [WELCOME_TAB],
     activeTabId: WELCOME_TAB.id,
     activeRepositoryTabId: null,
+    recent: [WELCOME_TAB.id],
   });
 });
 
@@ -40,12 +41,21 @@ describe("tabs store", () => {
     expect(state().activeTabId).toBe("welcome");
   });
 
-  it("activates the right neighbor when closing the active tab", () => {
+  it("activates the tab used before when closing the active tab", () => {
     state().openTab(tab("a"));
     state().openTab(tab("b"));
+    state().openTab(tab("c"));
     state().activateTab("a");
     state().closeTab("a");
-    expect(state().activeTabId).toBe("b");
+    expect(state().activeTabId).toBe("c");
+    expect(state().recent).toEqual(["c", "b", "welcome"]);
+  });
+
+  it("keeps the order of use when the tabs are replaced (a layout restored)", () => {
+    state().openTab(tab("a"));
+    state().openTab(tab("b"));
+    state().replaceTabs([tab("b"), tab("x"), tab("a")], "a");
+    expect(state().recent).toEqual(["a", "b", "x"]);
   });
 
   it("falls back to the last tab when closing the active last tab", () => {

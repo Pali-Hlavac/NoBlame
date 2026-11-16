@@ -1196,7 +1196,7 @@ running, and a second instance would forward to it): see the manual checklist.
 The owner's notes of 2026-11-16 (see the ideas inbox):
 
 - [x] Graph: the working tree row highlights HEAD's history
-- [ ] Document tabs: closing one shows the one used last, also after the layout changed
+- [x] Document tabs: closing one shows the one used last, also after the layout changed
 - [x] Commit module: arrows keep moving between files after staging with Space
 - [ ] Graph: an arrow on a branch label with an upstream selects the other's commit
 - [ ] Files module: a filter box for the whole tree

@@ -193,6 +193,8 @@ All notable changes to NoBlame are documented here. The format follows
   2026-11-16).
 - Command palette: **Create a branch…**, at the commit selected in the graph or else at HEAD
   (owner request 2026-11-16).
+- Tabs: closing the focused tab shows the tab used before it, also after tabs were moved or a
+  split closed, instead of its neighbour (owner request 2026-11-16).
 - Commit graph: choosing a working tree row highlights HEAD's history, as choosing HEAD does
   (owner request 2026-11-16).
 - Commit module: choose several files (Ctrl+click, Shift+click, Ctrl+Shift+click, Shift+arrows,

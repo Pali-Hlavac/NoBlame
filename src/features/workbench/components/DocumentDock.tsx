@@ -93,7 +93,7 @@ function connect(api: DockviewApi): () => void {
   sync();
   const unsubscribe = useTabsStore.subscribe(sync);
   setCloseFallback((closedId) =>
-    nextActiveAfterClose(api, closedId, useTabsStore.getState().activeRepositoryTabId),
+    nextActiveAfterClose(api, closedId, useTabsStore.getState().recent),
   );
   const subscriptions = [
     api.onDidActivePanelChange((event) => {
@@ -103,7 +103,11 @@ function connect(api: DockviewApi): () => void {
       }
     }),
     api.onDidRemovePanel((panel) => {
-      if (!reconciling) useTabsStore.getState().closeTab(panel.id);
+      if (reconciling) return;
+      // Closed in the dock (its ×, middle click): the dock already showed the next tab of the
+      // group by its own order, which forgets what was used when groups change; choose by ours.
+      const store = useTabsStore.getState();
+      store.closeTab(panel.id, nextActiveAfterClose(api, panel.id, store.recent, panel.group));
     }),
     api.onDidLayoutChange(scheduleLayoutSave),
   ];

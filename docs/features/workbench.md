@@ -34,7 +34,11 @@ Stashes and the toolbar arrive in M4 and M5.
   opens in a popup over the window instead of the dock (see below).
 - **Stacks** and the activity bar's arrangement: see below (owner request 2026-11-13).
 - **Document dock**: Welcome and repository tabs. Drag a tab to an edge to split the dock left,
-  right, above or below. New tabs open in the focused group.
+  right, above or below. New tabs open in the focused group. Closing the focused tab shows the
+  tab of its group used last (`recent` in the tabs store, most recent first; owner request
+  2026-11-16), else the tab on screen used last (`lib/nextActive.ts`). The order lives in the
+  store, not in dockview, whose own order starts over when groups change; a restored layout
+  keeps it.
 - **Title bar** (custom, `features/window-frame`):
   - It holds the toolbar's actions for the active repository, a drag area, the active repository
     with its current branch, the command palette button and the window buttons.

@@ -175,7 +175,8 @@ each other, beside the commit graph. **History** ([File history](file-history.md
 ([Blame](blame.md)) open beside the repository tab, so the Diff tab stays visible next to them.
 **Compare** ([Comparing](compare.md)) opens with the Diff and File tabs, beside the graph.
 
-- Click a tab to show it. Click the **×** on a tab to close it.
+- Click a tab to show it. Click the **×** on a tab to close it; the tab you used before it
+  shows instead, also after you have moved tabs around.
 - Opening a repository that is already open switches to its tab instead of opening a second one.
 - To see two tabs at once, drag one by its title to the left, right, top or bottom edge of the
   tab area.
