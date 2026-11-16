@@ -43,6 +43,7 @@ const APP_COMMANDS: &[&str] = &[
     "get_file_contents",
     "get_tree_entry",
     "list_tree",
+    "search_tree",
     "get_file_history",
     "get_file_history_rows",
     "get_blame",

@@ -8,7 +8,7 @@ import type { TreeListingDto } from "@/shared/ipc/bindings";
 import { useFilesStore } from "../store/files";
 import { FileTree } from "./FileTree";
 
-const ipc = vi.hoisted(() => ({ listTree: vi.fn() }));
+const ipc = vi.hoisted(() => ({ listTree: vi.fn(), searchTree: vi.fn() }));
 
 vi.mock("@/shared/ipc/bindings", () => ({ commands: ipc }));
 
@@ -43,7 +43,7 @@ function renderTree() {
 
 describe("FileTree", () => {
   beforeEach(() => {
-    useFilesStore.setState({ expanded: {}, cursor: {}, chosen: {} });
+    useFilesStore.setState({ expanded: {}, cursor: {}, chosen: {}, filter: {} });
     useTabsStore.setState({ tabs: [], activeTabId: null, activeRepositoryTabId: null });
   });
 
@@ -81,5 +81,54 @@ describe("FileTree", () => {
     expect(useFilesStore.getState().cursor["/repo"]).toBe("src");
     await user.keyboard("{ArrowLeft}");
     expect(screen.queryByRole("treeitem", { name: "main.rs, file" })).toBeNull();
+  });
+
+  it("shows what the filter found in the whole tree, and the tree again once cleared", async () => {
+    ipc.searchTree.mockResolvedValue({
+      status: "ok",
+      data: {
+        rows: [
+          {
+            path: "src",
+            depth: 0,
+            entry: { name: "src", kind: "folder", id: "t-src" },
+            matched: false,
+          },
+          {
+            path: "src/main.rs",
+            depth: 1,
+            entry: { name: "main.rs", kind: "file", id: "b-main" },
+            matched: true,
+          },
+        ],
+        matches: 1,
+        complete: true,
+      },
+    });
+    const user = userEvent.setup();
+    renderTree();
+    await screen.findByRole("treeitem", { name: "README.md, file" });
+    useFilesStore.getState().setFilter("/repo", "main");
+    const found = await screen.findByRole("treeitem", { name: "main.rs, file" });
+    expect(ipc.searchTree).toHaveBeenCalledWith(1, "root", "main");
+    expect(screen.queryByRole("treeitem", { name: "README.md, file" })).toBeNull();
+    await user.click(found);
+    // Closing a folder of the result hides what is in it.
+    await user.click(screen.getByRole("treeitem", { name: "src, folder, open" }));
+    expect(screen.queryByRole("treeitem", { name: "main.rs, file" })).toBeNull();
+    useFilesStore.getState().setFilter("/repo", "");
+    useFilesStore.getState().reveal("/repo", "src/main.rs");
+    expect(await screen.findByRole("treeitem", { name: "README.md, file" })).toBeVisible();
+    expect(await screen.findByRole("treeitem", { name: "main.rs, file" })).toBeVisible();
+  });
+
+  it("says when nothing matches", async () => {
+    ipc.searchTree.mockResolvedValue({
+      status: "ok",
+      data: { rows: [], matches: 0, complete: true },
+    });
+    renderTree();
+    useFilesStore.getState().setFilter("/repo", "nothing");
+    expect(await screen.findByText("No file matches")).toBeVisible();
   });
 });

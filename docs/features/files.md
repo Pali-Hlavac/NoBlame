@@ -32,6 +32,13 @@ commit" in the commit context menu opens the module.
   file exactly as the repository stores it: no line-ending conversion, no other filters. A
   Git LFS file saves its pointer.
 - Working tree rows and no selection explain that a commit must be selected.
+- **Filter** (the box in the header; owner request 2026-11-16): the whole tree of the commit is
+  searched (`search_tree`) for the paths holding every word typed, ignoring case; the matches
+  show with the folders leading to them, all open, the folders only on the way greyed. A
+  folder can be closed in the result (only there). At most 2,000 matches; a note says when the
+  search stopped. The words stay per repository, so selecting another commit searches its tree;
+  clearing the box (× or Esc) shows the tree with the folders above the file with the cursor
+  opened. Typing waits 150 ms before searching.
 
 ## How it works
 
@@ -68,10 +75,13 @@ Measured in the debug build through IPC (2026-10-30):
   has 1,614 entries).
 - A folder of 100,000 files takes 163 ms and sends the first 50,000 entries (4.5 MB).
 - Opening that folder again from the cache shows it within 13–17 ms.
+- Filtering the Linux kernel's 97,310 files: 42–44 ms (release, outside the UI; the first search
+  after opening reads the tree objects, about 0.5 s); see
+  [performance.md](../development/performance.md#files-of-a-revision-m3-slice-7-2026-10-30).
 
 ## Not yet
 
-- Filtering the tree by name, and "find file".
+- Highlighting the matched words in the filtered tree.
 - Opening a file in an external program (writing a temporary copy and opening it with its
   default program), and saving through Git's filters (line endings, LFS contents).
 - Comparing two revisions of one file from the history tab (the compare tab compares whole

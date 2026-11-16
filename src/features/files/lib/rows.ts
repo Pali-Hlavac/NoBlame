@@ -20,6 +20,8 @@ export type TreeRow =
       entry: TreeEntryDto;
       /** An open folder (its entries follow). */
       expanded: boolean;
+      /** Searching: a folder shown only because something in it matched. */
+      onTheWay?: boolean;
     }
   | {
       type: "note";

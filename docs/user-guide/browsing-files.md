@@ -8,6 +8,10 @@ this commit**.
   it; **Left** closes it or moves up to its folder.
 - Click a file, or move onto it with the arrow keys, to show it in the **File** tab. The tab
   shows the file with line numbers and colours; pictures are shown as pictures.
+- To find a file, type part of its name or path in the **Filter the files** box at the top:
+  the tree shows only the files and folders whose path contains every word you typed, from
+  the whole commit, with their folders opened. Clear the box (**×** or **Esc**) to see the whole
+  tree again, opened to the file you chose.
 - Select another commit and the tree and the File tab follow it. Open folders stay open, and the
   File tab shows the same file at that commit, or tells you that commit does not have it.
 

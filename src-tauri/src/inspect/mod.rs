@@ -18,6 +18,7 @@ mod signing;
 mod split;
 pub mod submodule_log;
 mod syntax;
+pub mod tree_search;
 mod types;
 
 pub use blame::BlameDto;

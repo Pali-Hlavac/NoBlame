@@ -193,6 +193,9 @@ All notable changes to NoBlame are documented here. The format follows
   2026-11-16).
 - Command palette: **Create a branch…**, at the commit selected in the graph or else at HEAD
   (owner request 2026-11-16).
+- Files module: a filter box; the whole tree of the commit is searched for the paths holding
+  every word typed, shown with their folders opened (`search_tree`; 43 ms on the Linux kernel's
+  97,310 files; owner request 2026-11-16).
 - Tabs: closing the focused tab shows the tab used before it, also after tabs were moved or a
   split closed, instead of its neighbour (owner request 2026-11-16).
 - Commit graph: choosing a working tree row highlights HEAD's history, as choosing HEAD does

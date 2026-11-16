@@ -127,6 +127,11 @@ export const commands = {
 	/**  The entries of folder `tree_id` (at most 50,000), folders first. */
 	listTree: (id: number, treeId: string) => typedError<TreeListingDto, AppError>(__TAURI_INVOKE("list_tree", { id, treeId })),
 	/**
+	 *  The entries of folder `tree_id` and below whose path holds every word of `query` (ignoring
+	 *  case), with the folders leading to them; at most 2,000 matches.
+	 */
+	searchTree: (id: number, treeId: string, query: string) => typedError<TreeSearchDto, AppError>(__TAURI_INVOKE("search_tree", { id, treeId, query })),
+	/**
 	 *  The history of file or folder `path` on the branches the graph's filter shows, following
 	 *  renames: how many commits and the file's earlier names. Commits come from
 	 *  `get_file_history_rows`. A request for another path cancels one still being read.
@@ -2803,6 +2808,28 @@ export type TreeListingDto = {
 	entries: TreeEntryDto[],
 	/**  All entries, including those not listed. */
 	total: number,
+};
+
+/**  What a search found. */
+export type TreeSearchDto = {
+	/**  Matches and the folders leading to them, in tree order (folders first, by name). */
+	rows: TreeSearchRowDto[],
+	/**  Matching entries listed (at most 2,000). */
+	matches: number,
+	/**  Every folder was searched (false when the search stopped at the limit). */
+	complete: boolean,
+};
+
+/**  One row of a search: a match, or a folder on the way to one. */
+export type TreeSearchRowDto = {
+	/**  Path from the root, `/`-separated (non-UTF-8 bytes replaced). */
+	path: string,
+	/**  Folders above it (0 at the root). */
+	depth: number,
+	/**  The entry itself. */
+	entry: TreeEntryDto,
+	/**  Its path holds every word of the query. */
+	matched: boolean,
 };
 
 /**  The commits only one branch or tag holds: what deleting it leaves unreachable. */

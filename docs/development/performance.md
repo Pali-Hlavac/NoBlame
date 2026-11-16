@@ -352,6 +352,19 @@ Debug build, measured in the running app through IPC (`invoke`), Windows 11:
 | Synthetic folder of 100,000 files: list it        | 163 ms   | first 50,000 sent (4.5 MB of JSON) |
 | The same folder opened again in the tree (cached) | 13–17 ms | until the rows are on screen       |
 
+Filtering the tree (`search_tree`, owner request 2026-11-16): every folder of the commit is
+read with gix and each path checked for the query's words. Release build, outside the UI
+(`cargo run --release -p git-core --example tree_search_spike -- <repo> <query>`), Linux kernel
+HEAD (97,310 files):
+
+| Query        | Result                        | First run | Then     |
+| ------------ | ----------------------------- | --------- | -------- |
+| `usb serial` | 92 matches, 104 rows          | 524 ms    | 42–44 ms |
+| `zzqx`       | nothing (the whole tree read) | 63 ms     | 43 ms    |
+| `drivers`    | stops at 2,000 matches        | 24 ms     | 15 ms    |
+
+The first run reads the tree objects from the pack; later searches find them in gix's cache.
+
 File views use the diff pipeline (`file_view`), so their cost is a file diff's without the
 comparison. They were not timed on the Linux clone: it is blobless and has no checkout, so its
 file contents are not local.

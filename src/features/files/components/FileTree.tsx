@@ -1,9 +1,15 @@
 import { showFileTab } from "@/features/workspace";
 import { VirtualList } from "@/shared/components/VirtualList";
 
-import { useTreeRows } from "../hooks/useTreeRows";
+import { SearchXIcon } from "lucide-react";
+
+import { EmptyState } from "@/shared/components/EmptyState";
+import { ErrorState } from "@/shared/components/ErrorState";
+import { LoadingState } from "@/shared/components/LoadingState";
+
+import { useShownRows } from "../hooks/useShownRows";
 import { describeRow, parentRow, type TreeRow } from "../lib/rows";
-import { useExpanded, useFilesStore } from "../store/files";
+import { useFilesStore } from "../store/files";
 import { FileTreeMenu } from "./FileTreeMenu";
 import { FileTreeRow } from "./FileTreeRow";
 
@@ -27,12 +33,12 @@ interface FileTreeProps {
  * folder or shows a file in the file tab.
  */
 export function FileTree({ repoId, repoPath, rootId, commit, label }: FileTreeProps) {
-  const expanded = useExpanded(repoPath);
-  const rows = useTreeRows(repoId, rootId, expanded);
+  const shown = useShownRows(repoId, rootId, repoPath);
+  const { rows, setOpen } = shown;
   const cursor = useFilesStore((state) => state.cursor[repoPath]);
   const found = cursor === undefined ? -1 : rows.findIndex((row) => row.path === cursor);
   const activeIndex = found < 0 ? undefined : found;
-  const { setExpanded, setCursor, choose } = useFilesStore.getState();
+  const { setCursor, choose } = useFilesStore.getState();
 
   const show = (row: TreeRow): void => {
     if (row.type !== "entry") return;
@@ -42,7 +48,7 @@ export function FileTree({ repoId, repoPath, rootId, commit, label }: FileTreePr
   /** Enter or a click: a folder opens or closes, anything else is shown in the file tab. */
   const activate = (row: TreeRow | undefined): void => {
     if (row?.type !== "entry") return;
-    if (row.entry.kind === "folder") setExpanded(repoPath, row.path, !row.expanded);
+    if (row.entry.kind === "folder") setOpen(row.path, !row.expanded);
     else show(row);
   };
   const onKey = (key: string, index: number | undefined): boolean => {
@@ -51,18 +57,35 @@ export function FileTree({ repoId, repoPath, rootId, commit, label }: FileTreePr
     const folder = row.entry.kind === "folder";
     if (key === "ArrowRight" && folder) {
       const child = rows[index + 1];
-      if (!row.expanded) setExpanded(repoPath, row.path, true);
+      if (!row.expanded) setOpen(row.path, true);
       else if (child && child.depth > row.depth) setCursor(repoPath, child.path);
       return true;
     }
     if (key === "ArrowLeft") {
       const parent = parentRow(rows, index);
-      if (folder && row.expanded) setExpanded(repoPath, row.path, false);
+      if (folder && row.expanded) setOpen(row.path, false);
       else if (parent !== undefined) setCursor(repoPath, rows[parent]?.path ?? "");
       return true;
     }
     return false;
   };
+
+  if (shown.filtering && rows.length === 0) {
+    if (shown.error) {
+      return (
+        <ErrorState error={shown.error} title="Could not search the files" className="flex-1" />
+      );
+    }
+    if (shown.searching) return <LoadingState label="Searching…" className="flex-1" />;
+    return (
+      <EmptyState
+        icon={SearchXIcon}
+        title="No file matches"
+        description="Every word must be somewhere in the file's path."
+        className="flex-1"
+      />
+    );
+  }
 
   const current = activeIndex === undefined ? undefined : rows[activeIndex];
   return (

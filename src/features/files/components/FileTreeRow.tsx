@@ -75,7 +75,7 @@ export function FileTreeRow({ row, active }: { row: TreeRow; active: boolean }) 
         )}
         aria-hidden
       />
-      <span className="truncate">{entry.name}</span>
+      <span className={cn("truncate", row.onTheWay && "text-muted-foreground")}>{entry.name}</span>
     </div>
   );
 }

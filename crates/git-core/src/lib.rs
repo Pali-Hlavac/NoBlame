@@ -29,5 +29,6 @@ pub mod stash;
 pub mod status;
 pub mod submodule;
 pub mod tree;
+pub mod tree_search;
 pub mod watch;
 pub mod worktree;

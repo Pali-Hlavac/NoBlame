@@ -9,6 +9,7 @@ import { ErrorState } from "@/shared/components/ErrorState";
 import { LoadingState } from "@/shared/components/LoadingState";
 
 import { useTreeEntry } from "../api/tree";
+import { FileFilter } from "./FileFilter";
 import { FileTree } from "./FileTree";
 
 interface CommitFilesProps {
@@ -35,14 +36,17 @@ function CommitFiles({ repoId, repoPath, row }: CommitFilesProps) {
   const label = commit ? `Files at ${commit}` : "Files";
   return (
     <div className="flex h-full flex-col">
-      <div className="shrink-0 border-b border-border px-2 py-1 text-xs text-muted-foreground">
-        {commit ? (
-          <>
-            Files at <span className="font-mono">{commit}</span>
-          </>
-        ) : (
-          "Files"
-        )}
+      <div className="flex shrink-0 items-center gap-2 border-b border-border px-2 py-1 text-xs text-muted-foreground">
+        <span className="shrink-0">
+          {commit ? (
+            <>
+              Files at <span className="font-mono">{commit}</span>
+            </>
+          ) : (
+            "Files"
+          )}
+        </span>
+        <FileFilter repoPath={repoPath} />
       </div>
       <FileTree
         repoId={repoId}
