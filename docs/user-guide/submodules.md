@@ -43,6 +43,12 @@ In **Settings → Submodules**:
   the submodules to the recorded commits by themselves. Submodules you have not downloaded yet
   are left alone.
 
+## Which branch uses which commit
+
+Open a submodule in its own tab, and its commit graph shows, in purple, which branches of your
+main repository record each commit: `app: main` means the branch `main` of `app` uses that
+commit of the submodule.
+
 ## What changed in a submodule
 
 When you choose a submodule in **Changed files**, the diff shows which commit it pointed to

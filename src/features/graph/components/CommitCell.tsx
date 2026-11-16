@@ -2,10 +2,12 @@ import { PersonBadge } from "@/shared/components/PersonBadge";
 import type { CommitRowDto, DateDisplay, GraphColumnId } from "@/shared/ipc/bindings";
 import { cn } from "@/shared/lib/cn";
 
+import type { SuperprojectLabelOf } from "../hooks/useSuperprojectLabels";
 import type { LinkOf } from "../hooks/useUpstreamLinks";
 import { formatCommitDate, formatRelativeDate, shortId } from "../lib/format";
 import { RefBadge } from "./RefBadge";
 import { StashBadge } from "./StashBadge";
+import { SuperprojectBadge } from "./SuperprojectBadge";
 
 export interface CommitCellProps {
   id: GraphColumnId;
@@ -14,6 +16,8 @@ export interface CommitCellProps {
   text: CommitRowDto;
   linkOf: LinkOf;
   onFollow: (row: number) => void;
+  /** In a submodule: the superproject's branches recording a row's commit. */
+  superprojectOf: SuperprojectLabelOf;
   /** By the highlighted commit's author. */
   byAuthor: boolean;
   dateDisplay: DateDisplay;
@@ -24,6 +28,7 @@ export interface CommitCellProps {
 /** One column of a commit row. */
 export function CommitCell(props: CommitCellProps) {
   const { id, text, byAuthor, dateDisplay, nowMs } = props;
+  const superproject = id === "message" ? props.superprojectOf(props.row) : undefined;
   switch (id) {
     case "graph":
       // The canvas draws the graph below this empty cell.
@@ -49,6 +54,7 @@ export function CommitCell(props: CommitCellProps) {
               />
             );
           })}
+          {superproject && <SuperprojectBadge label={superproject} />}
           {text.stashes.map((stash) => (
             <StashBadge key={stash.index} stash={stash} />
           ))}

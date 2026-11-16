@@ -17,6 +17,7 @@ mod service;
 mod signing;
 mod split;
 pub mod submodule_log;
+pub mod superproject;
 mod syntax;
 pub mod tree_search;
 mod types;

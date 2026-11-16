@@ -132,6 +132,11 @@ export const commands = {
 	 */
 	searchTree: (id: number, treeId: string, query: string) => typedError<TreeSearchDto, AppError>(__TAURI_INVOKE("search_tree", { id, treeId, query })),
 	/**
+	 *  For a submodule: which of its commits the local branches of the repository it is in record,
+	 *  with their rows; `null` for a repository that is no submodule (or that no branch records).
+	 */
+	getSuperprojectBranches: (id: number) => typedError<SuperprojectBranchesDto | null, AppError>(__TAURI_INVOKE("get_superproject_branches", { id })),
+	/**
 	 *  The history of file or folder `path` on the branches the graph's filter shows, following
 	 *  renames: how many commits and the file's earlier names. Commits come from
 	 *  `get_file_history_rows`. A request for another path cancels one still being read.
@@ -2712,6 +2717,26 @@ export type SubmoduleSettings = {
 	 *  offers it instead.
 	 */
 	updateAfterPullAndCheckout?: boolean,
+};
+
+/**  What the superproject's local branches record for this submodule. */
+export type SuperprojectBranchesDto = {
+	/**  The superproject's work tree. */
+	superproject: string,
+	/**  The submodule's path in it. */
+	path: string,
+	/**  The submodule's commits that branches record, by commit. */
+	labels: SuperprojectLabelDto[],
+};
+
+/**  One commit of the submodule that superproject branches record. */
+export type SuperprojectLabelDto = {
+	/**  The submodule's commit (hex). */
+	commit: string,
+	/**  Its row in the submodule's graph, when shown. */
+	row: number | null,
+	/**  The superproject's local branches recording it, sorted. */
+	branches: string[],
 };
 
 /**  What a coloured part of a line is. */

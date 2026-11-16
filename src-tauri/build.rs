@@ -44,6 +44,7 @@ const APP_COMMANDS: &[&str] = &[
     "get_tree_entry",
     "list_tree",
     "search_tree",
+    "get_superproject_branches",
     "get_file_history",
     "get_file_history_rows",
     "get_blame",

@@ -50,6 +50,7 @@
     "allow-get-tree-entry",
     "allow-list-tree",
     "allow-search-tree",
+    "allow-get-superproject-branches",
     "allow-get-file-history",
     "allow-get-file-history-rows",
     "allow-get-blame",

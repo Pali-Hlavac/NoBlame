@@ -1,15 +1,18 @@
 //! Submodules: listing them with their state (`list.rs`, gix), initializing and updating them
 //! (`update.rs`, the `git` CLI as a job), and the commits between two of a submodule's pointers
-//! (`log.rs`).
+//! (`log.rs`), and what the superproject's branches record for a submodule
+//! (`superproject.rs`).
 
 mod list;
 mod log;
+mod superproject;
 mod update;
 
 pub use list::{MAX_SUBMODULE_DEPTH, SubmoduleEntry, list_submodules};
 pub use log::{
     MAX_POINTER_COMMITS, PointerChange, PointerCommit, PointerLog, pointer_log, submodule_dir,
 };
+pub use superproject::{MAX_SUPERPROJECT_BRANCHES, SuperprojectPointers, superproject_pointers};
 pub use update::{follow_command, submodule_hint, update_command, updated_count};
 
 use crate::cli::GitError;

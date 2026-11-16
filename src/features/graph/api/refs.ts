@@ -29,3 +29,17 @@ export function useUpstreamList(repoId: number) {
     staleTime: Infinity,
   });
 }
+
+/**
+ * For a submodule: the commits its superproject's local branches record (`null` otherwise).
+ * Those branches move in another repository, so they are read again when the window regains
+ * focus and when the graph reloads.
+ */
+export function useSuperprojectBranches(repoId: number) {
+  return useQuery({
+    queryKey: [...graphKeys.all(repoId), "superproject"],
+    queryFn: () => unwrap(commands.getSuperprojectBranches(repoId)),
+    staleTime: Infinity,
+    refetchOnWindowFocus: "always",
+  });
+}

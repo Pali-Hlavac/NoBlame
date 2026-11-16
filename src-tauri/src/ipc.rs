@@ -77,6 +77,7 @@ pub fn builder() -> Builder<tauri::Wry> {
             inspect::commands::get_tree_entry,
             inspect::commands::list_tree,
             inspect::tree_search::search_tree,
+            inspect::superproject::get_superproject_branches,
             inspect::commands::get_file_history,
             inspect::commands::get_file_history_rows,
             inspect::commands::get_blame,

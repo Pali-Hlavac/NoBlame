@@ -9,7 +9,7 @@ use git_core::cli::Git;
 use git_core::repo::Repository;
 use git_core::submodule::{
     PointerChange, SubmoduleEntry, follow_command, list_submodules, pointer_log, submodule_dir,
-    update_command, updated_count,
+    superproject_pointers, update_command, updated_count,
 };
 use support::Fixture;
 use tokio_util::sync::CancellationToken;
@@ -194,4 +194,34 @@ async fn following_moves_only_submodules_already_set_up() {
         .unwrap();
     assert!(output.success(), "{}", output.combined());
     assert!(!list(&clone)[0].initialized);
+}
+
+#[test]
+fn a_submodule_knows_which_commits_the_superprojects_branches_record() {
+    let fixture = Fixture::new();
+    let (one, two) = superproject(&fixture);
+    let leaf = fixture.path().join("deps/leaf");
+    fixture.run(&leaf, &["checkout", "--quiet", &two]);
+    fixture.git(&["switch", "--quiet", "--create", "newer"]);
+    fixture.git(&["commit", "--quiet", "--all", "-m", "leaf at two"]);
+    fixture.git(&["branch", "also-one", "main"]);
+
+    let submodule = Repository::discover(&leaf).unwrap().local();
+    let found = superproject_pointers(&submodule).unwrap().unwrap();
+    assert_eq!(found.path, "deps/leaf");
+    let named: Vec<(String, Vec<String>)> = found
+        .pointers
+        .iter()
+        .map(|(id, names)| (id.to_string(), names.clone()))
+        .collect();
+    let mut expected = vec![
+        (one, vec!["also-one".to_owned(), "main".to_owned()]),
+        (two, vec!["newer".to_owned()]),
+    ];
+    expected.sort();
+    assert_eq!(named, expected);
+
+    // The superproject itself is no submodule.
+    let outer = Repository::discover(&fixture.path()).unwrap().local();
+    assert!(superproject_pointers(&outer).unwrap().is_none());
 }

@@ -13,6 +13,7 @@ import { useBlockCache } from "../hooks/useBlockCache";
 import { useColumnLayout } from "../hooks/useColumnLayout";
 import { usePalette } from "../hooks/usePalette";
 import { useSelectionHighlight } from "../hooks/useSelectionHighlight";
+import { useSuperprojectLabels } from "../hooks/useSuperprojectLabels";
 import { useUpstreamLinks } from "../hooks/useUpstreamLinks";
 import { useWorkingTreeRows } from "../hooks/useWorkingTreeRows";
 import {
@@ -65,6 +66,7 @@ export function GraphTable({ repoId, repoPath, hasWorkingTree, summary }: GraphT
   const highlight = useSelectionHighlight(repoId, repoPath, highlightedRow);
   const idPrefix = useId();
   const linkOf = useUpstreamLinks(repoId);
+  const superprojectOf = useSuperprojectLabels(repoId);
 
   const rowCount = summary.rows;
   const rows = displayRows(useWorkingTreeRows(repoId), rowCount);
@@ -239,6 +241,7 @@ export function GraphTable({ repoId, repoPath, hasWorkingTree, summary }: GraphT
                 selectedIndex={selectedIndex}
                 highlightAuthor={highlightAuthor}
                 linkOf={linkOf}
+                superprojectOf={superprojectOf}
                 onFollow={(row) => {
                   choose(row + rows.offset);
                 }}

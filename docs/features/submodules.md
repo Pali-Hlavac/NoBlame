@@ -65,6 +65,16 @@ Owner request 2026-11-16: submodules follow the commits their repository records
   (`SubmoduleUpdateDialog`, now mounted once per window), since they move submodules with new
   commits; then the update job.
 
+## The superproject's branches in a submodule's graph
+
+Owner request 2026-11-16. A submodule opened in a tab labels the commits its superproject's
+local branches record for it: an outlined purple badge `app: main, release` after the
+references, its tooltip "In app, main, release record this commit". Read with gix
+(`superproject_pointers`: the repository containing the submodule's folder, then one tree
+lookup per local branch, at most 2,000 branches; `get_superproject_branches` adds the rows).
+Those branches move in another repository, so they are read again when the window regains
+focus and when the graph reloads. Remote branches are not labelled (owner's choice).
+
 ## The diff of a submodule
 
 Choosing a submodule in Changed files (a commit's, or the working tree's) shows, instead of a

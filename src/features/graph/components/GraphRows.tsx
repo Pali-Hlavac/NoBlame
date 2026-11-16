@@ -6,6 +6,7 @@ import { cn } from "@/shared/lib/cn";
 import type { ColumnLayout } from "../lib/columns";
 import { ROW_HEIGHT_PX } from "../lib/constants";
 import type { DisplayRows } from "../lib/displayRows";
+import type { SuperprojectLabelOf } from "../hooks/useSuperprojectLabels";
 import type { LinkOf } from "../hooks/useUpstreamLinks";
 import { CommitCell } from "./CommitCell";
 
@@ -33,6 +34,8 @@ interface GraphRowsProps {
   linkOf: LinkOf;
   /** Selects graph row `row` (an arrow on a label). */
   onFollow: (row: number) => void;
+  /** In a submodule: the superproject's branches recording a row's commit. */
+  superprojectOf: SuperprojectLabelOf;
   onSelect: (index: number) => void;
   /** Ctrl+click (Cmd+click on macOS): compare the selected commit with this row's. */
   onCompare: (index: number) => void;
@@ -113,6 +116,7 @@ export function GraphRows(props: GraphRowsProps) {
               text={text}
               linkOf={props.linkOf}
               onFollow={props.onFollow}
+              superprojectOf={props.superprojectOf}
               byAuthor={byAuthor}
               dateDisplay={props.dateDisplay}
               showMessageBody={props.showMessageBody}
