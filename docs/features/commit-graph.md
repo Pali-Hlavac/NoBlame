@@ -61,6 +61,13 @@ The branch HEAD points to is bold and outlined. Labels are sorted: detached HEAD
 branches, remote branches, tags. The tooltip names the kind and the full short name. Labels are
 truncated when the column is narrow.
 
+**Upstream arrows** (owner request 2026-11-16, as in Git Extensions): a local branch whose
+upstream points at another commit gets a small arrow in its label, up when the upstream's
+commit is above, down when below; clicking it selects that commit. The upstream's label gets an
+arrow back to the branch (a remote branch tracked by several branches links to the first). Both
+must be in the graph; gone upstreams and pairs on one commit get none
+(`lib/upstreamLinks.ts`, from `list_refs` and `get_upstreams`, which the Branches module reads too).
+
 **Stash labels** (`StashBadge`): an amber outlined `stash@{n}` with a box icon on the commit each
 stash was made on (its first parent), after the reference labels; the tooltip has the stash's
 message. They are not references: the stash commits themselves (and their index and untracked

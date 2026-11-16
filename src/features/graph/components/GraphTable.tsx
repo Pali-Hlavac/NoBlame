@@ -13,6 +13,7 @@ import { useBlockCache } from "../hooks/useBlockCache";
 import { useColumnLayout } from "../hooks/useColumnLayout";
 import { usePalette } from "../hooks/usePalette";
 import { useSelectionHighlight } from "../hooks/useSelectionHighlight";
+import { useUpstreamLinks } from "../hooks/useUpstreamLinks";
 import { useWorkingTreeRows } from "../hooks/useWorkingTreeRows";
 import {
   GRAPH_PADDING_PX,
@@ -63,6 +64,7 @@ export function GraphTable({ repoId, repoPath, hasWorkingTree, summary }: GraphT
       : (summary.headRow ?? undefined);
   const highlight = useSelectionHighlight(repoId, repoPath, highlightedRow);
   const idPrefix = useId();
+  const linkOf = useUpstreamLinks(repoId);
 
   const rowCount = summary.rows;
   const rows = displayRows(useWorkingTreeRows(repoId), rowCount);
@@ -236,6 +238,10 @@ export function GraphTable({ repoId, repoPath, hasWorkingTree, summary }: GraphT
                 rowText={rowText}
                 selectedIndex={selectedIndex}
                 highlightAuthor={highlightAuthor}
+                linkOf={linkOf}
+                onFollow={(row) => {
+                  choose(row + rows.offset);
+                }}
                 onSelect={choose}
                 onCompare={compareWith}
                 idPrefix={idPrefix}

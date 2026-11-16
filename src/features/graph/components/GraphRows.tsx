@@ -1,15 +1,13 @@
 import type { CSSProperties, MouseEvent } from "react";
 
-import { PersonBadge } from "@/shared/components/PersonBadge";
-import type { CommitRowDto, DateDisplay, GraphColumnId } from "@/shared/ipc/bindings";
+import type { CommitRowDto, DateDisplay } from "@/shared/ipc/bindings";
 import { cn } from "@/shared/lib/cn";
 
 import type { ColumnLayout } from "../lib/columns";
 import { ROW_HEIGHT_PX } from "../lib/constants";
 import type { DisplayRows } from "../lib/displayRows";
-import { formatCommitDate, formatRelativeDate, shortId } from "../lib/format";
-import { RefBadge } from "./RefBadge";
-import { StashBadge } from "./StashBadge";
+import type { LinkOf } from "../hooks/useUpstreamLinks";
+import { CommitCell } from "./CommitCell";
 
 interface GraphRowsProps {
   /** Visible rows as display indexes (working tree rows first, then commits). */
@@ -31,78 +29,14 @@ interface GraphRowsProps {
   selectedIndex: number | undefined;
   /** Author email (lower case) whose commits are marked, from the highlighted commit. */
   highlightAuthor?: string;
+  /** Labels linked to their upstream (or the branch tracking them) at another commit. */
+  linkOf: LinkOf;
+  /** Selects graph row `row` (an arrow on a label). */
+  onFollow: (row: number) => void;
   onSelect: (index: number) => void;
   /** Ctrl+click (Cmd+click on macOS): compare the selected commit with this row's. */
   onCompare: (index: number) => void;
   idPrefix: string;
-}
-
-interface CommitCellProps {
-  id: GraphColumnId;
-  text: CommitRowDto;
-  /** By the highlighted commit's author. */
-  byAuthor: boolean;
-  dateDisplay: DateDisplay;
-  showMessageBody: boolean;
-  nowMs: number;
-}
-
-/** One column of a commit row. */
-function CommitCell(props: CommitCellProps) {
-  const { id, text, byAuthor, dateDisplay, nowMs } = props;
-  switch (id) {
-    case "graph":
-      // The canvas draws the graph below this empty cell.
-      return <span aria-hidden />;
-    case "message":
-      return (
-        <span className="flex min-w-0 items-center gap-1.5 overflow-hidden">
-          {text.refs.map((label) => (
-            <RefBadge key={`${label.kind}:${label.name}`} label={label} />
-          ))}
-          {text.stashes.map((stash) => (
-            <StashBadge key={stash.index} stash={stash} />
-          ))}
-          <span className="truncate">
-            {text.summary}
-            {props.showMessageBody && text.body && (
-              <span className="ml-2 text-muted-foreground">{text.body}</span>
-            )}
-          </span>
-        </span>
-      );
-    case "author":
-      return (
-        <span
-          className={cn(
-            "flex min-w-0 items-center gap-1.5",
-            byAuthor ? "font-medium text-foreground" : "text-muted-foreground",
-          )}
-          title={text.authorEmail}
-        >
-          <PersonBadge
-            name={text.authorName}
-            email={text.authorEmail}
-            className="size-4 text-[0.5rem]"
-          />
-          <span className="truncate">{text.authorName}</span>
-        </span>
-      );
-    case "date": {
-      const absolute = formatCommitDate(text.authorTime);
-      return dateDisplay === "relative" ? (
-        <span className="truncate text-muted-foreground tabular-nums" title={absolute}>
-          {formatRelativeDate(text.authorTime, nowMs)}
-        </span>
-      ) : (
-        <span className="truncate text-muted-foreground tabular-nums">{absolute}</span>
-      );
-    }
-    case "commit":
-      return (
-        <span className="truncate font-mono text-xs text-muted-foreground">{shortId(text.id)}</span>
-      );
-  }
 }
 
 const ROW_CLASS = "absolute right-0 left-0 grid items-center gap-3 pr-3 text-sm";
@@ -175,7 +109,10 @@ export function GraphRows(props: GraphRowsProps) {
             <CommitCell
               key={id}
               id={id}
+              row={row}
               text={text}
+              linkOf={props.linkOf}
+              onFollow={props.onFollow}
               byAuthor={byAuthor}
               dateDisplay={props.dateDisplay}
               showMessageBody={props.showMessageBody}

@@ -11,7 +11,7 @@ import type { SetUpstreamRequestDto } from "@/shared/ipc/bindings";
 import { commands, unwrap } from "@/shared/ipc/client";
 
 export const upstreamKeys = {
-  list: (repoId: number) => [...refKeys.all(repoId), "upstreams"] as const,
+  list: refKeys.upstreams,
   tracking: (repoId: number, branches: readonly string[]) =>
     [...refKeys.all(repoId), "tracking", ...branches] as const,
 };

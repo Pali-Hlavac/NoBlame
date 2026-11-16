@@ -1,7 +1,16 @@
-import { GitBranchIcon, GlobeIcon, SearchCheckIcon, TagIcon } from "lucide-react";
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  GitBranchIcon,
+  GlobeIcon,
+  SearchCheckIcon,
+  TagIcon,
+} from "lucide-react";
 
 import type { RefLabel } from "@/shared/ipc/bindings";
 import { cn } from "@/shared/lib/cn";
+
+import type { UpstreamLink } from "../lib/upstreamLinks";
 
 const KIND_STYLES: Record<RefLabel["kind"], string> = {
   branch: "bg-ref-branch text-ref-branch-foreground",
@@ -33,9 +42,16 @@ const KIND_NAMES: Record<RefLabel["kind"], string> = {
   bisect: "bisect mark",
 };
 
+interface RefBadgeProps {
+  label: RefLabel;
+  /** The upstream (or the branch tracking it) at another commit: an arrow selects that commit. */
+  link?: { to: UpstreamLink; up: boolean; follow: () => void };
+}
+
 /** A reference label in front of a commit message. The current branch is outlined. */
-export function RefBadge({ label }: { label: RefLabel }) {
+export function RefBadge({ label, link }: RefBadgeProps) {
   const Icon = KIND_ICONS[label.kind];
+  const Arrow = link?.up ? ArrowUpIcon : ArrowDownIcon;
   return (
     <span
       title={`${KIND_NAMES[label.kind]}${label.isHead ? " (HEAD)" : ""}: ${label.name}`}
@@ -48,6 +64,26 @@ export function RefBadge({ label }: { label: RefLabel }) {
     >
       {Icon && <Icon className="size-3 shrink-0" aria-hidden />}
       <span className="truncate">{label.name}</span>
+      {link && (
+        <button
+          type="button"
+          tabIndex={-1}
+          aria-label={`Go to ${link.to.name}`}
+          title={`${link.to.toUpstream ? "Its upstream" : "Tracked by"} ${link.to.name} is ${link.up ? "above" : "below"}: select its commit`}
+          className="-mr-1 shrink-0 rounded-sm p-px hover:bg-foreground/15"
+          // The row would take the press and select itself.
+          onMouseDown={(event) => {
+            event.stopPropagation();
+            event.preventDefault();
+          }}
+          onClick={(event) => {
+            event.stopPropagation();
+            link.follow();
+          }}
+        >
+          <Arrow className="size-3" aria-hidden />
+        </button>
+      )}
     </span>
   );
 }

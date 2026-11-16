@@ -34,6 +34,9 @@ stays readable.
 - The commit you have checked out has a yellow ring, and its branch label is outlined.
 - Green labels are your local branches, blue labels are branches on a remote (such as
   `origin/main`), amber labels are tags. A yellow **HEAD** label means you are not on a branch.
+- When your branch and the remote branch it pulls from and pushes to are on different commits,
+  each label has a small arrow pointing up or down to the other one. Click the arrow to select
+  the other commit.
 - An outlined amber `stash@{0}` label with a box marks the commit a stash was made on. Point at
   it to read the stash's message; open it from the Stashes module ([Stashing](stashing.md)).
 
