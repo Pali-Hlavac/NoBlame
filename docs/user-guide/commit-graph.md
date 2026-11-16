@@ -74,6 +74,9 @@ When you select a commit, NoBlame highlights it:
   including branches merged into it. Everything else fades.
 - the commits by the same author are tinted, with the author's name in bold.
 
+Choosing the **Working tree** or **Staged** row highlights the history of the commit you have
+checked out (HEAD), the one your changes would be committed on.
+
 Press **Esc** in the list to clear the highlight; the commit stays selected. You can switch the
 highlight off in **Settings → Commit graph**.
 

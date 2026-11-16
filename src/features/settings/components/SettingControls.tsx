@@ -3,7 +3,8 @@ import { useId, type ReactNode } from "react";
 
 export function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="space-y-3">
+    // `data-settings-section`: what the search box filters (`lib/filter.ts`).
+    <section data-settings-section className="space-y-3">
       <h2 className="border-b border-border pb-1 text-sm font-semibold">{title}</h2>
       {children}
     </section>

@@ -37,6 +37,7 @@ import { useKeymap } from "@/shared/hooks/useKeys";
 import type { TaskKind } from "@/shared/ipc/bindings";
 
 import { openSettings } from "../layout/settingsTab";
+import { useBranchCommands } from "../workbench/branchCommands";
 import { useCommitCommands } from "../workbench/commit";
 import { useRemoteCommands } from "../workbench/remoteCommands";
 
@@ -53,6 +54,7 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
   const activeRepository = useActiveRepository();
   const commitCommands = useCommitCommands();
   const remoteCommands = useRemoteCommands();
+  const branchCommands = useBranchCommands();
   const keysOf = useKeymap();
   const repositoryPath = activeTab?.kind === "repository" ? activeTab.path : null;
 
@@ -162,6 +164,7 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
       run: () => void createRepository.create(),
     },
     ...commitCommands,
+    ...branchCommands,
     ...remoteCommands,
     ...historyCommands,
     ...taskCommands,

@@ -56,7 +56,12 @@ export function GraphTable({ repoId, repoPath, hasWorkingTree, summary }: GraphT
   const selectedRow = selection?.kind === "commit" ? selection.row : undefined;
   const { cache, version } = useBlockCache(repoId);
   const palette = usePalette();
-  const highlight = useSelectionHighlight(repoId, repoPath, selectedRow);
+  // A working tree row stands for HEAD: its history is what the changes would be committed on.
+  const highlightedRow =
+    selection === undefined || selection.kind === "commit"
+      ? selectedRow
+      : (summary.headRow ?? undefined);
+  const highlight = useSelectionHighlight(repoId, repoPath, highlightedRow);
   const idPrefix = useId();
 
   const rowCount = summary.rows;

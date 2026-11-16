@@ -31,7 +31,7 @@ export function ConfigRow(props: ConfigRowProps) {
   }
   const changed = draft !== (value ?? "");
   return (
-    <li className="flex flex-wrap items-center gap-2 py-1.5 text-sm">
+    <li data-setting-item className="flex flex-wrap items-center gap-2 py-1.5 text-sm">
       <div className="w-full min-w-0">
         <span className="font-medium">{label ?? settingKey}</span>
         {label ? (

@@ -133,6 +133,12 @@ and "Open settings" in the palette). The Workbench takes the button as `activity
 knows nothing about settings; the app shell passes `SettingsButton`. The Settings tab is a
 document tab like any other (`kind: "settings"`, at most one), restored with the layout.
 
+A search box at the top filters the tab (`SettingsSearch`, `lib/filter.ts`; owner request
+2026-11-16): a setting stays shown when its text (label, description, options) holds every word
+of the query, ignoring case and accents; a section whose title matches stays whole; the rows of
+a list (`data-setting-item`: keyboard shortcuts, git settings) are filtered one by one; sections
+left empty are hidden. It filters again when the content changes (git settings load later).
+
 Settings shown there (stored in `settings.json`, see `src-tauri/src/settings/types.rs`):
 
 | Section              | Setting                                                                 | Default |

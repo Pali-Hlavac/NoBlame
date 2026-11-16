@@ -77,7 +77,9 @@ export function StagingFiles(props: StagingFilesProps) {
               picks.chooseAll();
               return true;
             }
-            if (key !== " " || index === undefined || busy) return false;
+            if (key !== " ") return false;
+            // Handled even while busy: an unhandled Space scrolls the list a page.
+            if (index === undefined || busy) return true;
             if (ctrl) picks.toggleCursor();
             else if (picks.current.length > 0) onToggle(picks.current);
             return true;

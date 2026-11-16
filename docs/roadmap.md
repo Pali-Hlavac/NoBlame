@@ -1193,6 +1193,22 @@ Quality of life before slice 5 (owner request 2026-11-13; see the ideas inbox in
 Done 2026-11-13, with tests; not clicked through in the running app (the owner's dev app was
 running, and a second instance would forward to it): see the manual checklist.
 
+The owner's notes of 2026-11-16 (see the ideas inbox):
+
+- [x] Graph: the working tree row highlights HEAD's history
+- [ ] Document tabs: closing one shows the one used last, also after the layout changed
+- [x] Commit module: arrows keep moving between files after staging with Space
+- [ ] Graph: an arrow on a branch label with an upstream selects the other's commit
+- [ ] Files module: a filter box for the whole tree
+- [ ] Submodules: fetch and pull include them; update after pull and checkout (setting); a bar
+      offering the update; **Check out the recorded commit** on a changed submodule
+- [x] Settings: search
+- [x] Command palette: **Create a branch**
+- [x] Create a branch dialog: nothing outside it
+- [ ] Repositories module: uncommitted file counts for submodules
+- [ ] Commit module: more room for the lists
+- [ ] Submodule graph: labels for the main repository's local branches
+
 ### M9: Polish and release
 
 - [ ] Third-party licence notices shipped with the installers (for example generated with

@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 
 import { useElementSize } from "@/shared/hooks/useElementSize";
+import { useKeepFocus } from "@/shared/hooks/useKeepFocus";
 import { cn } from "@/shared/lib/cn";
 import { nextRow } from "@/shared/lib/listNavigation";
 
@@ -68,6 +69,7 @@ export function VirtualList(props: VirtualListProps) {
   const size = useElementSize(scrollRef);
   const [scrollTop, setScrollTop] = useState(0);
   const idPrefix = useId();
+  const focusInside = useKeepFocus(scrollRef);
 
   const first = Math.max(0, Math.floor(scrollTop / rowHeight) - OVERSCAN_ROWS);
   const last = Math.min(
@@ -121,7 +123,6 @@ export function VirtualList(props: VirtualListProps) {
         aria-expanded={props.tree?.expanded(index)}
         className="absolute right-0 left-0"
         style={{ top: index * rowHeight, height: rowHeight }}
-        tabIndex={-1}
         onMouseDown={(event) => {
           const gesture = gestureOf(event, "pointer", event.button !== 0);
           // Shift+click chooses a range of rows, not the text between them.
@@ -158,6 +159,8 @@ export function VirtualList(props: VirtualListProps) {
         setScrollTop(event.currentTarget.scrollTop);
       }}
       onKeyDown={onKeyDown}
+      onFocus={focusInside.onFocus}
+      onBlur={focusInside.onBlur}
     >
       <div style={{ height: count * rowHeight }}>{rows}</div>
     </div>

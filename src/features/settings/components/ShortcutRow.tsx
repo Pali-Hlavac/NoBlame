@@ -61,7 +61,7 @@ export function ShortcutRow({ binding, keys, problemOf, onChange }: ShortcutRowP
   };
 
   return (
-    <li className="py-0.5 text-sm">
+    <li data-setting-item className="py-0.5 text-sm">
       <div className="flex items-center justify-between gap-2">
         <span>{binding.label}</span>
         <div className="flex items-center gap-1">

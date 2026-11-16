@@ -41,7 +41,8 @@ blue for repositories (also the open and create buttons), orange for groups, and
 submodules. Settings and About keep the normal colour.
 
 The gear at the bottom of the activity bar opens **Settings** in a tab: the theme, the commit
-highlight, whether repositories show their **…** button, and how diffs look.
+highlight, whether repositories show their **…** button, and how diffs look. Type in the search
+box at the top to see only the settings with those words.
 
 Clicking the icon of a module that is already showing hides the sidebar; click any icon to show
 it again. You can also drag the line between the sidebar and the tabs to change its width.

@@ -189,6 +189,12 @@ All notable changes to NoBlame are documented here. The format follows
 - Activity bar: drag icons to reorder them (stacks move together), **Move up** / **Move down**,
   **Hide** icons under a **…** button above Settings, **Lock the icons**, **Reset the order**;
   saved with the layout (owner request 2026-11-13).
+- Settings: a search box; only the settings matching every word stay shown (owner request
+  2026-11-16).
+- Command palette: **Create a branch…**, at the commit selected in the graph or else at HEAD
+  (owner request 2026-11-16).
+- Commit graph: choosing a working tree row highlights HEAD's history, as choosing HEAD does
+  (owner request 2026-11-16).
 - Commit module: choose several files (Ctrl+click, Shift+click, Ctrl+Shift+click, Shift+arrows,
   Ctrl+A) and stage, unstage or discard them together with Space, a row's button or the menu
   (owner request 2026-11-13).
@@ -466,6 +472,11 @@ All notable changes to NoBlame are documented here. The format follows
 
 ### Fixed
 
+- Commit module: after staging files with Space, the arrows scrolled the list instead of
+  moving to the next file once the row last clicked was gone; lists now keep the keyboard when
+  the focused row or button goes away, and Space no longer scrolls while a change is running.
+- Dialogs: a long branch name or git message could stick out of the dialog (Create a branch),
+  and a tall dialog out of the window; they now wrap and scroll inside.
 - Diffs failed in a work tree without an index (for example after `git clone --no-checkout`)
   while reading `.gitattributes`.
 - Right-clicking a row in Changed files or Branches no longer activates it; it only

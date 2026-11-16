@@ -15,6 +15,7 @@ import { ScriptsSection } from "./ScriptsSection";
 import { ShortcutsSection } from "./ShortcutsSection";
 import { RepositoryButtonsSetting } from "./RepositoryButtonsSetting";
 import { Choice, Section, Toggle } from "./SettingControls";
+import { SettingsSearch } from "./SettingsSearch";
 
 const WORKING_TREE_OPTIONS: readonly { value: WorkingTreeDisplay; label: string }[] = [
   { value: "rows", label: "Rows at the top of the commit graph" },
@@ -92,89 +93,91 @@ export function SettingsView() {
     <div className="h-full overflow-auto">
       <div className="mx-auto max-w-2xl space-y-8 p-6">
         <h1 className="text-lg font-semibold">Settings</h1>
-        <Section title="Appearance">
-          <ThemeChoice />
-        </Section>
-        <Section title="Commit graph">
-          <Choice
-            legend="Show uncommitted changes as"
-            options={WORKING_TREE_OPTIONS}
-            value={settings.graph.workingTree}
-            onChange={(workingTree) => {
-              change((current) => ({ ...current, graph: { ...current.graph, workingTree } }));
-            }}
-          />
-          <Toggle
-            label="Highlight the selected commit"
-            description="Dims everything outside the selected commit's history and marks the commits by the same author. Esc clears it."
-            checked={settings.graph.highlightSelection}
-            onChange={(checked) => {
-              change((current) => ({
-                ...current,
-                graph: { ...current.graph, highlightSelection: checked },
-              }));
-            }}
-          />
-          <Toggle
-            label="Show the rest of the message"
-            description="The message column shows the commit message's body, greyed, after its subject (as one line)."
-            checked={settings.graph.showMessageBody}
-            onChange={(showMessageBody) => {
-              change((current) => ({ ...current, graph: { ...current.graph, showMessageBody } }));
-            }}
-          />
-          <GraphColumnsSetting />
-        </Section>
-        <DiffSection />
-        <Section title="Branches">
-          <Choice
-            legend="Order of the branches and tags"
-            options={BRANCH_SORT_OPTIONS}
-            value={settings.branches.sort}
-            onChange={(sort) => {
-              change((current) => ({ ...current, branches: { ...current.branches, sort } }));
-            }}
-          />
-        </Section>
-        <Section title="Commit">
-          <Choice
-            legend="Files in the Changes and Staged lists"
-            options={FILE_DISPLAY_OPTIONS}
-            value={settings.commit.fileDisplay}
-            onChange={(fileDisplay) => {
-              change((current) => ({ ...current, commit: { ...current.commit, fileDisplay } }));
-            }}
-          />
-        </Section>
-        <Section title="Repositories">
-          <Toggle
-            label="Show the actions button (…) on repositories"
-            description="Each repository in the Repositories module gets a menu with its actions."
-            checked={settings.repositories.showActionsMenu}
-            onChange={(checked) => {
-              change((current) => ({
-                ...current,
-                repositories: { ...current.repositories, showActionsMenu: checked },
-              }));
-            }}
-          />
-          <Toggle
-            label="Show the number of uncommitted files beside repositories"
-            description="New, changed and deleted files, counted again when NoBlame regains focus. Closed repositories run git status for it, which takes longer on very large working trees."
-            checked={settings.repositories.showChangeCounts}
-            onChange={(checked) => {
-              change((current) => ({
-                ...current,
-                repositories: { ...current.repositories, showChangeCounts: checked },
-              }));
-            }}
-          />
-          <RepositoryButtonsSetting />
-        </Section>
-        <JobsSection />
-        <ScriptsSection />
-        <GitConfigSection />
-        <ShortcutsSection />
+        <SettingsSearch>
+          <Section title="Appearance">
+            <ThemeChoice />
+          </Section>
+          <Section title="Commit graph">
+            <Choice
+              legend="Show uncommitted changes as"
+              options={WORKING_TREE_OPTIONS}
+              value={settings.graph.workingTree}
+              onChange={(workingTree) => {
+                change((current) => ({ ...current, graph: { ...current.graph, workingTree } }));
+              }}
+            />
+            <Toggle
+              label="Highlight the selected commit"
+              description="Dims everything outside the selected commit's history and marks the commits by the same author. Esc clears it."
+              checked={settings.graph.highlightSelection}
+              onChange={(checked) => {
+                change((current) => ({
+                  ...current,
+                  graph: { ...current.graph, highlightSelection: checked },
+                }));
+              }}
+            />
+            <Toggle
+              label="Show the rest of the message"
+              description="The message column shows the commit message's body, greyed, after its subject (as one line)."
+              checked={settings.graph.showMessageBody}
+              onChange={(showMessageBody) => {
+                change((current) => ({ ...current, graph: { ...current.graph, showMessageBody } }));
+              }}
+            />
+            <GraphColumnsSetting />
+          </Section>
+          <DiffSection />
+          <Section title="Branches">
+            <Choice
+              legend="Order of the branches and tags"
+              options={BRANCH_SORT_OPTIONS}
+              value={settings.branches.sort}
+              onChange={(sort) => {
+                change((current) => ({ ...current, branches: { ...current.branches, sort } }));
+              }}
+            />
+          </Section>
+          <Section title="Commit">
+            <Choice
+              legend="Files in the Changes and Staged lists"
+              options={FILE_DISPLAY_OPTIONS}
+              value={settings.commit.fileDisplay}
+              onChange={(fileDisplay) => {
+                change((current) => ({ ...current, commit: { ...current.commit, fileDisplay } }));
+              }}
+            />
+          </Section>
+          <Section title="Repositories">
+            <Toggle
+              label="Show the actions button (…) on repositories"
+              description="Each repository in the Repositories module gets a menu with its actions."
+              checked={settings.repositories.showActionsMenu}
+              onChange={(checked) => {
+                change((current) => ({
+                  ...current,
+                  repositories: { ...current.repositories, showActionsMenu: checked },
+                }));
+              }}
+            />
+            <Toggle
+              label="Show the number of uncommitted files beside repositories"
+              description="New, changed and deleted files, counted again when NoBlame regains focus. Closed repositories run git status for it, which takes longer on very large working trees."
+              checked={settings.repositories.showChangeCounts}
+              onChange={(checked) => {
+                change((current) => ({
+                  ...current,
+                  repositories: { ...current.repositories, showChangeCounts: checked },
+                }));
+              }}
+            />
+            <RepositoryButtonsSetting />
+          </Section>
+          <JobsSection />
+          <ScriptsSection />
+          <GitConfigSection />
+          <ShortcutsSection />
+        </SettingsSearch>
       </div>
     </div>
   );

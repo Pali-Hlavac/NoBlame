@@ -207,6 +207,8 @@ Highlight the selected commit** is on (the default):
   author is shown in bold.
 - **Esc** in the commit list clears the highlight; the commit stays selected. Selecting any commit
   again, including the same one, shows the highlight again.
+- A working tree row (Working tree, Staged) highlights HEAD's row (`summary.headRow`): the
+  history the changes would be committed on (owner request 2026-11-16).
 
 The history comes from the backend as an overlay per block (`get_ancestry_block`, see
 [architecture/commit-graph.md](../architecture/commit-graph.md#highlighted-history)). While a block's
