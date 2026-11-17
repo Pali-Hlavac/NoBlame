@@ -2,9 +2,10 @@ import { ArchiveIcon } from "lucide-react";
 import { useId, useState } from "react";
 import { toast } from "sonner";
 
-import { useWorkingTreeStatus } from "@/features/working-tree";
+import { statusScope, useWorkingTreeStatus } from "@/features/working-tree";
 import { InlineError } from "@/shared/components/InlineError";
 import { LoadingState } from "@/shared/components/LoadingState";
+import { actionDone } from "@/shared/lib/actionDone";
 import { Button } from "@/shared/ui/button";
 import {
   Dialog,
@@ -38,7 +39,9 @@ export function StashDialog({ repoId, open, onOpenChange }: StashDialogProps) {
   const [excluded, setExcluded] = useState<string[]>([]);
 
   const files = status ? stashableFiles(status, includeUntracked) : [];
-  const everythingListed = status ? listsComplete(status) : false;
+  // A task window lists one folder's changes: then only the chosen paths are stashed.
+  const scope = statusScope();
+  const everythingListed = status ? scope === null && listsComplete(status) : false;
   const chosen = files.filter((file) => !excluded.includes(file.path)).length;
 
   const close = (): void => {
@@ -52,6 +55,7 @@ export function StashDialog({ repoId, open, onOpenChange }: StashDialogProps) {
     stash.mutate(stashRequest(form, files, excluded, everythingListed), {
       onSuccess: (output) => {
         toast.success("Stashed", { description: output.split("\n")[0] });
+        actionDone("stash");
         close();
       },
     });
@@ -69,6 +73,7 @@ export function StashDialog({ repoId, open, onOpenChange }: StashDialogProps) {
           <DialogTitle>Stash changes</DialogTitle>
           <DialogDescription>
             The chosen changes are saved as a stash and taken out of the working tree.
+            {scope === null ? null : ` Only the changes in ${scope} are listed.`}
           </DialogDescription>
         </DialogHeader>
         <label htmlFor={`${id}-message`} className="sr-only">

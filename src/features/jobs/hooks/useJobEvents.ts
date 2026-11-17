@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 import { useAppSettings } from "@/features/settings";
 import { events, type JobDto } from "@/shared/ipc/bindings";
+import { actionDone } from "@/shared/lib/actionDone";
 
 import { jobKeys, withJob } from "../api/jobs";
 import { batchJobEnded } from "../lib/batch";
@@ -13,6 +14,11 @@ import { repositoryName } from "../lib/format";
 import { showJobProgress, takeJobToast } from "../lib/toasts";
 import { showOutput, showsOutputOfEveryJob, useOutputWindow } from "../store/output";
 import { showJobs } from "../store/panel";
+
+/** Jobs a task window is opened for (Pull, Push, Fetch). */
+function isTaskJob(kind: JobDto["kind"]): kind is "pull" | "push" | "fetch" {
+  return kind === "pull" || kind === "push" || kind === "fetch";
+}
 
 /**
  * Tells how a job ended: a toast naming the repository (in place of the job's progress toast),
@@ -99,6 +105,7 @@ export function useJobEvents(): void {
         jobEnded(job);
         // A batch's jobs are summed up together when its last one ends.
         if (!batchJobEnded(job)) announce(job);
+        if (job.state === "succeeded" && isTaskJob(job.kind)) actionDone(job.kind);
       }
     });
     return () => {

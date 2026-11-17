@@ -1094,8 +1094,8 @@ Slice 8 done (2026-11-11): keyboard shortcuts ([features/workbench.md](features/
 - [x] Windows reuse the running instance; closing the last task window exits when the main window is not open
       (slice 1: one window per task and path; sessions closed with their window)
 - [ ] Documented CLI reference (`docs/features/cli.md`), `--help` output tested
-- [ ] Setting: close a task window once its action succeeded (commit, pull, push, …), like
-      TortoiseGit (owner request 2026-11-12; default to be decided)
+- [x] Setting: close a task window once its action succeeded (commit, pull, push, …), like
+      TortoiseGit (owner request 2026-11-12; off by default, owner decision 2026-11-17)
 
 Slices (planned 2026-11-12). A task window is the main window's workbench made for one task:
 the modules and tabs that task needs, opened on the given path, its layout never saved.
@@ -1174,8 +1174,25 @@ Slice 4 done (2026-11-12): Fetch, Pull and Push windows ([features/cli.md](featu
   Noticed: in development each `noblame.exe` run rewrites the bindings and the hot reload
   remounts open task windows, which then open their dialog again (dev only).
 
-Paused here at the owner's request (2026-11-12). Next: slice 5 (Switch, Merge, Rebase and
-Stash), then slice 6 (Clone, Create repository, the CLI reference and `--help` tests).
+Paused here at the owner's request (2026-11-12), resumed 2026-11-17 with slice 5.
+
+Slice 5 done (2026-11-17): Switch, Merge, Rebase and Stash windows, and closing a task window
+once its action succeeded ([features/cli.md](features/cli.md#task-windows-m8)).
+
+- `switch`, `merge`, `rebase`: the graph and Branches, and a question at once (and from the
+  bar): which branch, remote branch or tag, filtered as typed, or a revision typed in; merging
+  and rebasing start on the upstream. The choice goes to the graph menu's actions, so checkout,
+  "Create and check out", the detached HEAD explanation, the Merge and the Rebase dialogs work
+  as in the main window. An operation in progress is named instead.
+- `stash`: Stashes beside the graph, **Stash changes** at once; "Stash changes" is now mounted
+  once per window (`openStashChanges`). Limited to a folder, it stashes only the chosen paths
+  (before, choosing every listed file stashed the whole working tree).
+- Settings → Task windows → **Close a task window once its action succeeded** (off): actions
+  report success (`shared/lib/actionDone.ts`), the window of that task closes 1.5 s later.
+- The palette and the repository header no longer call every task window a placeholder; only
+  Clone and Create repository are.
+
+Next: slice 6 (Clone, Create repository, the CLI reference and `--help` tests).
 
 Quality of life before slice 5 (owner request 2026-11-13; see the ideas inbox in
 [design/workbench.md](design/workbench.md#ideas-inbox)):

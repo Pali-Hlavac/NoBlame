@@ -18,6 +18,7 @@ import { showOutcome } from "../lib/outcome";
 import { rebaseToast } from "../lib/rebase";
 import { Choice } from "@/shared/components/Choice";
 import { RebasePreview } from "./RebasePreview";
+import { actionDone } from "@/shared/lib/actionDone";
 
 interface RebaseDialogProps {
   repoId: number;
@@ -48,7 +49,10 @@ export function RebaseDialog({ repoId, onto, onClose }: RebaseDialogProps) {
       {
         onSuccess: (outcome) => {
           const published = (preview.data?.published ?? 0) > 0;
-          showOutcome(rebaseToast(outcome, target, onto.label, published));
+          const shown = rebaseToast(outcome, target, onto.label, published);
+          showOutcome(shown);
+          // Stopped on conflicts: not done yet.
+          if (shown.tone !== "warning") actionDone("rebase");
           onClose();
         },
       },

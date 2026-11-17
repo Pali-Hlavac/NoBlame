@@ -6,6 +6,7 @@ import { newNameProblem } from "../lib/names";
 import type { StartPoint } from "../store/dialog";
 import { DialogCheckbox, NameDialog } from "./NameDialog";
 import { useRefNames } from "../hooks/useRefNames";
+import { actionDone } from "@/shared/lib/actionDone";
 
 interface CreateBranchDialogProps {
   repoId: number;
@@ -51,6 +52,7 @@ export function CreateBranchDialog(props: CreateBranchDialogProps) {
           {
             onSuccess: () => {
               toast.success(andCheckout ? `Switched to the new branch ${name}` : `Created ${name}`);
+              if (andCheckout) actionDone("switch");
               props.onClose();
             },
           },

@@ -37,6 +37,7 @@ import { useKeymap } from "@/shared/hooks/useKeys";
 import type { TaskKind } from "@/shared/ipc/bindings";
 
 import { openSettings } from "../layout/settingsTab";
+import { TASK_SPECS } from "../tasks/specs";
 import { useBranchCommands } from "../workbench/branchCommands";
 import { useCommitCommands } from "../workbench/commit";
 import { useRemoteCommands } from "../workbench/remoteCommands";
@@ -61,8 +62,11 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
   const taskCommands = repositoryPath
     ? (Object.keys(TASKS) as TaskKind[]).map((task): PaletteCommand => ({
         id: `task.${task}`,
-        group: `Task windows (placeholders until ${TASK_WINDOWS_MILESTONE})`,
-        label: `Open ${TASKS[task].title} window`,
+        group: "Task windows",
+        // Clone and Create repository come last in M8 (slice 6).
+        label: TASK_SPECS[task]
+          ? `Open ${TASKS[task].title} window`
+          : `Open ${TASKS[task].title} window (placeholder until ${TASK_WINDOWS_MILESTONE})`,
         icon: ExternalLinkIcon,
         keywords: [TASKS[task].command, "window"],
         run: () => {

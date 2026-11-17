@@ -17,6 +17,7 @@ import { useCurrentBranch } from "../hooks/useCurrentBranch";
 import { showOutcome } from "../lib/outcome";
 import { MERGE_MODES, mergeToast } from "../lib/words";
 import { Choice } from "@/shared/components/Choice";
+import { actionDone } from "@/shared/lib/actionDone";
 
 interface MergeDialogProps {
   repoId: number;
@@ -40,7 +41,10 @@ export function MergeDialog({ repoId, source, onClose }: MergeDialogProps) {
       { revision: source.revision, mode },
       {
         onSuccess: (result) => {
-          showOutcome(mergeToast(result, source.label, target));
+          const outcome = mergeToast(result, source.label, target);
+          showOutcome(outcome);
+          // Conflicts leave the merge to finish: not done yet.
+          if (outcome.tone !== "warning") actionDone("merge");
           onClose();
         },
       },

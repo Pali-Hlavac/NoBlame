@@ -1,7 +1,7 @@
 import { ExternalLinkIcon, GitBranchIcon, GitCommitHorizontalIcon } from "lucide-react";
 
 import { useAppSettings } from "@/features/settings";
-import { TASKS, TASK_WINDOWS_MILESTONE, useOpenTaskWindow } from "@/features/windows";
+import { TASKS, useOpenTaskWindow } from "@/features/windows";
 import { WorkingTreeChip } from "@/features/working-tree";
 import type { RepoSummary, TaskKind } from "@/shared/ipc/bindings";
 import { Button } from "@/shared/ui/button";
@@ -9,7 +9,7 @@ import { Tooltip } from "@/shared/ui/tooltip";
 
 import { headLabel } from "../lib/head";
 
-/** Task windows offered from the header (placeholders until M8). */
+/** Task windows offered from the header. */
 const HEADER_TASKS: readonly TaskKind[] = ["log", "commit", "fileHistory"];
 
 const KIND_BADGES: Partial<Record<RepoSummary["kind"], string>> = {
@@ -51,10 +51,7 @@ export function RepositoryHeader({ summary }: { summary: RepoSummary }) {
       </div>
       <div className="flex shrink-0 items-center gap-1">
         {HEADER_TASKS.map((task) => (
-          <Tooltip
-            key={task}
-            content={`Open a ${TASKS[task].title} window (placeholder until ${TASK_WINDOWS_MILESTONE})`}
-          >
+          <Tooltip key={task} content={`Open a ${TASKS[task].title} window`}>
             <Button
               variant="ghost"
               size="sm"

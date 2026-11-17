@@ -137,6 +137,25 @@ Use `target\debug\noblame.exe` while the dev app runs.
       main window if it is open. `noblame push <repo>` after a commit: the Push dialog, then
       the push. `noblame fetch <repo>`: Fetch all remotes.
   - Notes:
+- [ ] **(new, M8 slice 5)** `noblame switch <repo>`: "Switch to" lists your other branches,
+      remote branches and tags; type part of a name and press Enter: switched at once. Choose
+      a remote branch: "Create and check out". Type a commit id, **Use …**: the detached HEAD
+      explanation.
+  - Notes:
+- [ ] **(new, M8 slice 5)** `noblame merge <repo>` on a branch with an upstream: the upstream is
+      chosen and marked; Enter opens the Merge dialog (how). `noblame rebase <repo>`: the
+      Rebase dialog after choosing. During an unfinished merge the question says so and nothing
+      can be chosen.
+  - Notes:
+- [ ] **(new, M8 slice 5)** `noblame stash <repo>/<folder>` with changes inside and outside the
+      folder: Stash changes lists only the folder's files and says so; **Stash** leaves the
+      other changes in place.
+  - Notes:
+- [ ] **(new, M8 slice 5)** Settings → Task windows → **Close a task window once its action
+      succeeded** on: a commit in a Commit window, a pull in a Pull window and a switch in a
+      Switch window each close their window a moment later; a failed pull or a merge with
+      conflicts leaves it open. Turn it off again.
+  - Notes:
 - [ ] **(new)** Settings → Keyboard shortcuts: click Find commits' keys and press Ctrl+K: it is
       refused, naming the command palette, and the palette does not open. Press Ctrl+Shift+F: it
       is taken; in a repository tab Ctrl+F no longer opens the find bar and Ctrl+Shift+F does;
@@ -679,7 +698,7 @@ Use a scratch repository with a few changed files and one new file.
 
 - [~] Ctrl+K: Open / Create repository, Open Welcome tab, Close current tab, themes, Check git
   installation again, About; with a repository tab active, "Open … window" task commands
-  (placeholders).
+  (Clone and Create repository still placeholders).
   - Notes: mouse cursor diappears on typing - when system file explorer opens (open repository, using only keyboard) the mouse doesn't appear back when moving it
 - [ ] Settings: theme, commit highlight, working-tree rows, repository **…** button, Diff
       (layout, whitespace, context, colours), Branches sort. Each change applies at once and is

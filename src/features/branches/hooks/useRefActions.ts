@@ -15,6 +15,7 @@ import { startJob } from "@/features/jobs";
 import { useActiveRepository } from "@/features/repositories";
 import { useAppSettings } from "@/features/settings";
 import { commands, toIpcError, unwrap } from "@/shared/ipc/client";
+import { actionDone } from "@/shared/lib/actionDone";
 
 import { useCheckoutBranch } from "../api/branches";
 import { openBranchDialog } from "../store/dialog";
@@ -38,7 +39,10 @@ export function useRefActions(repoId: number): RefActions {
       checkoutBranch: (name) => {
         const id = toast.loading(`Checking out ${name}…`);
         mutate(name, {
-          onSuccess: () => toast.success(`Switched to ${name}`, { id }),
+          onSuccess: () => {
+            toast.success(`Switched to ${name}`, { id });
+            actionDone("switch");
+          },
           onError: (error) => {
             const { message, hint } = toIpcError(error);
             toast.error(`Could not check out ${name}`, {

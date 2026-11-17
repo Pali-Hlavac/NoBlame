@@ -7,8 +7,9 @@ running app. Architecture: [cli-and-windows.md](../architecture/cli-and-windows.
 Status: **M1: parsing, forwarding and windows done. M8 in progress**: the task window frame,
 `log` (limited to the folder or file given), one window per task and path, and sessions closed
 with their window (slice 1); `commit` and `diff`, with the status of the folder or file given
-(slice 2); `blame` and `filehistory` (slice 3); `fetch`, `pull` and `push` (slice 4). The other
-tasks are still labelled placeholders.
+(slice 2); `blame` and `filehistory` (slice 3); `fetch`, `pull` and `push` (slice 4); `switch`,
+`merge`, `rebase` and `stash`, and closing a task window once its action succeeded (slice 5).
+`clone` and `init` are still labelled placeholders (slice 6).
 
 M2: a path passed on the very first launch (`noblame <path>` while NoBlame is not running) now
 opens its tab; development builds lost it because React StrictMode drained the request queue
@@ -72,14 +73,16 @@ Each task window has a bar with the task, the repository and the folder or file 
 tab. Below it is a workbench with the task's modules and tabs; arranging them works as in the
 main window but is not kept.
 
-| Task                    | Modules                                        | Tabs                                                          |
-| ----------------------- | ---------------------------------------------- | ------------------------------------------------------------- |
-| `log`                   | Branches; Commit details, Changed files, Files | The graph, filtered to the folder or file given (path filter) |
-| `commit`                | Commit (440 px wide)                           | Diff (the file given, if any), the graph (filtered)           |
-| `diff`                  | Changed files: the working tree's changes      | Diff (the file given, if any), the graph (filtered)           |
-| `blame`                 | Commit details, Changed files                  | Blame of the file as in `HEAD`, the graph (filtered)          |
-| `filehistory`           | Commit details, Changed files                  | History of the file or folder, the graph (filtered)           |
-| `fetch`, `pull`, `push` | Branches                                       | The graph; the task's dialog opens at once                    |
+| Task                        | Modules                                        | Tabs                                                          |
+| --------------------------- | ---------------------------------------------- | ------------------------------------------------------------- |
+| `log`                       | Branches; Commit details, Changed files, Files | The graph, filtered to the folder or file given (path filter) |
+| `commit`                    | Commit (440 px wide)                           | Diff (the file given, if any), the graph (filtered)           |
+| `diff`                      | Changed files: the working tree's changes      | Diff (the file given, if any), the graph (filtered)           |
+| `blame`                     | Commit details, Changed files                  | Blame of the file as in `HEAD`, the graph (filtered)          |
+| `filehistory`               | Commit details, Changed files                  | History of the file or folder, the graph (filtered)           |
+| `fetch`, `pull`, `push`     | Branches                                       | The graph; the task's dialog opens at once                    |
+| `switch`, `merge`, `rebase` | Branches                                       | The graph; which branch to use is asked at once               |
+| `stash`                     | Stashes                                        | The graph; **Stash changes** opens at once                    |
 
 Everything in a task window shows the status of the folder or file given: the Commit lists,
 Changed files and the graph's working tree row. **Stage all** and **Unstage all** act on that
@@ -100,6 +103,26 @@ background and the window's Git output window shows it, also when Settings turns
 off for the main window; only the window that started a job shows its output and its toasts.
 Pull and push need HEAD on a branch; on a detached HEAD the window says so. A credential prompt
 shows in every open window; answering it in one closes it in the others.
+
+`switch`, `merge` and `rebase` ask which reference to use (`src/app/tasks/RefPickDialog.tsx`):
+local branches, remote branches and tags (`pickerSections`, at most 200, typing narrows), without
+the current branch and the remotes' `HEAD`, or a revision typed in (**Use "…"**). Merging and
+rebasing start on the current branch's upstream. The choice goes to the graph menu's action
+(`RefActions`): a local branch is checked out at once, a remote branch opens "Create and check
+out", a tag or a typed revision the detached HEAD explanation; Merge and Rebase open their
+dialogs (how, and which commits are replayed). While a merge, cherry-pick, revert, rebase or
+`git am` is in progress, the question says to finish or abort it and nothing can be chosen (a
+bisect does not stop it). `stash` opens **Stash changes** (`openStashChanges`, mounted once per
+window); in a window limited to a folder it lists only that folder's changes and always stashes
+the chosen paths, never the whole working tree.
+
+**Close after success** (Settings → Task windows, off by default): actions report success
+through `shared/lib/actionDone.ts` (a commit; a pull, push or fetch job this window started; a
+checkout, including "Create and check out" and a detached checkout; a merge or rebase that did
+not stop on conflicts; a stash). A task window whose own action succeeded closes after 1.5 s
+(`useCloseWhenDone`), so its toast is seen. Log, Diff, Blame and File history never close by
+themselves; an action of another kind (a checkout in the Merge window) does not close the
+window, and neither does finishing a merge later with Continue.
 
 A path outside a repository shows "… is not a Git repository" with Retry. A file path opens the
 repository around it; a file that no longer exists cannot be opened (its folder can).

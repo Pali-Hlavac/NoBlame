@@ -12,8 +12,8 @@ import { Button } from "@/shared/ui/button";
 import { useStashes } from "../api/stashes";
 import { useStashActions } from "../hooks/useStashActions";
 import { showStash, useShownStash } from "../store/shown";
+import { openStashChanges } from "../store/stashDialog";
 import { DropStashDialog } from "./DropStashDialog";
-import { StashDialog } from "./StashDialog";
 import { StashItem } from "./StashItem";
 
 interface StashesProps {
@@ -26,7 +26,6 @@ export function Stashes({ repoId, repoPath }: StashesProps) {
   const stashes = useStashes(repoId);
   const shown = useShownStash(repoPath);
   const actions = useStashActions(repoId, repoPath);
-  const [creating, setCreating] = useState(false);
   const [dropping, setDropping] = useState<StashDto | null>(null);
 
   if (stashes.error) {
@@ -52,7 +51,7 @@ export function Stashes({ repoId, repoPath }: StashesProps) {
           size="sm"
           className="h-7 px-2"
           onClick={() => {
-            setCreating(true);
+            openStashChanges(repoId);
           }}
         >
           <ArchiveIcon aria-hidden className="text-kind-stash" />
@@ -93,7 +92,6 @@ export function Stashes({ repoId, repoPath }: StashesProps) {
           ))}
         </ul>
       )}
-      <StashDialog repoId={repoId} open={creating} onOpenChange={setCreating} />
       <DropStashDialog
         repoId={repoId}
         repoPath={repoPath}

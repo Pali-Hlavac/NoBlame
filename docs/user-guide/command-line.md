@@ -64,9 +64,26 @@ about. **Open in NoBlame** shows that repository in the main window.
   to. Then git's output shows in the window while it works, and a message says how it went.
   If you closed the question, the button at the top (**Pull…**) asks again. Pull and Push need
   a current branch.
+- **`switch`**, **`merge`** and **`rebase`** ask which branch, remote branch or tag: type part
+  of its name to narrow the list, or type a commit id (or `HEAD~2`) and choose **Use …**.
+  Switching to one of your branches happens at once; a remote branch gets a branch of yours
+  that follows it; a tag or a commit is checked out without a branch, after an explanation.
+  Merging and rebasing start on the branch your current branch follows (marked "upstream") and
+  then ask how, as from the graph. If a merge or rebase is still unfinished, the window says so:
+  finish or abort it first with the bar above the commits.
+- **`stash`** shows your stashes beside the commits and asks what to stash. Given a folder, it
+  lists and stashes only the changes in that folder.
 
-**Not done yet**: the other task windows show their task and path and say which milestone
-delivers them. They do not commit, push or change anything yet.
+The button at the top of these windows (**Switch…**, **Merge…**, **Stash changes…**) asks
+again after you closed the question.
+
+**Not done yet**: the `clone` and `init` windows show their task and path only; they come
+next.
+
+**Closing by themselves**: with **Settings → Task windows → Close a task window once its
+action succeeded**, a Commit, Pull, Push, Fetch, Switch, Merge, Rebase or Stash window closes a
+moment after its action worked. It stays open when something fails or conflicts, so you can
+see why. The setting is off at first.
 
 Running the same task on the same folder again brings its window to the front instead of
 opening another one. You can close the main window and keep task windows open; NoBlame ends when

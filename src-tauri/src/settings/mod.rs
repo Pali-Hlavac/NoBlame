@@ -5,6 +5,7 @@ mod commit;
 mod diff;
 mod graph;
 mod submodules;
+mod task_windows;
 mod types;
 
 pub use diff::{

@@ -6,6 +6,7 @@ import { showOnlyPath } from "@/features/graph";
 import { BLAME_TAB, DIFF_TAB, HISTORY_TAB, type WorkspaceTab } from "@/features/workspace";
 import type { PathScopeDto, RepoSummary, TaskKind } from "@/shared/ipc/bindings";
 
+import { BRANCH_SPECS } from "./branchTasks";
 import { chooseScopedFile } from "./choose";
 import { graphTab } from "./graphTab";
 import { blameScopedFile, showScopedHistory } from "./inspect";
@@ -57,6 +58,7 @@ const INSPECT_MODULES = ["commit-details", "changed-files"] as const;
 
 export const TASK_SPECS: Partial<Record<TaskKind, TaskSpec>> = {
   ...REMOTE_SPECS,
+  ...BRANCH_SPECS,
   log: {
     modules: ["branches", "commit-details", "changed-files", "files"],
     moduleLayout: [["branches"], ["commit-details", "changed-files", "files"]],

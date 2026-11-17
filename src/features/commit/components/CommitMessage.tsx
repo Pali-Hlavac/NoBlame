@@ -7,6 +7,7 @@ import { useKeys } from "@/shared/hooks/useKeys";
 import { matchesHotkey, withHotkey } from "@/shared/lib/hotkeys";
 import { isMacPlatform } from "@/shared/lib/platform";
 import { Button } from "@/shared/ui/button";
+import { actionDone } from "@/shared/lib/actionDone";
 
 import { useCommitDefaults, useCreateCommit } from "../api/commit";
 import { useTemplateSeed } from "../hooks/useTemplateSeed";
@@ -86,6 +87,7 @@ export function CommitMessage({ repoId, repoPath, onCommitted }: CommitMessagePr
         onSuccess: (result) => {
           clearDraft(repoPath);
           setOutput(result.output);
+          actionDone("commit");
           onCommitted?.(result.output);
         },
       },

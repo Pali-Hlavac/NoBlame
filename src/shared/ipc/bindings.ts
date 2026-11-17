@@ -2477,6 +2477,8 @@ export type Settings = {
 	jobs?: JobsSettings,
 	/**  How submodules follow the repository (fetch, pull, checkout). */
 	submodules?: SubmoduleSettings,
+	/**  Task windows (`noblame commit <path>`): closing once their action succeeded. */
+	taskWindows?: TaskWindowSettings,
 	/**  User scripts: git command lines with placeholders, run on a commit from its menu. */
 	scripts?: UserScript[],
 	/**
@@ -2788,6 +2790,15 @@ export type TaskKind =
 "clone" | 
 /**  Create a repository. */
 "init";
+
+/**  How task windows behave. */
+export type TaskWindowSettings = {
+	/**
+	 *  A Commit, Pull, Push, Fetch, Switch, Merge, Rebase or Stash window closes once its
+	 *  action succeeded. Off by default: the window stays, showing the result.
+	 */
+	closeAfterSuccess?: boolean,
+};
 
 /**  Which color scheme the UI uses. */
 export type ThemePreference = 

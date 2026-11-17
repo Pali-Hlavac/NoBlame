@@ -1,11 +1,15 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { useTabsStore } from "@/features/workspace";
 import type { ChangedFileDto, StashDto, WorkingFileDto } from "@/shared/ipc/bindings";
 
+import { setStatusScope } from "@/features/working-tree";
+
 import { useShownStashStore } from "../store/shown";
+import { openStashChanges } from "../store/stashDialog";
+import { StashChangesDialog } from "./StashChangesDialog";
 import { Stashes } from "./StashesModule";
 import { StashBody } from "./StashView";
 
@@ -82,7 +86,12 @@ describe("Stashes", () => {
       },
     });
     ipc.stashChanges.mockResolvedValue({ status: "ok", data: "Saved working directory" });
-    renderWith(<Stashes repoId={1} repoPath="/repo" />);
+    renderWith(
+      <>
+        <Stashes repoId={1} repoPath="/repo" />
+        <StashChangesDialog />
+      </>,
+    );
     fireEvent.click(await screen.findByRole("button", { name: "Stash changes…" }));
     const dialog = await screen.findByRole("dialog", { name: "Stash changes" });
     fireEvent.change(within(dialog).getByRole("textbox", { name: "Stash message" }), {
@@ -98,6 +107,34 @@ describe("Stashes", () => {
         paths: ["a.txt"],
       });
     });
+  });
+
+  it("in a window limited to a folder, stashes only that folder's files", async () => {
+    setStatusScope("src");
+    ipc.getStatus.mockResolvedValue({
+      status: "ok",
+      data: {
+        summary: { staged: 0, unstaged: 1, untracked: 0, conflicted: 0 },
+        staged: [],
+        unstaged: [working("src/a.txt", "modified")],
+      },
+    });
+    ipc.stashChanges.mockResolvedValue({ status: "ok", data: "Saved working directory" });
+    renderWith(<StashChangesDialog />);
+    act(() => {
+      openStashChanges(1);
+    });
+    const dialog = await screen.findByRole("dialog", { name: "Stash changes" });
+    expect(dialog).toHaveTextContent("Only the changes in src are listed.");
+    await within(dialog).findByRole("checkbox", { name: "Choose src/a.txt" });
+    fireEvent.click(within(dialog).getByRole("button", { name: "Stash" }));
+    await waitFor(() => {
+      expect(ipc.stashChanges).toHaveBeenCalledWith(
+        1,
+        expect.objectContaining({ paths: ["src/a.txt"] }),
+      );
+    });
+    setStatusScope(null);
   });
 
   it("shows a stash in the Stash tab and applies its chosen files", async () => {

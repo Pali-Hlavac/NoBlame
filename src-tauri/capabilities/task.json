@@ -6,6 +6,7 @@
   "permissions": [
     "core:event:default",
     "core:window:allow-internal-toggle-maximize",
+    "core:window:allow-close",
     "core:window:allow-start-dragging",
     "dialog:allow-open",
     "allow-get-app-info",

@@ -223,6 +223,17 @@ All notable changes to NoBlame are documented here. The format follows
   (owner request 2026-11-13).
 - Commit module: Settings → Commit can list files folder first, sorted by the whole path,
   instead of name first (owner request 2026-11-13).
+- Switch, Merge, Rebase and Stash windows (M8 slice 5): `noblame switch|merge|rebase <path>`
+  asks which branch, remote branch or tag (filtered as you type; a commit id or `HEAD~2` can be
+  typed too; merging and rebasing start on the upstream), then works as the graph's menu: a
+  local branch is checked out at once, a remote branch gets its local branch, merging and
+  rebasing ask how. While a merge or rebase is unfinished the window says so instead.
+  `noblame stash <path>` shows the stashes and opens **Stash changes**; given a folder, only
+  that folder's changes are listed and stashed.
+- Settings → Task windows → **Close a task window once its action succeeded** (off by
+  default): a Commit, Pull, Push, Fetch, Switch, Merge, Rebase or Stash window closes 1.5 s
+  after its commit, job, checkout, merge, rebase or stash worked; failures and conflicts keep it
+  open (owner request 2026-11-12).
 - Fetch, Pull and Push windows (M8 slice 4): `noblame fetch|pull|push <path>` opens the
   repository's graph with its question at once (Fetch from where, Pull how, the Push dialog),
   and again from the window's bar; git's output shows in the window while the job runs. Job
@@ -477,7 +488,8 @@ All notable changes to NoBlame are documented here. The format follows
   cancellation.
 - Command line: `noblame [path]`, `noblame browse [path]` and 14 task commands
   (`noblame commit <path>`, ...). A second launch forwards its arguments to the running app.
-  **Placeholder:** task windows show their task and path only; the task UIs arrive in M8.
+  **Placeholder:** the Clone and Create repository windows show their task and path only;
+  they arrive in M8 slice 6 (the other task windows are done).
 - Synthetic repository generator (`pnpm repos:generate`): deterministic repositories with 10k,
   100k or 1M commits, merges, octopus merges, thousands of branches and tags.
 - Tooling: ESLint, Prettier, rustfmt, clippy (pedantic), file-size check, husky + lint-staged +

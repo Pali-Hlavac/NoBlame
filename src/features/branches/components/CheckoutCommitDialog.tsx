@@ -1,6 +1,7 @@
 import { toast } from "sonner";
 
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
+import { actionDone } from "@/shared/lib/actionDone";
 
 import { useCheckoutCommit } from "../api/branches";
 import { openBranchDialog, type StartPoint } from "../store/dialog";
@@ -44,6 +45,7 @@ export function CheckoutCommitDialog({ repoId, commit, onClose }: CheckoutCommit
         checkout.mutate(commit.revision, {
           onSuccess: () => {
             toast.success(`Checked out ${commit.label}`);
+            actionDone("switch");
             onClose();
           },
         });

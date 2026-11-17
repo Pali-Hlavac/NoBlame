@@ -3,6 +3,7 @@ import type {
   CommitSettings,
   JobsSettings,
   SubmoduleSettings,
+  TaskWindowSettings,
   DiffSettings,
   ExternalDiffTool,
   ExternalMergeTool,
@@ -28,6 +29,7 @@ export interface AppSettings {
   commit: Required<CommitSettings>;
   jobs: Required<JobsSettings>;
   submodules: Required<SubmoduleSettings>;
+  taskWindows: Required<TaskWindowSettings>;
   /** User scripts, in menu order. */
   scripts: { name: string; command: string }[];
   /** Keyboard shortcuts given other keys than the app's (empty keys: no shortcut). */
@@ -70,6 +72,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   commit: { fileDisplay: "nameFirst" },
   jobs: { showOutputWindow: false, closeOutputOnSuccess: true },
   submodules: { fetchSubmodules: true, updateAfterPullAndCheckout: false },
+  taskWindows: { closeAfterSuccess: false },
   scripts: [],
   keybindings: [],
 };
@@ -90,6 +93,7 @@ export function withDefaults(settings: Settings | undefined): AppSettings {
     commit: { ...DEFAULT_SETTINGS.commit, ...settings?.commit },
     jobs: { ...DEFAULT_SETTINGS.jobs, ...settings?.jobs },
     submodules: { ...DEFAULT_SETTINGS.submodules, ...settings?.submodules },
+    taskWindows: { ...DEFAULT_SETTINGS.taskWindows, ...settings?.taskWindows },
     scripts: (settings?.scripts ?? []).map((script) => ({
       name: script.name ?? "",
       command: script.command ?? "",

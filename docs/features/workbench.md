@@ -159,6 +159,7 @@ Settings shown there (stored in `settings.json`, see `src-tauri/src/settings/typ
 | Fetch, pull and push | Close the window when they succeed                                      | on      |
 | Submodules           | Fetch the submodules too                                                | on      |
 | Submodules           | Update the submodules after pull and checkout                           | off     |
+| Task windows         | Close a task window once its action succeeded                           | off     |
 
 **Keyboard shortcuts** lists every shortcut by where it works (General, Tabs, History, Commit,
 Modules), and each can be changed (M7 slice 8):

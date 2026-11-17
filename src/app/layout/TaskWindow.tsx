@@ -12,9 +12,11 @@ import { LoadingState } from "@/shared/components/LoadingState";
 import type { TaskKind } from "@/shared/ipc/bindings";
 
 import { useHistoryHotkeys } from "../commands/useHistoryHotkeys";
+import { RefPickDialog } from "../tasks/RefPickDialog";
 import { RemoteTaskDialog } from "../tasks/RemoteTaskDialog";
 import { currentBranch } from "../tasks/remote";
 import { TASK_SPECS, type TaskSpec, type TaskTarget } from "../tasks/specs";
+import { useCloseWhenDone } from "../tasks/useCloseWhenDone";
 import { useTaskTarget } from "../tasks/useTaskTarget";
 import { MODULES } from "../workbench/modules";
 import { renderTab } from "./renderTab";
@@ -42,6 +44,7 @@ export function TaskWindow({ task, path }: TaskWindowProps) {
 
 function PreparedTask({ task, path, spec }: TaskWindowProps & { spec: TaskSpec }) {
   const { session, target } = useTaskTarget(path, spec);
+  useCloseWhenDone(task);
   // A popped-out module's popup is modal: the window behind waits until it closes.
   const popupOpen = useModulePopupOpen();
   const error = session.error ?? target.error;
@@ -87,7 +90,7 @@ function actionOf(spec: TaskSpec, target: TaskTarget | undefined) {
 
 /**
  * The workbench of a task window: the task's modules, its layout never saved. A task with a
- * dialog (Pull, Push) opens it once the window is ready.
+ * dialog (Pull, Push, Switch, Stash) opens it once the window is ready.
  */
 function TaskWorkbench({ spec, target }: { spec: TaskSpec; target: TaskTarget }) {
   const modules = useMemo(
@@ -117,6 +120,7 @@ function TaskWorkbench({ spec, target }: { spec: TaskSpec; target: TaskTarget })
       </RepositoryContexts>
       <WindowDialogs />
       <RemoteTaskDialog repoPath={target.summary.path} branch={currentBranch(target)} />
+      <RefPickDialog repoId={target.summary.id} />
     </>
   );
 }

@@ -7,6 +7,7 @@ pub use super::commit::CommitSettings;
 pub use super::diff::DiffSettings;
 pub use super::graph::GraphSettings;
 pub use super::submodules::SubmoduleSettings;
+pub use super::task_windows::TaskWindowSettings;
 
 /// Which color scheme the UI uses.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize, Type)]
@@ -42,6 +43,8 @@ pub struct Settings {
     pub jobs: JobsSettings,
     /// How submodules follow the repository (fetch, pull, checkout).
     pub submodules: SubmoduleSettings,
+    /// Task windows (`noblame commit <path>`): closing once their action succeeded.
+    pub task_windows: TaskWindowSettings,
     /// User scripts: git command lines with placeholders, run on a commit from its menu.
     pub scripts: Vec<UserScript>,
     /// Keyboard shortcuts the user changed (Settings → Keyboard shortcuts); the others keep
