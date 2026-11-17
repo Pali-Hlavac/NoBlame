@@ -39,4 +39,10 @@ describe("TaskBar", () => {
     render(<TaskBar task="commit" path="/work/app" />);
     expect(screen.getByRole("banner", { name: "Task" })).toHaveTextContent("Commit/work/app");
   });
+
+  it("offers no repository to open in the Clone and Create repository windows", () => {
+    render(<TaskBar task="clone" path="/work" canOpen={false} />);
+    expect(screen.getByRole("banner", { name: "Task" })).toHaveTextContent("Clone/work");
+    expect(screen.queryByRole("button", { name: "Open in NoBlame" })).toBeNull();
+  });
 });

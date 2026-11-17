@@ -55,9 +55,11 @@ pub fn command() -> Command {
                 .arg(path_arg("Repository to open")),
         );
     for task in TaskKind::ALL {
-        command = command.subcommand(Command::new(task.command_name()).about(task.about()).arg(
-            path_arg("Repository, folder or file (default: the current folder)"),
-        ));
+        command = command.subcommand(
+            Command::new(task.command_name())
+                .about(task.about())
+                .arg(path_arg(task.path_help())),
+        );
     }
     command
 }

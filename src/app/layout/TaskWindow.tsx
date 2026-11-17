@@ -4,7 +4,7 @@ import { APP_NAME } from "@/app.config";
 
 import { useJobEvents } from "@/features/jobs";
 import { repositoryName, useRepositoryChanges, useSessionCleanup } from "@/features/repositories";
-import { TASKS, TaskBar, TaskWindowView } from "@/features/windows";
+import { TASKS, TaskBar } from "@/features/windows";
 import { Workbench, useModulePopupOpen } from "@/features/workbench";
 import { useTabHotkeys } from "@/features/workspace";
 import { ErrorState } from "@/shared/components/ErrorState";
@@ -12,6 +12,8 @@ import { LoadingState } from "@/shared/components/LoadingState";
 import type { TaskKind } from "@/shared/ipc/bindings";
 
 import { useHistoryHotkeys } from "../commands/useHistoryHotkeys";
+import { FolderTaskWindow } from "../tasks/FolderTaskWindow";
+import { FOLDER_TASKS } from "../tasks/folderTasks";
 import { RefPickDialog } from "../tasks/RefPickDialog";
 import { RemoteTaskDialog } from "../tasks/RemoteTaskDialog";
 import { currentBranch } from "../tasks/remote";
@@ -30,7 +32,7 @@ interface TaskWindowProps {
 
 /**
  * A task window (`noblame log <path>`, ADR 0015): the bar naming the task and the workbench
- * with the task's modules and tabs. Tasks not built yet show their placeholder.
+ * with the task's modules and tabs; Clone and Create repository show their form instead.
  */
 export function TaskWindow({ task, path }: TaskWindowProps) {
   const spec = TASK_SPECS[task];
@@ -38,8 +40,15 @@ export function TaskWindow({ task, path }: TaskWindowProps) {
     // As the window's own title (set in Rust), for tools that list pages by title.
     document.title = `${TASKS[task].title} — ${repositoryName(path)} — ${APP_NAME}`;
   }, [task, path]);
-  if (!spec) return <TaskWindowView task={task} path={path} />;
-  return <PreparedTask task={task} path={path} spec={spec} />;
+  if (spec) return <PreparedTask task={task} path={path} spec={spec} />;
+  if (FOLDER_TASKS[task]) return <FolderTaskWindow task={task} path={path} />;
+  return (
+    <ErrorState
+      error={new Error(`NoBlame has no ${TASKS[task].title} window.`)}
+      title="Unknown task"
+      className="h-screen justify-center"
+    />
+  );
 }
 
 function PreparedTask({ task, path, spec }: TaskWindowProps & { spec: TaskSpec }) {

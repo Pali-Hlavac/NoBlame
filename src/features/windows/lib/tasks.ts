@@ -25,6 +25,3 @@ export const TASKS: Record<TaskKind, TaskInfo> = {
   clone: { title: "Clone", command: "clone", description: "Clone a repository." },
   init: { title: "Create repository", command: "init", description: "Create a new repository." },
 };
-
-/** Milestone in `docs/roadmap.md` that delivers the real task windows. */
-export const TASK_WINDOWS_MILESTONE = "M8";

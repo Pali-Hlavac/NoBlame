@@ -16,6 +16,7 @@ const APP_COMMANDS: &[&str] = &[
     "open_repository",
     "get_path_scope",
     "init_repository",
+    "inspect_folder",
     "close_repository",
     "load_graph",
     "get_graph_block",

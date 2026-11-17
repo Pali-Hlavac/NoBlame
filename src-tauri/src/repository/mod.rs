@@ -8,6 +8,7 @@ mod diff_cache;
 mod error;
 mod filter_types;
 mod find;
+pub mod folder;
 mod graph_cache;
 mod graph_types;
 mod groups;

@@ -30,7 +30,7 @@ import {
   useOpenRepository,
 } from "@/features/repositories";
 import { THEME_OPTIONS, useThemePreference } from "@/features/settings";
-import { TASKS, TASK_WINDOWS_MILESTONE, useOpenTaskWindow } from "@/features/windows";
+import { TASKS, useOpenTaskWindow } from "@/features/windows";
 import { openModule, resetLayout, type WorkbenchModule } from "@/features/workbench";
 import { WELCOME_TAB, showCompareTab, useActiveTab, useTabsStore } from "@/features/workspace";
 import { useKeymap } from "@/shared/hooks/useKeys";
@@ -60,13 +60,11 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
   const repositoryPath = activeTab?.kind === "repository" ? activeTab.path : null;
 
   const taskCommands = repositoryPath
-    ? (Object.keys(TASKS) as TaskKind[]).map((task): PaletteCommand => ({
+    ? // The tasks about this repository; Clone and Create repository are commands of their own.
+      (Object.keys(TASK_SPECS) as TaskKind[]).map((task): PaletteCommand => ({
         id: `task.${task}`,
         group: "Task windows",
-        // Clone and Create repository come last in M8 (slice 6).
-        label: TASK_SPECS[task]
-          ? `Open ${TASKS[task].title} window`
-          : `Open ${TASKS[task].title} window (placeholder until ${TASK_WINDOWS_MILESTONE})`,
+        label: `Open ${TASKS[task].title} window`,
         icon: ExternalLinkIcon,
         keywords: [TASKS[task].command, "window"],
         run: () => {

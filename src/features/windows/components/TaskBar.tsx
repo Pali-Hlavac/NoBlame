@@ -18,13 +18,15 @@ interface TaskBarProps {
   scope?: string;
   /** The task's own button (`Pull…`), which opens its dialog again. */
   action?: { label: string; onClick: () => void };
+  /** Offers **Open in NoBlame**; not for Clone and Create repository (no repository yet). */
+  canOpen?: boolean;
 }
 
 /**
  * The top of a task window: which task, on which repository and folder or file, and a way
  * to the main window with that repository.
  */
-export function TaskBar({ task, path, repository, scope, action }: TaskBarProps) {
+export function TaskBar({ task, path, repository, scope, action, canOpen = true }: TaskBarProps) {
   const open = (): void => {
     // The repository's top folder: its tab there is the whole repository, titled with its name.
     openInMainWindow(repository?.path ?? path).catch((error: unknown) => {
@@ -48,16 +50,18 @@ export function TaskBar({ task, path, repository, scope, action }: TaskBarProps)
           {action.label}
         </Button>
       ) : null}
-      <Button
-        variant="ghost"
-        size="sm"
-        className={action ? undefined : "ml-auto"}
-        title="Show this repository in the main window"
-        onClick={open}
-      >
-        <AppWindowIcon aria-hidden />
-        Open in NoBlame
-      </Button>
+      {canOpen ? (
+        <Button
+          variant="ghost"
+          size="sm"
+          className={action ? undefined : "ml-auto"}
+          title="Show this repository in the main window"
+          onClick={open}
+        >
+          <AppWindowIcon aria-hidden />
+          Open in NoBlame
+        </Button>
+      ) : null}
     </header>
   );
 }

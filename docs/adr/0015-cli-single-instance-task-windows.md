@@ -65,7 +65,23 @@ Single instance and windows (`src-tauri/src/windows/`):
   synchronous command deadlocks on Windows.
 - Paths cross IPC as strings. Non-UTF-8 paths are rejected with a clear `INVALID_INPUT` error for
   now instead of being changed lossily.
-- In M1 task windows are labelled placeholders; the real task views come in M8.
+- In M1 task windows were labelled placeholders; M8 built them (see "M8 update" below).
+
+### M8 update (2026-11-17)
+
+- A task window is the main window's workbench made for one task: the task's modules and tabs on
+  the path given, its layout never saved, under a bar naming the task, the repository and the
+  folder, with **Open in NoBlame**. `clone` and `init`, which have no repository yet, show a form
+  instead.
+- Reuse rule: one window per task and path; the same command again brings it to the front.
+  Repository sessions belong to the window that opened them and close with it; the app ends
+  with its last window.
+- A path limits what the window shows: the graph's path filter, and the status of that folder
+  or file (Stage all and Unstage all act there).
+- Jobs show their output and toasts only in the window that started them. A setting closes a
+  task window once its action succeeded (off by default).
+- Each task's `--help` names what its path is (`TaskKind::path_help`). Tests compare the help
+  with the command line reference, `docs/features/cli.md`, so neither drifts.
 
 ### Consequences
 
@@ -79,7 +95,8 @@ Bad:
 
 - A bare word is ambiguous: `noblame comit` (a typo) is read as a path. Opening repositories in
   M2 will report "not a repository" for such paths.
-- Each task window is a separate webview, which costs memory; reuse rules are decided in M8.
+- Each task window is a separate webview, which costs memory; the same task on the same path
+  reuses its window (M8).
 - Non-UTF-8 paths cannot be opened yet.
 
 ## Pros and cons of the options

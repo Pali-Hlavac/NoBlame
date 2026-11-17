@@ -151,6 +151,17 @@ Use `target\debug\noblame.exe` while the dev app runs.
       folder: Stash changes lists only the folder's files and says so; **Stash** leaves the
       other changes in place.
   - Notes:
+- [ ] **(new, M8 slice 6)** `noblame clone <folder>`: Into is that folder; a URL fills the
+      folder name; **Clone**: git's output, then **Cloned** and the main window with the new
+      repository. A wrong URL: **The clone failed** with git's reason, **Try again**.
+  - Notes:
+- [ ] **(new, M8 slice 6)** `noblame init <new folder>`: "will be created", **Create**, then
+      **Open in NoBlame**. `noblame init <a repository>`: "a repository already", Create is
+      off. `noblame init <repo>/sub`: the warning about a repository inside another.
+  - Notes:
+- [ ] **(new, M8 slice 6)** In a terminal: `noblame --help`, `noblame clone --help` (says
+      "Folder that will hold the clone"), `noblame commit a b` (an error, exit code 2).
+  - Notes:
 - [ ] **(new, M8 slice 5)** Settings → Task windows → **Close a task window once its action
       succeeded** on: a commit in a Commit window, a pull in a Pull window and a switch in a
       Switch window each close their window a moment later; a failed pull or a merge with

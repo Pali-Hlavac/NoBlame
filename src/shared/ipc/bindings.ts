@@ -40,6 +40,8 @@ export const commands = {
 	getPathScope: (id: number, path: string) => typedError<PathScopeDto | null, AppError>(__TAURI_INVOKE("get_path_scope", { id, path })),
 	/**  Creates a repository in `path` with `git init` (open it with `open_repository` next). */
 	initRepository: (path: string) => typedError<null, AppError>(__TAURI_INVOKE("init_repository", { path })),
+	/**  What `path` is, and the repository around it. Nothing is opened or changed. */
+	inspectFolder: (path: string) => typedError<FolderStateDto, AppError>(__TAURI_INVOKE("inspect_folder", { path })),
 	/**  Closes a repository session (when its tab closes). */
 	closeRepository: (id: number) => __TAURI_INVOKE<void>("close_repository", { id }),
 	/**  Builds the graph (or returns the cached one; `reload` forces a rebuild). */
@@ -1358,6 +1360,30 @@ export type FileViewRequestDto = {
 	path: string,
 	/**  Colour the code by the language of the path. */
 	syntax: boolean,
+};
+
+/**  What is at a path. */
+export type FolderKindDto = 
+/**  Nothing yet: it will be created. */
+"missing" | 
+/**  A file. */
+"file" | 
+/**  An empty folder. */
+"empty" | 
+/**  A folder with files or folders in it. */
+"filled";
+
+/**  A folder about to receive a repository. */
+export type FolderStateDto = {
+	/**  What is there. */
+	kind: FolderKindDto,
+	/**
+	 *  The repository it is (or would be) inside: its top folder, for display (non-UTF-8 parts
+	 *  replaced); `null` outside any repository.
+	 */
+	repository: string | null,
+	/**  The path is that repository's top folder: it is a repository already. */
+	isRepository: boolean,
 };
 
 /**  One match of the find bar. */

@@ -4,12 +4,14 @@
 //! (owned by another user and not listed in `safe.directory`) are refused too, with a reason.
 
 mod error;
+mod folder;
 mod info;
 mod scope;
 
 use std::path::Path;
 
 pub use error::RepoError;
+pub use folder::{FolderKind, FolderState, folder_state};
 pub use info::{Head, RepoInfo, RepoKind};
 pub use scope::{PathScope, scope_in};
 

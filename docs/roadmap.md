@@ -1089,11 +1089,11 @@ Slice 8 done (2026-11-11): keyboard shortcuts ([features/workbench.md](features/
 
 ### M8: Standalone task windows (prepares phase 2)
 
-- [ ] `noblame log|commit|diff|blame|filehistory|pull|push|fetch|switch|merge|rebase|stash|clone|init <path>` open focused windows
+- [x] `noblame log|commit|diff|blame|filehistory|pull|push|fetch|switch|merge|rebase|stash|clone|init <path>` open focused windows
 - [x] Path-scoped views: log and status limited to a folder or file (log: slice 1; status: slice 2)
 - [x] Windows reuse the running instance; closing the last task window exits when the main window is not open
       (slice 1: one window per task and path; sessions closed with their window)
-- [ ] Documented CLI reference (`docs/features/cli.md`), `--help` output tested
+- [x] Documented CLI reference (`docs/features/cli.md`), `--help` output tested (slice 6)
 - [x] Setting: close a task window once its action succeeded (commit, pull, push, …), like
       TortoiseGit (owner request 2026-11-12; off by default, owner decision 2026-11-17)
 
@@ -1192,7 +1192,23 @@ once its action succeeded ([features/cli.md](features/cli.md#task-windows-m8)).
 - The palette and the repository header no longer call every task window a placeholder; only
   Clone and Create repository are.
 
-Next: slice 6 (Clone, Create repository, the CLI reference and `--help` tests).
+Slice 6 done (2026-11-17): Clone and Create repository windows, the CLI reference
+([features/cli.md](features/cli.md)).
+
+- `clone` and `init` show a form, not a workbench (`FolderTaskWindow`): Clone with the path as
+  the folder that will hold the clone (the form is now shared with the main window's dialog),
+  its progress, then **Open in NoBlame**; Create repository with what is at the folder first
+  (`inspect_folder`, new in git-core `repo/folder.rs`: missing, empty, filled, a file, inside a
+  repository, a repository already), then `git init`.
+- `--help` of each task names what its path is (`TaskKind::path_help`); tests compare
+  `noblame --help` and every task's path with `docs/features/cli.md`, and check `--version` and
+  usage errors (exit code 2). ADR 0015 brought up to date.
+- The placeholder view (`TaskWindowView`) is gone; the palette lists the task windows about the
+  active repository without "placeholder".
+- Checked with tests only so far: the owner's dev app was running (slices 5 and 6 wait for a
+  click-through, see the manual checklist).
+
+**M8 is done (2026-11-17).** Next: M9 (polish and release).
 
 Quality of life before slice 5 (owner request 2026-11-13; see the ideas inbox in
 [design/workbench.md](design/workbench.md#ideas-inbox)):

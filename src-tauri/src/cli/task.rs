@@ -116,6 +116,16 @@ impl TaskKind {
         }
     }
 
+    /// What the path argument names, for `noblame <task> --help`.
+    pub fn path_help(self) -> &'static str {
+        match self {
+            Self::Clone => "Folder that will hold the clone (default: the current folder)",
+            Self::Init => "Folder to create the repository in (default: the current folder)",
+            Self::Blame => "File to blame (default: the current folder)",
+            _ => "Repository, folder or file (default: the current folder)",
+        }
+    }
+
     /// The task whose [`command_name`](Self::command_name) is `name`.
     pub fn from_command_name(name: &str) -> Option<Self> {
         Self::ALL

@@ -44,15 +44,15 @@ exits. The running instance parses them with the same `cli::parse` and calls
 `tauri.conf.json` declares **no windows**; Rust opens them, so `noblame commit <path>` does not
 open the main window as well.
 
-| Label    | Opened by                                           | Content                                                              |
-| -------- | --------------------------------------------------- | -------------------------------------------------------------------- |
-| `main`   | `noblame`, `noblame <path>`, `noblame browse`       | Sidebar, repository tabs, status bar                                 |
-| `task-N` | `noblame <task> <path>`, `open_task_window` command | One task for one path (M8; placeholders for the tasks not built yet) |
+| Label    | Opened by                                           | Content                              |
+| -------- | --------------------------------------------------- | ------------------------------------ |
+| `main`   | `noblame`, `noblame <path>`, `noblame browse`       | Sidebar, repository tabs, status bar |
+| `task-N` | `noblame <task> <path>`, `open_task_window` command | One task for one path (M8)           |
 
 - `WindowRegistry` (managed state) maps task labels to their `WindowContext` and holds the queue
   of repositories the main window should open. A task window forgets its entry when destroyed.
 - Each window's frontend calls `get_window_context` on start and renders the main layout or
-  `TaskWindowView`.
+  the task window (`TaskWindow`).
 - Opening a repository in the main window: the request is queued, the main window is shown or
   created, and `RepositoriesRequested` is emitted. The main window drains the queue on start and
   on every event, so the request survives a window that is still loading.
@@ -95,9 +95,15 @@ folder), and a `Workbench` with the task's modules and tabs. Its layout is never
 `Repository::discover` starts in a file's folder, so a file path opens its repository; a path
 that does not exist still fails (so a mistyped task name still reads as a missing folder).
 
-A path outside any repository shows the error with Retry. Tasks without a spec still show the
-labelled placeholder (`TaskWindowView`). The dialogs, the credential prompt and the Git output
-window are mounted as in the main window (`WindowParts.tsx`), so the graph's menus work there.
+A path outside any repository shows the error with Retry. The dialogs, the credential prompt
+and the Git output window are mounted as in the main window (`WindowParts.tsx`), so the graph's
+menus work there.
+
+`clone` and `init` have no repository yet: they render a form (`FolderTaskWindow`,
+`src/app/tasks/folderTasks.ts`) under the task bar, with the job events, the credential prompt
+and the Git output window, and no repository session. `init` asks `inspect_folder` what is at
+the path before `init_repository`. The help text and the command line reference
+(`docs/features/cli.md`) are checked against each other by `src-tauri/src/cli/tests.rs`.
 
 ## Capabilities
 

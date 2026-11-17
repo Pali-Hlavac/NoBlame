@@ -49,6 +49,7 @@ pub fn builder() -> Builder<tauri::Wry> {
             repository::commands::open_repository,
             repository::commands::get_path_scope,
             repository::commands::init_repository,
+            repository::folder::inspect_folder,
             repository::commands::close_repository,
             repository::commands::load_graph,
             repository::commands::get_graph_block,

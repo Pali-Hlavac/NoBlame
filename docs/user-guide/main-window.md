@@ -184,8 +184,8 @@ each other, beside the commit graph. **History** ([File history](file-history.md
 
 A repository tab shows the repository's name, branch and path at the top and its
 [commit graph](commit-graph.md) below. When you close the tab, NoBlame releases the repository.
-The Log, Commit and File history buttons in the tab open windows that are placeholders in this
-version. See [Opening repositories](opening-repositories.md).
+The Log, Commit and File history buttons in the tab open those task windows for the
+repository. See [Opening repositories](opening-repositories.md).
 
 ## NoBlame remembers your layout
 
@@ -232,5 +232,5 @@ platform, and the version and full path of the git in use. This is useful in bug
 ## Task windows
 
 Some actions open in their own small window, for example a commit window opened from the command
-line. In this version these windows are placeholders: they show the task and the path, and say
-which milestone delivers them. See [Command line](command-line.md).
+line: the commit graph, a commit, a diff, blame, file history, fetch, pull, push, switch, merge,
+rebase, stash, clone and creating a repository. See [Command line](command-line.md).

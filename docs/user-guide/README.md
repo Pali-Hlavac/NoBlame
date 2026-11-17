@@ -8,7 +8,7 @@ branches, tags and remotes (fetch, pull, push), merge, cherry-pick, revert, rese
 (also interactively), resolve conflicts, get lost work back from the reflog, and initialize
 and update submodules, work in several worktrees, find the commit that broke something
 (bisect), create and apply patches or save archives, work with Git LFS files and locks, and run your own Git commands (scripts). Features that
-come in later versions are labelled placeholders, and so are the task windows.
+come in later versions are labelled placeholders.
 
 | Page                                                      | What it covers                               |
 | --------------------------------------------------------- | -------------------------------------------- |

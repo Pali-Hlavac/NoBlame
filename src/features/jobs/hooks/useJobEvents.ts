@@ -15,9 +15,9 @@ import { showJobProgress, takeJobToast } from "../lib/toasts";
 import { showOutput, showsOutputOfEveryJob, useOutputWindow } from "../store/output";
 import { showJobs } from "../store/panel";
 
-/** Jobs a task window is opened for (Pull, Push, Fetch). */
-function isTaskJob(kind: JobDto["kind"]): kind is "pull" | "push" | "fetch" {
-  return kind === "pull" || kind === "push" || kind === "fetch";
+/** Jobs a task window is opened for (Pull, Push, Fetch, Clone). */
+function isTaskJob(kind: JobDto["kind"]): kind is "pull" | "push" | "fetch" | "clone" {
+  return kind === "pull" || kind === "push" || kind === "fetch" || kind === "clone";
 }
 
 /**

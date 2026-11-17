@@ -39,8 +39,7 @@ At the top of a repository tab you see:
   yet" for a new repository);
 - labels such as **Bare**, **Worktree**, **Submodule** or **Shallow clone** when they apply;
 - the full path;
-- buttons that open Log, Commit and File history windows. These windows are placeholders in this
-  version.
+- buttons that open Log, Commit and File history windows for the repository.
 
 Below that is the [commit graph](commit-graph.md).
 

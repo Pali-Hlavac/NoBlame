@@ -77,8 +77,16 @@ about. **Open in NoBlame** shows that repository in the main window.
 The button at the top of these windows (**Switch…**, **Merge…**, **Stash changes…**) asks
 again after you closed the question.
 
-**Not done yet**: the `clone` and `init` windows show their task and path only; they come
-next.
+- **`clone`** asks for the repository's URL and clones it into a new folder inside the folder
+  given (named after the repository; you can change both), with the same options as **Clone
+  repository** in the main window. Git's output shows while it works; then **Open in NoBlame**
+  shows the new repository (it opens there by itself while **Open it when done** stays ticked).
+  If the clone fails, the window says why and **Try again** brings the form back.
+- **`init`** creates a repository in the folder given (or one you type or browse to). Before you
+  click **Create** it tells you what is there: a folder that does not exist yet is created; files
+  already in it stay, not committed yet; a folder that is a repository already is not created
+  again (**Open in NoBlame** opens it instead); and a folder inside another repository gets a
+  warning, because the new repository would sit in that one untracked.
 
 **Closing by themselves**: with **Settings → Task windows → Close a task window once its
 action succeeded**, a Commit, Pull, Push, Fetch, Switch, Merge, Rebase or Stash window closes a

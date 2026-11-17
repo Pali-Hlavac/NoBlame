@@ -4,7 +4,7 @@
  * Failures, conflicts and cancelled actions are never reported.
  */
 export type DoneAction =
-  "commit" | "pull" | "push" | "fetch" | "switch" | "merge" | "rebase" | "stash";
+  "commit" | "pull" | "push" | "fetch" | "switch" | "merge" | "rebase" | "stash" | "clone" | "init";
 
 type Listener = (action: DoneAction) => void;
 

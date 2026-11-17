@@ -39,15 +39,16 @@ Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 > menu and the bar, marks as graph labels (slice 3); patches created and applied, archives
 > (slice 4); the Git LFS module: pointers or content, download, locks (slice 5); user scripts
 > run on a commit from its menu (slice 6); Git settings, the repository's and the user's (slice 7); keyboard shortcuts from one registry,
-> changed in Settings (slice 8). M8 in progress: task windows as a workbench made for one task,
+> changed in Settings (slice 8). M8 done: task windows as a workbench made for one task,
 > one window per task and path, sessions closed with their window; `log` limited to a folder or
 > file (slice 1); `commit` and `diff` with the status of that folder or file (slice 2); `blame`
 > and `filehistory` (slice 3); `fetch`, `pull`, `push` with their dialogs, job output only in the
 > window that started the job (slice 4); `switch`, `merge`, `rebase` (which branch, then the
 > graph menu's dialogs) and `stash`, and the setting closing a task window once its action
-> succeeded (slice 5). Quality of life since: the graph's message body, Commit file
+> succeeded (slice 5); `clone` and `init` (a form, not a workbench), the CLI reference and its
+> tests (slice 6). Quality of life since: the graph's message body, Commit file
 > display and multi-select, menu icons, module stacks, the activity bar's order, hidden icons and
-> lock. Next: slice 6 (clone, init, the CLI reference).
+> lock. Next: M9 (polish and release).
 > Parts marked _(later)_ below are planned and do not exist yet.
 
 ## Architecture

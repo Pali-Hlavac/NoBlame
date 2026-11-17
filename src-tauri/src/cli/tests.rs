@@ -119,3 +119,62 @@ fn help_lists_every_task() {
 fn clap_definition_is_valid() {
     command().debug_assert();
 }
+
+/// What `noblame <args>` prints for `--help` or `--version` (clap's text, as `main` prints it).
+fn printed(args: &[&str]) -> String {
+    parse_args(args).unwrap_err().to_string()
+}
+
+/// The command line reference, which quotes the help text.
+fn reference() -> String {
+    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../docs/features/cli.md");
+    std::fs::read_to_string(path).unwrap().replace("\r\n", "\n")
+}
+
+#[test]
+fn the_reference_quotes_the_help_exactly() {
+    let help = printed(&["--help"]);
+    assert!(help.starts_with("NoBlame, a fast Git client for giant repositories\n"));
+    assert!(help.contains("Usage: noblame [path]\n       noblame <COMMAND>"));
+    assert!(
+        reference().contains(help.trim_end()),
+        "docs/features/cli.md must quote `noblame --help` as printed:\n{help}"
+    );
+}
+
+#[test]
+fn every_task_has_its_own_help_naming_its_path() {
+    let reference = reference();
+    for task in TaskKind::ALL {
+        let help = printed(&[task.command_name(), "--help"]);
+        assert!(help.starts_with(task.about()), "{help}");
+        assert!(
+            help.contains(&format!("Usage: noblame {} [path]", task.command_name())),
+            "{help}"
+        );
+        assert!(help.contains(task.path_help()), "{help}");
+        assert!(
+            reference.contains(task.path_help()),
+            "docs/features/cli.md must name what `{}` takes",
+            task.command_name()
+        );
+    }
+}
+
+#[test]
+fn version_prints_the_package_version() {
+    assert_eq!(
+        printed(&["--version"]).trim_end(),
+        format!("noblame {}", env!("CARGO_PKG_VERSION"))
+    );
+}
+
+#[test]
+fn usage_errors_name_the_problem_and_the_usage() {
+    let error = parse_args(&["commit", "a", "b"]).unwrap_err();
+    assert_eq!(error.exit_code(), 2);
+    let text = error.to_string();
+    assert!(text.contains("unexpected argument 'b'"), "{text}");
+    assert!(text.contains("Usage: noblame commit [path]"), "{text}");
+    assert_eq!(parse_args(&["--help"]).unwrap_err().exit_code(), 0);
+}

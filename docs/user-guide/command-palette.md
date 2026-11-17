@@ -22,9 +22,8 @@ The command palette lets you run any command by typing part of its name.
 
 ## Task window commands
 
-When a repository tab is active, the palette also lists one command per task window, for
-example **Open Commit window** or **Open File history window**. They open a separate window for
-that repository, just like `noblame commit <path>` on the [command line](command-line.md).
-
-In this version these windows are placeholders. The palette group says so: "Task windows
-(placeholders until M8)".
+When a repository tab is active, the palette also lists one command per task window about a
+repository, for example **Open Commit window** or **Open File history window**. They open a
+separate window for that repository, just like `noblame commit <path>` on the
+[command line](command-line.md). Cloning and creating a repository are the palette's own
+commands (**Clone repository…**, **Create repository…**).

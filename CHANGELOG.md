@@ -223,6 +223,12 @@ All notable changes to NoBlame are documented here. The format follows
   (owner request 2026-11-13).
 - Commit module: Settings → Commit can list files folder first, sorted by the whole path,
   instead of name first (owner request 2026-11-13).
+- Clone and Create repository windows (M8 slice 6): `noblame clone <folder>` shows the Clone
+  form cloning into a new folder there, git's output while it runs, then **Open in NoBlame**;
+  `noblame init <folder>` says what is there first (a new folder, files that stay, a repository
+  already, or a folder inside another repository) and then creates the repository. Each task's
+  `--help` now says what its path is; the command line reference in `docs/features/cli.md` quotes
+  `noblame --help`, checked by tests. **M8 (task windows) is done.**
 - Switch, Merge, Rebase and Stash windows (M8 slice 5): `noblame switch|merge|rebase <path>`
   asks which branch, remote branch or tag (filtered as you type; a commit id or `HEAD~2` can be
   typed too; merging and rebasing start on the upstream), then works as the graph's menu: a
@@ -488,8 +494,7 @@ All notable changes to NoBlame are documented here. The format follows
   cancellation.
 - Command line: `noblame [path]`, `noblame browse [path]` and 14 task commands
   (`noblame commit <path>`, ...). A second launch forwards its arguments to the running app.
-  **Placeholder:** the Clone and Create repository windows show their task and path only;
-  they arrive in M8 slice 6 (the other task windows are done).
+  Task windows were placeholders until M8, which built every one of them.
 - Synthetic repository generator (`pnpm repos:generate`): deterministic repositories with 10k,
   100k or 1M commits, merges, octopus merges, thousands of branches and tags.
 - Tooling: ESLint, Prettier, rustfmt, clippy (pedantic), file-size check, husky + lint-staged +

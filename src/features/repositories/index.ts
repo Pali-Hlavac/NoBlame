@@ -8,6 +8,8 @@ export { useActiveRepository, type ActiveRepository } from "./hooks/useActiveRep
 export { useRepositoryChanges } from "./hooks/useRepositoryChanges";
 export { useRepositoryPath } from "./hooks/useRepositoryPath";
 export { useSessionCleanup } from "./hooks/useSessionCleanup";
+export { useFolderState } from "./api/folder";
+export { useInitRepository } from "./api/mutations";
 export { useRecentRepositories } from "./api/recent";
 export { fetchPathScope } from "./api/scope";
 export { useRepositorySession } from "./api/session";

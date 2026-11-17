@@ -22,6 +22,7 @@
     "allow-open-repository",
     "allow-get-path-scope",
     "allow-init-repository",
+    "allow-inspect-folder",
     "allow-close-repository",
     "allow-load-graph",
     "allow-get-graph-block",

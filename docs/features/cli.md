@@ -8,8 +8,8 @@ Status: **M1: parsing, forwarding and windows done. M8 in progress**: the task w
 `log` (limited to the folder or file given), one window per task and path, and sessions closed
 with their window (slice 1); `commit` and `diff`, with the status of the folder or file given
 (slice 2); `blame` and `filehistory` (slice 3); `fetch`, `pull` and `push` (slice 4); `switch`,
-`merge`, `rebase` and `stash`, and closing a task window once its action succeeded (slice 5).
-`clone` and `init` are still labelled placeholders (slice 6).
+`merge`, `rebase` and `stash`, and closing a task window once its action succeeded (slice 5);
+`clone` and `init`, the reference below and its tests (slice 6). **M8 is done.**
 
 M2: a path passed on the very first launch (`noblame <path>` while NoBlame is not running) now
 opens its tab; development builds lost it because React StrictMode drained the request queue
@@ -17,30 +17,65 @@ twice. Repository tabs now open real repositories ([repositories.md](repositorie
 
 ## Reference
 
-```
-noblame [PATH]
-noblame browse [PATH]
-noblame <TASK> [PATH]
-noblame --help
-noblame --version
+`noblame --help` prints this (the tests in `src-tauri/src/cli/tests.rs` check that this page
+quotes it exactly, and that every task's path is described below):
+
+```text
+NoBlame, a fast Git client for giant repositories
+
+Usage: noblame [path]
+       noblame <COMMAND>
+
+Commands:
+  browse       Open the main window, optionally with a repository
+  log          Show the commit graph of a repository or the history of a folder
+  commit       Stage changes and commit them
+  diff         Show the changes in the working tree
+  blame        Show who last changed each line of a file
+  filehistory  Show the history of a file
+  pull         Fetch and integrate changes from a remote
+  push         Push commits to a remote
+  fetch        Download objects and refs from remotes
+  switch       Switch to another branch
+  merge        Merge a branch into the current branch
+  rebase       Rebase the current branch
+  stash        Stash changes or restore stashed changes
+  clone        Clone a repository into a folder
+  init         Create a new repository in a folder
+  help         Print this message or the help of the given subcommand(s)
+
+Arguments:
+  [path]  Repository to open in the main window
+
+Options:
+  -h, --help     Print help
+  -V, --version  Print version
 ```
 
-| Task          | Window title      | Purpose (from M8)                                   |
-| ------------- | ----------------- | --------------------------------------------------- |
-| `log`         | Log               | Commit graph of a repository or history of a folder |
-| `commit`      | Commit            | Stage changes and commit                            |
-| `diff`        | Diff              | Working tree changes                                |
-| `blame`       | Blame             | Who last changed each line                          |
-| `filehistory` | File history      | History of a file                                   |
-| `pull`        | Pull              | Fetch and integrate                                 |
-| `push`        | Push              | Push commits                                        |
-| `fetch`       | Fetch             | Download from remotes                               |
-| `switch`      | Switch branch     | Switch to another branch                            |
-| `merge`       | Merge             | Merge a branch                                      |
-| `rebase`      | Rebase            | Rebase the current branch                           |
-| `stash`       | Stash             | Stash or restore changes                            |
-| `clone`       | Clone             | Clone a repository                                  |
-| `init`        | Create repository | Create a repository                                 |
+`noblame <task> --help` prints the task's line, `Usage: noblame <task> [path]` and what its path
+names:
+
+| Task          | Window            | `[path]` (as `--help` says)                                      |
+| ------------- | ----------------- | ---------------------------------------------------------------- |
+| `log`         | Log               | Repository, folder or file (default: the current folder)         |
+| `commit`      | Commit            | Repository, folder or file (default: the current folder)         |
+| `diff`        | Diff              | Repository, folder or file (default: the current folder)         |
+| `blame`       | Blame             | File to blame (default: the current folder)                      |
+| `filehistory` | File history      | Repository, folder or file (default: the current folder)         |
+| `pull`        | Pull              | Repository, folder or file (default: the current folder)         |
+| `push`        | Push              | Repository, folder or file (default: the current folder)         |
+| `fetch`       | Fetch             | Repository, folder or file (default: the current folder)         |
+| `switch`      | Switch branch     | Repository, folder or file (default: the current folder)         |
+| `merge`       | Merge             | Repository, folder or file (default: the current folder)         |
+| `rebase`      | Rebase            | Repository, folder or file (default: the current folder)         |
+| `stash`       | Stash             | Repository, folder or file (default: the current folder)         |
+| `clone`       | Clone             | Folder that will hold the clone (default: the current folder)    |
+| `init`        | Create repository | Folder to create the repository in (default: the current folder) |
+
+Exit codes: 0 after opening a window (or handing the request to the running NoBlame), and
+after `--help` and `--version` (`noblame 0.1.0`); 2 after a usage error, which names the problem
+and prints the usage (`error: unexpected argument 'b' found`, then
+`Usage: noblame commit [path]`).
 
 ## Behaviour
 
@@ -123,6 +158,24 @@ not stop on conflicts; a stash). A task window whose own action succeeded closes
 (`useCloseWhenDone`), so its toast is seen. Log, Diff, Blame and File history never close by
 themselves; an action of another kind (a checkout in the Merge window) does not close the
 window, and neither does finishing a merge later with Continue.
+
+`clone` and `init` are about a folder that is not a repository yet, so their windows show a
+form instead of a workbench (`src/app/tasks/FolderTaskWindow.tsx`), under the task bar without
+**Open in NoBlame**:
+
+- `clone`: the Clone form (`CloneForm`, shared with the main window's dialog) with the path
+  given as **Into**; Clone starts the clone job, the window shows "Cloning into …" and the Git
+  output window, then **Cloned** with the folder, **Open in NoBlame** and **Clone another**
+  (**Open it when done** opens the main window by itself). A failed or cancelled clone shows
+  git's message and **Try again**. A credential prompt shows in the window.
+- `init`: the folder (editable, **Browse…**) and what is there (`inspect_folder`: missing,
+  empty, holding files, a file, the repository around it and whether it is that repository's top
+  folder). A file or an existing repository cannot be used (the latter offers **Open in
+  NoBlame**); a folder inside another repository gets a warning that the new repository would
+  sit in it untracked (a submodule is how to add one repository to another). **Create** runs
+  `git init`, then **Created a repository**, **Open in NoBlame** and **Create another**.
+
+Both report success for **Close a task window once its action succeeded** (`clone`, `init`).
 
 A path outside a repository shows "… is not a Git repository" with Retry. A file path opens the
 repository around it; a file that no longer exists cannot be opened (its folder can).
