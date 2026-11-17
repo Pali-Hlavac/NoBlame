@@ -87,7 +87,7 @@ function Branches({ repoId, repoPath }: { repoId: number; repoPath: string }) {
   return (
     <div className="flex h-full flex-col">
       <div className="flex shrink-0 items-center gap-1 border-b border-border px-2 py-1">
-        <label className="flex min-w-0 flex-1 items-center gap-2 py-0.5">
+        <label className="flex min-w-0 flex-1 items-center gap-2 rounded px-1 py-0.5 focus-within:ring-2 focus-within:ring-ring">
           <SearchIcon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
           <span className="sr-only">Filter branches and tags</span>
           <input

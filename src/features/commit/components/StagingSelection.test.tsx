@@ -107,7 +107,9 @@ describe("choosing several files in the Commit lists", () => {
     const list = await renderList();
     fireEvent.mouseDown(row(list, "a.ts"));
     fireEvent.mouseDown(row(list, "b.ts"), { shiftKey: true });
-    fireEvent.click(within(row(list, "a.ts")).getByRole("button", { name: "Stage 2 files" }));
+    fireEvent.click(
+      within(row(list, "a.ts")).getByRole("button", { name: "Stage 2 files", hidden: true }),
+    );
     await waitFor(() => {
       expect(ipc.stageFiles).toHaveBeenCalledWith(1, ["a.ts", "b.ts"]);
     });

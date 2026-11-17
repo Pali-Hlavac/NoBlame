@@ -1306,13 +1306,40 @@ Slice 2 done (2026-11-17): window places and graph filters remembered.
   stayed on after a reload, Clear removed the saved entry, and a Log window on `src` saved
   nothing.
 
+Slice 3 done (2026-11-17): keyboard and accessibility pass.
+
+- Shortcuts for the repository actions, in the registry (changeable in Settings): Open
+  repository (Ctrl+O), Fetch (Ctrl+Shift+F), Pull (Ctrl+Shift+P), Push (Ctrl+P), Create a
+  branch (Ctrl+Shift+N), Stash changes (Ctrl+Shift+S, also new in the palette). A palette
+  command names its shortcut (`PaletteCommand.keybinding`); `useCommandHotkeys` runs it from
+  anywhere in the main window unless a dialog is open, and the palette shows the keys.
+- Contrast: `src/app/contrast.test.ts` reads both themes' tokens from `styles.css` and checks
+  WCAG ratios: text 4.5:1 on what it is drawn on (98 pairs: body, muted, menus, buttons, labels,
+  status letters, diff and syntax colours), focus ring, graph lanes, HEAD, merge sides and
+  kind colours 3:1 on the background. Changed to pass: light `--warning` (0.62 → 0.56
+  lightness), `--syntax-comment` (0.55 → 0.52), `--ring` (0.72 → 0.64, a deeper gold),
+  `--ref-head` (0.8 → 0.64); dark `--syntax-comment` (0.65 → 0.7) and dark red buttons get dark
+  text (`--destructive-foreground`), as teal ones already had.
+- ARIA: `pnpm test:a11y` runs axe-core (4.14.0, dev only) on what every component test renders
+  (`scripts/a11y-setup.mjs`, `src/test/axe.ts`) and lists the problems by rule; CI runs it on
+  Linux. It found 52 rows of the Commit and stash lists holding buttons inside list options:
+  those mouse-only buttons (Space, the list's menu and the row's name do the same by keyboard)
+  are now hidden from assistive technology and no longer take focus on click; axe still counts
+  them, so the audit accepts exactly that pattern. Dockview's tabs (a close button inside the
+  tab; Ctrl+W closes) are a known exception. The test fixtures it flagged were fixed.
+- Focus: the Branches module's filter box had no focus indicator (now a ring like the graph's
+  filters); the other `outline-none` uses have a focus-visible ring or are dialog containers.
+- Checked in the running app: Ctrl+Shift+N opened Create a branch, Ctrl+Shift+S Stash changes,
+  and the palette shows Ctrl+P beside Push.
+
 - [ ] Third-party licence notices shipped with the installers (for example generated with
       `cargo-about` and a JS equivalent). The grammars ask for theirs: two-face lists them
       (`two_face::acknowledgement::listing()`)
-- [x] A second app icon, chosen in Settings (slice 1)
+- [x] A second app icon, chosen in Settings (slice 1); a third without a background (owner,
+      2026-11-17)
 - [~] Final logo: the owner's painted finch and songbird are in (2026-10-29), and the vibrant
   variant's Windows icon (2026-11-17). Still to do: refined finch-on-a-branch artwork, small-size variants (16/24/32 px), monochrome version for the macOS menu bar and Linux symbolic icons, installer and website artwork
-- [ ] Keyboard shortcuts everywhere; accessibility pass (focus, ARIA, contrast)
+- [x] Keyboard shortcuts everywhere; accessibility pass (focus, ARIA, contrast; slice 3)
 - [x] Remember window sizes and filters (open tabs and layout are restored from M2.5; slice 2)
 - [ ] E2E smoke tests: open repo, browse graph, commit, branch, merge — ADR 0016
 - [ ] Release workflow: build, sign, notarize installers for all platforms

@@ -39,6 +39,7 @@ import type { TaskKind } from "@/shared/ipc/bindings";
 import { openSettings } from "../layout/settingsTab";
 import { TASK_SPECS } from "../tasks/specs";
 import { useBranchCommands } from "../workbench/branchCommands";
+import { withKeybindingHints } from "./useCommandHotkeys";
 import { useCommitCommands } from "../workbench/commit";
 import { useRemoteCommands } from "../workbench/remoteCommands";
 
@@ -137,13 +138,14 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
     },
   }));
 
-  return [
+  const commands: PaletteCommand[] = [
     {
       id: "repository.open",
       group: "Repository",
       label: "Open repository…",
       icon: FolderOpenIcon,
       kind: "repositories",
+      keybinding: "repository.open",
       keywords: ["folder", "browse"],
       run: () => void openRepository(),
     },
@@ -232,4 +234,5 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
       },
     },
   ];
+  return withKeybindingHints(commands, keysOf);
 }

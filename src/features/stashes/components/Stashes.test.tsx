@@ -97,7 +97,9 @@ describe("Stashes", () => {
     fireEvent.change(within(dialog).getByRole("textbox", { name: "Stash message" }), {
       target: { value: "half done" },
     });
-    fireEvent.click(await within(dialog).findByRole("checkbox", { name: "Choose b.txt" }));
+    fireEvent.click(
+      await within(dialog).findByRole("checkbox", { name: "Choose b.txt", hidden: true }),
+    );
     fireEvent.click(within(dialog).getByRole("button", { name: "Stash" }));
     await waitFor(() => {
       expect(ipc.stashChanges).toHaveBeenCalledWith(1, {
@@ -126,7 +128,7 @@ describe("Stashes", () => {
     });
     const dialog = await screen.findByRole("dialog", { name: "Stash changes" });
     expect(dialog).toHaveTextContent("Only the changes in src are listed.");
-    await within(dialog).findByRole("checkbox", { name: "Choose src/a.txt" });
+    await within(dialog).findByRole("checkbox", { name: "Choose src/a.txt", hidden: true });
     fireEvent.click(within(dialog).getByRole("button", { name: "Stash" }));
     await waitFor(() => {
       expect(ipc.stashChanges).toHaveBeenCalledWith(
@@ -145,8 +147,8 @@ describe("Stashes", () => {
     expect(useShownStashStore.getState().shown["/repo"]?.id).toBe(ID);
 
     renderWith(<StashBody repoId={1} repoPath="/repo" />);
-    fireEvent.click(await screen.findByRole("checkbox", { name: "Choose b.txt" }));
-    fireEvent.click(screen.getByRole("checkbox", { name: "Choose new.txt" }));
+    fireEvent.click(await screen.findByRole("checkbox", { name: "Choose b.txt", hidden: true }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Choose new.txt", hidden: true }));
     fireEvent.click(screen.getByRole("button", { name: "Apply 2 chosen" }));
     await waitFor(() => {
       expect(ipc.applyStashFiles).toHaveBeenCalledWith(1, {

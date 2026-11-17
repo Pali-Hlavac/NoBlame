@@ -76,7 +76,8 @@ goldfinch-yellow focus ring).
 
 ## App icon
 
-Settings → Appearance → **App icon**: Golden (default, the installed program's icon) or Vibrant.
+Settings → Appearance → **App icon**: Golden (default, the installed program's icon), Vibrant or
+No background (the finch alone, `noblame_nobg.*`, owner 2026-11-17).
 `update_settings` gives every open window the new icon when the choice changes, and new windows
 open with it (`src-tauri/src/windows/icon.rs`):
 
@@ -106,7 +107,8 @@ icons in `src-tauri/icons/` from the PNG (including `icon.icns` for macOS), then
 icon to `public/icon.png` (the page icon). The vibrant variant (owner, 2026-11-17):
 `assets/logo/noblame_vibrant.png` and `noblame_vibrant.ico`; `scripts/icons.mjs` copies the
 `.ico` to `src-tauri/icons/vibrant.ico` and its 256 px PNG to `public/icon-vibrant.png` (the
-Settings preview). The Affinity Photo source (`no_blame_icon.afphoto`) stays out of the
+Settings preview); the same for `noblame_nobg.ico` (`nobg.ico`, `icon-nobg.png`). The Affinity
+Photo source (`no_blame_icon.afphoto`) stays out of the
 repository. The songbird alone on a transparent background
 (`assets/logo/songbird.png`, 1254 × 1254) is shown in the title bar (28 px high, so it is easy to
 spot), on the Welcome tab, in About and in task windows, from a 320 px copy in

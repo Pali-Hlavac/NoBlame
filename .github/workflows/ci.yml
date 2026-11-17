@@ -47,6 +47,10 @@ jobs:
         run: pnpm typecheck
       - name: Frontend tests
         run: pnpm test
+      # axe-core on what every component test renders (src/test/axe.ts).
+      - name: Accessibility audit
+        if: runner.os == 'Linux'
+        run: pnpm test:a11y
       # Also creates dist/, which tauri::generate_context! needs at compile time.
       - name: Frontend build
         run: pnpm exec vite build

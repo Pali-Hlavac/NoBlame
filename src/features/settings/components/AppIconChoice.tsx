@@ -11,6 +11,7 @@ const PREVIEW_SIZE_PX = 48;
 const APP_ICONS: readonly { value: AppIcon; label: string; src: string }[] = [
   { value: "golden", label: "Golden", src: "/icon.png" },
   { value: "vibrant", label: "Vibrant", src: "/icon-vibrant.png" },
+  { value: "noBackground", label: "No background", src: "/icon-nobg.png" },
 ];
 
 /** Which of the two icons the app's windows show. */

@@ -6,7 +6,7 @@ describe("shortcutProblem", () => {
   const keysOf = (id: string): string => (id === "tabs.close" ? "" : defaultKeysOf(id));
 
   it("accepts free keys, function keys alone, and no shortcut", () => {
-    expect(shortcutProblem("history.find", "mod+shift+f", keysOf, false)).toBeNull();
+    expect(shortcutProblem("history.find", "mod+alt+f", keysOf, false)).toBeNull();
     expect(shortcutProblem("history.find", "f3", keysOf, false)).toBeNull();
     expect(shortcutProblem("history.find", "", keysOf, false)).toBeNull();
     // Its own keys, and keys freed by another shortcut.
@@ -43,9 +43,9 @@ describe("withShortcut", () => {
   ];
 
   it("keeps a changed shortcut once, after the others", () => {
-    expect(withShortcut(changed, "history.find", "mod+shift+f")).toEqual([
+    expect(withShortcut(changed, "history.find", "mod+alt+f")).toEqual([
       { id: "unknown.later", keys: "alt+x" },
-      { id: "history.find", keys: "mod+shift+f" },
+      { id: "history.find", keys: "mod+alt+f" },
     ]);
     expect(withShortcut([], "tabs.close", "")).toEqual([{ id: "tabs.close", keys: "" }]);
   });

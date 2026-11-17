@@ -161,8 +161,8 @@ Settings shown there (stored in `settings.json`, see `src-tauri/src/settings/typ
 | Submodules           | Update the submodules after pull and checkout                           | off     |
 | Task windows         | Close a task window once its action succeeded                           | off     |
 
-**Keyboard shortcuts** lists every shortcut by where it works (General, Tabs, History, Commit,
-Modules), and each can be changed (M7 slice 8):
+**Keyboard shortcuts** lists every shortcut by where it works (General, Repository, Tabs,
+History, Commit, Modules), and each can be changed (M7 slice 8):
 
 - **One registry**, `src/shared/lib/keybindings.ts`: each shortcut's id, label, group and the
   app's keys (`KEYBINDINGS`; a test checks that ids and keys are unique). Components read the
@@ -327,7 +327,14 @@ also be read with the keyboard. Pull and Push are disabled while no branch is ch
 - Each module is also in the command palette under **View** ("Show Branches", ...), next to
   **Reset layout**.
 - The commit list, the Branches list and other long lists are listboxes. Arrows, Page Up/Down
-  and Home/End move; Enter activates.
+  and Home/End move; Enter activates. Buttons inside a row (stage, discard, choose) are for the
+  mouse: hidden from assistive technology, out of the tab order and not taking focus, since
+  Space, the list's menu and the row's name do the same (M9 slice 3).
+- Repository actions have shortcuts (M9 slice 3): Open repository Ctrl+O, Fetch Ctrl+Shift+F,
+  Pull Ctrl+Shift+P, Push Ctrl+P, Create a branch Ctrl+Shift+N, Stash changes Ctrl+Shift+S.
+  They are palette commands naming a shortcut (`PaletteCommand.keybinding`);
+  `src/app/commands/useCommandHotkeys.ts` runs them in the main window unless a dialog is open,
+  and the palette shows their keys. Pull and Push need a checked-out branch, as in the palette.
 
 ## Colours by kind of work
 

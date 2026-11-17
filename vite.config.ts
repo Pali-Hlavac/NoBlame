@@ -40,8 +40,13 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom",
-    setupFiles: ["./src/test/setup.ts"],
+    // `pnpm test:a11y` adds an axe audit of what each test renders (`scripts/a11y-setup.mjs`).
+    setupFiles: process.env.A11Y_AUDIT
+      ? ["./src/test/setup.ts", "./scripts/a11y-setup.mjs"]
+      : ["./src/test/setup.ts"],
     include: ["src/**/*.test.{ts,tsx}", "scripts/**/*.test.mjs"],
     restoreMocks: true,
+    // The audit looks at each test's screen before cleaning up itself.
+    env: process.env.A11Y_AUDIT ? { RTL_SKIP_AUTO_CLEANUP: "true" } : {},
   },
 });

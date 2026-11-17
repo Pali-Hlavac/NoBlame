@@ -1,9 +1,10 @@
 /** Opening the commit window: the Commit module, in the dock or in its popup when popped out. */
-import { FileUpIcon, GitCommitVerticalIcon } from "lucide-react";
+import { ArchiveIcon, FileUpIcon, GitCommitVerticalIcon } from "lucide-react";
 
 import type { PaletteCommand } from "@/features/command-palette";
 import { openApplyPatches } from "@/features/patches";
 import { useActiveRepository } from "@/features/repositories";
+import { openStashChanges } from "@/features/stashes";
 import { openModuleById } from "@/features/workbench";
 
 /** Id of the Commit module (saved in layouts; never change it). */
@@ -17,7 +18,7 @@ export function openCommit(): void {
 /** Icon of Apply patches… (palette and the Commit button's menu). */
 export const APPLY_PATCHES_ICON = FileUpIcon;
 
-/** The palette's Commit and Apply patches commands, while a repository is active. */
+/** The palette's Commit, Stash changes and Apply patches commands, while a repository is active. */
 export function useCommitCommands(): PaletteCommand[] {
   const active = useActiveRepository();
   if (!active.tab) return [];
@@ -34,6 +35,18 @@ export function useCommitCommands(): PaletteCommand[] {
   ];
   const repoId = active.summary?.id;
   if (repoId !== undefined) {
+    commands.push({
+      id: "stash.push",
+      group: "Repository",
+      label: "Stash changes…",
+      icon: ArchiveIcon,
+      kind: "stash",
+      keybinding: "stash.push",
+      keywords: ["stash", "save", "shelve", "put away"],
+      run: () => {
+        openStashChanges(repoId);
+      },
+    });
     commands.push({
       id: "patches.apply",
       group: "Repository",

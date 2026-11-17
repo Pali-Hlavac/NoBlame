@@ -24,6 +24,7 @@ interface CheckedFilesProps<F extends ListedFile> {
 /** The row's own press must not also choose the row. */
 function stopRowPress(event: MouseEvent): void {
   event.stopPropagation();
+  event.preventDefault();
 }
 
 /**
@@ -80,21 +81,24 @@ export function CheckedFiles<F extends ListedFile>(props: CheckedFilesProps<F>) 
         const Icon = ticked ? CheckSquareIcon : SquareIcon;
         return (
           <div className={cn("flex h-full items-center", active && "bg-accent")}>
-            <button
-              type="button"
-              tabIndex={-1}
-              role="checkbox"
-              aria-checked={ticked}
-              aria-label={`Choose ${file.path}`}
-              title="Choose (Space)"
-              className="flex h-full shrink-0 items-center pl-2 text-muted-foreground hover:text-foreground"
-              onMouseDown={stopRowPress}
-              onClick={() => {
-                toggle(file);
-              }}
-            >
-              <Icon className={cn("size-4", ticked && "text-primary")} aria-hidden />
-            </button>
+            {/* For the mouse: Space chooses, and the row's name says whether it is chosen. */}
+            <span aria-hidden className="flex h-full shrink-0">
+              <button
+                type="button"
+                tabIndex={-1}
+                role="checkbox"
+                aria-checked={ticked}
+                aria-label={`Choose ${file.path}`}
+                title="Choose (Space)"
+                className="flex h-full items-center pl-2 text-muted-foreground hover:text-foreground"
+                onMouseDown={stopRowPress}
+                onClick={() => {
+                  toggle(file);
+                }}
+              >
+                <Icon className={cn("size-4", ticked && "text-primary")} aria-hidden />
+              </button>
+            </span>
             <div className="min-w-0 flex-1">
               <ChangedFileRow file={file} active={active} />
             </div>

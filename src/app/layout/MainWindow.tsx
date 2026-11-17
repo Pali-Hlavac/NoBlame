@@ -12,6 +12,7 @@ import { useTabHotkeys } from "@/features/workspace";
 import { LoadingState } from "@/shared/components/LoadingState";
 
 import { useAppCommands } from "../commands/useAppCommands";
+import { useCommandHotkeys } from "../commands/useCommandHotkeys";
 import { useHistoryHotkeys } from "../commands/useHistoryHotkeys";
 import { DEFAULT_MODULE_LAYOUT, MODULES } from "../workbench/modules";
 import { MainTitleBar } from "./MainTitleBar";
@@ -39,6 +40,7 @@ function MainWorkbench({ saved }: { saved: SavedLayout | null }) {
   useJobEvents();
   useTabHotkeys();
   useHistoryHotkeys();
+  useCommandHotkeys(commands);
 
   return (
     <div className="flex h-screen flex-col bg-background text-foreground" inert={popupOpen}>

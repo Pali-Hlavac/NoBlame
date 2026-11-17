@@ -37,6 +37,7 @@ export function useBranchCommands(): PaletteCommand[] {
       label: "Create a branch…",
       icon: GitBranchPlusIcon,
       kind: "branches",
+      keybinding: "branch.create",
       keywords: ["new", "branch", "checkout", "switch"],
       run: () => {
         const selection = useSelectionStore.getState().selections[tab.path];

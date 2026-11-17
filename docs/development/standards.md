@@ -40,7 +40,11 @@ explains them. Organization: [ADR 0005](../adr/0005-code-organization.md).
 - Styling: Tailwind utilities and tokens from `src/app/styles.css`, merged with `cn()`. No inline
   colours.
 - Accessibility: every interactive element has a visible focus state and an accessible name;
-  `eslint-plugin-jsx-a11y` runs in lint.
+  `eslint-plugin-jsx-a11y` runs in lint, `pnpm test:a11y` audits the rendered components with
+  axe-core, and `src/app/contrast.test.ts` keeps text at 4.5:1 and focus rings and graph lines at
+  3:1 in both themes. A list option holds no controls of its own: buttons in a row are for the
+  mouse (`aria-hidden` wrapper, `tabIndex={-1}`, no focus on mouse down) and the keyboard does
+  the same through the list.
 - Every async view renders loading, error and empty states (`LoadingState`, `ErrorState`,
   `EmptyState`).
 

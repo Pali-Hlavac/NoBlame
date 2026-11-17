@@ -11,5 +11,7 @@
     "checkJs": true,
     "types": ["node"]
   },
-  "include": ["vite.config.ts", "src/shared/lib/loadingBird.ts", "scripts/**/*.mjs"]
+  "include": ["vite.config.ts", "src/shared/lib/loadingBird.ts", "scripts/**/*.mjs"],
+  // Runs inside the tests' jsdom window, importing the app's test helpers (DOM types).
+  "exclude": ["scripts/a11y-setup.mjs"]
 }

@@ -25,7 +25,9 @@ describe("installNativeFeel in production", () => {
 
   it("keeps the context menu on inputs", () => {
     const input = document.body.appendChild(document.createElement("input"));
+    input.setAttribute("aria-label", "Message");
     expect(dispatch(input, contextMenu())).toBe(false);
+    input.remove();
   });
 
   it("blocks reload and print but not ordinary shortcuts", () => {

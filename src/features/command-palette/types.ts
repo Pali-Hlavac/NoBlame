@@ -15,6 +15,11 @@ export interface PaletteCommand {
   kind?: WorkKind;
   /** Hotkey combo that runs the same action, shown as a hint. */
   hotkey?: string;
+  /**
+   * The keyboard shortcut (an id in `shared/lib/keybindings.ts`) that runs this command from
+   * anywhere in the window; its keys are shown as the hint.
+   */
+  keybinding?: string;
   /** Extra search terms that are not part of the label. */
   keywords?: string[];
   run: () => void;

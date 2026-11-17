@@ -12,9 +12,13 @@ import type { StagingVerb } from "../lib/verbs";
 /** A row's small button, shown on hover and on the active row. */
 const ROW_BUTTON_CLASSES = "size-5 bg-background/80";
 
-/** A press on a row's button is not a press on the row (that would show the file's diff). */
+/**
+ * A press on a row's button is not a press on the row (that would show the file's diff), and
+ * leaves the keyboard with the list.
+ */
 function stopRowPress(event: MouseEvent): void {
   event.stopPropagation();
+  event.preventDefault();
 }
 
 interface StagingRowProps {
@@ -49,7 +53,10 @@ export function StagingRow(props: StagingRowProps) {
       )}
     >
       <ChangedFileRow file={file} active={props.selected} pathFirst={props.pathFirst} />
+      {/* For the mouse: the keyboard has Space and the list's menu, and the row's name says
+          the rest (a list option must not hold controls of its own). */}
       <span
+        aria-hidden
         className={cn(
           "absolute top-1/2 right-1 flex -translate-y-1/2 gap-0.5 opacity-0 group-hover/row:opacity-100",
           active && "opacity-100",

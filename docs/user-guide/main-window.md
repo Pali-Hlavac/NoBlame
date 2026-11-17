@@ -225,8 +225,8 @@ From left to right:
 - **Theme**: choose System (follow your operating system), Light or Dark. NoBlame remembers your
   choice.
 
-NoBlame has two icons: golden and vibrant (blue). Choose one in **Settings → Appearance → App
-icon**. Every NoBlame window changes at once: the taskbar button, Alt+Tab and the title bar of
+NoBlame has three icons: golden, vibrant (blue), and the finch alone without a background.
+Choose one in **Settings → Appearance → App icon**. Every NoBlame window changes at once: the taskbar button, Alt+Tab and the title bar of
 task windows. The installed program, its shortcuts and the macOS Dock keep the golden icon.
 
 ## About NoBlame

@@ -31,6 +31,8 @@ pub enum AppIcon {
     Golden,
     /// The finch on a blue and violet background.
     Vibrant,
+    /// The finch alone, without a background.
+    NoBackground,
 }
 
 /// All persisted user preferences. Unknown fields are ignored and missing fields

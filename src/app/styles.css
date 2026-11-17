@@ -3,7 +3,10 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Brand: teal from the logo background as primary, goldfinch yellow for focus rings. */
+/*
+ * Brand: teal from the logo background as primary, goldfinch yellow for focus rings.
+ * Contrast is checked by `contrast.test.ts` (WCAG: text 4.5:1, focus rings and graph lines 3:1).
+ */
 :root {
   --radius: 0.5rem;
   /* Width of the custom scrollbars; the commit graph's header leaves the same room. */
@@ -23,9 +26,9 @@
   --accent-foreground: oklch(0.21 0.01 220);
   --destructive: oklch(0.577 0.245 27.3);
   --destructive-foreground: oklch(0.985 0 0);
-  --warning: oklch(0.62 0.15 65);
+  --warning: oklch(0.56 0.15 65);
   --success: oklch(0.5 0.14 150);
-  --ring: oklch(0.72 0.16 75);
+  --ring: oklch(0.64 0.16 75);
   /* Commit graph lanes (cycled) and ref labels. */
   --lane-0: oklch(0.55 0.15 250);
   --lane-1: oklch(0.6 0.17 30);
@@ -41,7 +44,7 @@
   --ref-remote-foreground: oklch(0.32 0.08 250);
   --ref-tag: oklch(0.93 0.07 85);
   --ref-tag-foreground: oklch(0.35 0.08 70);
-  --ref-head: oklch(0.8 0.15 85);
+  --ref-head: oklch(0.64 0.15 85);
   /* Changed file status letters (A, M, D, R). */
   --status-added: oklch(0.5 0.14 150);
   --status-modified: oklch(0.55 0.13 70);
@@ -58,7 +61,7 @@
   --merge-theirs: oklch(0.6 0.16 50);
   --merge-both: oklch(0.55 0.14 150);
   /* Syntax colours of diff lines. */
-  --syntax-comment: oklch(0.55 0.02 250);
+  --syntax-comment: oklch(0.52 0.02 250);
   --syntax-string: oklch(0.48 0.12 145);
   --syntax-keyword: oklch(0.5 0.17 300);
   --syntax-constant: oklch(0.52 0.14 50);
@@ -99,7 +102,8 @@
   --accent: oklch(0.31 0.012 210);
   --accent-foreground: oklch(0.96 0 0);
   --destructive: oklch(0.637 0.237 25.3);
-  --destructive-foreground: oklch(0.985 0 0);
+  /* Dark text on red buttons, as on the primary ones: white on this red is too faint. */
+  --destructive-foreground: oklch(0.18 0.012 210);
   --warning: oklch(0.8 0.14 80);
   --success: oklch(0.75 0.14 150);
   --ring: oklch(0.82 0.15 85);
@@ -130,7 +134,7 @@
   --merge-ours: oklch(0.72 0.12 250);
   --merge-theirs: oklch(0.78 0.13 60);
   --merge-both: oklch(0.74 0.13 150);
-  --syntax-comment: oklch(0.65 0.02 250);
+  --syntax-comment: oklch(0.7 0.02 250);
   --syntax-string: oklch(0.8 0.12 145);
   --syntax-keyword: oklch(0.75 0.14 300);
   --syntax-constant: oklch(0.8 0.12 60);

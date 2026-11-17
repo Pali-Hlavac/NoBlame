@@ -52,13 +52,13 @@ describe("ShortcutsSection", () => {
       }),
     );
     expect(screen.getByText("Esc cancels, Backspace removes the shortcut.")).toBeInTheDocument();
-    await user.keyboard("{Control>}{Shift>}f{/Shift}{/Control}");
+    await user.keyboard("{Control>}{Alt>}f{/Alt}{/Control}");
     await waitFor(() => {
-      expect(lastSaved()?.keybindings).toEqual([{ id: "history.find", keys: "mod+shift+f" }]);
+      expect(lastSaved()?.keybindings).toEqual([{ id: "history.find", keys: "mod+alt+f" }]);
     });
-    expect(keysOf("history.find")).toBe("mod+shift+f");
+    expect(keysOf("history.find")).toBe("mod+alt+f");
     expect(
-      screen.getByRole("button", { name: "Change the shortcut of Find commits, now Ctrl+Shift+F" }),
+      screen.getByRole("button", { name: "Change the shortcut of Find commits, now Ctrl+Alt+F" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Reset all shortcuts (1 changed)" })).toBeVisible();
   });

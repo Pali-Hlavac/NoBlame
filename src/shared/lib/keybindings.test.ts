@@ -23,23 +23,23 @@ describe("keybindings", () => {
 
   it("groups them for Settings", () => {
     const groups = groupedKeybindings().map(([group]) => group);
-    expect(groups).toEqual(["General", "Tabs", "History", "Commit", "Modules"]);
+    expect(groups).toEqual(["General", "Repository", "Tabs", "History", "Commit", "Modules"]);
   });
 
   it("uses the user's keys, telling subscribers only when they change", () => {
     const listener = vi.fn();
     const stop = subscribeKeybindings(listener);
     setUserKeybindings([
-      { id: "history.find", keys: "mod+shift+f" },
+      { id: "history.find", keys: "mod+alt+f" },
       { id: "tabs.close", keys: "" },
       { id: "from.a.newer.version", keys: "alt+x" },
     ]);
-    expect(keysOf("history.find")).toBe("mod+shift+f");
+    expect(keysOf("history.find")).toBe("mod+alt+f");
     expect(keysOf("tabs.close")).toBe("");
     expect(defaultKeysOf("history.find")).toBe("mod+f");
     expect(keysOf("module.lfs")).toBe("alt+0");
     setUserKeybindings([
-      { id: "history.find", keys: "mod+shift+f" },
+      { id: "history.find", keys: "mod+alt+f" },
       { id: "tabs.close", keys: "" },
     ]);
     expect(listener).toHaveBeenCalledTimes(1);

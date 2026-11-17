@@ -89,11 +89,11 @@ describe("CommitPanel", () => {
 
   it("stages a file with its button and unstages a rename by both names", async () => {
     renderPanel();
-    fireEvent.click(await screen.findByRole("button", { name: "Stage src/main.ts" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Stage src/main.ts", hidden: true }));
     await waitFor(() => {
       expect(ipc.stageFiles).toHaveBeenCalledWith(1, ["src/main.ts"]);
     });
-    fireEvent.click(screen.getByRole("button", { name: "Unstage src/new.ts" }));
+    fireEvent.click(screen.getByRole("button", { name: "Unstage src/new.ts", hidden: true }));
     await waitFor(() => {
       expect(ipc.unstageFiles).toHaveBeenCalledWith(1, ["src/new.ts", "src/old.ts"]);
     });
@@ -114,11 +114,13 @@ describe("CommitPanel", () => {
 
   it("asks before discarding a file's changes, naming it", async () => {
     renderPanel();
-    fireEvent.click(await screen.findByRole("button", { name: "Discard src/main.ts…" }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Discard src/main.ts…", hidden: true }),
+    );
     const dialog = await screen.findByRole("dialog", {
       name: "Discard the changes to src/main.ts?",
     });
-    expect(screen.queryByRole("button", { name: "Discard src/both.ts…" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Discard src/both.ts…", hidden: true })).toBeNull();
     fireEvent.click(within(dialog).getByRole("button", { name: "Discard" }));
     await waitFor(() => {
       expect(ipc.discardFiles).toHaveBeenCalledWith(1, ["src/main.ts"], []);

@@ -25,6 +25,7 @@ export function useRemoteCommands(): PaletteCommand[] {
     label: fetch.label,
     icon: fetch.icon,
     kind: "branches",
+    ...(fetch.id === "fetch" && { keybinding: "remote.fetch" }),
     keywords: [...KEYWORDS, "download", "update", ...fetch.keywords],
     run: () => {
       remote.fetch(fetch.value);
@@ -37,6 +38,7 @@ export function useRemoteCommands(): PaletteCommand[] {
     label: pull.label,
     icon: pull.icon,
     kind: "branches",
+    ...(pull.id === "pull" && { keybinding: "remote.pull" }),
     keywords: [...KEYWORDS, "download", "update", ...pull.keywords],
     run: () => {
       remote.pull(pull.value);
@@ -49,6 +51,7 @@ export function useRemoteCommands(): PaletteCommand[] {
       label: "Push",
       icon: PUSH_ICON,
       kind: "branches",
+      keybinding: "remote.push",
       keywords: [...KEYWORDS, "upload", "publish"],
       run: remote.push,
     },

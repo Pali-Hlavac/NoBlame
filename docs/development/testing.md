@@ -86,6 +86,11 @@ feature needs them in benchmarks.
   user would find them.
 - The IPC bindings are mocked per test file with `vi.mock("@/shared/ipc/bindings", …)`.
 - `src/test/setup.ts` adds jest-dom matchers and stubs `matchMedia` and `ResizeObserver`.
+- `pnpm test:a11y` runs the frontend tests with an axe-core audit of what each one renders
+  (`scripts/a11y-setup.mjs`, rules and accepted patterns in `src/test/axe.ts`) and prints the
+  problems by rule; CI runs it on Linux. Contrast cannot be measured in jsdom:
+  `src/app/contrast.test.ts` checks the theme's tokens against WCAG ratios instead, so a colour
+  changed in `styles.css` is checked by `pnpm test`.
 
 ## Regression tests
 

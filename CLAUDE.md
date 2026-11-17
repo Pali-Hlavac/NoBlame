@@ -49,8 +49,9 @@ Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 > tests (slice 6). Quality of life since: the graph's message body, Commit file
 > display and multi-select, menu icons, module stacks, the activity bar's order, hidden icons and
 > lock. M9 (polish and release) in progress: the app icon chosen in Settings (slice 1); window
-> places and each repository's graph filter remembered (slice 2). Next: slice 3 (keyboard and
-> accessibility pass).
+> places and each repository's graph filter remembered (slice 2); repository shortcuts, WCAG
+> contrast checked from the tokens, an axe-core audit (`pnpm test:a11y`; slice 3). Next: slice 4
+> (a separate profile for tests, E2E smoke tests).
 > Parts marked _(later)_ below are planned and do not exist yet.
 
 ## Architecture
@@ -163,7 +164,7 @@ React feature component
 | Run the desktop app (dev)     | `pnpm app:dev`                                                                            |
 | Run with arguments (dev)      | `pnpm app:dev -- -- log <path>`                                                           |
 | Build installers              | `pnpm app:build`                                                                          |
-| Frontend tests                | `pnpm test` (watch: `pnpm test:watch`)                                                    |
+| Frontend tests                | `pnpm test` (watch: `pnpm test:watch`; axe audit: `pnpm test:a11y`)                       |
 | Rust tests                    | `pnpm test:rust`                                                                          |
 | Lint (TS + file sizes) / Rust | `pnpm lint` / `pnpm lint:rust`                                                            |
 | Type-check                    | `pnpm typecheck`                                                                          |

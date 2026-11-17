@@ -13,7 +13,7 @@ export interface Keybinding {
   /** What it does, as the palette and Settings name it. */
   label: string;
   /** Where it applies, a heading in Settings. */
-  group: "General" | "Tabs" | "History" | "Commit" | "Modules";
+  group: "General" | "Repository" | "Tabs" | "History" | "Commit" | "Modules";
   /** The app's keys; the user may give others (`keysOf` gives the current ones). */
   keys: string;
 }
@@ -40,6 +40,28 @@ export const KEYBINDINGS: readonly Keybinding[] = [
     label: "Previous part of the window",
     group: "General",
     keys: "shift+f6",
+  },
+  // Repository actions, as GitHub Desktop has them where it has them (pull, push, new branch).
+  {
+    id: "repository.open",
+    label: "Open repository…",
+    group: "Repository",
+    keys: "mod+o",
+  },
+  { id: "remote.fetch", label: "Fetch", group: "Repository", keys: "mod+shift+f" },
+  { id: "remote.pull", label: "Pull", group: "Repository", keys: "mod+shift+p" },
+  { id: "remote.push", label: "Push", group: "Repository", keys: "mod+p" },
+  {
+    id: "branch.create",
+    label: "Create a branch…",
+    group: "Repository",
+    keys: "mod+shift+n",
+  },
+  {
+    id: "stash.push",
+    label: "Stash changes…",
+    group: "Repository",
+    keys: "mod+shift+s",
   },
   { id: "tabs.close", label: "Close the tab", group: "Tabs", keys: "mod+w" },
   { id: "tabs.next", label: "Next tab", group: "Tabs", keys: "ctrl+tab" },

@@ -7,6 +7,12 @@ this page).
 | Shortcut            | Action                                  |
 | ------------------- | --------------------------------------- |
 | Ctrl+K (⌘K)         | Open or close the command palette       |
+| Ctrl+O (⌘O)         | Open a repository                       |
+| Ctrl+Shift+F (⌘⇧F)  | Fetch                                   |
+| Ctrl+Shift+P (⌘⇧P)  | Pull                                    |
+| Ctrl+P (⌘P)         | Push                                    |
+| Ctrl+Shift+N (⌘⇧N)  | Create a branch                         |
+| Ctrl+Shift+S (⌘⇧S)  | Stash changes                           |
 | Ctrl+W (⌘W)         | Close the current tab                   |
 | Ctrl+Tab            | Next tab                                |
 | Ctrl+Shift+Tab      | Previous tab                            |

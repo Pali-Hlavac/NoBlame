@@ -533,7 +533,9 @@ export type AppIcon =
 /**  The finch on a golden background, the installed program's icon. */
 "golden" | 
 /**  The finch on a blue and violet background. */
-"vibrant";
+"vibrant" | 
+/**  The finch alone, without a background. */
+"noBackground";
 
 /**  Name, version and platform of the running app, shown in the status bar and About dialog. */
 export type AppInfo = {

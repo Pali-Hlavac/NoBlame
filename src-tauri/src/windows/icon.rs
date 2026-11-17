@@ -12,6 +12,7 @@ use crate::settings::{AppIcon, SettingsStore};
 /// The hand-made icon of each variant (`pnpm icons` copies them from `assets/logo/`).
 const GOLDEN_ICO: &[u8] = include_bytes!("../../icons/icon.ico");
 const VIBRANT_ICO: &[u8] = include_bytes!("../../icons/vibrant.ico");
+const NO_BACKGROUND_ICO: &[u8] = include_bytes!("../../icons/nobg.ico");
 
 /// Bytes of an `.ico` header and of each directory entry after it.
 const ICO_HEADER_LEN: usize = 6;
@@ -25,6 +26,7 @@ fn ico(icon: AppIcon) -> &'static [u8] {
     match icon {
         AppIcon::Golden => GOLDEN_ICO,
         AppIcon::Vibrant => VIBRANT_ICO,
+        AppIcon::NoBackground => NO_BACKGROUND_ICO,
     }
 }
 
@@ -223,7 +225,7 @@ mod tests {
 
     #[test]
     fn every_variant_has_the_sizes_windows_asks_for() {
-        for icon in [AppIcon::Golden, AppIcon::Vibrant] {
+        for icon in [AppIcon::Golden, AppIcon::Vibrant, AppIcon::NoBackground] {
             let images = ico_images(ico(icon));
             let sizes: Vec<u32> = images.iter().map(|image| image.size).collect();
             for wanted in [16, 24, 32, 48, 64, 256] {
