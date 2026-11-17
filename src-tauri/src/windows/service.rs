@@ -9,6 +9,7 @@ use tauri::{
 use tauri_specta::Event;
 
 use super::icon;
+use super::placement::{self, Kind};
 use super::registry::MAIN_WINDOW_LABEL;
 use super::{RepositoriesRequested, WindowContext, WindowError, WindowRegistry};
 use crate::cli::{self, LaunchRequest, LaunchTarget, TaskKind};
@@ -80,9 +81,14 @@ pub fn show_main_window(app: &AppHandle) -> Result<(), WindowError> {
         .disable_drag_drop_handler()
         .visible(false);
     let window = with_custom_title_bar(builder).build()?;
+    let maximize = placement::restore_and_track(app, &window, Kind::Main);
     icon::apply(&window, icon::chosen(app));
     close_with(app, &window);
-    show_in_theme(app, &window)
+    show_in_theme(app, &window)?;
+    if maximize {
+        window.maximize()?;
+    }
+    Ok(())
 }
 
 /// Brings a window to the front.
@@ -191,6 +197,7 @@ pub fn open_task_window(
             return Err(error.into());
         }
     };
+    placement::restore_and_track(app, &window, Kind::Task(task.command_name()));
     icon::apply(&window, icon::chosen(app));
     close_with(app, &window);
     show_in_theme(app, &window)?;

@@ -36,6 +36,15 @@ impl Session {
             .await
     }
 
+    /// Starts with `filter` (a remembered one) when no graph is shown yet; later it is left
+    /// to [`Session::set_filter`].
+    pub async fn preset_filter(&self, filter: GraphFilter) {
+        let mut slot = self.graph.lock().await;
+        if slot.shown.is_none() {
+            slot.filter = filter;
+        }
+    }
+
     /// Shows `filter`, keeping the history already read, and returns the new view. A newer
     /// call cancels this one ([`GraphError::Cancelled`]): searching authors and messages takes
     /// a second or two on huge histories.

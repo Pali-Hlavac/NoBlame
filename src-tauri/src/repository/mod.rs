@@ -13,6 +13,7 @@ mod graph_cache;
 mod graph_types;
 mod groups;
 mod recent;
+mod saved_filters;
 mod service;
 mod sessions;
 mod staging_error;
@@ -35,12 +36,14 @@ use tauri::{App, Manager};
 
 use groups::{GROUPS_FILE_NAME, GroupsStore};
 use recent::{RECENT_FILE_NAME, RecentStore};
+use saved_filters::{FILTERS_FILE_NAME, FiltersStore};
 
 /// Registers the session registry, the recent-repositories store and the groups store.
 pub fn init(app: &App) -> tauri::Result<()> {
     let config = app.path().app_config_dir()?;
     app.manage(RecentStore::new(config.join(RECENT_FILE_NAME)));
     app.manage(GroupsStore::new(config.join(GROUPS_FILE_NAME)));
+    app.manage(FiltersStore::new(config.join(FILTERS_FILE_NAME)));
     let cache = graph_cache::GraphCache::new(app.path().app_cache_dir().ok());
     cache.prune(graph_cache::MAX_AGE);
     app.manage(RepoSessions::new(cache));

@@ -48,8 +48,9 @@ Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 > succeeded (slice 5); `clone` and `init` (a form, not a workbench), the CLI reference and its
 > tests (slice 6). Quality of life since: the graph's message body, Commit file
 > display and multi-select, menu icons, module stacks, the activity bar's order, hidden icons and
-> lock. M9 (polish and release) in progress: the app icon chosen in Settings (slice 1).
-> Next: slice 2 (window sizes and graph filters remembered).
+> lock. M9 (polish and release) in progress: the app icon chosen in Settings (slice 1); window
+> places and each repository's graph filter remembered (slice 2). Next: slice 3 (keyboard and
+> accessibility pass).
 > Parts marked _(later)_ below are planned and do not exist yet.
 
 ## Architecture

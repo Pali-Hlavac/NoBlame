@@ -254,8 +254,11 @@ A bar above the column titles chooses what the tab shows (ADR
 - A change applies at once and shows "Filtering…" until the new view is ready. The selected
   commit stays selected if the filter shows it. Otherwise HEAD is selected, or the first commit.
   The list scrolls to the selection.
-- The filter belongs to the tab's session. It survives reloads after changes outside the app,
-  and is reset when the tab is closed (remembering filters is planned for M7).
+- The filter belongs to the tab's session. It survives reloads after changes outside the app.
+  In the main window it is also remembered per repository (`graph-filters.json`,
+  `repository/saved_filters.rs`, M9 slice 2): opening the repository there again sets it before
+  the graph is first built. Clearing it forgets it. Task windows choose their own view and are
+  neither saved nor restored.
 - Commit details reads the full history: parents hidden by the filter are shown in grey and
   cannot be clicked, and "Contained in" counts every reference.
 - In the Branches module, a reference whose commit the filter hides is dimmed and cannot be

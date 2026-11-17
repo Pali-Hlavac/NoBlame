@@ -5,6 +5,7 @@ use tauri::State;
 use super::find;
 use super::groups::{self, GroupsStore, RepositoryGroup, RepositoryGroupsDto};
 use super::recent::{self, RecentRepository, RecentStore};
+use super::saved_filters::FiltersStore;
 use super::{
     CommitRowDto, FoundCommit, GoToCommit, GraphFilterDto, GraphSummary, PathScopeDto, RawBytes,
     ReloadedGraph, RepoId, RepoSessions, RepoSummary, service,
@@ -65,11 +66,12 @@ pub async fn reload_graph(
 #[specta::specta]
 pub async fn set_graph_filter(
     sessions: State<'_, RepoSessions>,
+    saved: State<'_, FiltersStore>,
     id: RepoId,
     filter: GraphFilterDto,
     row: Option<u32>,
 ) -> CommandResult<ReloadedGraph> {
-    Ok(service::set_graph_filter(&sessions, id, filter, row).await?)
+    Ok(service::set_graph_filter(&sessions, &saved, id, filter, row).await?)
 }
 
 /// The match of `query` (commit id, branch or tag name, author, message) after row `from`, or

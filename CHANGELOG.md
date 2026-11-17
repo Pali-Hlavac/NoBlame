@@ -223,6 +223,10 @@ All notable changes to NoBlame are documented here. The format follows
   (owner request 2026-11-13).
 - Commit module: Settings → Commit can list files folder first, sorted by the whole path,
   instead of name first (owner request 2026-11-13).
+- Window places and filters remembered (M9 slice 2): the main window opens where it was
+  closed (position, size, maximized; moved back onto a screen if that monitor is gone), each
+  kind of task window at its last size, and each repository shows the graph filter it had in
+  the main window.
 - A second app icon (M9 slice 1): Settings → Appearance → **App icon**, Golden or Vibrant,
   changes the icon of every NoBlame window at once (taskbar, Alt+Tab, title bars) with the
   hand-made picture for each size on Windows. The installed program keeps the golden icon.

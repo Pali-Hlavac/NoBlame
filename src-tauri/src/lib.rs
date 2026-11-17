@@ -56,7 +56,7 @@ pub fn run(request: LaunchRequest) {
             repository::init(app)?;
             workbench::init(app)?;
             jobs::init(app);
-            windows::init(app);
+            windows::init(app)?;
             windows::launch(app.handle(), request)?;
             Ok(())
         })

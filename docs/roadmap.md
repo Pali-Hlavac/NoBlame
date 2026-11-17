@@ -1285,6 +1285,27 @@ program's) or Vibrant. Every open window changes at once, new ones open with it.
   then vibrant), a Log task window opened with the vibrant icon, choosing Golden in Settings
   switched back; the Settings button worked after a reload and after a forced hot reload.
 
+Slice 2 done (2026-11-17): window places and graph filters remembered.
+
+- The main window opens where it was closed: position, size and maximized
+  (`src-tauri/src/windows/placement/`, `window-state.json` in the config folder). A place
+  less than 120 × 40 px of whose top would be on a screen's work area (a monitor unplugged) is
+  ignored; a bigger one than its screen is shrunk and moved onto it. Each kind of task window
+  opens at the size it last had, centred. Places are physical pixels; the size kept for a
+  maximized window is the one before it was maximized.
+- A window that was maximized is shown first and maximized after: maximizing it while hidden
+  made Windows restore it to where it was built (tao moves windows asynchronously).
+- Each repository's graph filter in the main window is saved when it changes
+  (`repository/saved_filters.rs`, `graph-filters.json`, 200 repositories at most) and set
+  before the graph is first built when the repository opens there again. Task windows' filters
+  (a Log window on a folder) are neither saved nor restored.
+- Checked in the running app: a moved and resized window reopened at the same place; a height
+  far beyond the screen (from a broken test script) was shrunk to the work area; a maximized
+  window reopened maximized and restored down to its saved place (the first try restored to the
+  centre: fixed above); a Commit window reopened at its saved size, centred; First parent
+  stayed on after a reload, Clear removed the saved entry, and a Log window on `src` saved
+  nothing.
+
 - [ ] Third-party licence notices shipped with the installers (for example generated with
       `cargo-about` and a JS equivalent). The grammars ask for theirs: two-face lists them
       (`two_face::acknowledgement::listing()`)
@@ -1292,7 +1313,7 @@ program's) or Vibrant. Every open window changes at once, new ones open with it.
 - [~] Final logo: the owner's painted finch and songbird are in (2026-10-29), and the vibrant
   variant's Windows icon (2026-11-17). Still to do: refined finch-on-a-branch artwork, small-size variants (16/24/32 px), monochrome version for the macOS menu bar and Linux symbolic icons, installer and website artwork
 - [ ] Keyboard shortcuts everywhere; accessibility pass (focus, ARIA, contrast)
-- [ ] Remember window sizes and filters (open tabs and layout are restored from M2.5)
+- [x] Remember window sizes and filters (open tabs and layout are restored from M2.5; slice 2)
 - [ ] E2E smoke tests: open repo, browse graph, commit, branch, merge — ADR 0016
 - [ ] Release workflow: build, sign, notarize installers for all platforms
 - [ ] Auto-update with the Tauri updater plugin — ADR 0017

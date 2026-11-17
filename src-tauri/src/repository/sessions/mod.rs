@@ -225,6 +225,14 @@ impl RepoSessions {
             .ok_or(RepositoryError::UnknownSession(id))
     }
 
+    /// Whether session `id` belongs to the window labelled `owner`.
+    pub fn is_owned_by(&self, id: RepoId, owner: &str) -> bool {
+        self.lock()
+            .owners
+            .get(&id)
+            .is_some_and(|label| label == owner)
+    }
+
     /// Forgets a session; its memory is freed once running commands finish.
     pub fn remove(&self, id: RepoId) {
         let mut inner = self.lock();

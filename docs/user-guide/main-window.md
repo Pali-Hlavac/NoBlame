@@ -189,7 +189,8 @@ repository. See [Opening repositories](opening-repositories.md).
 
 ## NoBlame remembers your layout
 
-When you start NoBlame again, it reopens your tabs and puts the modules and tabs back where you
+When you start NoBlame again, the window opens where you left it, at the same size (maximized
+if it was), and NoBlame reopens your tabs and puts the modules and tabs back where you
 left them, popped-out modules, stacks and the order of the activity bar included. A repository in a tab you have not looked at yet is only opened when you switch to
 that tab.
 
@@ -237,4 +238,5 @@ platform, and the version and full path of the git in use. This is useful in bug
 
 Some actions open in their own small window, for example a commit window opened from the command
 line: the commit graph, a commit, a diff, blame, file history, fetch, pull, push, switch, merge,
-rebase, stash, clone and creating a repository. See [Command line](command-line.md).
+rebase, stash, clone and creating a repository. See [Command line](command-line.md). Each kind of
+task window opens at the size you last gave it, in the middle of the screen.

@@ -8,17 +8,20 @@ use git_core::cli::Git;
 use git_core::graph::{BLOCK_ROWS, Graph, commit_rows};
 use git_core::repo::Repository;
 use git_core::stash::stash_bases;
+use tauri::Manager;
 use tokio_util::sync::CancellationToken;
 
 use super::filter_types::relative_to;
 use super::graph_types::StashLabel;
 use super::recent::{self, RecentStore};
+use super::saved_filters::{self, FiltersStore};
 use super::sessions::Session;
 use super::{
     CommitRowDto, GraphFilterDto, GraphSummary, PathScopeDto, RawBytes, ReloadedGraph, RepoId,
     RepoSessions, RepoSummary, RepositoryError, watch,
 };
 use crate::git_env::GitEnvError;
+use crate::windows::MAIN_WINDOW_LABEL;
 
 /// Opens the repository containing `path` and records it as recently opened.
 pub async fn open(
@@ -31,6 +34,12 @@ pub async fn open(
     let repo = blocking(move || Repository::discover(&PathBuf::from(path))).await??;
     let (id, session) = sessions.insert(repo, owner);
     let summary = RepoSummary::new(id, session.repo.info());
+    if owner == MAIN_WINDOW_LABEL
+        && let Some(store) = app.try_state::<FiltersStore>()
+        && let Some(filter) = saved_filters::saved(&store, &summary.path)
+    {
+        session.preset_filter(filter.into()).await;
+    }
     // Watching a huge tree takes a while on Linux (one inotify watch per folder): not awaited.
     let app = app.clone();
     let watched = std::sync::Arc::clone(&session);
@@ -93,6 +102,7 @@ pub async fn reload_graph(
 /// Shows `filter` in the tab and finds the commit that was on `row`.
 pub async fn set_graph_filter(
     sessions: &RepoSessions,
+    saved: &FiltersStore,
     id: RepoId,
     filter: GraphFilterDto,
     row: Option<u32>,
@@ -104,7 +114,14 @@ pub async fn set_graph_filter(
         path: filter.path.map(|path| relative_to(work_dir, path)),
         ..filter
     };
-    let graph = session.set_filter(filter.into()).await?;
+    let graph = session.set_filter(filter.clone().into()).await?;
+    if sessions.is_owned_by(id, MAIN_WINDOW_LABEL) {
+        let path = RepoSummary::new(id, session.repo.info()).path;
+        // The filter is shown either way; only reopening would forget it.
+        if let Err(error) = saved_filters::remember(saved, &path, &filter) {
+            tracing::warn!(%error, "could not save the graph filter");
+        }
+    }
     reselect(&session, previous, graph, row).await
 }
 

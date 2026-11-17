@@ -117,8 +117,11 @@ The bar above the list chooses which commits the tab shows:
 You can combine them. While a filter is on, the bar says how many commits are shown, for example
 "1,234 of 56,789 commits". Click **Clear** to see all commits again.
 
-Lines still connect each commit to the nearest commit it came from, skipping hidden ones. The
-filter stays while the tab is open, and is reset when you close the tab.
+Lines still connect each commit to the nearest commit it came from, skipping hidden ones.
+NoBlame remembers the filter of each repository: when you open the repository again, even after
+restarting, it shows the same commits. Click **Clear** to show all commits again; NoBlame then
+forgets the filter. A window opened for one task (for example a Log window on a folder) does not
+change what the main window remembers.
 
 In very large repositories, searching messages or authors takes a second or two.
 

@@ -22,6 +22,21 @@ tabs show the real commit graph ([repositories.md](repositories.md),
   150 ms (quick ones would only flash), and its activity ("Checking out the branch…") replaces
   the version text meanwhile.
 
+## Window places
+
+The main window opens where it was last closed: position, size, and maximized or not. Each kind
+of task window (Commit, Log, ...) opens at the size it last had, centred
+(`src-tauri/src/windows/placement/`, saved in `window-state.json` in the config folder when a
+window closes).
+
+- Places are physical pixels. While a window is maximized or minimized, the place kept is its
+  last one before (tracked on every move and resize).
+- A saved place is used only when at least 120 × 40 px of the window's top edge would be on a
+  monitor's work area; the monitor holding most of it is chosen, and a window bigger than that
+  work area is shrunk and moved onto it. Otherwise the window opens centred at its default size.
+- A maximized main window is shown at its saved place, then maximized, so restoring it down goes
+  back there (maximizing the hidden window made Windows restore it to where it was built).
+
 ## Tabs
 
 | Tab        | Content                                                                                                                                                                                                 |
