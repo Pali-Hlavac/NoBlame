@@ -16,6 +16,7 @@ import { ScriptsSection } from "./ScriptsSection";
 import { ShortcutsSection } from "./ShortcutsSection";
 import { SubmodulesSection } from "./SubmodulesSection";
 import { TaskWindowsSection } from "./TaskWindowsSection";
+import { UpdatesSection } from "./UpdatesSection";
 import { RepositoryButtonsSetting } from "./RepositoryButtonsSetting";
 import { Choice, Section, Toggle } from "./SettingControls";
 import { SettingsSearch } from "./SettingsSearch";
@@ -180,6 +181,7 @@ export function SettingsView() {
           <JobsSection />
           <SubmodulesSection />
           <TaskWindowsSection />
+          <UpdatesSection />
           <ScriptsSection />
           <GitConfigSection />
           <ShortcutsSection />

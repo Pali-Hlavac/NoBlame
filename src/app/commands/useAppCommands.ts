@@ -1,6 +1,7 @@
 /** Composes the command-palette entries contributed by each feature. */
 import {
   CrosshairIcon,
+  DownloadIcon,
   ExternalLinkIcon,
   FolderDownIcon,
   FolderOpenIcon,
@@ -18,6 +19,8 @@ import {
   XIcon,
 } from "lucide-react";
 
+import { toast } from "sonner";
+
 import { APP_NAME } from "@/app.config";
 import { useAboutStore } from "@/features/about";
 import type { PaletteCommand } from "@/features/command-palette";
@@ -30,11 +33,13 @@ import {
   useOpenRepository,
 } from "@/features/repositories";
 import { THEME_OPTIONS, useThemePreference } from "@/features/settings";
+import { checkForUpdate, showUpdate, useUpdateSupport } from "@/features/updates";
 import { TASKS, useOpenTaskWindow } from "@/features/windows";
 import { openModule, resetLayout, type WorkbenchModule } from "@/features/workbench";
 import { WELCOME_TAB, showCompareTab, useActiveTab, useTabsStore } from "@/features/workspace";
 import { useKeymap } from "@/shared/hooks/useKeys";
 import type { TaskKind } from "@/shared/ipc/bindings";
+import { toIpcError } from "@/shared/ipc/client";
 
 import { openSettings } from "../layout/settingsTab";
 import { TASK_SPECS } from "../tasks/specs";
@@ -58,6 +63,7 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
   const remoteCommands = useRemoteCommands();
   const branchCommands = useBranchCommands();
   const keysOf = useKeymap();
+  const updates = useUpdateSupport().data?.configured === true;
   const repositoryPath = activeTab?.kind === "repository" ? activeTab.path : null;
 
   const taskCommands = repositoryPath
@@ -223,6 +229,7 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
       keywords: ["version", "path", "install"],
       run: () => void gitInfo.refetch(),
     },
+    ...(updates ? [checkForUpdatesCommand()] : []),
     {
       id: "help.about",
       group: "Help",
@@ -235,4 +242,27 @@ export function useAppCommands(modules: readonly WorkbenchModule[]): PaletteComm
     },
   ];
   return withKeybindingHints(commands, keysOf);
+}
+
+/** Asks for a new release; tells the result in a toast, or opens the update when there is one. */
+function checkForUpdatesCommand(): PaletteCommand {
+  return {
+    id: "help.updates",
+    group: "Help",
+    label: "Check for updates",
+    icon: DownloadIcon,
+    keywords: ["update", "upgrade", "new version", "release"],
+    run: () => {
+      checkForUpdate()
+        .then((update) => {
+          if (update) showUpdate(update);
+          else toast.success("You have the newest version of NoBlame.");
+        })
+        .catch((error: unknown) => {
+          toast.error("Checking for updates failed", {
+            description: toIpcError(error).message,
+          });
+        });
+    },
+  };
 }

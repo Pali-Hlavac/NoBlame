@@ -41,6 +41,9 @@ allow = [
   "BSD-2-Clause",
   "BSD-3-Clause",
   "CC0-1.0",
+  # Permissive data licence of the Mozilla CA roots (webpki-root-certs, through the updater's
+  # TLS); attribution only, no copyleft.
+  "CDLA-Permissive-2.0",
   "ISC",
   "MIT",
   "MIT-0",

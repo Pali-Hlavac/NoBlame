@@ -12,7 +12,7 @@ use tauri_specta::{Builder, collect_commands, collect_events};
 
 use crate::{
     app_info, askpass, branches, git_config, git_env, inspect, jobs, lfs, operations, patches,
-    repository, settings, windows, workbench, worktree, worktrees,
+    repository, settings, updates, windows, workbench, worktree, worktrees,
 };
 
 /// Location of the generated bindings, relative to the crate root.
@@ -35,11 +35,15 @@ pub fn builder() -> Builder<tauri::Wry> {
             repository::RepositoryChanged,
             jobs::JobUpdated,
             askpass::CredentialRequested,
-            askpass::CredentialClosed
+            askpass::CredentialClosed,
+            updates::UpdateProgress
         ])
         .commands(collect_commands![
             app_info::commands::get_app_info,
             app_info::commands::get_third_party_notices,
+            updates::commands::get_update_support,
+            updates::commands::check_for_update,
+            updates::commands::install_update,
             settings::commands::get_settings,
             settings::commands::update_settings,
             git_env::commands::get_git_info,

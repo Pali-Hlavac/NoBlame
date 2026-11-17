@@ -7,6 +7,7 @@ mod graph;
 mod submodules;
 mod task_windows;
 mod types;
+mod updates;
 
 pub use diff::{
     DiffLayout, ExternalDiffTool, ExternalDiffToolKind, ExternalMergeTool, MergeToolKind,

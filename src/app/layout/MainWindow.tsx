@@ -1,5 +1,6 @@
 import { CommandPalette } from "@/features/command-palette";
 import { useJobEvents } from "@/features/jobs";
+import { UpdateDialog, useStartupUpdateCheck } from "@/features/updates";
 import { openRepositories, useRepositoryChanges, useSessionCleanup } from "@/features/repositories";
 import { useRepositoryRequests } from "@/features/windows";
 import {
@@ -41,6 +42,7 @@ function MainWorkbench({ saved }: { saved: SavedLayout | null }) {
   useTabHotkeys();
   useHistoryHotkeys();
   useCommandHotkeys(commands);
+  useStartupUpdateCheck();
 
   return (
     <div className="flex h-screen flex-col bg-background text-foreground" inert={popupOpen}>
@@ -57,6 +59,7 @@ function MainWorkbench({ saved }: { saved: SavedLayout | null }) {
       <StatusBar />
       <CommandPalette commands={commands} />
       <WindowDialogs />
+      <UpdateDialog />
     </div>
   );
 }

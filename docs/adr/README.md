@@ -22,7 +22,7 @@ decision changes, write a new ADR that supersedes the old one and update the old
 | [0014](0014-conflict-resolution-ui.md)           | Conflict resolution: list, sides, merge tool, built-in merge view | M6        | Accepted |
 | [0015](0015-cli-single-instance-task-windows.md) | CLI, single instance and task windows                             | M1        | Accepted |
 | [0016](0016-testing-strategy.md)                 | Testing strategy                                                  | M9        | Accepted |
-| 0017                                             | Auto-update via the Tauri updater                                 | M9        | Planned  |
+| [0017](0017-auto-update.md)                      | Auto-update via the Tauri updater                                 | M9        | Accepted |
 | 0018                                             | Shell integration architecture                                    | T1        | Planned  |
 | 0019                                             | Status cache service and overlays                                 | T4        | Planned  |
 | [0020](0020-workbench-docking.md)                | Workbench docking with dockview                                   | M2.5      | Accepted |

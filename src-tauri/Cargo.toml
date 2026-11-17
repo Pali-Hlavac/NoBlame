@@ -33,6 +33,8 @@ tauri = { version = "2.12", features = [] }
 tauri-plugin-dialog = "2.8"
 tauri-plugin-opener = "2"
 tauri-plugin-single-instance = "2"
+# Auto-update (ADR 0017); active only in builds carrying an update key.
+tauri-plugin-updater = "2.14"
 tauri-specta = { version = "=2.0.0-rc.26", features = ["derive", "typescript"] }
 thiserror.workspace = true
 tokio.workspace = true

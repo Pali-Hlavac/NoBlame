@@ -223,6 +223,12 @@ All notable changes to NoBlame are documented here. The format follows
   (owner request 2026-11-13).
 - Commit module: Settings → Commit can list files folder first, sorted by the whole path,
   instead of name first (owner request 2026-11-13).
+- Updates (M9 slice 6, ADR 0017): release builds look for a new version shortly after starting
+  (Settings → Updates), offer it with its notes, and install it and restart on request, with
+  signatures checked against NoBlame's key; About and the palette check on demand. Builds from
+  source say they do not update. A release workflow builds signed installers for Windows, macOS
+  and Linux into a draft GitHub release with the update feed; `pnpm release:version` sets the
+  version everywhere; `docs/development/release.md` describes a release end to end.
 - Third-party licences (M9 slice 5): About → **Third-party licences…** lists every open-source
   component with its licence (Rust crates, JavaScript packages, syntax grammars), searchable;
   installers include the same `third-party-notices.txt`. `pnpm licences` regenerates it, and CI

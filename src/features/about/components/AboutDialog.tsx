@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { APP_TAGLINE } from "@/app.config";
 import { GitInfoRows } from "@/features/git-env";
+import { UpdateCheck } from "@/features/updates";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { LoadingState } from "@/shared/components/LoadingState";
 import { Button } from "@/shared/ui/button";
@@ -51,6 +52,7 @@ export function AboutDialog() {
             <GitInfoRows />
           </dl>
         )}
+        <UpdateCheck />
         <Button
           variant="outline"
           size="sm"

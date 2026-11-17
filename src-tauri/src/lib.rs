@@ -18,6 +18,7 @@ mod patches;
 mod repository;
 mod settings;
 pub mod storage;
+mod updates;
 mod windows;
 mod workbench;
 mod worktree;
@@ -51,11 +52,16 @@ pub fn run(request: LaunchRequest) {
             windows::on_second_instance(app, argv, &cwd);
         }));
     }
+    // Only release builds carrying an update key can update (ADR 0017).
+    if let Some(updater) = updates::plugin() {
+        app = app.plugin(updater);
+    }
     let result = app
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(builder.invoke_handler())
         .setup(move |app| {
             builder.mount_events(app);
+            tauri::Manager::manage(app, updates::PendingUpdate::default());
             settings::init(app)?;
             repository::init(app)?;
             workbench::init(app)?;

@@ -22,6 +22,23 @@ tabs show the real commit graph ([repositories.md](repositories.md),
   150 ms (quick ones would only flash), and its activity ("Checking out the branch…") replaces
   the version text meanwhile.
 
+## Updates
+
+Release builds update themselves (ADR 0017; `src-tauri/src/updates/`, `src/features/updates/`):
+
+- Only builds made with an update key: the release workflow builds in `NOBLAME_UPDATER_PUBKEY`
+  and `NOBLAME_UPDATER_ENDPOINT` (`option_env!`), and only then is `tauri-plugin-updater`
+  registered. `get_update_support` says whether a build updates; About says "This build does not
+  update itself" otherwise, and the palette has no **Check for updates**.
+- Ten seconds after the main window starts, one check when Settings → Updates → **Look for a new
+  version when NoBlame starts** is on (default). A newer release shows a toast with **See what's
+  new**; the dialog shows its notes and **Install and restart** (download progress from
+  `UpdateProgress`; on Windows the installer runs passively and NoBlame exits, elsewhere it
+  restarts). Nothing installs without that click.
+- Signatures are verified with the built-in key, and `requireSignedVersion` refuses a signature
+  made for another version. A refused update leaves NoBlame as it was and says it was not
+  signed with NoBlame's key.
+
 ## Profile folder
 
 With `NOBLAME_PROFILE_DIR` set, NoBlame keeps everything under that folder instead of the

@@ -1369,6 +1369,33 @@ Slice 5 done (2026-11-17): third-party licence notices.
 - Checked in the running app: About → Third-party licences…, filtering for "dockview" shows its
   MIT text.
 
+Slice 6 done (2026-11-17): release workflow, auto-update (ADR 0017), the release guide.
+
+- Updates (`src-tauri/src/updates/`, `src/features/updates/`): `tauri-plugin-updater` 2.14,
+  registered only in builds carrying an update key (`NOBLAME_UPDATER_PUBKEY` and
+  `NOBLAME_UPDATER_ENDPOINT`, set by the release workflow); `requireSignedVersion` on. Commands
+  `get_update_support`, `check_for_update`, `install_update` (`UpdateProgress` events). Ten
+  seconds after the start one check (Settings → Updates, on by default), a toast, a dialog with
+  the notes and **Install and restart**; About and the palette check on demand. Builds from
+  source say they do not update.
+- Release workflow (`.github/workflows/release.yml`): a `v*` tag is checked against the versions
+  and the changelog (`scripts/release-version.mjs`, also `pnpm release:version`), then Windows,
+  macOS universal and Ubuntu 22.04 build to a draft release with `latest.json`; signing (updates,
+  Authenticode, Developer ID and notarization) follows the secrets that exist
+  (`scripts/release-config.mjs`).
+- `docs/development/release.md` rewritten: owner decisions, secrets, versioning, the steps, the
+  checks before publishing.
+- Found and fixed while testing: the updater plugin fails to start without a `plugins.updater`
+  section in `tauri.conf.json` (now there, with an empty key), and a refused signature said to
+  check the internet connection (now: not signed with NoBlame's key).
+- Checked with a throwaway key, a debug build and a local feed (my instance, its own profile): the
+  check found 9.9.9 with its notes, the toast and dialog showed it, a download altered after
+  signing was refused and the app kept running, and a signature without a version was refused.
+  Not run: installing a correctly signed update (it would start the installer), the workflow
+  itself (no GitHub repository).
+
+**M9 so far:** everything but the logo's artwork, which is the owner's (see "Final logo" above).
+
 - [x] Third-party licence notices shipped with the installers (slice 5): `cargo-about`, the
       shipped npm packages' licence files, and two-face's grammar listing, in
       `src-tauri/resources/third-party-notices.txt`
@@ -1379,9 +1406,11 @@ Slice 5 done (2026-11-17): third-party licence notices.
 - [x] Keyboard shortcuts everywhere; accessibility pass (focus, ARIA, contrast; slice 3)
 - [x] Remember window sizes and filters (open tabs and layout are restored from M2.5; slice 2)
 - [x] E2E smoke tests: open repo, browse graph, commit, branch, merge — ADR 0016 (slice 4)
-- [ ] Release workflow: build, sign, notarize installers for all platforms
-- [ ] Auto-update with the Tauri updater plugin — ADR 0017
-- [ ] `docs/development/release.md` finalized
+- [~] Release workflow: build, sign, notarize installers for all platforms (slice 6): written
+  (`.github/workflows/release.yml`), not run yet: no GitHub repository, keys or certificates
+- [x] Auto-update with the Tauri updater plugin — ADR 0017 (slice 6; installing a real release
+      is checked with the second release)
+- [x] `docs/development/release.md` finalized (slice 6)
 
 ## Phase 2: shell integration
 
@@ -1453,7 +1482,7 @@ The owner's idea inbox (with where each idea is planned) is in
 | 0014 | Conflict resolution UI                                              | M6        | Accepted |
 | 0015 | CLI, single instance and task windows                               | M1        | Accepted |
 | 0016 | Testing strategy                                                    | M9        | Accepted |
-| 0017 | Auto-update via the Tauri updater                                   | M9        | Planned  |
+| 0017 | Auto-update via the Tauri updater                                   | M9        | Accepted |
 | 0018 | Shell integration architecture                                      | T1        | Planned  |
 | 0019 | Status cache service and overlays                                   | T4        | Planned  |
 | 0020 | Workbench layout: activity bar, side panel modules, docking library | M2.5      | Accepted |

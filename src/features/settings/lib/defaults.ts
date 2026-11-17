@@ -5,6 +5,7 @@ import type {
   JobsSettings,
   SubmoduleSettings,
   TaskWindowSettings,
+  UpdateSettings,
   DiffSettings,
   ExternalDiffTool,
   ExternalMergeTool,
@@ -32,6 +33,7 @@ export interface AppSettings {
   jobs: Required<JobsSettings>;
   submodules: Required<SubmoduleSettings>;
   taskWindows: Required<TaskWindowSettings>;
+  updates: Required<UpdateSettings>;
   /** User scripts, in menu order. */
   scripts: { name: string; command: string }[];
   /** Keyboard shortcuts given other keys than the app's (empty keys: no shortcut). */
@@ -76,6 +78,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   jobs: { showOutputWindow: false, closeOutputOnSuccess: true },
   submodules: { fetchSubmodules: true, updateAfterPullAndCheckout: false },
   taskWindows: { closeAfterSuccess: false },
+  updates: { checkOnStart: true },
   scripts: [],
   keybindings: [],
 };
@@ -98,6 +101,7 @@ export function withDefaults(settings: Settings | undefined): AppSettings {
     jobs: { ...DEFAULT_SETTINGS.jobs, ...settings?.jobs },
     submodules: { ...DEFAULT_SETTINGS.submodules, ...settings?.submodules },
     taskWindows: { ...DEFAULT_SETTINGS.taskWindows, ...settings?.taskWindows },
+    updates: { ...DEFAULT_SETTINGS.updates, ...settings?.updates },
     scripts: (settings?.scripts ?? []).map((script) => ({
       name: script.name ?? "",
       command: script.command ?? "",

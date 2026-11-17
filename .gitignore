@@ -27,3 +27,5 @@ Thumbs.db
 
 # Logs
 *.log
+# Written by the release workflow (scripts/release-config.mjs).
+src-tauri/tauri.release.json

@@ -32,12 +32,15 @@ A command that returns "not allowed" is missing from `APP_COMMANDS` or from a ca
 
 ## Commands
 
-| Command                   | Module     | Async | Returns            | Purpose                                                                                       |
-| ------------------------- | ---------- | ----- | ------------------ | --------------------------------------------------------------------------------------------- |
-| `get_app_info`            | `app_info` | no    | `AppInfo`          | Name, version, OS and architecture                                                            |
-| `get_settings`            | `settings` | yes   | `Result<Settings>` | Saved preferences, or defaults                                                                |
-| `get_third_party_notices` | —          | yes   | `string`           | The bundled third-party notices (About → Third-party licences; `pnpm licences`)               |
-| `update_settings`         | `settings` | yes   | `Result<Settings>` | Replaces and saves preferences (atomic write); a changed `appIcon` is applied to every window |
+| Command                   | Module     | Async | Returns                           | Purpose                                                                                       |
+| ------------------------- | ---------- | ----- | --------------------------------- | --------------------------------------------------------------------------------------------- |
+| `get_app_info`            | `app_info` | no    | `AppInfo`                         | Name, version, OS and architecture                                                            |
+| `get_settings`            | `settings` | yes   | `Result<Settings>`                | Saved preferences, or defaults                                                                |
+| `get_third_party_notices` | —          | yes   | `string`                          | The bundled third-party notices (About → Third-party licences; `pnpm licences`)               |
+| `get_update_support`      | —          | no    | `UpdateSupport`                   | Whether this build updates itself (an update key built in) and its version (ADR 0017)         |
+| `check_for_update`        | —          | yes   | `Result<AvailableUpdate \| null>` | Asks the release feed; keeps the found update for `install_update`                            |
+| `install_update`          | —          | yes   | `Result<null>`                    | Downloads (`UpdateProgress` events), verifies, installs and restarts                          |
+| `update_settings`         | `settings` | yes   | `Result<Settings>`                | Replaces and saves preferences (atomic write); a changed `appIcon` is applied to every window |
 
 `Settings` holds `theme`, `graph { highlightSelection, workingTree }` (`"rows" | "header" |
 "hidden"`) and `repositories { showActionsMenu, showChangeCounts }`.
@@ -221,6 +224,7 @@ cannot start, does not answer within 10 s, or prints something that is not a git
 | `repositories-requested` | `null`                                                        | A launch asked the main window to open a repository                     | Call `take_repository_requests` and open tabs                                                                                                                                                   |
 | `credential-requested`   | `CredentialRequested { request }`                             | git or ssh of a job asks (askpass)                                      | Read `list_credential_requests` again; the dialog shows the oldest                                                                                                                              |
 | `credential-closed`      | `CredentialClosed { id }`                                     | A prompt was answered, cancelled, timed out or its job ended            | Read the list again                                                                                                                                                                             |
+| `update-progress`        | `UpdateProgress { downloaded, total }`                        | While an update downloads                                               | The update dialog's progress bar                                                                                                                                                                |
 | `job-updated`            | `JobUpdated { job }`                                          | A job started, printed (at most every 100 ms) or ended                  | Merge into the jobs list; toast when it ended                                                                                                                                                   |
 | `repository-changed`     | `RepositoryChanged { id, refs, workTree, config, worktrees }` | The watcher saw a change made outside the app (after a 300 ms debounce) | Any: refetch the status; `refs`: `refresh_repository`, then `reload_graph` and refetch everything read from the graph; `config` or `worktrees` alone: refetch the refs, upstreams and worktrees |
 

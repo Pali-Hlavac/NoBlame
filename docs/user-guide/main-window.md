@@ -234,8 +234,21 @@ task windows. The installed program, its shortcuts and the macOS Dock keep the g
 Open it from the command palette (**About NoBlame**). It shows the NoBlame version, your
 platform, and the version and full path of the git in use. This is useful in bug reports.
 **Third-party licences…** lists the open-source software NoBlame is built with and the licence
-of each; type a name to find one. The same list is installed beside NoBlame as
+of each; type a name to find one. **Check for updates** looks for a new version (see below). The same list is installed beside NoBlame as
 `third-party-notices.txt`.
+
+## Updates
+
+NoBlame installed from a release keeps itself up to date. Shortly after it starts, it asks
+NoBlame's release page whether there is a new version, and if there is, a message says so. Click
+**See what's new** to read what changed, then **Install and restart**: NoBlame downloads the new
+version, checks that it really comes from NoBlame, installs it and starts again. Running fetches
+and pushes stop, so wait for them first. **Later** keeps your version for now.
+
+You can also check any time: **About NoBlame → Check for updates**, or **Check for updates** in
+the command palette. To stop the check at start, turn off **Settings → Updates → Look for a new
+version when NoBlame starts**. A NoBlame you built from source does not update itself; About
+says so.
 
 ## Task windows
 

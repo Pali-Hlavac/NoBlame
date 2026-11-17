@@ -1,0 +1,101 @@
+name: Release
+
+# A version tag (v0.2.0) builds the installers for Windows, macOS and Linux and puts them on a
+# draft GitHub release with the update feed (latest.json); publishing the draft is a person's
+# step. What is signed depends on the repository's secrets (docs/development/release.md):
+# without them the installers are unsigned and the builds do not update themselves.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    name: Version matches the tag
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/release-version.mjs --check "${GITHUB_REF_NAME}"
+
+  build:
+    name: Build (${{ matrix.name }})
+    needs: check
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows x64
+            os: windows-latest
+            args: ""
+          - name: macOS universal
+            os: macos-latest
+            args: "--target universal-apple-darwin"
+          # The oldest supported Ubuntu, so the AppImage and packages run on older glibc too.
+          - name: Linux x64
+            os: ubuntu-22.04
+            args: ""
+    env:
+      # Built into the app: the key update signatures are checked with, and the feed.
+      NOBLAME_UPDATER_PUBKEY: ${{ vars.NOBLAME_UPDATER_PUBKEY }}
+      NOBLAME_UPDATER_ENDPOINT: ${{ vars.NOBLAME_UPDATER_PUBKEY != '' && format('{0}/{1}/releases/latest/download/latest.json', github.server_url, github.repository) || '' }}
+      # Signs the updates (tauri signer generate); the public half is the variable above.
+      TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+      # macOS: Developer ID signing and notarization, read by the bundler.
+      APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+      APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+      APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      # Steps cannot test secrets in `if`; this says whether there is a Windows certificate.
+      WINDOWS_CERTIFICATE_SET: ${{ secrets.WINDOWS_CERTIFICATE != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Linux system dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libxdo-dev libssl-dev \
+            libayatana-appindicator3-dev librsvg2-dev
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ runner.os == 'macOS' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+      - uses: Swatinem/rust-cache@v2
+      - run: pnpm install --frozen-lockfile
+      - name: Import the Windows signing certificate
+        if: runner.os == 'Windows' && env.WINDOWS_CERTIFICATE_SET == 'true'
+        shell: pwsh
+        env:
+          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+        run: |
+          $pfx = Join-Path $env:RUNNER_TEMP "certificate.pfx"
+          [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:WINDOWS_CERTIFICATE))
+          $password = ConvertTo-SecureString $env:WINDOWS_CERTIFICATE_PASSWORD -AsPlainText -Force
+          $certificate = Import-PfxCertificate -FilePath $pfx -CertStoreLocation Cert:\CurrentUser\My -Password $password
+          Remove-Item $pfx
+          "WINDOWS_CERTIFICATE_THUMBPRINT=$($certificate.Thumbprint)" >> $env:GITHUB_ENV
+      - name: What this build signs
+        run: node scripts/release-config.mjs
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: NoBlame ${{ github.ref_name }}
+          releaseBody: See CHANGELOG.md for what changed.
+          releaseDraft: true
+          includeUpdaterJson: ${{ env.TAURI_SIGNING_PRIVATE_KEY != '' }}
+          args: --config src-tauri/tauri.release.json ${{ matrix.args }}

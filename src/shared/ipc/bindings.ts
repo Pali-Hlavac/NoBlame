@@ -10,6 +10,15 @@ export const commands = {
 	getAppInfo: () => __TAURI_INVOKE<AppInfo>("get_app_info"),
 	/**  Returns the third-party notices (About → Third-party licences). */
 	getThirdPartyNotices: () => __TAURI_INVOKE<string>("get_third_party_notices"),
+	/**  Whether this build updates itself, and its version. */
+	getUpdateSupport: () => __TAURI_INVOKE<UpdateSupport>("get_update_support"),
+	/**  Asks the release feed for a newer version; `null` when this one is the newest. */
+	checkForUpdate: () => typedError<AvailableUpdate | null, AppError>(__TAURI_INVOKE("check_for_update")),
+	/**
+	 *  Downloads and installs the update the last check found, then restarts NoBlame
+	 *  (`UpdateProgress` events while it downloads).
+	 */
+	installUpdate: () => typedError<null, AppError>(__TAURI_INVOKE("install_update")),
 	/**  Returns the persisted settings, or defaults on first launch. */
 	getSettings: () => typedError<Settings, AppError>(__TAURI_INVOKE("get_settings")),
 	/**  Replaces the persisted settings and returns what was saved. */
@@ -495,6 +504,7 @@ export const events = {
 	jobUpdated: makeEvent<JobUpdated, JobUpdated>("job-updated"),
 	repositoriesRequested: makeEvent<RepositoriesRequested, RepositoriesRequested>("repositories-requested"),
 	repositoryChanged: makeEvent<RepositoryChanged, RepositoryChanged>("repository-changed"),
+	updateProgress: makeEvent<UpdateProgress, UpdateProgress>("update-progress"),
 };
 
 /* Types */
@@ -602,6 +612,16 @@ export type ArchiveRequestDto = {
 	folder: string,
 	/**  The file name proposed. */
 	fileName: string,
+};
+
+/**  A newer release the feed offers. */
+export type AvailableUpdate = {
+	/**  Its version (`0.2.0`). */
+	version: string,
+	/**  The running version. */
+	currentVersion: string,
+	/**  Its release notes, as the feed has them (Markdown). */
+	notes: string | null,
 };
 
 /**  A commit named in the bar. */
@@ -2518,6 +2538,8 @@ export type Settings = {
 	submodules?: SubmoduleSettings,
 	/**  Task windows (`noblame commit <path>`): closing once their action succeeded. */
 	taskWindows?: TaskWindowSettings,
+	/**  Looking for new releases (builds that update themselves). */
+	updates?: UpdateSettings,
 	/**  User scripts: git command lines with placeholders, run on a commit from its menu. */
 	scripts?: UserScript[],
 	/**
@@ -2934,6 +2956,31 @@ export type UniqueCommitsDto = {
 
 /**  Why a conflicted file cannot be merged in the view. */
 export type UnmergeableDto = "noConflict" | "oneSided" | "notAFile" | "binary" | "notUtf8" | "tooLarge" | "largeFileStorage";
+
+/**  How far the download of an update got. Sent while it downloads. */
+export type UpdateProgress = {
+	/**  Bytes downloaded so far. */
+	downloaded: number | null,
+	/**  The update's size, when the server says. */
+	total: number | null,
+};
+
+/**  How NoBlame looks for updates (only builds that update themselves do). */
+export type UpdateSettings = {
+	/**
+	 *  Ask the release feed for a newer version once after starting. Nothing is installed
+	 *  without the user's go-ahead.
+	 */
+	checkOnStart?: boolean,
+};
+
+/**  Whether this build can update itself, and its version. */
+export type UpdateSupport = {
+	/**  A release build with an update key and a feed; `false` for builds from source. */
+	configured: boolean,
+	/**  The running version. */
+	currentVersion: string,
+};
 
 /**  A local branch with an upstream configured. */
 export type UpstreamDto = {
