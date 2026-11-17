@@ -8,3 +8,5 @@ src-tauri/gen
 src-tauri/icons
 src/shared/ipc/bindings.ts
 prompt.md
+# cargo-about template: Handlebars for plain text, not HTML.
+scripts/licences/about.hbs

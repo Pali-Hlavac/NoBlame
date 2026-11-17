@@ -39,6 +39,7 @@ pub fn builder() -> Builder<tauri::Wry> {
         ])
         .commands(collect_commands![
             app_info::commands::get_app_info,
+            app_info::commands::get_third_party_notices,
             settings::commands::get_settings,
             settings::commands::update_settings,
             git_env::commands::get_git_info,

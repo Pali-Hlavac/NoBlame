@@ -8,6 +8,8 @@ import * as __TAURI_EVENT from "@tauri-apps/api/event";
 export const commands = {
 	/**  Returns the app name, version and platform. */
 	getAppInfo: () => __TAURI_INVOKE<AppInfo>("get_app_info"),
+	/**  Returns the third-party notices (About → Third-party licences). */
+	getThirdPartyNotices: () => __TAURI_INVOKE<string>("get_third_party_notices"),
 	/**  Returns the persisted settings, or defaults on first launch. */
 	getSettings: () => typedError<Settings, AppError>(__TAURI_INVOKE("get_settings")),
 	/**  Replaces the persisted settings and returns what was saved. */

@@ -13,6 +13,7 @@
     "core:window:allow-start-dragging",
     "dialog:allow-open",
     "allow-get-app-info",
+    "allow-get-third-party-notices",
     "allow-get-settings",
     "allow-update-settings",
     "allow-get-git-info",

@@ -104,7 +104,10 @@ taskbar buttons, installers), set at build time from `src-tauri/icons/`.
 ## About
 
 Logo, tagline, version, platform and the git in use (version, "needs 2.39.0+" warning, path),
-handy for bug reports.
+handy for bug reports. **Third-party licences…** shows the notices of every open-source
+component (`src-tauri/resources/third-party-notices.txt`, made by `pnpm licences`, embedded with
+`include_str!` and installed beside the app), split at each licence and filtered by what is
+typed (`features/about/lib/notices.ts`).
 
 ## Logo
 

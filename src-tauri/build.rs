@@ -6,6 +6,7 @@
 
 const APP_COMMANDS: &[&str] = &[
     "get_app_info",
+    "get_third_party_notices",
     "get_settings",
     "update_settings",
     "get_git_info",

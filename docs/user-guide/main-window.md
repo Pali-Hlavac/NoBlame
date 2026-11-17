@@ -233,6 +233,9 @@ task windows. The installed program, its shortcuts and the macOS Dock keep the g
 
 Open it from the command palette (**About NoBlame**). It shows the NoBlame version, your
 platform, and the version and full path of the git in use. This is useful in bug reports.
+**Third-party licences…** lists the open-source software NoBlame is built with and the licence
+of each; type a name to find one. The same list is installed beside NoBlame as
+`third-party-notices.txt`.
 
 ## Task windows
 

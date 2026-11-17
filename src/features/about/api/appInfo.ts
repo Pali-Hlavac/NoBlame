@@ -13,3 +13,13 @@ export function useAppInfo() {
     staleTime: Infinity,
   });
 }
+
+/** The licences of the software NoBlame includes; loaded when first shown. */
+export function useThirdPartyNotices(enabled: boolean) {
+  return useQuery({
+    queryKey: ["third-party-notices"],
+    queryFn: () => commands.getThirdPartyNotices(),
+    staleTime: Infinity,
+    enabled,
+  });
+}

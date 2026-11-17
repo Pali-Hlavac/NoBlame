@@ -51,8 +51,9 @@ Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 > lock. M9 (polish and release) in progress: the app icon chosen in Settings (slice 1); window
 > places and each repository's graph filter remembered (slice 2); repository shortcuts, WCAG
 > contrast checked from the tokens, an axe-core audit (`pnpm test:a11y`; slice 3); a profile
-> folder for tests and E2E smoke tests (`pnpm e2e`, ADR 0016; slice 4). Next: slice 5
-> (third-party licence notices).
+> folder for tests and E2E smoke tests (`pnpm e2e`, ADR 0016; slice 4); third-party notices
+> generated, shipped and shown in About (`pnpm licences`; slice 5). Next: slice 6 (release
+> workflow, auto-update).
 > Parts marked _(later)_ below are planned and do not exist yet.
 
 ## Architecture
@@ -181,6 +182,7 @@ React feature component
 | Compare timing                | `cargo run --release -p git-core --example compare_spike -- <repo> <base> <target>`       |
 | Status timing                 | `cargo run --release -p git-core --example status_spike -- <repo>`                        |
 | Dependency audit              | `pnpm deps:check` (needs `cargo-deny`; see `docs/development/dependencies.md`)            |
+| Third-party notices           | `pnpm licences` (after dependency changes; `--check` in CI)                               |
 | Everything CI runs            | `pnpm check` (the dependency audit runs as its own workflow)                              |
 
 ## Gotchas

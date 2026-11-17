@@ -10,6 +10,14 @@ Status: **draft.** Releases, signing, notarization and auto-update are milestone
 - `CHANGELOG.md` follows [Keep a Changelog](https://keepachangelog.com/): every change adds a
   line under `[Unreleased]`; a release renames that section to the version and date.
 
+## Third-party notices
+
+`src-tauri/resources/third-party-notices.txt` lists every open-source component in the app with
+its licence; installers place it beside the app and About shows it. Regenerate it after
+changing dependencies: `pnpm licences` (CI fails on an outdated file: `pnpm licences --check`
+in the dependency workflow). A crate under a licence `deny.toml` does not allow fails the
+generation as well.
+
 ## Building
 
 ```sh

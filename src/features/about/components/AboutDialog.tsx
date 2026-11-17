@@ -1,7 +1,10 @@
+import { useState } from "react";
+
 import { APP_TAGLINE } from "@/app.config";
 import { GitInfoRows } from "@/features/git-env";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { LoadingState } from "@/shared/components/LoadingState";
+import { Button } from "@/shared/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -12,12 +15,14 @@ import {
 
 import { useAppInfo } from "../api/appInfo";
 import { useAboutStore } from "../store/about";
+import { ThirdPartyNotices } from "./ThirdPartyNotices";
 
 /** Shows the app version, platform and the git in use; handy for bug reports. */
 export function AboutDialog() {
   const open = useAboutStore((state) => state.open);
   const { setOpen } = useAboutStore.getState();
   const { data: info, error, isPending, refetch } = useAppInfo();
+  const [licences, setLicences] = useState(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -46,6 +51,17 @@ export function AboutDialog() {
             <GitInfoRows />
           </dl>
         )}
+        <Button
+          variant="outline"
+          size="sm"
+          className="justify-self-center"
+          onClick={() => {
+            setLicences(true);
+          }}
+        >
+          Third-party licences…
+        </Button>
+        <ThirdPartyNotices open={licences} onOpenChange={setLicences} />
       </DialogContent>
     </Dialog>
   );

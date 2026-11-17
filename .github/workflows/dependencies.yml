@@ -45,3 +45,20 @@ jobs:
       - name: Dev tooling (high and critical)
         if: ${{ !cancelled() }}
         run: pnpm audit --audit-level high
+
+  notices:
+    name: Third-party notices up to date
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: pnpm install --frozen-lockfile
+      # cargo-about lists every target's crates, so the file is the same on every OS.
+      - name: src-tauri/resources/third-party-notices.txt matches the lock files
+        run: pnpm licences --check

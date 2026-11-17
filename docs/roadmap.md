@@ -1351,9 +1351,27 @@ Slice 4 done (2026-11-17): a separate profile and end-to-end smoke tests (ADR 00
 - Ran locally three times: 4 tests pass in about 4.5 s after the build; the user's settings
   and graph cache were untouched.
 
-- [ ] Third-party licence notices shipped with the installers (for example generated with
-      `cargo-about` and a JS equivalent). The grammars ask for theirs: two-face lists them
-      (`two_face::acknowledgement::listing()`)
+Slice 5 done (2026-11-17): third-party licence notices.
+
+- `pnpm licences` (`scripts/licences.mjs`) writes `src-tauri/resources/third-party-notices.txt`
+  (about 880 KB): the Rust crates of the app with cargo-about 0.9.3 (built into
+  `.cache/tools`; `scripts/licences/about.toml` accepts the same licences as `deny.toml`, every
+  target's crates so the file is the same on every OS, no build or dev dependencies), the 65
+  JavaScript packages the page ships (`pnpm licenses list --prod`, their licence files, the same
+  text listed once), and the syntax grammars and themes (`two_face::acknowledgement::listing()`,
+  printed by the `grammar_licences` example of git-core). Three npm packages ship no licence
+  file (Tauri's two, whose texts are in the Rust part, and react-remove-scroll-bar): listed by
+  name and licence.
+- The file is committed (licence changes show in review); `pnpm licences --check` fails when
+  it is out of date, in the dependency workflow. Installers carry it beside the app
+  (`bundle.resources`), and the app embeds it: About → **Third-party licences…** shows it with
+  a filter (`get_third_party_notices`, `ThirdPartyNotices.tsx`).
+- Checked in the running app: About → Third-party licences…, filtering for "dockview" shows its
+  MIT text.
+
+- [x] Third-party licence notices shipped with the installers (slice 5): `cargo-about`, the
+      shipped npm packages' licence files, and two-face's grammar listing, in
+      `src-tauri/resources/third-party-notices.txt`
 - [x] A second app icon, chosen in Settings (slice 1); a third without a background (owner,
       2026-11-17)
 - [~] Final logo: the owner's painted finch and songbird are in (2026-10-29), and the vibrant

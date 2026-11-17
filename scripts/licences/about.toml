@@ -1,0 +1,22 @@
+# cargo-about: the licences of the Rust crates the app ships (scripts/licences.mjs).
+# The same list deny.toml allows; anything else fails the generation.
+accepted = [
+  "0BSD",
+  "Apache-2.0",
+  "Apache-2.0 WITH LLVM-exception",
+  "BSD-2-Clause",
+  "BSD-3-Clause",
+  "CC0-1.0",
+  "ISC",
+  "MIT",
+  "MIT-0",
+  "MPL-2.0",
+  "Unicode-3.0",
+  "Unlicense",
+  "Zlib",
+]
+# Only what ends up in the app.
+ignore-build-dependencies = true
+ignore-dev-dependencies = true
+# Our own crates have no licence yet (docs/roadmap.md).
+private = { ignore = true }
