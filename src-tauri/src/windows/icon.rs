@@ -238,6 +238,24 @@ mod tests {
         }
     }
 
+    /// The owner draws the `.ico` files by hand; `tauri icon` would overwrite `icon.ico` with a
+    /// generated one, which `scripts/icons.mjs` then replaces. Fails if that step was skipped.
+    #[test]
+    fn the_icons_are_the_hand_made_ones() {
+        let golden = include_bytes!("../../../assets/logo/noblame.ico");
+        let vibrant = include_bytes!("../../../assets/logo/noblame_vibrant.ico");
+        let no_background = include_bytes!("../../../assets/logo/noblame_nobg.ico");
+        assert!(ico(AppIcon::Golden) == golden, "icon.ico: run `pnpm icons`");
+        assert!(
+            ico(AppIcon::Vibrant) == vibrant,
+            "vibrant.ico: run `pnpm icons`"
+        );
+        assert!(
+            ico(AppIcon::NoBackground) == no_background,
+            "nobg.ico: run `pnpm icons`"
+        );
+    }
+
     #[test]
     fn the_best_picture_is_the_smallest_big_enough_one() {
         let bitmap = [0_u8; 4];

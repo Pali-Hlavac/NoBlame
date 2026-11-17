@@ -4,7 +4,8 @@
 // The app has three icons (Settings → Appearance): golden (`noblame.*`, the installed
 // program's), vibrant (`noblame_vibrant.*`) and no background (`noblame_nobg.*`). The windows
 // load them at run time from `src-tauri/icons/{icon,vibrant,nobg}.ico`; the Settings tab shows
-// `public/icon{,-vibrant,-nobg}.png`.
+// `public/icon{,-vibrant,-nobg}.png`. A Rust test (`windows/icon.rs`) fails if the `.ico` files
+// in `src-tauri/icons/` are not byte for byte the hand-made ones in `assets/logo/`.
 import { copyFileSync, readFileSync, writeFileSync } from "node:fs";
 
 /**
