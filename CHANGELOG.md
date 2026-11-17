@@ -223,6 +223,10 @@ All notable changes to NoBlame are documented here. The format follows
   (owner request 2026-11-13).
 - Commit module: Settings → Commit can list files folder first, sorted by the whole path,
   instead of name first (owner request 2026-11-13).
+- End-to-end smoke tests (M9 slice 4, ADR 0016): `pnpm e2e` drives the real app through
+  tauri-driver on a fixture repository (open, browse, commit, create a branch, merge), in CI on
+  Linux and Windows. `NOBLAME_PROFILE_DIR` runs NoBlame with its own settings and caches, apart
+  from a NoBlame already running.
 - Keyboard and accessibility pass (M9 slice 3): shortcuts for Open repository (Ctrl+O), Fetch
   (Ctrl+Shift+F), Pull (Ctrl+Shift+P), Push (Ctrl+P), Create a branch (Ctrl+Shift+N) and Stash
   changes (Ctrl+Shift+S, also a new palette command), changeable in Settings; every text colour

@@ -1332,6 +1332,25 @@ Slice 3 done (2026-11-17): keyboard and accessibility pass.
 - Checked in the running app: Ctrl+Shift+N opened Create a branch, Ctrl+Shift+S Stash changes,
   and the palette shows Ctrl+P beside Push.
 
+Slice 4 done (2026-11-17): a separate profile and end-to-end smoke tests (ADR 0016).
+
+- `NOBLAME_PROFILE_DIR` (`src-tauri/src/storage/profile.rs`): settings, layout, recent list,
+  window places, saved filters, the graph cache and the webview's storage go under that folder,
+  and the single-instance plugin is left out (the instance neither forwards nor receives).
+- `pnpm e2e` (`scripts/e2e.mjs`): builds tauri-driver 2.1.0 into `.cache/e2e/tools`, downloads
+  the Edge WebDriver matching WebView2 on Windows, builds a debug app with the frontend built in
+  into `target/e2e`, and runs `e2e/smoke.e2e.ts` with Vitest through a small WebDriver client
+  (`e2e/support/webdriver.ts`, no WebdriverIO): open a fixture repository from the Welcome
+  tab's recent list, see its history, stage and commit (Ctrl+Enter), create a branch
+  (Ctrl+Shift+N), and merge from the Merge window. Checks read the page and the repository
+  with git. CI runs it on Linux (xvfb, WebKitWebDriver) and Windows.
+- Found on the way: the Edge WebDriver passes app arguments as browser switches (the app
+  refuses them), and it needs the webview's data folder it chose; the tests start the app
+  without arguments and the profile leaves that folder alone. Building tauri-driver in the temp
+  folder was blocked by Windows Defender, hence `.cache/e2e`.
+- Ran locally three times: 4 tests pass in about 4.5 s after the build; the user's settings
+  and graph cache were untouched.
+
 - [ ] Third-party licence notices shipped with the installers (for example generated with
       `cargo-about` and a JS equivalent). The grammars ask for theirs: two-face lists them
       (`two_face::acknowledgement::listing()`)
@@ -1341,7 +1360,7 @@ Slice 3 done (2026-11-17): keyboard and accessibility pass.
   variant's Windows icon (2026-11-17). Still to do: refined finch-on-a-branch artwork, small-size variants (16/24/32 px), monochrome version for the macOS menu bar and Linux symbolic icons, installer and website artwork
 - [x] Keyboard shortcuts everywhere; accessibility pass (focus, ARIA, contrast; slice 3)
 - [x] Remember window sizes and filters (open tabs and layout are restored from M2.5; slice 2)
-- [ ] E2E smoke tests: open repo, browse graph, commit, branch, merge — ADR 0016
+- [x] E2E smoke tests: open repo, browse graph, commit, branch, merge — ADR 0016 (slice 4)
 - [ ] Release workflow: build, sign, notarize installers for all platforms
 - [ ] Auto-update with the Tauri updater plugin — ADR 0017
 - [ ] `docs/development/release.md` finalized
@@ -1415,7 +1434,7 @@ The owner's idea inbox (with where each idea is planned) is in
 | 0013 | Diff viewer: diffs computed in Rust, rows paged                     | M3        | Accepted |
 | 0014 | Conflict resolution UI                                              | M6        | Accepted |
 | 0015 | CLI, single instance and task windows                               | M1        | Accepted |
-| 0016 | Testing strategy                                                    | M9        | Planned  |
+| 0016 | Testing strategy                                                    | M9        | Accepted |
 | 0017 | Auto-update via the Tauri updater                                   | M9        | Planned  |
 | 0018 | Shell integration architecture                                      | T1        | Planned  |
 | 0019 | Status cache service and overlays                                   | T4        | Planned  |

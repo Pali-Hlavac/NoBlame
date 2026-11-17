@@ -50,8 +50,9 @@ Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 > display and multi-select, menu icons, module stacks, the activity bar's order, hidden icons and
 > lock. M9 (polish and release) in progress: the app icon chosen in Settings (slice 1); window
 > places and each repository's graph filter remembered (slice 2); repository shortcuts, WCAG
-> contrast checked from the tokens, an axe-core audit (`pnpm test:a11y`; slice 3). Next: slice 4
-> (a separate profile for tests, E2E smoke tests).
+> contrast checked from the tokens, an axe-core audit (`pnpm test:a11y`; slice 3); a profile
+> folder for tests and E2E smoke tests (`pnpm e2e`, ADR 0016; slice 4). Next: slice 5
+> (third-party licence notices).
 > Parts marked _(later)_ below are planned and do not exist yet.
 
 ## Architecture
@@ -166,6 +167,7 @@ React feature component
 | Build installers              | `pnpm app:build`                                                                          |
 | Frontend tests                | `pnpm test` (watch: `pnpm test:watch`; axe audit: `pnpm test:a11y`)                       |
 | Rust tests                    | `pnpm test:rust`                                                                          |
+| End-to-end tests              | `pnpm e2e` (`--no-build` reuses the app build; Windows and Linux)                         |
 | Lint (TS + file sizes) / Rust | `pnpm lint` / `pnpm lint:rust`                                                            |
 | Type-check                    | `pnpm typecheck`                                                                          |
 | Format / check formatting     | `pnpm format` / `pnpm format:check`                                                       |
@@ -252,6 +254,10 @@ React feature component
 - **Saved layout shape changes**: bump `LAYOUT_VERSION` (`workbench/lib/layout.ts`); old layouts
   are then ignored. Module ids are stored in layouts: never rename or reuse one.
 - **Linux** dev needs `libwebkit2gtk-4.1-dev` and friends (see `docs/getting-started.md`).
+- **E2E on Windows**: the Edge WebDriver passes app arguments as browser switches, so tests
+  start NoBlame without arguments; it also picks the webview's data folder
+  (`WEBVIEW2_USER_DATA_FOLDER`), which the profile then leaves alone. Never run E2E without
+  `NOBLAME_PROFILE_DIR` (`pnpm e2e` sets it): it would use your settings.
 
 ## Where to find more
 

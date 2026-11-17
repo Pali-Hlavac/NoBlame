@@ -26,7 +26,7 @@ pub type SettingsStore = JsonFile<Settings>;
 
 /// Registers a [`SettingsStore`] pointing at the platform config directory.
 pub fn init(app: &App) -> tauri::Result<()> {
-    let path = app.path().app_config_dir()?.join(SETTINGS_FILE_NAME);
+    let path = crate::storage::profile::config_dir(app)?.join(SETTINGS_FILE_NAME);
     app.manage(SettingsStore::new(path));
     Ok(())
 }

@@ -22,10 +22,7 @@ use crate::storage::JsonFile;
 /// Registers the window bookkeeping state and where windows were last closed.
 pub fn init(app: &App) -> tauri::Result<()> {
     app.manage(WindowRegistry::default());
-    let path = app
-        .path()
-        .app_config_dir()?
-        .join(placement::PLACEMENT_FILE_NAME);
+    let path = crate::storage::profile::config_dir(app)?.join(placement::PLACEMENT_FILE_NAME);
     app.manage(placement::Placements::new(JsonFile::new(path)));
     Ok(())
 }

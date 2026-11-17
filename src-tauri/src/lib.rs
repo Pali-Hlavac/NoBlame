@@ -43,11 +43,15 @@ pub fn run(request: LaunchRequest) {
         tracing::warn!(%error, "failed to export TypeScript bindings");
     }
 
-    let result = tauri::Builder::default()
-        // Must be the first plugin: a second launch forwards its arguments and exits here.
-        .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
+    let mut app = tauri::Builder::default();
+    // Must be the first plugin: a second launch forwards its arguments and exits here. An
+    // instance with its own profile (tests) runs on its own.
+    if storage::profile::profile_dir().is_none() {
+        app = app.plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
             windows::on_second_instance(app, argv, &cwd);
-        }))
+        }));
+    }
+    let result = app
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(builder.invoke_handler())
         .setup(move |app| {

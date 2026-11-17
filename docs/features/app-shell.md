@@ -22,6 +22,14 @@ tabs show the real commit graph ([repositories.md](repositories.md),
   150 ms (quick ones would only flash), and its activity ("Checking out the branch…") replaces
   the version text meanwhile.
 
+## Profile folder
+
+With `NOBLAME_PROFILE_DIR` set, NoBlame keeps everything under that folder instead of the
+platform's: `config/` (settings, layout, recent list, groups, window places, saved filters),
+`cache/` (the graph cache) and `webview/` (the webview's own storage; left to WebView2 when
+`WEBVIEW2_USER_DATA_FOLDER` names one). Such an instance runs on its own: no single-instance
+forwarding either way. The end-to-end tests use it (`src-tauri/src/storage/profile.rs`).
+
 ## Window places
 
 The main window opens where it was last closed: position, size, and maximized or not. Each kind

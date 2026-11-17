@@ -40,11 +40,11 @@ use saved_filters::{FILTERS_FILE_NAME, FiltersStore};
 
 /// Registers the session registry, the recent-repositories store and the groups store.
 pub fn init(app: &App) -> tauri::Result<()> {
-    let config = app.path().app_config_dir()?;
+    let config = crate::storage::profile::config_dir(app)?;
     app.manage(RecentStore::new(config.join(RECENT_FILE_NAME)));
     app.manage(GroupsStore::new(config.join(GROUPS_FILE_NAME)));
     app.manage(FiltersStore::new(config.join(FILTERS_FILE_NAME)));
-    let cache = graph_cache::GraphCache::new(app.path().app_cache_dir().ok());
+    let cache = graph_cache::GraphCache::new(crate::storage::profile::cache_dir(app));
     cache.prune(graph_cache::MAX_AGE);
     app.manage(RepoSessions::new(cache));
     Ok(())

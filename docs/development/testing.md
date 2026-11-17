@@ -92,6 +92,22 @@ feature needs them in benchmarks.
   `src/app/contrast.test.ts` checks the theme's tokens against WCAG ratios instead, so a colour
   changed in `styles.css` is checked by `pnpm test`.
 
+## End-to-end tests
+
+`pnpm e2e` drives the real app through tauri-driver (ADR 0016; Windows and Linux, not macOS):
+
+- The first run builds tauri-driver into `.cache/e2e/tools`, downloads the Edge WebDriver that
+  matches the installed WebView2 (Windows; Linux needs `WebKitWebDriver` from
+  `webkit2gtk-driver` on PATH) and builds the app into `target/e2e` (minutes). Later runs:
+  `pnpm e2e --no-build` reuses the app build (rebuild after changing the app).
+- Tests live in `e2e/*.e2e.ts` (`e2e/vitest.config.ts`). `e2e/support/fixture.ts` makes a
+  repository with git and a profile folder; `e2e/support/webdriver.ts` starts the app, runs
+  scripts in the page, types and presses keys. Check results in the repository with `git`, and
+  find controls by their accessible names.
+- The app runs with `NOBLAME_PROFILE_DIR`, so your settings and a NoBlame you have open are not
+  touched. Start it without arguments (the Edge WebDriver would pass them as browser switches)
+  and open what the test needs through the UI or a command the window may call.
+
 ## Regression tests
 
 Every bug fixed gets a test that fails without the fix. Check it really does by reverting the fix

@@ -80,7 +80,7 @@ pub fn show_main_window(app: &AppHandle) -> Result<(), WindowError> {
         // need for moving tabs. Dropping folders onto the window can use HTML events later.
         .disable_drag_drop_handler()
         .visible(false);
-    let window = with_custom_title_bar(builder).build()?;
+    let window = with_custom_title_bar(in_profile(builder)).build()?;
     let maximize = placement::restore_and_track(app, &window, Kind::Main);
     icon::apply(&window, icon::chosen(app));
     close_with(app, &window);
@@ -136,6 +136,16 @@ fn show_in_theme(app: &AppHandle, window: &WebviewWindow) -> Result<(), WindowEr
     Ok(())
 }
 
+/// Keeps the webview's storage in the profile folder when one is set (`storage::profile`).
+fn in_profile<R: tauri::Runtime, M: Manager<R>>(
+    builder: WebviewWindowBuilder<'_, R, M>,
+) -> WebviewWindowBuilder<'_, R, M> {
+    match crate::storage::profile::webview_dir() {
+        Some(dir) => builder.data_directory(dir),
+        None => builder,
+    }
+}
+
 /// The main window draws its own title bar (with the toolbar in it, see `TitleBar.tsx`). macOS
 /// keeps the traffic lights over a transparent title bar; elsewhere the window has no system
 /// frame and the UI draws minimize, maximize and close.
@@ -182,14 +192,18 @@ pub fn open_task_window(
         return Ok(window.label().to_owned());
     }
     let label = registry.register_task(context);
-    let built = WebviewWindowBuilder::new(app, &label, WebviewUrl::default())
-        .title(title)
-        .inner_size(TASK_WINDOW_SIZE.0, TASK_WINDOW_SIZE.1)
-        .min_inner_size(TASK_WINDOW_MIN_SIZE.0, TASK_WINDOW_MIN_SIZE.1)
-        .center()
-        .disable_drag_drop_handler()
-        .visible(false)
-        .build();
+    let built = in_profile(WebviewWindowBuilder::new(
+        app,
+        &label,
+        WebviewUrl::default(),
+    ))
+    .title(title)
+    .inner_size(TASK_WINDOW_SIZE.0, TASK_WINDOW_SIZE.1)
+    .min_inner_size(TASK_WINDOW_MIN_SIZE.0, TASK_WINDOW_MIN_SIZE.1)
+    .center()
+    .disable_drag_drop_handler()
+    .visible(false)
+    .build();
     let window = match built {
         Ok(window) => window,
         Err(error) => {

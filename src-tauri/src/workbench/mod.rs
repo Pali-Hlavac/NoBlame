@@ -39,7 +39,7 @@ pub type LayoutStore = JsonFile<LayoutFile>;
 
 /// Registers a [`LayoutStore`] pointing at the platform config directory.
 pub fn init(app: &App) -> tauri::Result<()> {
-    let path = app.path().app_config_dir()?.join(LAYOUT_FILE_NAME);
+    let path = crate::storage::profile::config_dir(app)?.join(LAYOUT_FILE_NAME);
     app.manage(LayoutStore::new(path));
     Ok(())
 }
