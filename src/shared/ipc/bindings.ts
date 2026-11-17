@@ -528,6 +528,13 @@ export type AppError = {
 	hint: string | null,
 };
 
+/**  Which of the app's two icons the windows show (Settings → Appearance). */
+export type AppIcon = 
+/**  The finch on a golden background, the installed program's icon. */
+"golden" | 
+/**  The finch on a blue and violet background. */
+"vibrant";
+
 /**  Name, version and platform of the running app, shown in the status bar and About dialog. */
 export type AppInfo = {
 	/**  Product name from `tauri.conf.json`. */
@@ -2489,6 +2496,8 @@ export type SetUpstreamRequestDto = {
 export type Settings = {
 	/**  Color scheme of every window. */
 	theme?: ThemePreference,
+	/**  The icon of the app's windows (taskbar, Alt+Tab, title bar). */
+	appIcon?: AppIcon,
 	/**  Commit graph. */
 	graph?: GraphSettings,
 	/**  Repositories module. */

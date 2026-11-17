@@ -5,6 +5,7 @@ import { useDiffSettings } from "../hooks/useDiffSettings";
 import { useThemePreference } from "../hooks/useThemePreference";
 import { DIFF_LAYOUT_OPTIONS, WHITESPACE_OPTIONS } from "../lib/diff";
 import { THEME_OPTIONS } from "../lib/theme";
+import { AppIconChoice } from "./AppIconChoice";
 import { ContextStepper } from "./ContextStepper";
 import { ExternalToolSetting } from "./ExternalToolSetting";
 import { MergeToolSetting } from "./MergeToolSetting";
@@ -98,6 +99,7 @@ export function SettingsView() {
         <SettingsSearch>
           <Section title="Appearance">
             <ThemeChoice />
+            <AppIconChoice />
           </Section>
           <Section title="Commit graph">
             <Choice

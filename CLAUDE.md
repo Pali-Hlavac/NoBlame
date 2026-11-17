@@ -48,7 +48,8 @@ Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 > succeeded (slice 5); `clone` and `init` (a form, not a workbench), the CLI reference and its
 > tests (slice 6). Quality of life since: the graph's message body, Commit file
 > display and multi-select, menu icons, module stacks, the activity bar's order, hidden icons and
-> lock. Next: M9 (polish and release).
+> lock. M9 (polish and release) in progress: the app icon chosen in Settings (slice 1).
+> Next: slice 2 (window sizes and graph filters remembered).
 > Parts marked _(later)_ below are planned and do not exist yet.
 
 ## Architecture
@@ -168,7 +169,7 @@ React feature component
 | Format / check formatting     | `pnpm format` / `pnpm format:check`                                                       |
 | Regenerate IPC bindings       | `pnpm bindings`                                                                           |
 | Generate synthetic repos      | `pnpm repos:generate [--preset 10k 100k 1m]` (into `.cache/repos/`, git-ignored)          |
-| Regenerate app icons          | `pnpm icons` (from `assets/logo/noblame.png` and `noblame.ico`)                           |
+| Regenerate app icons          | `pnpm icons` (from `assets/logo/noblame.png`, `noblame.ico`, `noblame_vibrant.ico`)       |
 | Benchmarks                    | `pnpm bench` (graph build; 100k/1m when generated, see `docs/development/performance.md`) |
 | Graph timing on any repo      | `cargo run --release -p git-core --example graph_spike -- <repo>`                         |
 | File diff timing              | `cargo run --release -p git-core --example diff_spike -- <repo> <old-blob> <new-blob>`    |

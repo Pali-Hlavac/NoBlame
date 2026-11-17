@@ -32,11 +32,11 @@ A command that returns "not allowed" is missing from `APP_COMMANDS` or from a ca
 
 ## Commands
 
-| Command           | Module     | Async | Returns            | Purpose                                       |
-| ----------------- | ---------- | ----- | ------------------ | --------------------------------------------- |
-| `get_app_info`    | `app_info` | no    | `AppInfo`          | Name, version, OS and architecture            |
-| `get_settings`    | `settings` | yes   | `Result<Settings>` | Saved preferences, or defaults                |
-| `update_settings` | `settings` | yes   | `Result<Settings>` | Replaces and saves preferences (atomic write) |
+| Command           | Module     | Async | Returns            | Purpose                                                                                       |
+| ----------------- | ---------- | ----- | ------------------ | --------------------------------------------------------------------------------------------- |
+| `get_app_info`    | `app_info` | no    | `AppInfo`          | Name, version, OS and architecture                                                            |
+| `get_settings`    | `settings` | yes   | `Result<Settings>` | Saved preferences, or defaults                                                                |
+| `update_settings` | `settings` | yes   | `Result<Settings>` | Replaces and saves preferences (atomic write); a changed `appIcon` is applied to every window |
 
 `Settings` holds `theme`, `graph { highlightSelection, workingTree }` (`"rows" | "header" |
 "hidden"`) and `repositories { showActionsMenu, showChangeCounts }`.

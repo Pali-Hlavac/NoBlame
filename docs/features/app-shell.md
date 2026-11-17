@@ -59,6 +59,24 @@ before first paint (the app waits for settings while showing "Starting…"). "Sy
 OS live. Colour tokens are defined once in `src/app/styles.css` (teal primary from the logo,
 goldfinch-yellow focus ring).
 
+## App icon
+
+Settings → Appearance → **App icon**: Golden (default, the installed program's icon) or Vibrant.
+`update_settings` gives every open window the new icon when the choice changes, and new windows
+open with it (`src-tauri/src/windows/icon.rs`):
+
+- Windows: both variants' hand-made `.ico` files are built into the executable
+  (`include_bytes!`). For each window the picture drawn for the size Windows asks for is made
+  into an icon (`CreateIconFromResourceEx`), the big one (`SM_CXICON`: taskbar, Alt+Tab) and the
+  small one (`SM_CXSMICON`: the title bar of task windows), at the window's DPI, and set with
+  `WM_SETICON` on the main thread. The icons made are kept for the app's life (a handful).
+- Linux: the window icon from the `.ico`'s 256 px PNG (`tauri::image::Image`, feature
+  `image-png`).
+- macOS: windows have no icon; the Dock shows the installed one.
+
+What stays golden: the executable's own icon (Explorer, the Start menu, shortcuts, pinned
+taskbar buttons, installers), set at build time from `src-tauri/icons/`.
+
 ## About
 
 Logo, tagline, version, platform and the git in use (version, "needs 2.39.0+" warning, path),
@@ -70,7 +88,11 @@ The finch on a branch, by the owner (2026-10-29): `assets/logo/noblame.png` (102
 and `assets/logo/noblame.ico` (hand-made, 16 to 256 px). `pnpm icons` generates the platform
 icons in `src-tauri/icons/` from the PNG (including `icon.icns` for macOS), then
 `scripts/icons.mjs` puts the hand-made `.ico` in place of the generated one and copies the 256 px
-icon to `public/icon.png` (the page icon). The songbird alone on a transparent background
+icon to `public/icon.png` (the page icon). The vibrant variant (owner, 2026-11-17):
+`assets/logo/noblame_vibrant.png` and `noblame_vibrant.ico`; `scripts/icons.mjs` copies the
+`.ico` to `src-tauri/icons/vibrant.ico` and its 256 px PNG to `public/icon-vibrant.png` (the
+Settings preview). The Affinity Photo source (`no_blame_icon.afphoto`) stays out of the
+repository. The songbird alone on a transparent background
 (`assets/logo/songbird.png`, 1254 × 1254) is shown in the title bar (28 px high, so it is easy to
 spot), on the Welcome tab, in About and in task windows, from a 320 px copy in
 `public/songbird.png` (made by hand: the transparent border trimmed, then 320 px wide; `pnpm icons`

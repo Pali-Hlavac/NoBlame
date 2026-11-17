@@ -3,11 +3,13 @@
 
 pub mod commands;
 mod error;
+mod icon;
 mod registry;
 mod service;
 mod types;
 
 pub use error::WindowError;
+pub use icon::apply_everywhere as apply_app_icon;
 pub use registry::WindowRegistry;
 pub use service::{launch, on_second_instance};
 pub use types::{RepositoriesRequested, WindowContext};

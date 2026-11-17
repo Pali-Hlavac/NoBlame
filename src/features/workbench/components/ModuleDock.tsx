@@ -6,7 +6,7 @@ import {
   type SerializedDockview,
 } from "dockview-react";
 import { PanelLeftIcon } from "lucide-react";
-import { createContext, useContext, useEffect, useRef } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 import { EmptyState } from "@/shared/components/EmptyState";
 
@@ -110,20 +110,34 @@ interface ModuleDockProps {
 /** The left dock: modules opened from the activity bar, stacked as tabs or split. */
 export function ModuleDock({ modules, defaultLayout, saved }: ModuleDockProps) {
   const byId = new Map(modules.map((module) => [module.id, module]));
-  const disposables = useRef<{ dispose: () => void }[]>([]);
+  const [api, setApi] = useState<DockviewApi | null>(null);
 
-  useEffect(
-    () => () => {
-      disposables.current.forEach((disposable) => {
-        disposable.dispose();
+  // Listening in an effect, not in `onReady`: React may run effects again without a new dock
+  // (hot reload, StrictMode), and the listeners must then come back.
+  useEffect(() => {
+    if (!api) return;
+    docks.modules = api;
+    publishModules(api);
+    const onChange = (): void => {
+      publishModules(api);
+      scheduleLayoutSave();
+    };
+    const subscriptions = [
+      api.onDidLayoutChange(onChange),
+      api.onDidActivePanelChange(onChange),
+      api.onDidAddPanel(onChange),
+      api.onDidRemovePanel(onChange),
+    ];
+    return () => {
+      subscriptions.forEach((subscription) => {
+        subscription.dispose();
       });
-      disposables.current = [];
-      docks.modules = null;
-    },
-    [],
-  );
+      if (docks.modules === api) docks.modules = null;
+    };
+  }, [api]);
 
   const onReady = ({ api }: DockviewReadyEvent): void => {
+    // Set now as well: restoring the stacks below looks the dock up.
     docks.modules = api;
     // Before the workbench's effect would: restoring stacks below needs the modules' titles.
     docks.registered = modules;
@@ -143,17 +157,7 @@ export function ModuleDock({ modules, defaultLayout, saved }: ModuleDockProps) {
         : byId.has(panel.id) && !poppedOut.includes(panel.id);
       if (!known) panel.api.close();
     }
-    publishModules(api);
-    const onChange = (): void => {
-      publishModules(api);
-      scheduleLayoutSave();
-    };
-    disposables.current.push(
-      api.onDidLayoutChange(onChange),
-      api.onDidActivePanelChange(onChange),
-      api.onDidAddPanel(onChange),
-      api.onDidRemovePanel(onChange),
-    );
+    setApi(api);
   };
 
   return (

@@ -6,7 +6,7 @@ import {
   type SerializedDockview,
 } from "dockview-react";
 import { LayoutGridIcon } from "lucide-react";
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 import {
   WELCOME_TAB,
@@ -128,26 +128,29 @@ interface DocumentDockProps {
 
 /** The main dock: repository tabs and the diff tab, splittable in every direction. */
 export function DocumentDock({ renderTab, saved }: DocumentDockProps) {
-  const disconnect = useRef<(() => void) | null>(null);
+  const [api, setApi] = useState<DockviewApi | null>(null);
 
-  useEffect(
-    () => () => {
-      disconnect.current?.();
-      disconnect.current = null;
-      docks.documents = null;
-    },
-    [],
-  );
-
-  const onReady = ({ api }: DockviewReadyEvent): void => {
+  // Connected in an effect, not in `onReady`: React may run effects again without a new dock
+  // (hot reload, StrictMode), and the store must then be connected again, not left behind.
+  useEffect(() => {
+    if (!api) return;
     docks.documents = api;
+    const disconnect = connect(api);
+    return () => {
+      disconnect();
+      if (docks.documents === api) docks.documents = null;
+    };
+  }, [api]);
+
+  const onReady = ({ api: ready }: DockviewReadyEvent): void => {
+    docks.documents = ready;
     try {
-      if (saved) api.fromJSON(saved);
+      if (saved) ready.fromJSON(saved);
     } catch (error) {
       console.warn("Ignoring the saved tab layout", error);
-      api.clear();
+      ready.clear();
     }
-    disconnect.current = connect(api);
+    setApi(ready);
   };
 
   return (

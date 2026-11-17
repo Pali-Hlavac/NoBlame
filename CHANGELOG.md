@@ -223,6 +223,9 @@ All notable changes to NoBlame are documented here. The format follows
   (owner request 2026-11-13).
 - Commit module: Settings → Commit can list files folder first, sorted by the whole path,
   instead of name first (owner request 2026-11-13).
+- A second app icon (M9 slice 1): Settings → Appearance → **App icon**, Golden or Vibrant,
+  changes the icon of every NoBlame window at once (taskbar, Alt+Tab, title bars) with the
+  hand-made picture for each size on Windows. The installed program keeps the golden icon.
 - Clone and Create repository windows (M8 slice 6): `noblame clone <folder>` shows the Clone
   form cloning into a new folder there, git's output while it runs, then **Open in NoBlame**;
   `noblame init <folder>` says what is there first (a new folder, files that stay, a repository
@@ -509,6 +512,9 @@ All notable changes to NoBlame are documented here. The format follows
 
 ### Fixed
 
+- The Settings button and other tab changes did nothing until the page reloaded, after a hot
+  reload while a development build started: the tab dock now reconnects whenever React runs its
+  effects again (M9 slice 1).
 - Commit module: after staging files with Space, the arrows scrolled the list instead of
   moving to the next file once the row last clicked was gone; lists now keep the keyboard when
   the focused row or button goes away, and Space no longer scrolls while a change is running.

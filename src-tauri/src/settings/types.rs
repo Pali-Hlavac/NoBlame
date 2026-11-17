@@ -22,6 +22,17 @@ pub enum ThemePreference {
     Dark,
 }
 
+/// Which of the app's two icons the windows show (Settings → Appearance).
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub enum AppIcon {
+    /// The finch on a golden background, the installed program's icon.
+    #[default]
+    Golden,
+    /// The finch on a blue and violet background.
+    Vibrant,
+}
+
 /// All persisted user preferences. Unknown fields are ignored and missing fields
 /// fall back to defaults, so older and newer app versions can share the file.
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, Type)]
@@ -29,6 +40,8 @@ pub enum ThemePreference {
 pub struct Settings {
     /// Color scheme of every window.
     pub theme: ThemePreference,
+    /// The icon of the app's windows (taskbar, Alt+Tab, title bar).
+    pub app_icon: AppIcon,
     /// Commit graph.
     pub graph: GraphSettings,
     /// Repositories module.

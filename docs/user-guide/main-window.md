@@ -40,8 +40,8 @@ browsing history (Files, Find, Compare), violet for branches and remotes (Branch
 blue for repositories (also the open and create buttons), orange for groups, and purple for
 submodules. Settings and About keep the normal colour.
 
-The gear at the bottom of the activity bar opens **Settings** in a tab: the theme, the commit
-highlight, whether repositories show their **…** button, and how diffs look. Type in the search
+The gear at the bottom of the activity bar opens **Settings** in a tab: the theme, the app
+icon, the commit highlight, whether repositories show their **…** button, and how diffs look. Type in the search
 box at the top to see only the settings with those words.
 
 Clicking the icon of a module that is already showing hides the sidebar; click any icon to show
@@ -223,6 +223,10 @@ From left to right:
 - **Commands**: opens the [command palette](command-palette.md).
 - **Theme**: choose System (follow your operating system), Light or Dark. NoBlame remembers your
   choice.
+
+NoBlame has two icons: golden and vibrant (blue). Choose one in **Settings → Appearance → App
+icon**. Every NoBlame window changes at once: the taskbar button, Alt+Tab and the title bar of
+task windows. The installed program, its shortcuts and the macOS Dock keep the golden icon.
 
 ## About NoBlame
 

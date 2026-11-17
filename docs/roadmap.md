@@ -1250,14 +1250,47 @@ commit** (asks first), the submodule bar (Update), the superproject labels in th
 graph, Create a branch from the palette, closing a tab (the one used before shows), and a
 checkout with "update after pull and checkout" on (the submodule followed). Seen once and not
 reproduced since: after closing Settings with its ×, the Settings button did not open it again
-until the page reloaded (the dock kept a disposed panel).
+until the page reloaded. Found and fixed in M9 slice 1 (a hot reload left the tabs store
+connected to a disposed dock).
 
 ### M9: Polish and release
+
+Slices (planned 2026-11-17; the logo's artwork stays with the owner):
+
+1. The app icon chosen in Settings (owner request 2026-11-17: a second, vibrant icon)
+2. Window sizes and positions, and each repository's graph filters, remembered
+3. Keyboard and accessibility pass
+4. A separate profile for tests (`NOBLAME_PROFILE_DIR`) and E2E smoke tests (ADR 0016)
+5. Third-party licence notices, generated and shipped, shown in About
+6. Release workflow and auto-update (ADR 0017), `release.md` finalized
+
+Slice 1 done (2026-11-17): Settings → Appearance → **App icon**, Golden (the installed
+program's) or Vibrant. Every open window changes at once, new ones open with it.
+
+- Windows: the hand-made `.ico` of each variant is built into the app
+  (`src-tauri/icons/icon.ico`, `vibrant.ico`) and each window gets the picture drawn for the size
+  Windows asks for (big: taskbar and Alt+Tab; small: the title bar), by DPI
+  (`src-tauri/src/windows/icon.rs`, `WM_SETICON`). Linux gets the window icon from the `.ico`'s
+  256 px PNG. macOS windows have no icon; the Dock keeps the installed one. The installed
+  program, its shortcuts and Explorer keep the golden icon (built into the executable).
+- `pnpm icons` also copies `assets/logo/noblame_vibrant.ico` and writes the 256 px previews to
+  `public/` (`scripts/icons.mjs`).
+- Fixed: after a hot reload while the window started (a dev run rewriting the bindings), the
+  Settings button and other tab changes did nothing until the page was reloaded: the document
+  dock's connection to the tabs store was made once in `onReady` and leaked a connection to a
+  disposed dock, whose error stopped the new one. Both docks now connect in an effect per dock
+  (`DocumentDock.tsx`, `ModuleDock.tsx`), so any re-run connects again.
+- Checked in the running app (my instance, a scratch repository): the window's big and small
+  icons read back with `WM_GETICON` before and after switching (golden 48 and 24 px at 150 %,
+  then vibrant), a Log task window opened with the vibrant icon, choosing Golden in Settings
+  switched back; the Settings button worked after a reload and after a forced hot reload.
 
 - [ ] Third-party licence notices shipped with the installers (for example generated with
       `cargo-about` and a JS equivalent). The grammars ask for theirs: two-face lists them
       (`two_face::acknowledgement::listing()`)
-- [~] Final logo: the owner's painted finch and songbird are in (2026-10-29). Still to do: refined finch-on-a-branch artwork, small-size variants (16/24/32 px), monochrome version for the macOS menu bar and Linux symbolic icons, installer and website artwork
+- [x] A second app icon, chosen in Settings (slice 1)
+- [~] Final logo: the owner's painted finch and songbird are in (2026-10-29), and the vibrant
+  variant's Windows icon (2026-11-17). Still to do: refined finch-on-a-branch artwork, small-size variants (16/24/32 px), monochrome version for the macOS menu bar and Linux symbolic icons, installer and website artwork
 - [ ] Keyboard shortcuts everywhere; accessibility pass (focus, ARIA, contrast)
 - [ ] Remember window sizes and filters (open tabs and layout are restored from M2.5)
 - [ ] E2E smoke tests: open repo, browse graph, commit, branch, merge — ADR 0016

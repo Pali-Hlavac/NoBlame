@@ -12,7 +12,7 @@ pub use diff::{
     DiffLayout, ExternalDiffTool, ExternalDiffToolKind, ExternalMergeTool, MergeToolKind,
     WhitespaceMode,
 };
-pub use types::{Settings, ThemePreference};
+pub use types::{AppIcon, Settings, ThemePreference};
 
 use tauri::{App, Manager};
 

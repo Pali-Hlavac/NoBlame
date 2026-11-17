@@ -1,4 +1,5 @@
 import type {
+  AppIcon,
   BranchesSettings,
   CommitSettings,
   JobsSettings,
@@ -22,6 +23,7 @@ import { DEFAULT_GRAPH_COLUMNS } from "./graphColumns";
  */
 export interface AppSettings {
   theme: ThemePreference;
+  appIcon: AppIcon;
   graph: Required<GraphSettings>;
   repositories: Required<RepositoriesSettings>;
   diff: AppDiffSettings;
@@ -45,6 +47,7 @@ export type AppDiffSettings = Required<Omit<DiffSettings, "externalTool" | "merg
 /** What the backend uses for missing settings (`src-tauri/src/settings/types.rs`). */
 export const DEFAULT_SETTINGS: AppSettings = {
   theme: "system",
+  appIcon: "golden",
   graph: {
     highlightSelection: true,
     workingTree: "rows",
@@ -81,6 +84,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
 export function withDefaults(settings: Settings | undefined): AppSettings {
   return {
     theme: settings?.theme ?? DEFAULT_SETTINGS.theme,
+    appIcon: settings?.appIcon ?? DEFAULT_SETTINGS.appIcon,
     graph: { ...DEFAULT_SETTINGS.graph, ...settings?.graph },
     repositories: { ...DEFAULT_SETTINGS.repositories, ...settings?.repositories },
     diff: migrateDiff({
