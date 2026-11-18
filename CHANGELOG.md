@@ -6,6 +6,8 @@ All notable changes to NoBlame are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-18
+
 ### Fixed
 
 - The app icon chosen in Settings now shows on the Windows taskbar when NoBlame was installed
