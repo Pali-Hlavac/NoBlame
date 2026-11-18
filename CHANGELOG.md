@@ -6,6 +6,8 @@ All notable changes to NoBlame are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-18
+
 ### Added
 
 - M1 scaffold: Cargo workspace (`crates/git-core` without Tauri, `crates/repo-gen`,
