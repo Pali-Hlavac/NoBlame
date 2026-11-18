@@ -23,17 +23,20 @@ pub enum ThemePreference {
     Dark,
 }
 
-/// Which of the app's two icons the windows show (Settings → Appearance).
+/// Which of the app's icons the windows show (Settings → Appearance). Saved settings from
+/// before the names changed say `golden` and `noBackground`; they still load.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
 pub enum AppIcon {
-    /// The finch on a golden background, the installed program's icon.
+    /// The finch on a cream background, the installed program's icon.
     #[default]
-    Golden,
+    #[serde(alias = "golden")]
+    Cream,
     /// The finch on a blue and violet background.
     Vibrant,
-    /// The finch alone, without a background.
-    NoBackground,
+    /// The finch alone, without a background (not on macOS, where it shows as cream).
+    #[serde(alias = "noBackground")]
+    Free,
 }
 
 /// All persisted user preferences. Unknown fields are ignored and missing fields
@@ -204,6 +207,15 @@ mod tests {
         assert_eq!(settings.branches.sort, BranchSort::Name);
         assert!(!settings.jobs.show_output_window);
         assert!(settings.jobs.close_output_on_success);
+    }
+
+    #[test]
+    fn icons_saved_under_their_old_names_still_load() {
+        let icon = |json: &str| serde_json::from_str::<Settings>(json).unwrap().app_icon;
+        assert_eq!(icon(r#"{ "appIcon": "golden" }"#), AppIcon::Cream);
+        assert_eq!(icon(r#"{ "appIcon": "noBackground" }"#), AppIcon::Free);
+        assert_eq!(icon(r#"{ "appIcon": "free" }"#), AppIcon::Free);
+        assert_eq!(icon("{}"), AppIcon::Cream);
     }
 
     #[test]

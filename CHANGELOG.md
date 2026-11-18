@@ -249,9 +249,11 @@ All notable changes to NoBlame are documented here. The format follows
   closed (position, size, maximized; moved back onto a screen if that monitor is gone), each
   kind of task window at its last size, and each repository shows the graph filter it had in
   the main window.
-- A second app icon (M9 slice 1): Settings → Appearance → **App icon**, Golden or Vibrant,
-  changes the icon of every NoBlame window at once (taskbar, Alt+Tab, title bars) with the
-  hand-made picture for each size on Windows. The installed program keeps the golden icon.
+- App icons (M9 slice 1): Settings → Appearance → **App icon**, Cream, Vibrant or Free (no
+  background), changes the icon of every NoBlame window at once (taskbar, Alt+Tab, title bars)
+  with the hand-made picture for each size on Windows. On macOS, Cream or Vibrant becomes the
+  Dock icon while NoBlame runs. The installed program keeps the cream icon. Each system has its
+  own pictures (`assets/logo/windows`, `mac`, `linux`); macOS gets the owner's `.icns`.
 - Clone and Create repository windows (M8 slice 6): `noblame clone <folder>` shows the Clone
   form cloning into a new folder there, git's output while it runs, then **Open in NoBlame**;
   `noblame init <folder>` says what is there first (a new folder, files that stay, a repository

@@ -101,22 +101,27 @@ goldfinch-yellow focus ring).
 
 ## App icon
 
-Settings → Appearance → **App icon**: Golden (default, the installed program's icon), Vibrant or
-No background (the finch alone, `noblame_nobg.*`, owner 2026-11-17).
-`update_settings` gives every open window the new icon when the choice changes, and new windows
-open with it (`src-tauri/src/windows/icon.rs`):
+Settings → Appearance → **App icon**: Cream (default, the installed program's icon), Vibrant or
+Free (the finch alone, without a background; Windows and Linux only). The names were Golden and
+No background before 0.2.0; saved settings with the old names still load (`serde` aliases).
+`update_settings` applies a new choice at once, and new windows open with it
+(`src-tauri/src/windows/icon/`):
 
-- Windows: both variants' hand-made `.ico` files are built into the executable
-  (`include_bytes!`). For each window the picture drawn for the size Windows asks for is made
-  into an icon (`CreateIconFromResourceEx`), the big one (`SM_CXICON`: taskbar, Alt+Tab) and the
-  small one (`SM_CXSMICON`: the title bar of task windows), at the window's DPI, and set with
-  `WM_SETICON` on the main thread. The icons made are kept for the app's life (a handful).
-- Linux: the window icon from the `.ico`'s 256 px PNG (`tauri::image::Image`, feature
-  `image-png`).
-- macOS: windows have no icon; the Dock shows the installed one.
+- Windows (`win32.rs`, `ico.rs`): the hand-made `.ico` of each variant is built into the
+  executable (`include_bytes!`). For each window the picture drawn for the size Windows asks for
+  is made into an icon (`CreateIconFromResourceEx`), the big one (`SM_CXICON`: taskbar, Alt+Tab)
+  and the small one (`SM_CXSMICON`: the title bar of task windows), at the window's DPI, and set
+  with `WM_SETICON` on the main thread. The icons made are kept for the app's life (a handful).
+- Linux (`linux.rs`): the window icon, a 256 px PNG of the variant (`tauri::image::Image`,
+  feature `image-png`).
+- macOS (`macos.rs`): windows have no icon, so the variant becomes the Dock icon while NoBlame
+  runs (`NSApplication.setApplicationIconImage`, from the owner's `.icns`). Settings offers only
+  Cream and Vibrant there, previewed with the macOS pictures; a saved Free shows as Cream.
+  Type-checked for `aarch64-apple-darwin` only; not yet run on a Mac.
 
-What stays golden: the executable's own icon (Explorer, the Start menu, shortcuts, pinned
-taskbar buttons, installers), set at build time from `src-tauri/icons/`.
+What stays cream: the installed program's own icon (Explorer, the Start menu, shortcuts, pinned
+taskbar buttons, installers; Finder and the Dock while NoBlame is closed), set at build time
+from `src-tauri/icons/`.
 
 ## About
 
@@ -128,14 +133,22 @@ typed (`features/about/lib/notices.ts`).
 
 ## Logo
 
-The finch on a branch, by the owner (2026-10-29): `assets/logo/noblame.png` (1024 px master)
-and `assets/logo/noblame.ico` (hand-made, 16 to 256 px). `pnpm icons` generates the platform
-icons in `src-tauri/icons/` from the PNG (including `icon.icns` for macOS), then
-`scripts/icons.mjs` puts the hand-made `.ico` in place of the generated one and copies the 256 px
-icon to `public/icon.png` (the page icon). The vibrant variant (owner, 2026-11-17):
-`assets/logo/noblame_vibrant.png` and `noblame_vibrant.ico`; `scripts/icons.mjs` copies the
-`.ico` to `src-tauri/icons/vibrant.ico` and its 256 px PNG to `public/icon-vibrant.png` (the
-Settings preview); the same for `noblame_nobg.ico` (`nobg.ico`, `icon-nobg.png`). The Affinity
+The finch on a branch, by the owner (2026-10-29; per-system icons 2026-11-18). The owner's
+pictures are in one folder per system, each with the variants `cream`, `vibrant` and `free`:
+
+- `assets/logo/windows/*.ico`: hand-made, every size drawn (16 to 256 px).
+- `assets/logo/mac/*.icns` (cream and vibrant only; 128 to 1024 px, the rounded square inside
+  Apple's margin), with their 1024 px sources `source_*.png`.
+- `assets/logo/linux/*.png`: 1024 px, transparent.
+
+`pnpm icons` (`scripts/icons.mjs`) runs `tauri icon` on `linux/cream.png` for every generated
+size in `src-tauri/icons/` (the bundles' PNGs, the Windows Store logos), makes 256 px
+`linux-vibrant.png` and `linux-free.png` the same way, then puts the hand-made `.ico` and `.icns`
+files over the generated ones (`icon.ico`, `vibrant.ico`, `free.ico`, `icon.icns`,
+`vibrant.icns`) and writes the Settings previews to `public/icon-*.png`. A Rust test
+(`windows/icon/mod.rs`) fails when the `.ico` and `.icns` files in `src-tauri/icons/` differ from
+the hand-made ones. The PNGs at the top of `assets/logo/` (`noblame*.png`) are earlier copies of
+the Linux pictures. The Affinity
 Photo source (`no_blame_icon.afphoto`) stays out of the
 repository. The songbird alone on a transparent background
 (`assets/logo/songbird.png`, 1254 × 1254) is shown in the title bar (28 px high, so it is easy to

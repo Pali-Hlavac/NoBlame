@@ -1396,13 +1396,22 @@ Slice 6 done (2026-11-17): release workflow, auto-update (ADR 0017), the release
 
 **M9 so far:** everything but the logo's artwork, which is the owner's (see "Final logo" above).
 
+Icons per system (2026-11-18): the owner's pictures moved into `assets/logo/windows`, `mac` and
+`linux`; the variants are named Cream, Vibrant and Free (old saved names still load). macOS
+uses the owner's `.icns` for the bundle, and the chosen icon (Cream or Vibrant; Settings offers
+only those there) becomes the Dock icon while NoBlame runs (`windows/icon/macos.rs`,
+type-checked for `aarch64-apple-darwin`, not yet run on a Mac). Linux window icons come from the
+Linux pictures. `src-tauri/src/windows/icon.rs` became a folder (one file per system).
+
 - [x] Third-party licence notices shipped with the installers (slice 5): `cargo-about`, the
       shipped npm packages' licence files, and two-face's grammar listing, in
       `src-tauri/resources/third-party-notices.txt`
 - [x] A second app icon, chosen in Settings (slice 1); a third without a background (owner,
-      2026-11-17)
+      2026-11-17); named Cream, Vibrant and Free, per-system pictures, the macOS Dock icon
+      (2026-11-18)
 - [~] Final logo: the owner's painted finch and songbird are in (2026-10-29), and the vibrant
-  variant's Windows icon (2026-11-17). Still to do: refined finch-on-a-branch artwork, small-size variants (16/24/32 px), monochrome version for the macOS menu bar and Linux symbolic icons, installer and website artwork
+  variant's Windows icon (2026-11-17); the owner's icons for each system, `.ico`, `.icns` and
+  PNG (2026-11-18). Still to do: refined finch-on-a-branch artwork, small-size variants (16/24/32 px), monochrome version for the macOS menu bar and Linux symbolic icons, installer and website artwork
 - [x] Keyboard shortcuts everywhere; accessibility pass (focus, ARIA, contrast; slice 3)
 - [x] Remember window sizes and filters (open tabs and layout are restored from M2.5; slice 2)
 - [x] E2E smoke tests: open repo, browse graph, commit, branch, merge — ADR 0016 (slice 4)

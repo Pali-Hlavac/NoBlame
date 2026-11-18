@@ -540,13 +540,20 @@ export type AppError = {
 	hint: string | null,
 };
 
-/**  Which of the app's two icons the windows show (Settings → Appearance). */
+/**
+ *  Which of the app's icons the windows show (Settings → Appearance). Saved settings from
+ *  before the names changed say `golden` and `noBackground`; they still load.
+ */
 export type AppIcon = 
-/**  The finch on a golden background, the installed program's icon. */
+/**  The finch on a cream background, the installed program's icon. */
+"cream" | 
+/**  The finch on a cream background, the installed program's icon. */
 "golden" | 
 /**  The finch on a blue and violet background. */
 "vibrant" | 
-/**  The finch alone, without a background. */
+/**  The finch alone, without a background (not on macOS, where it shows as cream). */
+"free" | 
+/**  The finch alone, without a background (not on macOS, where it shows as cream). */
 "noBackground";
 
 /**  Name, version and platform of the running app, shown in the status bar and About dialog. */

@@ -225,9 +225,11 @@ From left to right:
 - **Theme**: choose System (follow your operating system), Light or Dark. NoBlame remembers your
   choice.
 
-NoBlame has three icons: golden, vibrant (blue), and the finch alone without a background.
-Choose one in **Settings → Appearance → App icon**. Every NoBlame window changes at once: the taskbar button, Alt+Tab and the title bar of
-task windows. The installed program, its shortcuts and the macOS Dock keep the golden icon.
+NoBlame has three icons: cream, vibrant (blue), and free, the finch alone without a background.
+Choose one in **Settings → Appearance → App icon**. On Windows every NoBlame window changes at
+once: the taskbar button, Alt+Tab and the title bar of task windows. On a Mac you can choose
+cream or vibrant, and the Dock shows it while NoBlame runs. The installed program and its
+shortcuts keep the cream icon, and so does the Dock when NoBlame is closed.
 
 ## About NoBlame
 
