@@ -1,5 +1,6 @@
 //! Windows asks a window for a big icon (taskbar, Alt+Tab) and a small one (title bar), each
-//! in its own size for the display's scaling; both come from the `.ico`'s own pictures.
+//! in its own size for the display's scaling; both come from the `.ico`'s own pictures. The
+//! taskbar shows them only when the window has its own app id (`taskbar.rs`).
 
 use std::collections::HashMap;
 use std::sync::{Mutex, OnceLock};
@@ -13,6 +14,7 @@ use windows_sys::Win32::UI::WindowsAndMessaging::{
 
 use super::AppIcon;
 use super::ico::{best_image, ico, ico_images};
+use super::taskbar;
 
 /// The format version `CreateIconFromResourceEx` expects.
 const ICON_FORMAT_VERSION: u32 = 0x0003_0000;
@@ -56,7 +58,11 @@ fn icon_handle(icon: AppIcon, size: i32) -> Option<isize> {
 pub fn apply(window: &WebviewWindow, icon: AppIcon) -> tauri::Result<()> {
     // Kept as a number to cross to the main thread, which owns the window.
     let hwnd = window.hwnd()?.0 as isize;
+    let identity = taskbar::identity(window, icon);
     window.run_on_main_thread(move || {
+        if let Err(error) = taskbar::set(windows::Win32::Foundation::HWND(hwnd as _), &identity) {
+            tracing::warn!(%error, "could not set the window's taskbar identity");
+        }
         let hwnd = hwnd as windows_sys::Win32::Foundation::HWND;
         // SAFETY: plain Win32 calls on a window of this process, on its own thread.
         unsafe {

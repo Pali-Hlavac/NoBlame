@@ -18,6 +18,10 @@ mod ico;
 #[path = "win32.rs"]
 mod platform;
 
+#[cfg(windows)]
+#[allow(unsafe_code)]
+mod taskbar;
+
 #[cfg(all(not(windows), not(target_os = "macos")))]
 #[path = "linux.rs"]
 mod platform;

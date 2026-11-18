@@ -229,7 +229,10 @@ NoBlame has three icons: cream, vibrant (blue), and free, the finch alone withou
 Choose one in **Settings → Appearance → App icon**. On Windows every NoBlame window changes at
 once: the taskbar button, Alt+Tab and the title bar of task windows. On a Mac you can choose
 cream or vibrant, and the Dock shows it while NoBlame runs. The installed program and its
-shortcuts keep the cream icon, and so does the Dock when NoBlame is closed.
+shortcuts keep the cream icon, and so does the Dock when NoBlame is closed. If NoBlame is
+pinned to the Windows taskbar with one icon and you choose another, the running NoBlame gets a
+button of its own next to the pinned one; pin it again to keep the new icon. On Linux, many
+desktops (GNOME, KDE) show the installed icon whatever you choose.
 
 ## About NoBlame
 

@@ -6,6 +6,12 @@ All notable changes to NoBlame are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- The app icon chosen in Settings now shows on the Windows taskbar when NoBlame was installed
+  and started from its shortcut; it showed the cream icon whatever was chosen. Windows showing
+  Vibrant or Free get a taskbar identity of their own, so pinning one keeps its icon.
+
 ## [0.2.0] - 2026-11-18
 
 ### Added

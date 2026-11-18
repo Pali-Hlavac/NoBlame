@@ -112,8 +112,21 @@ No background before 0.2.0; saved settings with the old names still load (`serde
   is made into an icon (`CreateIconFromResourceEx`), the big one (`SM_CXICON`: taskbar, Alt+Tab)
   and the small one (`SM_CXSMICON`: the title bar of task windows), at the window's DPI, and set
   with `WM_SETICON` on the main thread. The icons made are kept for the app's life (a handful).
+- The taskbar (`taskbar.rs`): the installer gives NoBlame's shortcuts an app id (the bundle
+  identifier), a program started from them carries it, and the taskbar then shows the
+  shortcut's icon, ignoring `WM_SETICON` (found in 0.2.0: switching did nothing once
+  installed; a Vite run has no app id). So each window gets an explicit
+  `PKEY_AppUserModel_ID`: the identifier for Cream (same button as a pinned NoBlame),
+  `<identifier>.vibrant` / `.free` otherwise, with relaunch properties (command, name, and the
+  variant's `.ico` written to `<cache>/taskbar-icons/`) so that pinning such a window pins it
+  with that icon. Checked by starting the build through a shortcut carrying the app id and
+  switching live (taskbar screenshots); pinning not tried. A NoBlame pinned with one icon and
+  running with another shows two buttons.
 - Linux (`linux.rs`): the window icon, a 256 px PNG of the variant (`tauri::image::Image`,
-  feature `image-png`).
+  feature `image-png`). Desktops that match the window to an installed `.desktop` file (GNOME,
+  KDE by default) show that file's icon instead, and Wayland has no window icons in general use;
+  so on Linux the choice shows mainly on X11 desktops using window icons (XFCE). Not run on
+  Linux yet.
 - macOS (`macos.rs`): windows have no icon, so the variant becomes the Dock icon while NoBlame
   runs (`NSApplication.setApplicationIconImage`, from the owner's `.icns`). Settings offers only
   Cream and Vibrant there, previewed with the macOS pictures; a saved Free shows as Cream.

@@ -1403,6 +1403,11 @@ only those there) becomes the Dock icon while NoBlame runs (`windows/icon/macos.
 type-checked for `aarch64-apple-darwin`, not yet run on a Mac). Linux window icons come from the
 Linux pictures. `src-tauri/src/windows/icon.rs` became a folder (one file per system).
 
+Fixed after 0.2.0 (2026-11-18): installed and started from its shortcut, NoBlame's taskbar button
+kept the cream icon (the shortcut's app id wins over `WM_SETICON`); windows showing Vibrant or
+Free now get their own app id and relaunch icon (`windows/icon/taskbar.rs`). Checked with a
+shortcut carrying the app id and live switches; pinning not tried.
+
 - [x] Third-party licence notices shipped with the installers (slice 5): `cargo-about`, the
       shipped npm packages' licence files, and two-face's grammar listing, in
       `src-tauri/resources/third-party-notices.txt`
