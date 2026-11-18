@@ -19,5 +19,5 @@ accepted = [
 # Only what ends up in the app.
 ignore-build-dependencies = true
 ignore-dev-dependencies = true
-# Our own crates have no licence yet (docs/roadmap.md).
+# Our own crates (GPL-3.0-or-later, LICENSE) are not third-party notices.
 private = { ignore = true }

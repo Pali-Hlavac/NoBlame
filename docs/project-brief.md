@@ -93,8 +93,8 @@ Vitest + Testing Library for the frontend; CI on Windows, Linux and macOS.
 ### Licensing
 
 Git Extensions (GPLv3) and TortoiseGit (GPLv2) are inspiration for behaviour and UX only; no
-code is copied. The licence of every dependency is checked before it is added. NoBlame's own
-licence is not chosen yet (open question in the roadmap).
+code is copied. The licence of every dependency is checked before it is added. NoBlame itself
+is licensed under the GNU GPL, version 3 or later (`LICENSE`).
 
 ## Documentation
 

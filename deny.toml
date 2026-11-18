@@ -53,7 +53,7 @@ allow = [
   "Zlib",
 ]
 confidence-threshold = 0.9
-# Our own crates have no licence yet (docs/roadmap.md, open question) and are not published.
+# Our own crates (GPL-3.0-or-later, LICENSE) are not published; the list is for dependencies.
 private = { ignore = true }
 
 [bans]

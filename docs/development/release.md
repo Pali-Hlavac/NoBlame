@@ -8,9 +8,10 @@ before publishing. Decisions: ADR [0017](../adr/0017-auto-update.md) (updates) a
 
 These cannot be undone cheaply, so they come first:
 
-- **Licence** of NoBlame itself (open question in the roadmap): add it as `LICENSE`, the
-  `license` field in `Cargo.toml` (`[workspace.package]`) and `package.json`, and drop
-  `private = { ignore = true }` from `deny.toml` and `scripts/licences/about.toml` if needed.
+- **Licence** of NoBlame itself: done, GPL-3.0-or-later (`LICENSE`, the `license` field in
+  `Cargo.toml` `[workspace.package]`, `package.json` and `tauri.conf.json`, a line in About).
+  `deny.toml` and `scripts/licences/about.toml` keep ignoring our own crates: their lists are
+  for dependencies.
 - **Identifier**: `com.noblame.client` in `src-tauri/tauri.conf.json` is a placeholder. The
   settings folder is named after it, so changing it after release moves everyone's settings.
 - **GitHub repository**: the workflows (`.github/workflows/`) run there, and the update feed

@@ -8,7 +8,8 @@ version = "0.2.1"
 edition = "2024"
 rust-version = "1.88"
 authors = ["NoBlame contributors"]
-# No licence has been chosen yet (open question in docs/roadmap.md).
+# GNU GPL 3.0 or later; the text is in LICENSE.
+license = "GPL-3.0-or-later"
 publish = false
 
 [workspace.dependencies]

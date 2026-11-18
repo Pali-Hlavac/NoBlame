@@ -54,7 +54,7 @@ Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 > folder for tests and E2E smoke tests (`pnpm e2e`, ADR 0016; slice 4); third-party notices
 > generated, shipped and shown in About (`pnpm licences`; slice 5); updates for builds with an
 > update key, the release workflow and guide (ADR 0017; slice 6). M9 is done but for the logo's
-> artwork (the owner's); before the first release: licence, identifier, keys (`release.md`).
+> artwork (the owner's); before the first release: identifier, keys (`release.md`). Licence: GPL-3.0-or-later.
 > Parts marked _(later)_ below are planned and do not exist yet.
 
 ## Architecture

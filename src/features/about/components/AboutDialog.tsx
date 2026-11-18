@@ -52,6 +52,10 @@ export function AboutDialog() {
             <GitInfoRows />
           </dl>
         )}
+        <p className="text-center text-xs text-muted-foreground">
+          Free software under the GNU General Public License, version 3 or later. It comes with no
+          warranty.
+        </p>
         <UpdateCheck />
         <Button
           variant="outline"

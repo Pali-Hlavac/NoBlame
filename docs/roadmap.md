@@ -92,7 +92,7 @@ Next: M2. Start with the spike (history walk with `gix` + commit-graph on
 
 #### Open questions (owner decisions)
 
-- **Licence**: none chosen yet (`publish = false`, no `license` field).
+- **Licence**: decided 2026-11-18, GPL-3.0-or-later (`LICENSE`, the `license` fields).
 - **Bundle identifier**: `com.noblame.client` is a placeholder; changing it after release moves
   the settings folder.
 - **GitHub repository**: needed for CI; the workflow is ready in `.github/workflows/ci.yml`.

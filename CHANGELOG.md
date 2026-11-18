@@ -6,6 +6,11 @@ All notable changes to NoBlame are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- NoBlame is free software under the GNU General Public License, version 3 or later
+  (`LICENSE`); About says so.
+
 ## [0.2.1] - 2026-11-18
 
 ### Fixed
