@@ -269,3 +269,7 @@ Ideas from the owner, newest last, with where each one is planned.
   - The Commit module: little height for the two lists, the bottom left part squeezes them;
     in the popped-out module a draggable splitter to see more of the paths; "impress me" → done (splitters, a compact and foldable message area).
   - A submodule's graph labels the commits the main repository's local branches record → done.
+- 2026-11-18: on Linux, GNOME and KDE show the installed `.desktop` icon whatever is chosen in
+  Settings (Wayland has no window icons in general use). For now the user guide says so. Later,
+  if nothing at run time works: choose the icon when installing (or a command that rewrites the
+  installed `.desktop` icon) → backlog, not scheduled.

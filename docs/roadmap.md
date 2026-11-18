@@ -1465,6 +1465,9 @@ The owner's idea inbox (with where each idea is planned) is in
 [design/workbench.md](design/workbench.md#ideas-inbox).
 
 - [ ] Pop out any dock panel into its own window (second monitor)
+- [ ] Linux: the app icon chosen in Settings rarely shows (GNOME and KDE use the installed
+      `.desktop` icon; Wayland). If nothing at run time works, let the installer (or a command)
+      choose the installed icon (owner, 2026-11-18)
 
 - [ ] GitHub / GitLab / Azure DevOps / Bitbucket: pull requests, CI status on commits
 - [ ] Graph minimap and "branch focus" (dim everything not reachable from selected branches)
