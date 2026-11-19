@@ -1,17 +1,13 @@
 //! The remotes of an open repository: listed from a fresh read of the config (the session's
-//! copy is as it was when the repository opened), and added, edited and removed with `git
-//! remote` under the session's write lock. The file watcher reports the remote branches that
+//! copy is as it was when the repository opened), and added and removed with `git remote` under
+//! the session's write lock (the remote editor changes the rest: `remote_settings.rs`). The file watcher reports the remote branches that
 //! were renamed or deleted, which reloads the graph and the Branches module.
 
-use git_core::branch::BranchError;
-use git_core::remote::{
-    RemoteInfo, UrlKind, add_remote, remote_details, remove_remote, rename_remote, set_remote_url,
-    unset_push_url,
-};
+use git_core::remote::{RemoteInfo, add_remote, remote_details, remove_remote};
 use git_core::repo::Repository;
 use tokio_util::sync::CancellationToken;
 
-use super::remote_types::{AddRemoteRequestDto, EditRemoteRequestDto, RemoteDto};
+use super::remote_types::{AddRemoteRequestDto, RemoteDto};
 use super::service::{git, git_dir_or_work_tree};
 use crate::repository::{RepoId, RepoSessions, RepositoryError, blocking};
 
@@ -45,43 +41,6 @@ pub async fn add(
     let _writing = session.lock_writes().await;
     let cancel = CancellationToken::new();
     Ok(add_remote(&git, &dir, &request.name, &request.url, &cancel).await?)
-}
-
-/// Changes what differs: the URL, the push URL, then the name (renaming moves its branches).
-pub async fn edit(
-    sessions: &RepoSessions,
-    id: RepoId,
-    request: EditRemoteRequestDto,
-) -> Result<String, RepositoryError> {
-    let current = details(sessions, id)
-        .await?
-        .into_iter()
-        .find(|remote| remote.name == request.name)
-        .ok_or_else(|| BranchError::Rejected {
-            output: format!("There is no remote named {} any more.", request.name),
-        })?;
-    let session = sessions.get(id)?;
-    let dir = git_dir_or_work_tree(&session.repo);
-    let git = git()?;
-    let _writing = session.lock_writes().await;
-    let cancel = CancellationToken::new();
-    let name = &request.name;
-    let mut printed = Vec::new();
-    if current.url.as_deref() != Some(request.url.as_str()) {
-        printed
-            .push(set_remote_url(&git, &dir, name, UrlKind::Fetch, &request.url, &cancel).await?);
-    }
-    let push_url = request.push_url.filter(|url| !url.trim().is_empty());
-    if current.push_url != push_url {
-        printed.push(match &push_url {
-            Some(url) => set_remote_url(&git, &dir, name, UrlKind::Push, url, &cancel).await?,
-            None => unset_push_url(&git, &dir, name, &cancel).await?,
-        });
-    }
-    if request.new_name != request.name {
-        printed.push(rename_remote(&git, &dir, name, &request.new_name, &cancel).await?);
-    }
-    Ok(printed.join(""))
 }
 
 /// Removes a remote: its remote branches go and the branches tracking it lose their upstream

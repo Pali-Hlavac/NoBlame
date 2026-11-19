@@ -6,7 +6,8 @@ user names, passwords, SSH passphrases and unknown host keys in the app; **slice
 (2026-11-06)**: pull (as configured, merge, rebase, fast-forward only) and push (the current
 branch, any branch with options and force with lease, tags, deleting on a remote); **slice 8
 (2026-11-07)**: managing remotes (add, edit, remove), clone as a job, and Fetch all remotes as
-one fetch per remote, so it shows progress. The job model is
+one fetch per remote, so it shows progress; **M10 slice 1 (2026-11-19)**: the remote editor
+(General and Advanced tabs, review and save all or nothing). The job model is
 [architecture/background-jobs.md](../architecture/background-jobs.md) (ADR 0011).
 
 ## Where
@@ -112,31 +113,52 @@ refs/heads/<name>`; the remote-tracking branch goes too. A tag's **Delete on a r
   messages.
 - Needs OpenSSH 8.4 or later for ssh prompts (`SSH_ASKPASS_REQUIRE=force`).
 
-## Managing remotes
+## Managing remotes: the remote editor
 
-M5 slice 8. The **Remotes** dialog of the active repository (toolbar **Pull ▾ → Remotes…**,
-palette **Manage remotes…**, the cloud button in the Branches module, **Add a remote…** in the
-Push dialog of a repository without one) lists each remote: its name, URL, push URL when it
-differs, its remote branches here and the local branches tracking it. Passwords written into
-URLs are shown as `***`; the edit form shows the URL as configured.
+M5 slice 8, rebuilt as the remote editor in M10 (slice 1, 2026-11-19; ADR
+[0024](../adr/0024-remote-configuration-editing.md)). The **Remotes** dialog of the active
+repository (toolbar **Pull ▾ → Remotes…**, palette **Manage remotes…**, the cloud button in the
+Branches module, **Add a remote…** in the Push dialog of a repository without one) lists the
+remotes on the left (name, URL with any password as `***`, remote branches, the branches tracking
+it, a **Fetch** button) and shows the chosen one's settings on the right, in tabs. **Add
+remote…** below the list shows the form to add one.
 
-- **Add remote…**: name (`origin` when free) and URL: `git remote add -- <name> <url>`. **Fetch
-  its branches now** (on) then starts a fetch of it.
-- **Edit** (pencil): name, URL and push URL. Only what changed runs, in this order: `git remote
-set-url -- <name> <url>`, `git remote set-url --push -- <name> <url>` (an empty push URL:
-  `git config --local --unset-all remote.<name>.pushurl`), `git remote rename --no-progress --
-<old> <new>` (its remote branches move, the upstreams naming it follow). A remote with more
-  than one URL of a kind: the first is edited, the rest are counted ("1 more URL (edit those in
-  a terminal)").
-- **Remove** (bin): a confirmation names what goes from this repository (its remote branches,
-  and the local branches that lose their upstream) and the URL; nothing changes on the server.
-  Then `git remote remove -- <name>`.
-- **Fetch** (arrows): fetches that remote as a job.
-- Names are checked as git checks them (`refs/remotes/<name>/x` must be a valid reference name),
-  without spaces or a leading `-`; URLs must not be empty, start with `-` or hold control
-  characters. Anything else is git's to refuse, and the dialog shows what it said.
-- The list is read with gix from a fresh open of the repository (the session's copy of the
-  config is as it was when the tab opened). It lives under the refs' key, so a change, a fetch
+- **Add remote**: name (`origin` when free) and URL: `git remote add -- <name> <url>`. **Fetch
+  its branches now** (on) then starts a fetch of it; the new remote opens in the editor.
+- **General** tab: **Name** (renaming moves its remote branches; the branches tracking it
+  follow), **URL** (the first `remote.<name>.url`; more URLs are counted and edited in Advanced),
+  **Push URLs** (any number; with several, each push goes to all of them), **Default branch**
+  (`refs/remotes/<name>/HEAD`, chosen among its remote branches here, or not set), **When the
+  server's default branch changes** (`remote.<name>.followRemoteHEAD`; git 2.48 or later, else
+  disabled with the version needed; a value set by the user's settings is shown under it), and
+  **Remove <name>…** (a confirmation names what goes from this repository: its remote branches,
+  and the local branches that lose their upstream; then `git remote remove -- <name>`).
+- **Advanced** tab: every `remote.<name>.*` key, each with this repository's values (several per
+  key, in order, each editable or removable; **Set in this repository** / **Add a value**) and
+  the values from the user's or the system's settings, read-only with their file. **Add a
+  setting** takes a name (letters, digits, `-`) and a value. **Address rewrites**
+  (`url.<base>.insteadOf` / `pushInsteadOf`) are listed with their file, marked when they apply
+  to the remote's URLs; they are changed in Settings → Git settings.
+- **Nothing is written while editing.** The footer counts the changes; **Discard** drops them;
+  **Review and save…** asks the backend for the commands (`preview_remote_changes`) and lists
+  them (`git config --local --add remote.origin.pushurl …`, `git remote set-head origin main`,
+  `git remote rename origin github`). **Save** runs them (`apply_remote_changes`) under the
+  session's write lock: the keys, then the default branch, then the name. When one fails, the
+  ones before are undone and the message says so ("Nothing was changed: the settings already
+  saved were put back."). Choosing another remote, adding one or closing the dialog with unsaved
+  changes asks first (**Discard changes**).
+- **Checked first**: names as git checks them (and not one another remote has), URLs not empty
+  and not starting with `-`, push URLs not empty. The backend refuses when the repository's
+  values are not what the editor showed ("… changed since the editor read it"): another program
+  changed them.
+- **Passwords stay in the backend**: a password in a URL is shown as `ada:***@`, a header value
+  (`http.extraHeader`) as `Authorization: ***`. A value saved as shown keeps its secret; a new
+  value with `***` is refused (type the password again). The M5 edit form received URLs as
+  configured; it is gone.
+- Only the repository's own settings (`--local`) are written.
+- The settings are read once when a remote is chosen (`get_remote_settings`: every scope with
+  `--show-origin --show-scope`), not on focus, and afresh after saving or while nothing is
+  changed when the refs change. The remotes list lives under the refs' key, so a change, a fetch
   or the watcher refreshes it, the Push dialog's remotes and the Branches module.
 
 ## Clone
@@ -236,14 +258,25 @@ M5 slice 6. The **…** menu of a repository and its quick buttons
   `list_remotes`), `target.rs` (opening the repository of a job). `remote/remotes.rs`
   (`upstream_push`; test `finds_where_the_current_branch_pushes`).
 - `crates/git-core/src/remote/manage.rs` (`remote_details`, `add_remote`, `rename_remote`,
-  `remove_remote`, `set_remote_url`, `unset_push_url`), `validate.rs`, `clone.rs`
+  `remove_remote`, `set_remote_url`, `unset_push_url`), `settings.rs` (`plan_remote_edit`,
+  `describe_remote_edit`, `apply_remote_edit`, `remote_head`, `remote_branch_names`),
+  `crates/git-core/src/config/` (`scoped.rs` every scope with its file, `plan.rs` the change
+  plan, applying and undoing it, `secret.rs` hiding passwords and header values), `validate.rs`, `clone.rs`
   (`check_clone_target`, `clone_command`, `clone_hint`, `remove_partial_clone`), `fetch.rs`
-  (`fetch_commands`, `fetch_all_remotes`). Tests: `tests/remote_manage.rs`, `tests/remote_clone.rs`.
-- `src-tauri/src/branches/remotes.rs`, `remote_commands.rs`, `remote_types.rs`;
+  (`fetch_commands`, `fetch_all_remotes`). Tests: `tests/remote_manage.rs`, `tests/remote_clone.rs`,
+  `tests/remote_settings.rs` (several keys and push URLs, default branch and rename at once,
+  hidden password kept, stale values refused, undone when a write or the rename fails).
+- `src-tauri/src/branches/remotes.rs`, `remote_commands.rs`, `remote_types.rs`,
+  `remote_settings.rs` and `remote_settings_types.rs` (the editor's commands);
   `src-tauri/src/jobs/clone.rs`, `steps.rs` (several commands in one job).
-- `src/features/remotes/` (`RemotesDialog`, `RemoteForm`, `RemoveRemoteDialog`, `CloneDialog`,
-  `CloneOptions`, `lib/clone.ts`, `lib/remotes.ts`, `openRemotes`, `openClone`); tests
-  `RemotesDialog.test.tsx`, `CloneDialog.test.tsx`, `lib/clone.test.ts`.
+- `src/features/remotes/` (`RemotesDialog`, `RemoteList`, `RemoteForm` (adding),
+  `RemoveRemoteDialog`, `CloneDialog`, `CloneOptions`, `lib/clone.ts`, `lib/remotes.ts`,
+  `openRemotes`, `openClone`); the editor in `components/editor/` (`RemoteEditor`, `EditorTabs`,
+  `GeneralTab`, `AdvancedTab`, `RewritesList`, `SettingRow`, `ValuesEditor`, `ReviewDialog`) and
+  `lib/settings/` (`registry.ts` every setting with its tab, help, key and synonyms; `draft.ts`
+  the unsaved changes; `problems.ts`; `rewrites.ts`), `api/remoteSettings.ts`; tests
+  `RemotesDialog.test.tsx`, `editor/RemoteEditor.test.tsx`, `lib/settings/draft.test.ts`,
+  `CloneDialog.test.tsx`, `lib/clone.test.ts`.
 - `src/features/jobs/components/OutputWindow.tsx`, `OutputConsole.tsx`, `store/output.ts`,
   `lib/output.ts` (the output window); tests `OutputWindow.test.tsx`, `lib/output.test.ts`.
 - `src/features/jobs/` (`startFetch`, `startPull`, `startPush`, `startPushCurrent`, `startJob`,

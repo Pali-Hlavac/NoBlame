@@ -52,7 +52,8 @@ pub struct ConfigFileDto {
     pub entries: Vec<ConfigEntryDto>,
 }
 
-fn config_error(error: ConfigError) -> AppError {
+/// A settings failure as the window shows it.
+pub(crate) fn config_error(error: ConfigError) -> AppError {
     match error {
         ConfigError::Git(error) => GitEnvError::from(error).into(),
         ConfigError::Rejected { output } => AppError::new(ErrorCode::GitFailed, output),

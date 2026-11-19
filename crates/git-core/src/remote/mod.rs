@@ -1,7 +1,8 @@
 //! Talking to remotes: fetch (`fetch.rs`), pull (`pull.rs`), push (`push.rs`), clone
 //! (`clone.rs`), the remote names and where the current branch pushes (`remotes.rs`), adding,
 //! renaming and removing remotes (`manage.rs`), reading git's progress lines (`progress.rs`) and
-//! what an askpass prompt asks for (`prompt.rs`), hiding credentials in URLs (`redact.rs`).
+//! what an askpass prompt asks for (`prompt.rs`), hiding credentials in URLs (`redact.rs`),
+//! saving the remote editor's changes all or nothing (`settings.rs`).
 //! These commands run as background jobs: the caller streams the command
 //! ([`GitCommand::stream`](crate::cli::GitCommand::stream)), feeds each line to
 //! [`parse_progress`] and keeps the rest as the job's log.
@@ -15,6 +16,7 @@ mod pull;
 mod push;
 mod redact;
 mod remotes;
+mod settings;
 mod validate;
 
 pub use clone::{
@@ -38,4 +40,8 @@ pub use push::{
 };
 pub use redact::redact_credentials;
 pub use remotes::{UpstreamPush, remote_names, upstream_push};
+pub use settings::{
+    HeadChange, RemoteEdit, RemoteEditPlan, apply_remote_edit, describe_remote_edit,
+    plan_remote_edit, remote_branch_names, remote_head,
+};
 pub use validate::{validate_remote_name, validate_url};

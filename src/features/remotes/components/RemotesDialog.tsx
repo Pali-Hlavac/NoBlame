@@ -1,12 +1,10 @@
-import { PencilIcon, PlusIcon, RefreshCwIcon, Trash2Icon } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import { startFetch, startJob } from "@/features/jobs";
 import { repositoryName, useRepositoryPath } from "@/features/repositories";
+import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { LoadingState } from "@/shared/components/LoadingState";
-import type { RemoteDto } from "@/shared/ipc/bindings";
-import { Button } from "@/shared/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -16,11 +14,13 @@ import {
 } from "@/shared/ui/dialog";
 
 import { useRemoteDetails } from "../api/remotes";
-import { branchCount, namedList } from "../lib/remotes";
+import { RemoteEditor } from "./editor/RemoteEditor";
 import { RemoteForm } from "./RemoteForm";
+import { RemoteList } from "./RemoteList";
 import { RemoveRemoteDialog } from "./RemoveRemoteDialog";
 
-type View = { kind: "list" } | { kind: "add" } | { kind: "edit"; remote: RemoteDto };
+/** The right side: a remote's editor, or the form adding one. */
+type Pane = { kind: "remote"; name: string } | { kind: "add" };
 
 interface RemotesDialogProps {
   repoId: number;
@@ -29,46 +29,50 @@ interface RemotesDialogProps {
   onClose: () => void;
 }
 
-/** “Remotes”: where the repository fetches from and pushes to; add, edit, remove, fetch. */
+/** “Remotes”: the remotes on the left, the chosen one's settings on the right. */
 export function RemotesDialog({ repoId, adding = false, onClose }: RemotesDialogProps) {
   const remotes = useRemoteDetails(repoId);
   const path = useRepositoryPath(repoId);
-  const [view, setView] = useState<View>(adding ? { kind: "add" } : { kind: "list" });
-  const [removing, setRemoving] = useState<RemoteDto | null>(null);
-  const names = (remotes.data ?? []).map((remote) => remote.name);
+  const [chosen, setChosen] = useState<Pane | null>(adding ? { kind: "add" } : null);
+  const [dirty, setDirty] = useState(false);
+  const [discarding, setDiscarding] = useState<(() => void) | null>(null);
+  const [removing, setRemoving] = useState<string | null>(null);
+  const list = remotes.data ?? [];
+  const names = list.map((remote) => remote.name);
   const where = path === undefined ? "the repository" : repositoryName(path);
+  // A removed or renamed remote falls back to the first one; none: the form to add one.
+  const pane: Pane =
+    chosen?.kind === "add" || (chosen && names.includes(chosen.name))
+      ? chosen
+      : list[0]
+        ? { kind: "remote", name: list[0].name }
+        : { kind: "add" };
+
+  /** Runs `action`, asking first when the editor has unsaved changes. */
+  const leave = (action: () => void) => {
+    if (dirty) setDiscarding(() => action);
+    else action();
+  };
+  const onDirtyChange = useCallback((value: boolean) => {
+    setDirty(value);
+  }, []);
+  const removed = list.find((remote) => remote.name === removing);
 
   return (
     <Dialog
       open
       onOpenChange={(open) => {
-        if (!open) onClose();
+        if (!open) leave(onClose);
       }}
     >
-      <DialogContent className="max-w-xl">
+      <DialogContent className="flex h-[min(44rem,85vh)] max-w-5xl flex-col">
         <DialogHeader>
-          <DialogTitle>
-            {view.kind === "add"
-              ? "Add a remote"
-              : view.kind === "edit"
-                ? `Edit ${view.remote.name}`
-                : `Remotes of ${where}`}
-          </DialogTitle>
+          <DialogTitle>Remotes of {where}</DialogTitle>
           <DialogDescription>
             Remotes are the other copies of {where} that you fetch from, pull from and push to.
           </DialogDescription>
         </DialogHeader>
-        {view.kind !== "list" ? (
-          <RemoteForm
-            key={view.kind === "edit" ? view.remote.name : "add"}
-            repoId={repoId}
-            remote={view.kind === "edit" ? view.remote : undefined}
-            taken={names}
-            onDone={() => {
-              setView({ kind: "list" });
-            }}
-          />
-        ) : remotes.error ? (
+        {remotes.error ? (
           <ErrorState
             error={remotes.error}
             title="Could not read the remotes"
@@ -77,130 +81,93 @@ export function RemotesDialog({ repoId, adding = false, onClose }: RemotesDialog
         ) : !remotes.data ? (
           <LoadingState label="Reading remotes…" />
         ) : (
-          <>
-            {remotes.data.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No remotes yet. Add one to fetch, pull and push.
-              </p>
-            ) : (
-              <ul aria-label="Remotes" className="flex max-h-80 flex-col gap-2 overflow-auto">
-                {remotes.data.map((remote) => (
-                  <RemoteItem
-                    key={remote.name}
-                    remote={remote}
-                    onFetch={
-                      path === undefined
-                        ? undefined
-                        : () => {
-                            startJob(
-                              startFetch({
-                                path,
-                                target: { type: "remote", name: remote.name },
-                                prune: false,
-                              }),
-                              "fetch",
-                            );
-                          }
+          <div className="grid min-h-0 flex-1 grid-cols-[15rem_1fr] gap-4">
+            <RemoteList
+              remotes={list}
+              selected={pane.kind === "remote" ? pane.name : null}
+              onSelect={(name) => {
+                if (pane.kind !== "remote" || pane.name !== name) {
+                  leave(() => {
+                    setChosen({ kind: "remote", name });
+                  });
+                }
+              }}
+              onAdd={() => {
+                leave(() => {
+                  setChosen({ kind: "add" });
+                });
+              }}
+              onFetch={
+                path === undefined
+                  ? undefined
+                  : (name) => {
+                      startJob(
+                        startFetch({ path, target: { type: "remote", name }, prune: false }),
+                        "fetch",
+                      );
                     }
-                    onEdit={() => {
-                      setView({ kind: "edit", remote });
-                    }}
-                    onRemove={() => {
-                      setRemoving(remote);
-                    }}
-                  />
-                ))}
-              </ul>
-            )}
-            <div className="flex justify-between gap-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setView({ kind: "add" });
-                }}
-              >
-                <PlusIcon aria-hidden />
-                Add remote…
-              </Button>
-              <Button onClick={onClose}>Close</Button>
+              }
+            />
+            <div className="flex min-h-0 min-w-0 flex-col">
+              {pane.kind === "add" ? (
+                <RemoteForm
+                  repoId={repoId}
+                  taken={names}
+                  onAdded={(name) => {
+                    setChosen({ kind: "remote", name });
+                  }}
+                  onCancel={
+                    list.length > 0
+                      ? () => {
+                          setChosen(null);
+                        }
+                      : undefined
+                  }
+                />
+              ) : (
+                <RemoteEditor
+                  key={pane.name}
+                  repoId={repoId}
+                  name={pane.name}
+                  otherRemotes={names.filter((name) => name !== pane.name)}
+                  onDirtyChange={onDirtyChange}
+                  onRenamed={(name) => {
+                    setChosen({ kind: "remote", name });
+                  }}
+                  onRemove={() => {
+                    setRemoving(pane.name);
+                  }}
+                />
+              )}
             </div>
-          </>
+          </div>
         )}
-        {removing && (
+        {removed && (
           <RemoveRemoteDialog
             repoId={repoId}
-            remote={removing}
+            remote={removed}
             onClose={() => {
               setRemoving(null);
             }}
           />
         )}
+        <ConfirmDialog
+          open={discarding !== null}
+          onOpenChange={(open) => {
+            if (!open) setDiscarding(null);
+          }}
+          title="Discard the unsaved changes?"
+          description="The changes in the editor have not been saved. Discarding them leaves the remote's settings as they are."
+          confirmLabel="Discard changes"
+          destructive
+          onConfirm={() => {
+            const action = discarding;
+            setDiscarding(null);
+            setDirty(false);
+            action?.();
+          }}
+        />
       </DialogContent>
     </Dialog>
-  );
-}
-
-interface RemoteItemProps {
-  remote: RemoteDto;
-  onFetch: (() => void) | undefined;
-  onEdit: () => void;
-  onRemove: () => void;
-}
-
-function RemoteItem({ remote, onFetch, onEdit, onRemove }: RemoteItemProps) {
-  const facts = [
-    branchCount(remote.branches),
-    remote.trackedBy.length > 0 && `tracked by ${namedList(remote.trackedBy)}`,
-    remote.extraUrls > 0 &&
-      `${String(remote.extraUrls)} more URL${remote.extraUrls === 1 ? "" : "s"} (edit those in a terminal)`,
-  ].filter(Boolean);
-  const action = "size-7 text-muted-foreground hover:text-foreground";
-  return (
-    <li className="flex items-start gap-2 rounded-md border border-border p-2">
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium">{remote.name}</p>
-        <p className="truncate font-mono text-xs" title={remote.shownUrl ?? undefined}>
-          {remote.shownUrl ?? "(no URL)"}
-        </p>
-        {remote.shownPushUrl && (
-          <p className="truncate font-mono text-xs" title={remote.shownPushUrl}>
-            <span className="font-sans text-muted-foreground">Push: </span>
-            {remote.shownPushUrl}
-          </p>
-        )}
-        <p className="text-xs text-muted-foreground">{facts.join(" · ")}</p>
-      </div>
-      <Button
-        variant="ghost"
-        size="icon"
-        className={action}
-        aria-label={`Fetch ${remote.name}`}
-        title={`Fetch ${remote.name}`}
-        disabled={!onFetch}
-        onClick={onFetch}
-      >
-        <RefreshCwIcon aria-hidden />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        className={action}
-        aria-label={`Edit ${remote.name}`}
-        title="Edit: name and URLs"
-        onClick={onEdit}
-      >
-        <PencilIcon aria-hidden />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        className={action}
-        aria-label={`Remove ${remote.name}`}
-        title="Remove…"
-        onClick={onRemove}
-      >
-        <Trash2Icon aria-hidden />
-      </Button>
-    </li>
   );
 }

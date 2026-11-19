@@ -8,8 +8,19 @@ All notable changes to NoBlame are documented here. The format follows
 
 ### Added
 
+- The Remotes dialog became the remote editor: remotes on the left, the chosen one's settings
+  on the right in tabs. **General**: name, URL, several push URLs, the default branch and what
+  fetching does when the server's default branch changes (git 2.48+). **Advanced**: every
+  `remote.<name>.*` value, several per key, with values from your user or system settings shown
+  with their file, and the address rewrites that apply. Changes are collected, reviewed as the
+  Git commands that will run, and saved all or nothing (ADR 0024).
 - NoBlame is free software under the GNU General Public License, version 3 or later
   (`LICENSE`); About says so.
+
+### Changed
+
+- Passwords written into remote URLs no longer reach the window when a remote is edited: they
+  show as `***` and are kept when saved unchanged (the old edit form received them).
 
 ## [0.2.1] - 2026-11-18
 

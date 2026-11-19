@@ -5,6 +5,8 @@
 pub mod commands;
 mod follow;
 pub mod remote_commands;
+mod remote_settings;
+mod remote_settings_types;
 mod remote_types;
 mod remotes;
 mod service;

@@ -1426,6 +1426,102 @@ shortcut carrying the app id and live switches; pinning not tried.
       is checked with the second release)
 - [x] `docs/development/release.md` finalized (slice 6)
 
+### M10: Remote editor (owner request 2026-11-19)
+
+Every useful per-remote setting in one place, so nobody edits `.git/config` by hand. Simple
+things stay simple (name, URLs); the rest sits in further tabs, with a search over all of them
+and a raw tab for everything else. Builds on the Remotes dialog of M5 slice 8.
+
+Fitted to NoBlame (agreed with the brief's "modify to fit"):
+
+- **The Remotes dialog becomes the editor**: remotes listed on the left (add, fetch, remove as
+  now), the chosen one's settings on the right in tabs: **General, Fetch, Push, Branches,
+  Connection, Credentials, LFS** (only when the repository uses LFS) and **Advanced**. Same entry
+  points as today (Pull ▾ → Remotes…, palette, the Branches module's cloud button).
+- **Nothing is written while editing.** Changes collect in the tab; **Review and save…** lists
+  them as the `git config` / `git remote` commands that will run; **Save** applies them all or
+  none (each key's earlier values are restored when one fails). It refuses when the settings
+  changed since they were read. Switching remote or closing with changes asks first.
+- **Only the repository's own settings are written** (`--local`). Settings that apply to every
+  remote of the repository (`push.followTags`, `pull.rebase`, …) say so; values inherited from
+  the user's or the system's settings show read-only with their file.
+- **Passwords never reach the window**: passwords in URLs and `extraHeader` values are hidden
+  (`***`) before they cross IPC; a value saved unchanged keeps its secret, and the editor offers
+  to move a password from a URL into the credential helper. (The M5 edit form received URLs as
+  configured; that goes.)
+- **Search** works from one typed registry of the settings (label, help, git key, synonyms,
+  tab); the Advanced tab is searched by key and value. It reuses the Settings tab's matching
+  (`normalize`: case and accents ignored).
+- **Branches tab** reuses the Branches module's upstream handling; the unknown host key
+  fingerprint is already asked by askpass (M5 slice 4), so nothing new there.
+- **SSH key per remote** is NoBlame's own setting (repository and remote), passed as
+  `GIT_SSH_COMMAND` when NoBlame runs git for that remote; the tab says a terminal does not see
+  it and that `~/.ssh/config` does the same for every program.
+- Options of newer gits (`followRemoteHEAD`, 2.48) are disabled with the version they need.
+
+Slices:
+
+1. **Foundation, General and Advanced**: git-core `config/remote.rs` (every scope's values with
+   their file, the change plan, applying it with rollback, rename and default branch last);
+   `get_remote_settings`, `preview_remote_changes`, `apply_remote_changes`; the two-pane dialog
+   with tabs; General (name, fetch URL, several push URLs, default branch, `followRemoteHEAD`,
+   Remove); Advanced (every `remote.<name>.*` value, several values per key, inherited ones
+   read-only with their file; `url.<base>.insteadOf` rewrites that apply, as information); the
+   review; the settings registry; ADR 0024.
+2. **Fetch and Push tabs, search**: what to fetch (all branches or chosen branches and patterns
+   → refspecs), tags (`tagOpt`), prune, prune tags (warns), left out of Fetch all
+   (`skipFetchAll` + `skipDefaultUpdate`), partial clone (read-only), Fetch now, Prune now;
+   `remote.pushDefault`, push refspecs, mirror (confirmation), the repository's push options.
+   The search box (Ctrl+F), matches per tab, Enter / Shift+Enter, Esc.
+3. **Branches tab**: local branches tracking this remote, change or clear the upstream,
+   `pushRemote`, pull mode per branch and the repository default (`pull.rebase`, `pull.ff`);
+   "Add the upstream of a fork" (adds `upstream`, keeps pushing to `origin`).
+4. **Talking to the remote**: Test connection (`git ls-remote --heads` as a job, errors in plain
+   words: credentials, certificate, proxy, host key, not found), Ask the remote for its default
+   branch (`set-head --auto`), Switch HTTPS ⇄ SSH (GitHub, GitLab, Bitbucket, Azure DevOps incl.
+   `*.visualstudio.com`), Open in browser, a password in a URL moved to the credential helper,
+   and `http.<url>.*` / `credential.<url>.*` moved along when a URL changes (listed first).
+5. **Connection tab**: HTTP(S) settings keyed by URL (proxy: system / none / custom, also
+   `remote.<name>.proxy` and `proxyAuthMethod`; verify certificates (warns when off); CA file;
+   client certificate and key; `sslBackend` on Windows; `extraHeader` (warns: plain text); HTTP
+   version; `postBuffer`; low speed limit), the SSH key per remote, `uploadpack`, `receivepack`,
+   `serverOption`.
+6. **Credentials and LFS tabs**: the credential helper and Git Credential Manager found (warns
+   when none), `credential.<url>.helper`, `username`, `useHttpPath`, `provider`; Azure DevOps
+   through GCM (OAuth or PAT, the Windows broker, the flow, accounts per organization:
+   `git credential-manager azure-repos list/bind/unbind`); Sign in, Forget saved credentials
+   (`git credential reject`); `remote.<name>.lfsurl`, `lfs.<url>.locksverify`.
+7. **Checks and docs**: integration tests named in the brief, the user guide page, checks in the
+   real app (a GitHub repository over HTTPS and SSH, a fork with `origin` and `upstream`; Azure
+   DevOps with GCM and a proxy or custom CA are the owner's to try).
+
+- [x] Slice 1: foundation, General, Advanced, review and save (2026-11-19)
+- [ ] Slice 2: Fetch and Push tabs, search
+- [ ] Slice 3: Branches tab, fork preset
+- [ ] Slice 4: Test connection, default branch from the remote, HTTPS ⇄ SSH, Open in browser,
+      URL-keyed settings and passwords moved
+- [ ] Slice 5: Connection tab, SSH key per remote
+- [ ] Slice 6: Credentials and LFS tabs
+- [ ] Slice 7: checks in the real app, user guide, ADR final
+
+#### Where we left off (2026-11-19, slice 1)
+
+- git-core: `config/scoped.rs` (every scope with its file, `--show-origin --show-scope -z`; a
+  key without a value reads `true`), `config/secret.rs` (passwords in URLs hidden, the user
+  name kept; `extraHeader` values hidden), `config/plan.rs` (compare with what the editor
+  showed, put hidden secrets back, `--unset-all` + `--add` for several values, undo on failure),
+  `remote/settings.rs` (keys, then `set-head`, then `rename`; each failure undoes the steps
+  before). Tests: `tests/remote_settings.rs` (4) and unit tests (8).
+- Tauri: `get_remote_settings`, `preview_remote_changes`, `apply_remote_changes`
+  (`branches/remote_settings.rs`); `edit_remote` and the raw URLs in `RemoteDto` removed.
+- UI: the two-pane dialog, General and Advanced tabs, the review, discard confirmation, the
+  settings registry (`lib/settings/registry.ts`) that the search of slice 2 will read.
+- Checked in the real app (my instance, its own profile, a throwaway repository): a second push
+  URL, the default branch moved to `topic` and `origin` renamed to `github` in one save; the
+  hidden password in the first push URL stayed in the file, `main` followed the rename. Found
+  while testing: nothing beyond the test script's own select-all.
+- Next: slice 2 (Fetch and Push tabs, search).
+
 ## Phase 2: shell integration
 
 Thin native add-ons that only build a command line and launch `noblame`. ADR 0018.
@@ -1469,7 +1565,9 @@ The owner's idea inbox (with where each idea is planned) is in
       `.desktop` icon; Wayland). If nothing at run time works, let the installer (or a command)
       choose the installed icon (owner, 2026-11-18)
 
-- [ ] GitHub / GitLab / Azure DevOps / Bitbucket: pull requests, CI status on commits
+- [ ] GitHub / GitLab / Azure DevOps / Bitbucket: pull requests, CI status on commits; an
+      app-wide **Accounts** page signing in to their APIs (from the M10 brief, 2026-11-19)
+- [ ] Editing the user's global `url.<base>.insteadOf` rules (M10 shows them read-only)
 - [ ] Graph minimap and "branch focus" (dim everything not reachable from selected branches)
 - [ ] Repository statistics (commits per author over time, churn, hot files)
 - [ ] Git-flow / trunk-based helpers
@@ -1504,6 +1602,7 @@ The owner's idea inbox (with where each idea is planned) is in
 | 0019 | Status cache service and overlays                                   | T4        | Planned  |
 | 0020 | Workbench layout: activity bar, side panel modules, docking library | M2.5      | Accepted |
 | 0021 | Graph filters as views of the loaded graph                          | M3        | Accepted |
+| 0024 | Remote configuration editing                                        | M10       | Proposed |
 
 ## Working agreement
 

@@ -327,10 +327,14 @@ export const commands = {
 	listRemoteDetails: (id: number) => typedError<RemoteDto[], AppError>(__TAURI_INVOKE("list_remote_details", { id })),
 	/**  Adds a remote (`git remote add`); nothing is fetched yet. */
 	addRemote: (id: number, request: AddRemoteRequestDto) => typedError<string, AppError>(__TAURI_INVOKE("add_remote", { id, request })),
-	/**  Changes a remote's URL, push URL and name (only what differs). */
-	editRemote: (id: number, request: EditRemoteRequestDto) => typedError<string, AppError>(__TAURI_INVOKE("edit_remote", { id, request })),
 	/**  Removes a remote with its remote branches; branches tracking it lose their upstream. */
 	removeRemote: (id: number, name: string) => typedError<string, AppError>(__TAURI_INVOKE("remove_remote", { id, name })),
+	/**  The settings of one remote for the remote editor, every scope, secrets hidden. */
+	getRemoteSettings: (id: number, name: string) => typedError<RemoteSettingsDto, AppError>(__TAURI_INVOKE("get_remote_settings", { id, name })),
+	/**  The commands saving the editor's changes would run (secrets hidden); empty: no change. */
+	previewRemoteChanges: (id: number, edit: RemoteEditDto) => typedError<string[], AppError>(__TAURI_INVOKE("preview_remote_changes", { id, edit })),
+	/**  Saves the editor's changes, all or nothing. */
+	applyRemoteChanges: (id: number, edit: RemoteEditDto) => typedError<null, AppError>(__TAURI_INVOKE("apply_remote_changes", { id, edit })),
 	/**  Prompts waiting for an answer, oldest first (read on start and on `CredentialRequested`). */
 	listCredentialRequests: () => __TAURI_INVOKE<CredentialRequestDto[]>("list_credential_requests"),
 	/**  Answers a prompt; `null` cancels it (git then fails). False when it no longer waits. */
@@ -1033,6 +1037,30 @@ export type ConfigScopeDto =
 /**  The user's, for every repository (`~/.gitconfig`). */
 "global";
 
+/**  Where a value is set. */
+export type ConfigScopeNameDto = 
+/**  The installation's settings. */
+"system" | 
+/**  The user's (`~/.gitconfig`). */
+"global" | 
+/**  The repository's own (`.git/config`); the only one the editor writes. */
+"local" | 
+/**  The worktree's own (`config.worktree`). */
+"worktree";
+
+/**  One value of a setting with where it is set; secrets hidden. */
+export type ConfigValueDto = {
+	/**  The key as git lists it: section and name in lower case (`remote.origin.pushurl`). */
+	key: string,
+	/**  The value, a password or header secret shown as `***`. */
+	value: string,
+	scope: ConfigScopeNameDto,
+	/**  The file it is set in, as git names it. */
+	file: string | null,
+	/**  Whether a password is written in it (the editor offers to move it to the helper). */
+	secret: boolean,
+};
+
 /**  A conflicted file. */
 export type ConflictDto = {
 	path: string,
@@ -1224,18 +1252,6 @@ export type DiffSettings = {
 	externalTool?: ExternalDiffTool,
 	/**  The program "Open in merge tool" starts for a conflicted file. */
 	mergeTool?: ExternalMergeTool,
-};
-
-/**  A remote's new name and URLs; what did not change is left alone. */
-export type EditRemoteRequestDto = {
-	/**  Its name now. */
-	name: string,
-	/**  Its name after (the same to keep it). */
-	newName: string,
-	/**  Where it fetches from. */
-	url: string,
-	/**  Where it pushes to; `None` (or empty) pushes where it fetches from. */
-	pushUrl: string | null,
 };
 
 /**  Stable, machine-readable error category the frontend can branch on. */
@@ -1552,6 +1568,12 @@ export type GraphSummary = {
 	generation: number,
 };
 
+/**  The default branch before and after (`null`: none). */
+export type HeadChangeDto = {
+	before: string | null,
+	after: string | null,
+};
+
 /**  Where HEAD points. */
 export type HeadDto = 
 /**  On a branch with commits. */
@@ -1728,6 +1750,13 @@ export type JobsSettings = {
 	showOutputWindow?: boolean,
 	/**  Close the Git output window by itself once its jobs all succeeded. */
 	closeOutputOnSuccess?: boolean,
+};
+
+/**  One key's values before (as shown) and after. */
+export type KeyChangeDto = {
+	key: string,
+	before: string[],
+	after: string[],
 };
 
 /**  A keyboard shortcut given other keys than the app's. */
@@ -2305,20 +2334,40 @@ export type ReloadedGraph = {
 export type RemoteDto = {
 	/**  Its name (`origin`). */
 	name: string,
-	/**  Where it fetches from, as configured (for editing). */
-	url: string | null,
-	/**  Where it pushes to when that differs, as configured. */
-	pushUrl: string | null,
-	/**  `url` with any password written into it hidden (`***`), for showing. */
+	/**  Where it fetches from, a password written into it hidden (`***`). */
 	shownUrl: string | null,
-	/**  `push_url`, hidden the same way. */
+	/**  Where it pushes to when that differs, hidden the same way. */
 	shownPushUrl: string | null,
-	/**  URLs beyond the first of each kind (edited in a terminal). */
+	/**  URLs beyond the first of each kind (the editor's General tab lists them). */
 	extraUrls: number,
 	/**  Its remote branches here. */
 	branches: number,
 	/**  Local branches whose upstream is on it. */
 	trackedBy: string[],
+};
+
+/**  What the editor saves for one remote. */
+export type RemoteEditDto = {
+	/**  The remote's name now. */
+	name: string,
+	/**  Its name after, when it changes. */
+	newName: string | null,
+	head: HeadChangeDto | null,
+	keys: KeyChangeDto[],
+};
+
+/**  A remote's settings as the editor shows them. */
+export type RemoteSettingsDto = {
+	name: string,
+	/**  The branch its default branch (`refs/remotes/<name>/HEAD`) points at. */
+	head: string | null,
+	/**  Its remote branches here, sorted. */
+	branches: string[],
+	/**
+	 *  The settings the editor shows (remotes, URL rewrites, branches, push, pull, fetch, HTTP,
+	 *  credentials, LFS) of every scope, in the order git reads them.
+	 */
+	entries: ConfigValueDto[],
 };
 
 /**  A branch to rename. */

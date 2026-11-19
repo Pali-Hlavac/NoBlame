@@ -1,12 +1,13 @@
 /**
- * The remotes of an open repository with their URLs, and adding, editing and removing them.
+ * The remotes of an open repository with their URLs, and adding and removing them (the editor's
+ * saving is in `remoteSettings.ts`).
  * The list lives under the refs' key: a change refetches it, the remote names the Push dialog
  * offers and the refs (renamed or removed remote branches).
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { refKeys } from "@/features/graph";
-import type { AddRemoteRequestDto, EditRemoteRequestDto } from "@/shared/ipc/bindings";
+import type { AddRemoteRequestDto } from "@/shared/ipc/bindings";
 import { commands, unwrap } from "@/shared/ipc/client";
 
 export const remoteDetailKeys = {
@@ -39,12 +40,6 @@ function useRemoteChange<T>(
 export function useAddRemote(repoId: number) {
   return useRemoteChange(repoId, "Adding the remote", (request: AddRemoteRequestDto) =>
     unwrap(commands.addRemote(repoId, request)),
-  );
-}
-
-export function useEditRemote(repoId: number) {
-  return useRemoteChange(repoId, "Saving the remote", (request: EditRemoteRequestDto) =>
-    unwrap(commands.editRemote(repoId, request)),
   );
 }
 

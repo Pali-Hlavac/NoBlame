@@ -2,7 +2,19 @@
 //! or the user's (`--global`, `~/.gitconfig`, every repository). Read with
 //! `git config --list --show-origin -z`; written with `--replace-all` and removed with
 //! `--unset-all`, the key and value after `--`. Only what the user asks for in the app is
-//! written; system settings are never touched.
+//! written; system settings are never touched. Every scope at once with each value's file:
+//! `scoped.rs`; several keys changed all or nothing: `plan.rs`; secrets hidden: `secret.rs`.
+
+mod plan;
+mod scoped;
+mod secret;
+
+pub use plan::{
+    KeyChange, PlanError, PlannedKey, StepAction, apply_plan, describe_plan, failed, plan_changes,
+    quote, restore, steps_for,
+};
+pub use scoped::{Scope, ScopedEntry, canonical_key, parse_scoped_list, read_all_scopes};
+pub use secret::{HIDDEN, has_password, holds_hidden, redact_key, redact_value};
 
 use std::path::Path;
 

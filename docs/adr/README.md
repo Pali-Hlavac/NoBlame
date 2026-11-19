@@ -29,6 +29,7 @@ decision changes, write a new ADR that supersedes the old one and update the old
 | [0021](0021-graph-filters.md)                    | Graph filters as views of the loaded graph                        | M3        | Accepted |
 | [0022](0022-file-history-and-blame.md)           | File history and blame: git for the walks, gix for renames        | M3        | Accepted |
 | [0023](0023-compare-revisions.md)                | Comparing two revisions: `git diff --raw`, gix in partial clones  | M3        | Accepted |
+| [0024](0024-remote-configuration-editing.md)     | Editing a remote's configuration: CLI writes, all or nothing      | M10       | Proposed |
 
 The kickoff prompt asked for ADRs 0001-0008 in M1. The ADR plan in
 [../roadmap.md](../roadmap.md) is newer and wins: ADR 0008 (binary commit stream) is written in

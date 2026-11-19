@@ -54,17 +54,31 @@ after asking.
 ## Adding, changing and removing remotes
 
 Open the menu next to **Pull** (▾) and choose **Remotes…** (or click the cloud button at the top
-of the Branches module, or type "remotes" in the command palette). The window lists each
-remote with its address and how many of its branches you have.
+of the Branches module, or type "remotes" in the command palette). The window lists your
+remotes on the left, with their address and how many of their branches you have; the arrows
+next to one fetch it. Click a remote to see its settings on the right.
 
 - **Add remote…**: give it a name (`origin` for the main one, `upstream` for the project you
   forked from) and its address, the same you would give `git clone`. Leave **Fetch its
   branches now** ticked to download its branches straight away.
-- The pencil changes a remote's name or address. **Push URL** is for when you push somewhere
-  else than you fetch from; leave it empty otherwise. Renaming also renames its branches here.
-- The bin removes a remote. NoBlame first says what goes: its branches in this repository, and
-  which of your branches stop tracking it. Nothing changes on the server.
-- The arrows fetch that remote.
+- **General**: its **Name** (renaming also renames its branches here, and your branches keep
+  tracking it), its **URL**, and **Push URLs** for when you push somewhere else than you fetch
+  from. Add several push URLs to send every push to all of them, for example to keep a mirror
+  up to date. **Default branch** is the branch the remote's name alone stands for.
+- **Advanced**: every setting git keeps for this remote, as git names them. You can change,
+  add or remove values; settings that come from your user settings are shown with the file they
+  are in. Address rewrites (`insteadOf`) are listed too.
+- **Remove…** (at the bottom of General) removes the remote. NoBlame first says what goes: its
+  branches in this repository, and which of your branches stop tracking it. Nothing changes on
+  the server.
+
+Nothing changes while you edit. The bottom says how many changes are waiting; **Review and
+save…** shows the Git commands that will run, and **Save** runs them. If one of them fails,
+NoBlame puts back what the others changed, so a remote is never left half changed. Leaving a
+remote with changes not saved asks first.
+
+Passwords written into addresses (`https://name:password@host/…`) show as `***`. Leave the `***`
+as it is and the password is kept when you save.
 
 ## Cloning a repository
 
