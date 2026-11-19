@@ -14,6 +14,10 @@ All notable changes to NoBlame are documented here. The format follows
   `remote.<name>.*` value, several per key, with values from your user or system settings shown
   with their file, and the address rewrites that apply. Changes are collected, reviewed as the
   Git commands that will run, and saved all or nothing (ADR 0024).
+- The remote editor's **Fetch** tab (every branch or only named branches and patterns, tags,
+  removing what was deleted on the server, leaving a remote out of Fetch all, fetch now) and
+  **Push** tab (the default remote for pushing, mirror with a confirmation, the repository's push
+  options), and a search over all tabs (Ctrl+F) by name, help text or Git setting name.
 - NoBlame is free software under the GNU General Public License, version 3 or later
   (`LICENSE`); About says so.
 

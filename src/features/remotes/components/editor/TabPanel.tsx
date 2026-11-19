@@ -1,0 +1,61 @@
+import { startFetch, startJob } from "@/features/jobs";
+import { useRepositoryPath } from "@/features/repositories";
+import type { RemoteSettingsDto } from "@/shared/ipc/bindings";
+
+import type { Draft } from "../../lib/settings/draft";
+import type { RemoteTab } from "../../lib/settings/registry";
+import { panelId, tabId } from "../../lib/settings/words";
+import { AdvancedTab } from "./AdvancedTab";
+import { FetchTab } from "./FetchTab";
+import { GeneralTab } from "./GeneralTab";
+import { PushTab } from "./PushTab";
+
+interface TabPanelProps {
+  repoId: number;
+  idPrefix: string;
+  tab: RemoteTab;
+  base: RemoteSettingsDto;
+  draft: Draft;
+  onChange: (draft: Draft) => void;
+  problems: ReadonlyMap<string, string>;
+  onRemove: () => void;
+}
+
+/** The open tab's settings. */
+export function TabPanel({ repoId, idPrefix, tab, ...props }: TabPanelProps) {
+  const path = useRepositoryPath(repoId);
+  const { base, draft, onChange } = props;
+  const onFetch =
+    path === undefined
+      ? undefined
+      : (prune: boolean) => {
+          startJob(
+            startFetch({ path, target: { type: "remote", name: base.name }, prune }),
+            "fetch",
+          );
+        };
+  return (
+    <div
+      role="tabpanel"
+      id={panelId(idPrefix, tab)}
+      aria-labelledby={tabId(idPrefix, tab)}
+      className="min-h-0 flex-1 overflow-auto px-3 py-1"
+    >
+      {tab === "general" ? (
+        <GeneralTab {...props} />
+      ) : tab === "fetch" ? (
+        <FetchTab
+          base={base}
+          draft={draft}
+          onChange={onChange}
+          problems={props.problems}
+          onFetch={onFetch}
+        />
+      ) : tab === "push" ? (
+        <PushTab base={base} draft={draft} onChange={onChange} />
+      ) : (
+        <AdvancedTab base={base} draft={draft} onChange={onChange} />
+      )}
+    </div>
+  );
+}

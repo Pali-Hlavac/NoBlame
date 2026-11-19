@@ -7,7 +7,8 @@ user names, passwords, SSH passphrases and unknown host keys in the app; **slice
 branch, any branch with options and force with lease, tags, deleting on a remote); **slice 8
 (2026-11-07)**: managing remotes (add, edit, remove), clone as a job, and Fetch all remotes as
 one fetch per remote, so it shows progress; **M10 slice 1 (2026-11-19)**: the remote editor
-(General and Advanced tabs, review and save all or nothing). The job model is
+(General and Advanced tabs, review and save all or nothing); **slice 2**: Fetch and Push tabs,
+search. The job model is
 [architecture/background-jobs.md](../architecture/background-jobs.md) (ADR 0011).
 
 ## Where
@@ -133,6 +134,31 @@ remote…** below the list shows the form to add one.
   disabled with the version needed; a value set by the user's settings is shown under it), and
   **Remove <name>…** (a confirmation names what goes from this repository: its remote branches,
   and the local branches that lose their upstream; then `git remote remove -- <name>`).
+- **Fetch** tab (slice 2): **What to fetch**: **Every branch** (`+refs/heads/*:refs/remotes/<name>/*`)
+  or **Only these branches** (names or patterns with one `*`, such as `release/*`; one refspec
+  each, `+refs/heads/<b>:refs/remotes/<name>/<b>`; at first the default branch); refspecs written
+  by hand show as "Something else" and are changed in Advanced. **Tags** (`tagOpt`: the tags on
+  the commits fetched, every tag, none). **Remove remote branches deleted on the server**
+  (`prune`) and **Remove tags that are not on the server** (`pruneTags`, with a warning that tags
+  made here and not pushed go), each "as `fetch.prune` / `fetch.pruneTags` says (now: yes)" when
+  not set here. **Leave out of Fetch all** sets `skipFetchAll` and `skipDefaultUpdate` together.
+  A partial clone's filter is shown (read-only). **Fetch now** and **Fetch and remove deleted
+  branches now** start a fetch job with the saved settings.
+- **Push** tab (slice 2): **Push here by default** (`remote.pushDefault`, the repository's; the
+  remote set now is named), **What a plain push sends** (`remote.<name>.push`, listed; changed in
+  Advanced), **Mirror this repository** (`mirror`; turning it on asks first and names what a
+  mirror push deletes and overwrites), and the repository's own push settings, under "For every
+  remote of this repository": `push.followTags`, `push.autoSetupRemote`,
+  `push.recurseSubmodules`, `push.gpgSign`.
+- **Search** (slice 2): the box above the tabs (**Ctrl+F**, the Find commits key, while the editor
+  is open; it does not reach the graph behind) finds settings by label, help, git key, synonyms
+  ("refspec", "certificate", "mirror") and tab, and Advanced keys by key and value; case and
+  accents are ignored (`normalize` of the Settings tab). Each tab shows its number of matches,
+  tabs without any are dimmed, and the first tab with a match opens when the open one has none.
+  Matching settings are outlined; **Enter** / **Shift+Enter** go to the next / previous match,
+  across tabs, outlined more strongly and scrolled into view ("2 of 5"); **Esc** clears the
+  search (a second Esc closes the dialog). Everything it searches is listed once in
+  `lib/settings/registry.ts` (label, help, key, synonyms, tab), so a new setting is found at once.
 - **Advanced** tab: every `remote.<name>.*` key, each with this repository's values (several per
   key, in order, each editable or removable; **Set in this repository** / **Add a value**) and
   the values from the user's or the system's settings, read-only with their file. **Add a
@@ -273,9 +299,13 @@ M5 slice 6. The **…** menu of a repository and its quick buttons
   `RemoveRemoteDialog`, `CloneDialog`, `CloneOptions`, `lib/clone.ts`, `lib/remotes.ts`,
   `openRemotes`, `openClone`); the editor in `components/editor/` (`RemoteEditor`, `EditorTabs`,
   `GeneralTab`, `AdvancedTab`, `RewritesList`, `SettingRow`, `ValuesEditor`, `ReviewDialog`) and
-  `lib/settings/` (`registry.ts` every setting with its tab, help, key and synonyms; `draft.ts`
-  the unsaved changes; `problems.ts`; `rewrites.ts`), `api/remoteSettings.ts`; tests
-  `RemotesDialog.test.tsx`, `editor/RemoteEditor.test.tsx`, `lib/settings/draft.test.ts`,
+  `lib/settings/` (`registry.ts` and `registryTransfer.ts` every setting with its tab, help, key
+  and synonyms; `draft.ts` the unsaved changes; `problems.ts`; `rewrites.ts`; `refspecs.ts` what
+  to fetch; `search.ts`; `choices.ts`), `api/remoteSettings.ts`; the Fetch and Push tabs
+  (`FetchTab`, `PushTab`, `ChoiceSetting`), the search (`EditorSearch`, `useEditorSearch`,
+  `highlight.ts`); tests `RemotesDialog.test.tsx`, `editor/RemoteEditor.test.tsx`,
+  `editor/FetchPushSearch.test.tsx`, `lib/settings/draft.test.ts`, `refspecs.test.ts`,
+  `search.test.ts`,
   `CloneDialog.test.tsx`, `lib/clone.test.ts`.
 - `src/features/jobs/components/OutputWindow.tsx`, `OutputConsole.tsx`, `store/output.ts`,
   `lib/output.ts` (the output window); tests `OutputWindow.test.tsx`, `lib/output.test.ts`.

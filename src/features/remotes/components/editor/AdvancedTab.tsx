@@ -8,12 +8,15 @@ import {
   type Draft,
   inheritedValues,
   localValues,
+  remoteKeys,
   setValues,
   valuesOf,
 } from "../../lib/settings/draft";
 import { keyNameProblem } from "../../lib/settings/problems";
+import { keyMatchId } from "../../lib/settings/search";
 import { FIELD } from "../form";
 import { scopeName } from "../../lib/settings/words";
+import { useHighlight } from "./highlight";
 import { RewritesList } from "./RewritesList";
 import { ValuesEditor } from "./ValuesEditor";
 
@@ -21,19 +24,6 @@ interface AdvancedTabProps {
   base: RemoteSettingsDto;
   draft: Draft;
   onChange: (draft: Draft) => void;
-}
-
-/** Every key of the remote, read and drafted, sorted; spelled as written when drafted. */
-function remoteKeys(base: RemoteSettingsDto, draft: Draft): string[] {
-  const prefix = `remote.${base.name}.`;
-  const keys = new Map<string, string>();
-  for (const entry of base.entries) {
-    if (entry.key.startsWith(prefix)) keys.set(entry.key, entry.key);
-  }
-  for (const [id, change] of draft.keys) {
-    if (id.startsWith(prefix)) keys.set(id, change.key);
-  }
-  return [...keys.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([, key]) => key);
 }
 
 /** All of the remote's settings as git stores them, for what the other tabs do not show. */
@@ -87,10 +77,11 @@ function KeyItem(props: {
   const values = valuesOf(base, draft, name);
   const inherited = inheritedValues(base, name);
   const removed = changed && values.length === 0 && localValues(base, name).length > 0;
+  const marked = useHighlight(keyMatchId(name));
   return (
     <li
-      data-setting-key={canonicalKey(name)}
-      className={`grid gap-1.5 rounded-md border p-2 ${changed ? "border-primary" : "border-border"}`}
+      data-setting-id={keyMatchId(name)}
+      className={`grid gap-1.5 rounded-md border p-2 ${changed ? "border-primary" : "border-border"} ${marked}`}
     >
       <label htmlFor={`${id}-0`} className="font-mono text-xs font-medium">
         {name}

@@ -89,6 +89,19 @@ export function setValues(
   return { ...draft, keys };
 }
 
+/** Every `remote.<name>.*` key read or drafted, sorted; spelled as written when drafted. */
+export function remoteKeys(base: RemoteSettingsDto, draft: Draft): string[] {
+  const prefix = `remote.${base.name}.`;
+  const keys = new Map<string, string>();
+  for (const entry of base.entries) {
+    if (entry.key.startsWith(prefix)) keys.set(entry.key, entry.key);
+  }
+  for (const [id, change] of draft.keys) {
+    if (id.startsWith(prefix)) keys.set(id, change.key);
+  }
+  return [...keys.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([, key]) => key);
+}
+
 /** How many things the draft changes (keys, the default branch, the name). */
 export function changeCount(base: RemoteSettingsDto, draft: Draft): number {
   return draft.keys.size + (draft.head !== base.head ? 1 : 0) + (draft.name !== base.name ? 1 : 0);

@@ -65,7 +65,16 @@ export function RemotesDialog({ repoId, adding = false, onClose }: RemotesDialog
         if (!open) leave(onClose);
       }}
     >
-      <DialogContent className="flex h-[min(44rem,85vh)] max-w-5xl flex-col">
+      <DialogContent
+        className="flex h-[min(44rem,85vh)] max-w-5xl flex-col"
+        onEscapeKeyDown={(event) => {
+          // Esc in a search box with text clears it (its own handler); the next one closes.
+          const target = event.target;
+          if (target instanceof HTMLInputElement && target.type === "search" && target.value) {
+            event.preventDefault();
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle>Remotes of {where}</DialogTitle>
           <DialogDescription>

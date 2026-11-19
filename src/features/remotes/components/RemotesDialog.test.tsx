@@ -131,6 +131,20 @@ describe("Remotes dialog", () => {
     });
   });
 
+  it("clears the search on Esc before closing", async () => {
+    const user = userEvent.setup();
+    renderDialogs();
+    const search = await screen.findByRole("searchbox", { name: "Search the remote's settings" });
+    await user.type(search, "url");
+    await user.keyboard("{Escape}");
+    expect(search).toHaveValue("");
+    expect(screen.getByRole("dialog", { name: "Remotes of app" })).toBeVisible();
+    await user.keyboard("{Escape}");
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: "Remotes of app" })).toBeNull();
+    });
+  });
+
   it("asks before dropping unsaved changes", async () => {
     const user = userEvent.setup();
     renderDialogs();

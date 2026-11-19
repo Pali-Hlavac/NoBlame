@@ -29,3 +29,4 @@ export {
 } from "./lib/diff";
 export { useThemePreference } from "./hooks/useThemePreference";
 export { THEME_OPTIONS } from "./lib/theme";
+export { normalize } from "./lib/filter";

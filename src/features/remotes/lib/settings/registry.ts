@@ -1,37 +1,17 @@
 /**
  * Every setting the remote editor shows, in one typed list: its tab, label, help, git key and
  * the other words people search for. The tabs render from it and the search reads it, so a new
- * setting is found as soon as it is listed.
+ * setting is found as soon as it is listed (`search.ts`).
  */
+import { FETCH_SETTINGS, PUSH_SETTINGS } from "./registryTransfer";
+import type { RemoteSetting } from "./settingTypes";
 
-/** The editor's tabs, in order. */
-export const REMOTE_TABS = [
-  { id: "general", label: "General" },
-  { id: "advanced", label: "Advanced" },
-] as const;
-
-export type RemoteTab = (typeof REMOTE_TABS)[number]["id"];
-
-/** A git version as major and minor. */
-export type GitRelease = readonly [major: number, minor: number];
-
-export interface RemoteSetting {
-  readonly id: string;
-  readonly tab: RemoteTab;
-  readonly label: string;
-  /** What it does, in plain words. */
-  readonly help: string;
-  /** Its git key for the remote `name`; null when it is not a setting (the name). */
-  readonly key: ((name: string) => string) | null;
-  /** Other words that find it. */
-  readonly synonyms: readonly string[];
-  /** The oldest git that knows it. */
-  readonly since?: GitRelease;
-}
+export type { GitRelease, RemoteSetting, RemoteTab } from "./settingTypes";
+export { REMOTE_TABS, tabLabel } from "./settingTypes";
 
 const remoteKey = (name: string) => (remote: string) => `remote.${remote}.${name}`;
 
-export const REMOTE_SETTINGS: readonly RemoteSetting[] = [
+const GENERAL_SETTINGS: readonly RemoteSetting[] = [
   {
     id: "name",
     tab: "general",
@@ -75,6 +55,12 @@ export const REMOTE_SETTINGS: readonly RemoteSetting[] = [
   },
 ];
 
+export const REMOTE_SETTINGS: readonly RemoteSetting[] = [
+  ...GENERAL_SETTINGS,
+  ...FETCH_SETTINGS,
+  ...PUSH_SETTINGS,
+];
+
 /** The setting with `id`; settings are listed above, so it exists. */
 export function remoteSetting(id: string): RemoteSetting {
   const setting = REMOTE_SETTINGS.find((candidate) => candidate.id === id);
@@ -82,14 +68,4 @@ export function remoteSetting(id: string): RemoteSetting {
   return setting;
 }
 
-/** `[2, 56]` from a version like `2.56.0` or `2.56.0.windows.2`; null when unreadable. */
-export function gitRelease(version: string | undefined): GitRelease | null {
-  const match = /^(\d+)\.(\d+)/.exec(version ?? "");
-  return match ? [Number(match[1]), Number(match[2])] : null;
-}
-
-/** Whether git `release` knows a setting that came with `since`. Unknown versions are let be. */
-export function supports(release: GitRelease | null, since: GitRelease | undefined): boolean {
-  if (!since || !release) return true;
-  return release[0] > since[0] || (release[0] === since[0] && release[1] >= since[1]);
-}
+export { gitRelease, supports } from "./settingTypes";

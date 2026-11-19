@@ -1496,7 +1496,7 @@ Slices:
    DevOps with GCM and a proxy or custom CA are the owner's to try).
 
 - [x] Slice 1: foundation, General, Advanced, review and save (2026-11-19)
-- [ ] Slice 2: Fetch and Push tabs, search
+- [x] Slice 2: Fetch and Push tabs, search (2026-11-19)
 - [ ] Slice 3: Branches tab, fork preset
 - [ ] Slice 4: Test connection, default branch from the remote, HTTPS ⇄ SSH, Open in browser,
       URL-keyed settings and passwords moved
@@ -1521,6 +1521,25 @@ Slices:
   hidden password in the first push URL stayed in the file, `main` followed the rename. Found
   while testing: nothing beyond the test script's own select-all.
 - Next: slice 2 (Fetch and Push tabs, search).
+
+#### Where we left off (2026-11-19, slice 2)
+
+- Fetch tab (what to fetch as every branch or named branches and patterns, `refspecs.ts`; tags;
+  prune and prune tags with the user's `fetch.*` shown; skip in Fetch all; partial clone;
+  fetch now), Push tab (`remote.pushDefault`, push refspecs listed, mirror behind a
+  confirmation, the repository's push options under their own heading), the search
+  (`search.ts` over the registry and the Advanced keys; tab counts, dimmed tabs, Enter /
+  Shift+Enter, Esc; Ctrl+F taken in the capture phase so the graph's Find stays closed).
+- The registry split in `registry.ts` (General) and `registryTransfer.ts` (Fetch, Push), the
+  types in `settingTypes.ts`. Rows that are groups (radio buttons, read-only text) label the
+  group, not its first control.
+- Checked in the real app (my instance, its own profile): Ctrl+F focuses the editor's search and
+  the graph's Find stays closed; "tag" finds 4 settings on Fetch and Push, Enter steps across
+  tabs ("3 of 4"); saving "Only these branches" wrote `+refs/heads/topic:refs/remotes/github/topic`
+  and Fetch now ran a job with it ("1 new"). Found and fixed: Esc in the search closed the whole
+  dialog (Radix handles Escape in the capture phase, before the field): the dialog now ignores
+  Escape while a search box has text (test added).
+- Next: slice 3 (Branches tab, the fork preset).
 
 ## Phase 2: shell integration
 

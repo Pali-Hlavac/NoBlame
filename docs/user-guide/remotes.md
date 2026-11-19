@@ -65,12 +65,25 @@ next to one fetch it. Click a remote to see its settings on the right.
   tracking it), its **URL**, and **Push URLs** for when you push somewhere else than you fetch
   from. Add several push URLs to send every push to all of them, for example to keep a mirror
   up to date. **Default branch** is the branch the remote's name alone stands for.
+- **Fetch**: whether fetching brings every branch or only the ones you name (patterns like
+  `release/*` work too: fewer branches fetch faster in big repositories), which tags come along,
+  and whether branches and tags deleted on the server are removed here. Removing tags also
+  deletes tags you made and did not push, so NoBlame warns about it. **Leave out of Fetch all**
+  keeps a remote you rarely use out of **Fetch all remotes**.
+- **Push**: make this remote the one pushing goes to by default (for example the fork you push
+  to, while you pull from the original), **Mirror** (every push makes the remote an exact copy of
+  this repository; NoBlame asks first, because it deletes and overwrites there), and the
+  repository's own push options, which apply to every remote.
 - **Advanced**: every setting git keeps for this remote, as git names them. You can change,
   add or remove values; settings that come from your user settings are shown with the file they
   are in. Address rewrites (`insteadOf`) are listed too.
 - **Remove…** (at the bottom of General) removes the remote. NoBlame first says what goes: its
   branches in this repository, and which of your branches stop tracking it. Nothing changes on
   the server.
+
+**Search** (Ctrl+F) finds a setting in any tab by its name, what it does or its Git name
+(`tagOpt`, `sslVerify`). Tabs show how many settings match; Enter goes to the next one, Esc
+clears the search.
 
 Nothing changes while you edit. The bottom says how many changes are waiting; **Review and
 save…** shows the Git commands that will run, and **Save** runs them. If one of them fails,

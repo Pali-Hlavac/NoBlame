@@ -2,7 +2,8 @@
 import type { RemoteSettingsDto } from "@/shared/ipc/bindings";
 
 import { remoteNameProblem, urlProblem } from "../remotes";
-import { type Draft, valuesOf } from "./draft";
+import { canonicalKey, type Draft, valuesOf } from "./draft";
+import { branchPatternProblem, readFetch } from "./refspecs";
 
 /** The name of the settings a remote's custom keys may have: letters, digits and `-`. */
 export function keyNameProblem(name: string): string | null {
@@ -31,6 +32,15 @@ export function draftProblems(
   } else {
     const pushTrouble = pushUrls.map(urlProblem).find(Boolean);
     if (pushTrouble) problems.set("pushurl", pushTrouble);
+  }
+  const fetchKey = `remote.${base.name}.fetch`;
+  const fetch = readFetch(base.name, valuesOf(base, draft, fetchKey));
+  if (draft.keys.has(canonicalKey(fetchKey)) && fetch.kind === "chosen") {
+    const trouble =
+      fetch.branches.length === 0
+        ? "Name at least one branch, or choose Every branch."
+        : fetch.branches.map(branchPatternProblem).find(Boolean);
+    if (trouble) problems.set("fetch", trouble);
   }
   return problems;
 }

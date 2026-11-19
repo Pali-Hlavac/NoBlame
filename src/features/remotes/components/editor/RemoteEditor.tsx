@@ -15,11 +15,12 @@ import {
 import { changeCount, type Draft, emptyDraft, toEdit } from "../../lib/settings/draft";
 import { draftProblems } from "../../lib/settings/problems";
 import { REMOTE_TABS, type RemoteTab } from "../../lib/settings/registry";
-import { panelId, tabId } from "../../lib/settings/words";
-import { AdvancedTab } from "./AdvancedTab";
+import { EditorSearch } from "./EditorSearch";
 import { EditorTabs } from "./EditorTabs";
-import { GeneralTab } from "./GeneralTab";
+import { HighlightContext } from "./highlight";
 import { ReviewDialog } from "./ReviewDialog";
+import { TabPanel } from "./TabPanel";
+import { useEditorSearch } from "./useEditorSearch";
 
 interface RemoteEditorProps {
   repoId: number;
@@ -88,6 +89,13 @@ function Editor({ repoId, base, draft, onDraft, onSaved, ...props }: EditorProps
   const count = changeCount(base, draft);
   const problems = draftProblems(base, draft, props.otherRemotes);
   const name = draft.name.trim();
+  const search = useEditorSearch(base, draft, tab, setTab);
+  const counts = search.result?.counts;
+  const tabs = REMOTE_TABS.map((candidate) => ({
+    ...candidate,
+    badge: counts ? String(counts.get(candidate.id) ?? 0) : undefined,
+    dimmed: counts ? !counts.get(candidate.id) : false,
+  }));
 
   const startReview = () => {
     preview.mutate(toEdit(base, { ...draft, name }), {
@@ -114,31 +122,32 @@ function Editor({ repoId, base, draft, onDraft, onSaved, ...props }: EditorProps
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
+      <EditorSearch
+        query={search.query}
+        result={search.result}
+        position={search.position}
+        onChange={search.change}
+        onStep={search.step}
+      />
       <EditorTabs
         label={`Settings of ${base.name}`}
         idPrefix={id}
-        tabs={REMOTE_TABS}
+        tabs={tabs}
         value={tab}
         onChange={setTab}
       />
-      <div
-        role="tabpanel"
-        id={panelId(id, tab)}
-        aria-labelledby={tabId(id, tab)}
-        className="min-h-0 flex-1 overflow-auto pr-1"
-      >
-        {tab === "general" ? (
-          <GeneralTab
-            base={base}
-            draft={draft}
-            onChange={onDraft}
-            problems={problems}
-            onRemove={props.onRemove}
-          />
-        ) : (
-          <AdvancedTab base={base} draft={draft} onChange={onDraft} />
-        )}
-      </div>
+      <HighlightContext value={search.highlight}>
+        <TabPanel
+          repoId={repoId}
+          idPrefix={id}
+          tab={tab}
+          base={base}
+          draft={draft}
+          onChange={onDraft}
+          problems={problems}
+          onRemove={props.onRemove}
+        />
+      </HighlightContext>
       {preview.error ? <InlineError error={preview.error} /> : null}
       <div className="flex items-center gap-2 border-t border-border pt-3">
         <p className="flex-1 text-sm text-muted-foreground" aria-live="polite">
