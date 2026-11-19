@@ -56,10 +56,29 @@ impl Fixture {
         self.run(&self.path(), args)
     }
 
+    /// Runs git in the repository with the fixture's environment and returns its output, for a
+    /// command expected to fail (a merge stopping on a conflict).
+    pub fn try_git(&self, args: &[&str]) -> std::process::Output {
+        self.command(&self.path(), args).output().unwrap()
+    }
+
     /// Runs git in `cwd`.
     pub fn run(&self, cwd: &Path, args: &[&str]) -> String {
+        let output = self.command(cwd, args).output().unwrap();
+        assert!(
+            output.status.success(),
+            "git {args:?} failed: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        String::from_utf8_lossy(&output.stdout).trim().to_owned()
+    }
+
+    /// `git <args>` in `cwd` with an empty global config, no system config, a fixed identity and
+    /// the fixture's clock: never the machine's own settings.
+    fn command(&self, cwd: &Path, args: &[&str]) -> Command {
         let time = format!("{} +0000", self.clock.get());
-        let output = Command::new("git")
+        let mut command = Command::new("git");
+        command
             .args(args)
             .current_dir(cwd)
             .env("GIT_CONFIG_GLOBAL", &self.config)
@@ -70,15 +89,8 @@ impl Fixture {
             .env("GIT_COMMITTER_EMAIL", "ada@example.com")
             .env("GIT_AUTHOR_DATE", &time)
             .env("GIT_COMMITTER_DATE", &time)
-            .env("LC_ALL", "C")
-            .output()
-            .unwrap();
-        assert!(
-            output.status.success(),
-            "git {args:?} failed: {}",
-            String::from_utf8_lossy(&output.stderr)
-        );
-        String::from_utf8_lossy(&output.stdout).trim().to_owned()
+            .env("LC_ALL", "C");
+        command
     }
 
     /// An empty commit on the current branch, one minute after the previous one.

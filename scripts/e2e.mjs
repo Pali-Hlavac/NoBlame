@@ -77,16 +77,15 @@ function edgeDriver() {
     const url = `https://msedgedriver.microsoft.com/${version}/edgedriver_win64.zip`;
     console.log(`Downloading the Edge WebDriver ${version}…`);
     run("curl", ["-sSfL", "-o", zip, url], { shell: false });
-    run(
-      "powershell",
-      [
-        "-NoProfile",
-        "-Command",
-        `Expand-Archive -Force -LiteralPath '${zip}' -DestinationPath '${folder}'`,
-      ],
-      { shell: false },
-    );
+    // Windows' own tar (bsdtar, Windows 10 and later) opens zip files; named by its full path so
+    // Git's GNU tar on PATH is not taken. PowerShell's Expand-Archive broke on GitHub's runners.
+    const tar = join(process.env.SystemRoot ?? "C:\\Windows", "System32", "tar.exe");
+    run(tar, ["-xf", zip, "-C", folder], { shell: false });
     rmSync(zip);
+    if (!existsSync(binary)) {
+      console.error(`The Edge WebDriver download did not contain ${binary}.`);
+      process.exit(1);
+    }
   }
   return binary;
 }

@@ -165,13 +165,12 @@ async fn lists_conflicts_against_our_version() {
     fixture.git(&["checkout", "--quiet", "main"]);
     write(&fixture, "c.txt", "main\n");
     fixture.git(&["commit", "--quiet", "-am", "main"]);
-    // The merge stops on the conflict; the fixture's `git` helper would fail on that exit code.
-    let merge = std::process::Command::new("git")
-        .args(["merge", "--quiet", "topic"])
-        .current_dir(fixture.path())
-        .output()
-        .unwrap();
+    // The merge stops on the conflict (and only on it: with the fixture's identity, not the
+    // machine's, which CI does not have).
+    let merge = fixture.try_git(&["merge", "topic"]);
     assert!(!merge.status.success());
+    let said = String::from_utf8_lossy(&merge.stdout);
+    assert!(said.contains("CONFLICT"), "{said}");
 
     let status = status(&fixture, UntrackedFiles::All).await;
     assert_eq!(status.summary.conflicted, 1);
