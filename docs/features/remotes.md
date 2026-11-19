@@ -8,7 +8,8 @@ branch, any branch with options and force with lease, tags, deleting on a remote
 (2026-11-07)**: managing remotes (add, edit, remove), clone as a job, and Fetch all remotes as
 one fetch per remote, so it shows progress; **M10 slice 1 (2026-11-19)**: the remote editor
 (General and Advanced tabs, review and save all or nothing); **slice 2**: Fetch and Push tabs,
-search; **slice 3**: Branches tab, the original of a fork. The job model is
+search; **slice 3**: Branches tab, the original of a fork; **slice 4**: Test connection, the
+server's default branch, HTTPS ⇄ SSH, Open in browser, passwords and old-server settings moved. The job model is
 [architecture/background-jobs.md](../architecture/background-jobs.md) (ADR 0011).
 
 ## Where
@@ -134,6 +135,30 @@ remote…** below the list shows the form to add one.
   disabled with the version needed; a value set by the user's settings is shown under it), and
   **Remove <name>…** (a confirmation names what goes from this repository: its remote branches,
   and the local branches that lose their upstream; then `git remote remove -- <name>`).
+- **Talking to the remote** (slice 4), under the URL in General:
+  - **Test connection**: `git ls-remote --heads -- <name>` as a job (`test_remote_connection`,
+    kind `testConnection`; askpass asks for credentials as for a fetch). The toast says
+    "Connected: 12 branches on the server" or, on failure, a next step first (`connection_hint`:
+    unknown or changed SSH host key, SSH key refused, certificate not trusted, proxy, credentials
+    refused, name not found, server not reached, no repository there). It uses the saved URL;
+    with the URL changed, the tab says so.
+  - **Use SSH** / **Use HTTPS**: the same repository over the other protocol, for GitHub, GitLab,
+    Bitbucket and Azure DevOps (`dev.azure.com` and `*.visualstudio.com`; `lib/settings/hosts.ts`);
+    it changes the draft's URL, nothing else.
+  - **Open in browser**: the repository's web page (those hosts, and any `https://` remote without
+    its user name or password), opened by `open_web_page`, which opens only `http(s)://`
+    addresses without credentials.
+  - **Ask the server** (next to Default branch): `git remote set-head --auto -- <name>` as a job
+    (`ask_remote_default_branch`, kind `setHead`); disabled while there are unsaved changes.
+  - **A password written into a URL** (`url` or `pushurl` of this repository): a notice offers
+    **Move it to the credential helper** (`move_remote_passwords`): each password goes to `git
+credential approve` (on stdin; the window never sees it), then the URLs are saved with the
+    user name only, through the plan. Refused when no credential helper is set up ("git would
+    forget the password"); disabled while there are unsaved changes.
+  - **Settings of the old server**: when the draft moves the URL to another server (scheme, host
+    or port), this repository's `http.<url>.*` and `credential.<url>.*` keyed by the old server
+    are listed with **Move them to the new server** (removed under the old key, written under the
+    new, in the same save; `lib/settings/urlKeyed.ts`). The user's own ones are left alone.
 - **Fetch** tab (slice 2): **What to fetch**: **Every branch** (`+refs/heads/*:refs/remotes/<name>/*`)
   or **Only these branches** (names or patterns with one `*`, such as `release/*`; one refspec
   each, `+refs/heads/<b>:refs/remotes/<name>/<b>`; at first the default branch); refspecs written
@@ -299,7 +324,9 @@ M5 slice 6. The **…** menu of a repository and its quick buttons
   (`upstream_push`; test `finds_where_the_current_branch_pushes`).
 - `crates/git-core/src/remote/manage.rs` (`remote_details`, `add_remote`, `rename_remote`,
   `remove_remote`, `set_remote_url`, `unset_push_url`), `settings.rs` (`plan_remote_edit`,
-  `describe_remote_edit`, `apply_remote_edit`), `refs.rs` (`remote_head`, `remote_branch_names`,
+  `describe_remote_edit`, `apply_remote_edit`), `connection.rs` (`ls_remote_command`,
+  `set_head_auto_command`, `connection_hint`), `credential.rs` (`split_password`,
+  `store_password`, `has_credential_helper`), `refs.rs` (`remote_head`, `remote_branch_names`,
   `local_branch_names`),
   `crates/git-core/src/config/` (`scoped.rs` every scope with its file, `plan.rs` the change
   plan, applying and undoing it, `secret.rs` hiding passwords and header values), `validate.rs`, `clone.rs`
@@ -307,6 +334,10 @@ M5 slice 6. The **…** menu of a repository and its quick buttons
   (`fetch_commands`, `fetch_all_remotes`). Tests: `tests/remote_manage.rs`, `tests/remote_clone.rs`,
   `tests/remote_settings.rs` (several keys and push URLs, default branch and rename at once,
   hidden password kept, stale values refused, undone when a write or the rename fails).
+- `src-tauri/src/jobs/remote_check.rs` (Test connection, Ask the server);
+  `src-tauri/src/branches/remote_password.rs`, `remote_web.rs`; tests
+  `crates/git-core/tests/remote_connection.rs` (ls-remote, set-head, a password stored by a
+  `store` helper set up in the fixture only).
 - `src-tauri/src/branches/remotes.rs`, `remote_commands.rs`, `remote_types.rs`,
   `remote_settings.rs` and `remote_settings_types.rs` (the editor's commands);
   `src-tauri/src/jobs/clone.rs`, `steps.rs` (several commands in one job).
@@ -317,10 +348,11 @@ M5 slice 6. The **…** menu of a repository and its quick buttons
   `lib/settings/` (`registry.ts` and `registryTransfer.ts` every setting with its tab, help, key
   and synonyms; `draft.ts` the unsaved changes; `problems.ts`; `rewrites.ts`; `refspecs.ts` what
   to fetch; `search.ts`; `choices.ts`), `api/remoteSettings.ts`; the Fetch and Push tabs
-  (`FetchTab`, `PushTab`, `ChoiceSetting`), the Branches tab (`BranchesTab`, `TrackBranch`,
+  (`FetchTab`, `PushTab`, `ChoiceSetting`), `UrlActions` and `UrlNotices` (slice 4), the Branches tab (`BranchesTab`, `TrackBranch`,
   `lib/settings/tracking.ts`), the search (`EditorSearch`, `useEditorSearch`,
   `highlight.ts`); tests `RemotesDialog.test.tsx`, `editor/RemoteEditor.test.tsx`,
-  `editor/FetchPushSearch.test.tsx`, `editor/BranchesTab.test.tsx`, `lib/settings/tracking.test.ts`, `lib/settings/draft.test.ts`, `refspecs.test.ts`,
+  `editor/FetchPushSearch.test.tsx`, `editor/BranchesTab.test.tsx`,
+  `editor/ConnectionActions.test.tsx`, `lib/settings/hosts.test.ts`, `urlKeyed.test.ts`, `lib/settings/tracking.test.ts`, `lib/settings/draft.test.ts`, `refspecs.test.ts`,
   `search.test.ts`,
   `CloneDialog.test.tsx`, `lib/clone.test.ts`.
 - `src/features/jobs/components/OutputWindow.tsx`, `OutputConsole.tsx`, `store/output.ts`,

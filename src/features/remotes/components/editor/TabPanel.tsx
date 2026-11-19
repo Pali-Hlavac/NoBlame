@@ -19,6 +19,7 @@ interface TabPanelProps {
   draft: Draft;
   onChange: (draft: Draft) => void;
   problems: ReadonlyMap<string, string>;
+  dirty: boolean;
   /** Every remote's name, this one included. */
   remotes: readonly string[];
   onRemove: () => void;
@@ -45,7 +46,7 @@ export function TabPanel({ repoId, idPrefix, tab, remotes, ...props }: TabPanelP
       className="min-h-0 flex-1 overflow-auto px-3 py-1"
     >
       {tab === "general" ? (
-        <GeneralTab {...props} />
+        <GeneralTab repoId={repoId} {...props} />
       ) : tab === "fetch" ? (
         <FetchTab
           base={base}

@@ -3,6 +3,7 @@
 
 use tauri::State;
 
+use super::remote_password;
 use super::remote_settings;
 use super::remote_settings_types::{RemoteEditDto, RemoteSettingsDto};
 use super::remote_types::{AddRemoteRequestDto, RemoteDto};
@@ -73,4 +74,15 @@ pub async fn apply_remote_changes(
     edit: RemoteEditDto,
 ) -> CommandResult<()> {
     remote_settings::apply(&sessions, id, edit).await
+}
+
+/// Moves the passwords written into `name`'s URLs to the credential helper; how many moved.
+#[tauri::command]
+#[specta::specta]
+pub async fn move_remote_passwords(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    name: String,
+) -> CommandResult<u32> {
+    remote_password::move_passwords(&sessions, id, name).await
 }

@@ -23,6 +23,8 @@ export const STARTING_LABELS: Readonly<Record<JobKindDto, string>> = {
   archive: "Saving the archive…",
   lfsPull: "Downloading LFS files…",
   script: "Running the script…",
+  testConnection: "Connecting…",
+  setHead: "Asking the server…",
 };
 
 /** What each kind of job is called in a sentence ("Could not start the fetch"). */
@@ -35,6 +37,8 @@ export const JOB_NOUNS: Readonly<Record<JobKindDto, string>> = {
   archive: "archive",
   lfsPull: "LFS download",
   script: "script",
+  testConnection: "connection test",
+  setHead: "question to the server",
 };
 
 /** Updates and ends that arrived before their job's id did, kept for a few jobs. */

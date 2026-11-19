@@ -10,7 +10,7 @@ use super::clone::CloneRequestDto;
 use super::registry::JobRegistry;
 use super::script::RunScriptRequestDto;
 use super::types::{FetchRequestDto, JobDto, JobId, JobOutputDto, PullRequestDto, PushRequestDto};
-use super::{archive, clone, fetch, lfs, script, submodules, sync};
+use super::{archive, clone, fetch, lfs, remote_check, script, submodules, sync};
 use crate::error::CommandResult;
 use crate::settings::SettingsStore;
 
@@ -137,4 +137,26 @@ pub async fn run_script(
 #[specta::specta]
 pub async fn list_remotes(path: String) -> CommandResult<Vec<String>> {
     Ok(sync::remotes(path).await?)
+}
+
+/// Tests the connection to `remote` of the repository at `path` (`git ls-remote --heads`).
+#[tauri::command]
+#[specta::specta]
+pub async fn test_remote_connection(
+    registry: State<'_, Arc<JobRegistry>>,
+    path: String,
+    remote: String,
+) -> CommandResult<JobId> {
+    Ok(remote_check::test_connection(&registry, path, remote).await?)
+}
+
+/// Sets `remote`'s default branch here to the server's (`git remote set-head --auto`).
+#[tauri::command]
+#[specta::specta]
+pub async fn ask_remote_default_branch(
+    registry: State<'_, Arc<JobRegistry>>,
+    path: String,
+    remote: String,
+) -> CommandResult<JobId> {
+    Ok(remote_check::ask_default_branch(&registry, path, remote).await?)
 }

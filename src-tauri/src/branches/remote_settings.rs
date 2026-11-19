@@ -41,7 +41,7 @@ fn shown(entry: &ScopedEntry) -> bool {
 }
 
 /// A planning or saving failure as the window shows it.
-fn plan_error(error: PlanError) -> AppError {
+pub(super) fn plan_error(error: PlanError) -> AppError {
     match error {
         PlanError::Config(error) => config_error(error),
         error @ PlanError::Changed { .. } => {
@@ -79,11 +79,14 @@ async fn refs(dir: PathBuf, name: String) -> Result<Refs, AppError> {
     .await?
 }
 
-fn setup(sessions: &RepoSessions, id: RepoId) -> Result<(Git, PathBuf), RepositoryError> {
+pub(super) fn setup(
+    sessions: &RepoSessions,
+    id: RepoId,
+) -> Result<(Git, PathBuf), RepositoryError> {
     Ok((git()?, git_dir_or_work_tree(&sessions.get(id)?.repo)))
 }
 
-async fn entries(git: &Git, dir: &Path) -> Result<Vec<ScopedEntry>, AppError> {
+pub(super) async fn entries(git: &Git, dir: &Path) -> Result<Vec<ScopedEntry>, AppError> {
     read_all_scopes(git, dir, &CancellationToken::new())
         .await
         .map_err(config_error)

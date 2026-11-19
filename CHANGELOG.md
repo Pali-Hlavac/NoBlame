@@ -22,6 +22,11 @@ All notable changes to NoBlame are documented here. The format follows
   where they push and how they pull, making another branch track it, and how the repository
   pulls. Adding a remote offers the original of a fork as `upstream` and keeps pushing to
   `origin`.
+- The remote editor talks to the server: **Test connection** (with a plain-words reason when
+  it fails), **Ask the server** for its default branch, **Use SSH / Use HTTPS** for GitHub,
+  GitLab, Bitbucket and Azure DevOps, **Open in browser**, moving a password written into a URL
+  to the credential helper, and moving a server's proxy and certificate settings along when the
+  URL moves to another server.
 - NoBlame is free software under the GNU General Public License, version 3 or later
   (`LICENSE`); About says so.
 

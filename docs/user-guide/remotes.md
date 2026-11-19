@@ -67,6 +67,15 @@ next to one fetch it. Click a remote to see its settings on the right.
   tracking it), its **URL**, and **Push URLs** for when you push somewhere else than you fetch
   from. Add several push URLs to send every push to all of them, for example to keep a mirror
   up to date. **Default branch** is the branch the remote's name alone stands for.
+- Under the URL: **Test connection** checks that the server answers and accepts your
+  credentials, without downloading anything; if it fails, NoBlame says what to check first.
+  **Use SSH** / **Use HTTPS** switch the address for GitHub, GitLab, Bitbucket and Azure DevOps,
+  and **Open in browser** opens the repository's page. **Ask the server** (next to Default
+  branch) sets the default branch to the server's.
+- If a password is written into the address, NoBlame offers to move it to Git's credential
+  helper, which keeps it safer than the plain text of `.git/config`. If you move a remote to
+  another server, NoBlame lists the proxy and certificate settings that were for the old server
+  and offers to move them along.
 - **Fetch**: whether fetching brings every branch or only the ones you name (patterns like
   `release/*` work too: fewer branches fetch faster in big repositories), which tags come along,
   and whether branches and tags deleted on the server are removed here. Removing tags also

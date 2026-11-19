@@ -1,6 +1,7 @@
 //! Background jobs (ADR 0011): git commands that talk to remotes run in the background with
 //! progress, a log and cancel (git's whole process tree is killed): fetch, pull, push and
-//! clone, submodule updates, archives (`archive.rs`) LFS downloads (`lfs.rs`) and user scripts (`script.rs`). See `docs/architecture/background-jobs.md`.
+//! clone, submodule updates, archives (`archive.rs`) LFS downloads (`lfs.rs`), user scripts (`script.rs`), and asking a remote without fetching
+//! (`remote_check.rs`). See `docs/architecture/background-jobs.md`.
 
 mod archive;
 mod clone;
@@ -9,6 +10,7 @@ mod failure;
 mod fetch;
 mod lfs;
 mod registry;
+mod remote_check;
 mod script;
 mod steps;
 mod submodules;

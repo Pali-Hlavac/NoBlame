@@ -8,6 +8,8 @@
 //! [`parse_progress`] and keeps the rest as the job's log.
 
 mod clone;
+mod connection;
+mod credential;
 mod fetch;
 mod manage;
 mod progress;
@@ -24,6 +26,11 @@ pub use clone::{
     CloneError, CloneFilter, CloneOptions, CloneTarget, check_clone_target, clone_command,
     clone_hint, remove_partial_clone,
 };
+pub use connection::{
+    connection_hint, describe_connection, describe_set_head, ls_remote_command,
+    set_head_auto_command,
+};
+pub use credential::{UrlPassword, has_credential_helper, split_password, store_password};
 pub use fetch::{
     FetchOptions, FetchSummary, FetchTarget, fetch_all_remotes, fetch_command, fetch_commands,
     summarize_fetch,

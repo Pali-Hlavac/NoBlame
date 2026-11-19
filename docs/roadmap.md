@@ -1498,8 +1498,8 @@ Slices:
 - [x] Slice 1: foundation, General, Advanced, review and save (2026-11-19)
 - [x] Slice 2: Fetch and Push tabs, search (2026-11-19)
 - [x] Slice 3: Branches tab, fork preset (2026-11-19)
-- [ ] Slice 4: Test connection, default branch from the remote, HTTPS ⇄ SSH, Open in browser,
-      URL-keyed settings and passwords moved
+- [x] Slice 4: Test connection, default branch from the remote, HTTPS ⇄ SSH, Open in browser,
+      URL-keyed settings and passwords moved (2026-11-19)
 - [ ] Slice 5: Connection tab, SSH key per remote
 - [ ] Slice 6: Credentials and LFS tabs
 - [ ] Slice 7: checks in the real app, user guide, ADR final
@@ -1554,6 +1554,19 @@ Slices:
   `RemoteSettingsDto.localBranches`.
 - Next: slice 4 (Test connection, default branch from the server, HTTPS ⇄ SSH, Open in browser,
   moving URL-keyed settings and passwords).
+
+#### Where we left off (2026-11-19, slice 4)
+
+- git-core `remote/connection.rs` (ls-remote, set-head --auto, `connection_hint`) and
+  `remote/credential.rs` (a URL's password split off, `git credential approve` on stdin, whether
+  a helper is set); jobs `testConnection` and `setHead` (`jobs/remote_check.rs`);
+  `move_remote_passwords` (refused without a helper), `open_web_page` (http(s) only, no
+  credentials in it).
+- UI: `UrlActions` (Test connection, Use SSH / HTTPS, Open in browser), `UrlNotices` (password
+  in a URL, old-server settings), Ask the server next to Default branch; `hosts.ts` (GitHub,
+  GitLab, Bitbucket, Azure DevOps incl. visualstudio.com), `urlKeyed.ts`.
+- The integration test stores its made-up password only in a `store` file of the fixture (an
+  empty `credential.helper` first resets the user's helpers), never in Git Credential Manager.
 
 ## Phase 2: shell integration
 

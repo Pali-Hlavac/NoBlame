@@ -26,6 +26,10 @@ pub enum JobKindDto {
     LfsPull,
     /// A user script (Settings → Scripts) run on a commit.
     Script,
+    /// `git ls-remote --heads`: the remote editor's Test connection.
+    TestConnection,
+    /// `git remote set-head --auto`: the server's default branch, asked.
+    SetHead,
 }
 
 /// Where a job is in its life.

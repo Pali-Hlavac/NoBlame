@@ -321,6 +321,10 @@ export const commands = {
 	saveArchive: (request: ArchiveRequestDto) => typedError<number | null, AppError>(__TAURI_INVOKE("save_archive", { request })),
 	/**  Starts `git lfs pull` in the repository at `path`: the contents of its LFS files. */
 	pullLfs: (path: string) => typedError<number, AppError>(__TAURI_INVOKE("pull_lfs", { path })),
+	/**  Tests the connection to `remote` of the repository at `path` (`git ls-remote --heads`). */
+	testRemoteConnection: (path: string, remote: string) => typedError<number, AppError>(__TAURI_INVOKE("test_remote_connection", { path, remote })),
+	/**  Sets `remote`'s default branch here to the server's (`git remote set-head --auto`). */
+	askRemoteDefaultBranch: (path: string, remote: string) => typedError<number, AppError>(__TAURI_INVOKE("ask_remote_default_branch", { path, remote })),
 	/**  Runs the user script named in `request` on a commit, as a job. */
 	runScript: (request: RunScriptRequestDto) => typedError<number, AppError>(__TAURI_INVOKE("run_script", { request })),
 	/**  The remotes with their URLs, remote branches and the local branches tracking them. */
@@ -335,6 +339,10 @@ export const commands = {
 	previewRemoteChanges: (id: number, edit: RemoteEditDto) => typedError<string[], AppError>(__TAURI_INVOKE("preview_remote_changes", { id, edit })),
 	/**  Saves the editor's changes, all or nothing. */
 	applyRemoteChanges: (id: number, edit: RemoteEditDto) => typedError<null, AppError>(__TAURI_INVOKE("apply_remote_changes", { id, edit })),
+	/**  Moves the passwords written into `name`'s URLs to the credential helper; how many moved. */
+	moveRemotePasswords: (id: number, name: string) => typedError<number, AppError>(__TAURI_INVOKE("move_remote_passwords", { id, name })),
+	/**  Opens `url` in the default browser. */
+	openWebPage: (url: string) => typedError<null, AppError>(__TAURI_INVOKE("open_web_page", { url })),
 	/**  Prompts waiting for an answer, oldest first (read on start and on `CredentialRequested`). */
 	listCredentialRequests: () => __TAURI_INVOKE<CredentialRequestDto[]>("list_credential_requests"),
 	/**  Answers a prompt; `null` cancels it (git then fails). False when it no longer waits. */
@@ -1698,7 +1706,11 @@ export type JobKindDto =
 /**  `git lfs pull`: the contents of LFS files downloaded. */
 "lfsPull" | 
 /**  A user script (Settings → Scripts) run on a commit. */
-"script";
+"script" | 
+/**  `git ls-remote --heads`: the remote editor's Test connection. */
+"testConnection" | 
+/**  `git remote set-head --auto`: the server's default branch, asked. */
+"setHead";
 
 /**  Lines of a job's log, from line `from` (counting from its first line) on. */
 export type JobOutputDto = {

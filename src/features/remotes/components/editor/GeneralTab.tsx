@@ -1,21 +1,27 @@
-import { Trash2Icon } from "lucide-react";
+import { CloudDownloadIcon, Trash2Icon } from "lucide-react";
 import { useId } from "react";
 
 import { useGitInfo } from "@/features/git-env";
+import { useRepositoryPath } from "@/features/repositories";
 import type { RemoteSettingsDto } from "@/shared/ipc/bindings";
 import { Button } from "@/shared/ui/button";
 
+import { startAskDefaultBranch } from "../../api/connection";
 import { type Draft, inheritedValues, setValues, valuesOf } from "../../lib/settings/draft";
 import { gitRelease, remoteSetting, supports } from "../../lib/settings/registry";
 import { FIELD } from "../form";
 import { SettingRow } from "./SettingRow";
+import { UrlActions } from "./UrlActions";
 import { ValuesEditor } from "./ValuesEditor";
 
 interface GeneralTabProps {
+  repoId: number;
   base: RemoteSettingsDto;
   draft: Draft;
   onChange: (draft: Draft) => void;
   problems: ReadonlyMap<string, string>;
+  /** Whether the editor has unsaved changes. */
+  dirty: boolean;
   onRemove: () => void;
 }
 
@@ -32,8 +38,10 @@ function Problem({ text }: { text: string | undefined }) {
 }
 
 /** Name, URLs, default branch; removing the remote. */
-export function GeneralTab({ base, draft, onChange, problems, onRemove }: GeneralTabProps) {
+export function GeneralTab(props: GeneralTabProps) {
+  const { repoId, base, draft, onChange, problems, onRemove } = props;
   const id = useId();
+  const path = useRepositoryPath(repoId);
   const release = gitRelease(useGitInfo().data?.version);
   const key = (name: string) => `remote.${base.name}.${name}`;
   const urls = valuesOf(base, draft, key("url"));
@@ -81,6 +89,13 @@ export function GeneralTab({ base, draft, onChange, problems, onRemove }: Genera
           </p>
         ) : null}
       </SettingRow>
+      <UrlActions
+        repoId={repoId}
+        base={base}
+        draft={draft}
+        onChange={onChange}
+        dirty={props.dirty}
+      />
       <SettingRow setting={remoteSetting("pushurl")} remote={base.name} controlId={`${id}-push`}>
         <ValuesEditor
           label="Push URL"
@@ -96,21 +111,37 @@ export function GeneralTab({ base, draft, onChange, problems, onRemove }: Genera
         <Problem text={problems.get("pushurl")} />
       </SettingRow>
       <SettingRow setting={remoteSetting("head")} remote={base.name} controlId={`${id}-head`}>
-        <select
-          id={`${id}-head`}
-          value={draft.head ?? ""}
-          className={FIELD}
-          onChange={(event) => {
-            onChange({ ...draft, head: event.target.value || null });
-          }}
-        >
-          <option value="">Not set</option>
-          {branches.map((branch) => (
-            <option key={branch} value={branch}>
-              {branch}
-            </option>
-          ))}
-        </select>
+        <div className="flex gap-2">
+          <select
+            id={`${id}-head`}
+            value={draft.head ?? ""}
+            className={`${FIELD} flex-1`}
+            onChange={(event) => {
+              onChange({ ...draft, head: event.target.value || null });
+            }}
+          >
+            <option value="">Not set</option>
+            {branches.map((branch) => (
+              <option key={branch} value={branch}>
+                {branch}
+              </option>
+            ))}
+          </select>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8"
+            title="Sets it to the server's default branch now (git remote set-head --auto)"
+            disabled={path === undefined || props.dirty}
+            onClick={() => {
+              if (path !== undefined) startAskDefaultBranch(path, base.name);
+            }}
+          >
+            <CloudDownloadIcon aria-hidden />
+            Ask the server
+          </Button>
+        </div>
         {base.branches.length === 0 ? (
           <p className="text-xs text-muted-foreground">
             Fetch the remote first: its branches are listed once they are here.
