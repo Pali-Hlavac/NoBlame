@@ -1500,7 +1500,7 @@ Slices:
 - [x] Slice 3: Branches tab, fork preset (2026-11-19)
 - [x] Slice 4: Test connection, default branch from the remote, HTTPS ⇄ SSH, Open in browser,
       URL-keyed settings and passwords moved (2026-11-19)
-- [ ] Slice 5: Connection tab, SSH key per remote
+- [x] Slice 5: Connection tab, SSH key per remote (2026-11-19)
 - [ ] Slice 6: Credentials and LFS tabs
 - [ ] Slice 7: checks in the real app, user guide, ADR final
 
@@ -1567,6 +1567,21 @@ Slices:
   GitLab, Bitbucket, Azure DevOps incl. visualstudio.com), `urlKeyed.ts`.
 - The integration test stores its made-up password only in a `store` file of the fixture (an
   empty `credential.helper` first resets the user's helpers), never in Git Credential Manager.
+
+#### Where we left off (2026-11-19, slice 5)
+
+- Connection tab (`ConnectionTab`, `ProxySetting`, `TextSetting`, `SshKeySetting`,
+  `registryConnection.ts`); HTTP settings keyed `http.<server>/.<name>`.
+- SSH key per remote: `src-tauri/src/ssh_keys.rs` (its own file, `remote-ssh-keys.json`),
+  `branches/remote_ssh.rs` (read with the settings, chosen, moved on rename, forgotten on
+  removal), `jobs/ssh.rs` (`GIT_SSH_COMMAND` on fetch, pull, push, test, set-head).
+- Checked in the real app (my instance, its own profile): `web` (an https remote) saved
+  `http.https://git.example.invalid/.sslVerify false` and an SSH key in the profile's
+  `remote-ssh-keys.json`. Found and fixed: a key path with no file was refused only after git's
+  settings had been saved; the key is now saved first. Not tried: a real SSH server with the key
+  (the command it builds is unit tested).
+- Paused here at the owner's request (2026-11-19). Next: slice 6 (Credentials and LFS tabs),
+  then slice 7 (checks, user guide, ADR accepted).
 
 ## Phase 2: shell integration
 

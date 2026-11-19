@@ -7,6 +7,7 @@ import type { RemoteTab } from "../../lib/settings/registry";
 import { panelId, tabId } from "../../lib/settings/words";
 import { AdvancedTab } from "./AdvancedTab";
 import { BranchesTab } from "./BranchesTab";
+import { ConnectionTab } from "./ConnectionTab";
 import { FetchTab } from "./FetchTab";
 import { GeneralTab } from "./GeneralTab";
 import { PushTab } from "./PushTab";
@@ -57,6 +58,8 @@ export function TabPanel({ repoId, idPrefix, tab, remotes, ...props }: TabPanelP
         />
       ) : tab === "push" ? (
         <PushTab base={base} draft={draft} onChange={onChange} />
+      ) : tab === "connection" ? (
+        <ConnectionTab base={base} draft={draft} onChange={onChange} />
       ) : tab === "branches" ? (
         <BranchesTab base={base} draft={draft} onChange={onChange} remotes={remotes} />
       ) : (

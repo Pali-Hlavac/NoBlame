@@ -147,6 +147,7 @@ pub fn builder() -> Builder<tauri::Wry> {
             branches::remote_commands::apply_remote_changes,
             branches::remote_commands::move_remote_passwords,
             branches::remote_web::open_web_page,
+            branches::remote_commands::set_remote_ssh_key,
             askpass::commands::list_credential_requests,
             askpass::commands::answer_credential,
             worktree::commands::get_status,

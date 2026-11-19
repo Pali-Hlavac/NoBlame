@@ -9,7 +9,8 @@ branch, any branch with options and force with lease, tags, deleting on a remote
 one fetch per remote, so it shows progress; **M10 slice 1 (2026-11-19)**: the remote editor
 (General and Advanced tabs, review and save all or nothing); **slice 2**: Fetch and Push tabs,
 search; **slice 3**: Branches tab, the original of a fork; **slice 4**: Test connection, the
-server's default branch, HTTPS ⇄ SSH, Open in browser, passwords and old-server settings moved. The job model is
+server's default branch, HTTPS ⇄ SSH, Open in browser, passwords and old-server settings moved;
+**slice 5**: Connection tab, SSH key per remote. The job model is
 [architecture/background-jobs.md](../architecture/background-jobs.md) (ADR 0011).
 
 ## Where
@@ -159,6 +160,30 @@ credential approve` (on stdin; the window never sees it), then the URLs are save
     or port), this repository's `http.<url>.*` and `credential.<url>.*` keyed by the old server
     are listed with **Move them to the new server** (removed under the old key, written under the
     new, in the same save; `lib/settings/urlKeyed.ts`). The user's own ones are left alone.
+- **Connection** tab (slice 5):
+  - **HTTP(S), for <server>** (only when the URL is an http(s) address): settings keyed by the
+    remote's server, `http.<server>/.<name>` (an existing key written without the `/` is edited
+    in place): **Proxy** (`remote.<name>.proxy`: as git decides, naming `http.proxy`; **No proxy
+    for this remote**, an empty value; or an address), **Proxy sign-in** (`proxyAuthMethod`),
+    **Verify the server's certificate** (`sslVerify`; "No" warns), **Certificate authority
+    file** (`sslCAInfo`, Browse…), **Certificates come from** (`http.sslBackend`, Windows only:
+    the Windows certificate store or OpenSSL), **Client certificate** and its key (`sslCert`,
+    `sslKey`), **Extra HTTP headers** (`extraHeader`, several; shown as `Authorization: ***`,
+    kept when unchanged; plain text in `.git/config`, the help says so), **HTTP version**,
+    **Push buffer size** (`postBuffer`) and the slow-connection limits (`lowSpeedLimit`,
+    `lowSpeedTime`).
+  - **SSH key**: NoBlame's own setting (git has none per remote), kept in
+    `remote-ssh-keys.json` in the config folder by repository folder and remote
+    (`src-tauri/src/ssh_keys.rs`), not in the settings file, so a window holding an older copy of
+    the settings cannot overwrite it. Fetch (each remote of Fetch all), Pull, Push, Test
+    connection and Ask the server then run git with `GIT_SSH_COMMAND="<ssh> -i "<key>" -o
+IdentitiesOnly=yes"`, where `<ssh>` is the environment's `GIT_SSH_COMMAND`, else
+    `core.sshCommand`, else `ssh` (`jobs/ssh.rs`; when git picks the remote, it is the current
+    branch's, else `origin`). A terminal does not see it; the help points to `~/.ssh/config`. It
+    is saved first (`set_remote_ssh_key`: refuses a `.pub` file and a path with no file), so a
+    bad path stops the save before git's settings change; a rename moves it, removing the remote
+    forgets it. The review lists it as "NoBlame's own setting".
+  - **Rarely needed**: `uploadpack`, `receivepack`, `serverOption` (several; git 2.48+).
 - **Fetch** tab (slice 2): **What to fetch**: **Every branch** (`+refs/heads/*:refs/remotes/<name>/*`)
   or **Only these branches** (names or patterns with one `*`, such as `release/*`; one refspec
   each, `+refs/heads/<b>:refs/remotes/<name>/<b>`; at first the default branch); refspecs written
@@ -348,7 +373,9 @@ M5 slice 6. The **…** menu of a repository and its quick buttons
   `lib/settings/` (`registry.ts` and `registryTransfer.ts` every setting with its tab, help, key
   and synonyms; `draft.ts` the unsaved changes; `problems.ts`; `rewrites.ts`; `refspecs.ts` what
   to fetch; `search.ts`; `choices.ts`), `api/remoteSettings.ts`; the Fetch and Push tabs
-  (`FetchTab`, `PushTab`, `ChoiceSetting`), `UrlActions` and `UrlNotices` (slice 4), the Branches tab (`BranchesTab`, `TrackBranch`,
+  (`FetchTab`, `PushTab`, `ChoiceSetting`), `UrlActions` and `UrlNotices` (slice 4), the
+  Connection tab (`ConnectionTab`, `ProxySetting`, `TextSetting`, `SshKeySetting`,
+  `lib/settings/registryConnection.ts`; test `editor/ConnectionTab.test.tsx`), the Branches tab (`BranchesTab`, `TrackBranch`,
   `lib/settings/tracking.ts`), the search (`EditorSearch`, `useEditorSearch`,
   `highlight.ts`); tests `RemotesDialog.test.tsx`, `editor/RemoteEditor.test.tsx`,
   `editor/FetchPushSearch.test.tsx`, `editor/BranchesTab.test.tsx`,

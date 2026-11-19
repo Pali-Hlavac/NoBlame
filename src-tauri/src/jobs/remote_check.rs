@@ -10,6 +10,7 @@ use git_core::remote::{
 };
 
 use super::registry::{JobRegistry, JobSpec};
+use super::ssh::with_key;
 use super::target::JobTarget;
 use super::types::{JobId, JobKindDto};
 use crate::repository::RepositoryError;
@@ -26,7 +27,12 @@ pub async fn test_connection(
         kind: JobKindDto::TestConnection,
         title: format!("Test the connection to {remote}"),
         repo_path: path,
-        steps: vec![ls_remote_command(&target.git, &target.dir, &remote)],
+        steps: vec![with_key(
+            ls_remote_command(&target.git, &target.dir, &remote),
+            registry,
+            &target,
+            &remote,
+        )],
         describe: Box::new(|output| describe_connection(&output.stdout_lossy())),
         hint: Some(connection_hint),
         on_end: None,
@@ -45,7 +51,12 @@ pub async fn ask_default_branch(
         kind: JobKindDto::SetHead,
         title: format!("Ask {remote} for its default branch"),
         repo_path: path,
-        steps: vec![set_head_auto_command(&target.git, &target.dir, &remote)],
+        steps: vec![with_key(
+            set_head_auto_command(&target.git, &target.dir, &remote),
+            registry,
+            &target,
+            &remote,
+        )],
         describe: Box::new(|output| describe_set_head(&output.combined())),
         hint: Some(connection_hint),
         on_end: None,

@@ -12,7 +12,14 @@ import {
   usePreviewRemoteChanges,
   useRemoteSettings,
 } from "../../api/remoteSettings";
-import { changeCount, type Draft, emptyDraft, toEdit } from "../../lib/settings/draft";
+import {
+  changeCount,
+  type Draft,
+  emptyDraft,
+  gitChanged,
+  sshKeyChanged,
+  toEdit,
+} from "../../lib/settings/draft";
 import { draftProblems } from "../../lib/settings/problems";
 import { REMOTE_TABS, type RemoteTab } from "../../lib/settings/registry";
 import { EditorSearch } from "./EditorSearch";
@@ -97,27 +104,41 @@ function Editor({ repoId, base, draft, onDraft, onSaved, ...props }: EditorProps
     dimmed: counts ? !counts.get(candidate.id) : false,
   }));
 
+  const sshKey = draft.sshKey?.trim() ?? "";
+  // NoBlame's own setting: listed after git's commands, saved after them.
+  const sshLine = sshKeyChanged(base, draft)
+    ? `NoBlame's own setting: the SSH key for ${name} is ${sshKey === "" ? "none" : sshKey}`
+    : null;
+  const show = (commands: readonly string[]) => {
+    const all = sshLine ? [...commands, sshLine] : commands;
+    if (all.length > 0) {
+      setReview(all);
+      return;
+    }
+    toast.info("Nothing to save: the settings are already like that.");
+    onDraft(emptyDraft(base));
+  };
   const startReview = () => {
-    preview.mutate(toEdit(base, { ...draft, name }), {
-      onSuccess: (commands) => {
-        if (commands.length > 0) {
-          setReview(commands);
-          return;
-        }
-        toast.info("Nothing to save: the settings are already like that.");
-        onDraft(emptyDraft(base));
-      },
-    });
+    if (!gitChanged(base, draft)) {
+      show([]);
+      return;
+    }
+    preview.mutate(toEdit(base, { ...draft, name }), { onSuccess: show });
   };
   const save = () => {
-    apply.mutate(toEdit(base, { ...draft, name }), {
-      onSuccess: () => {
-        toast.success(`Saved the settings of ${name}`);
-        setReview(null);
-        if (name !== base.name) props.onRenamed(name);
-        else onSaved();
+    const edit = gitChanged(base, draft) ? toEdit(base, { ...draft, name }) : null;
+    const key = sshLine ? { remote: base.name, key: sshKey === "" ? null : sshKey } : null;
+    apply.mutate(
+      { edit, sshKey: key },
+      {
+        onSuccess: () => {
+          toast.success(`Saved the settings of ${name}`);
+          setReview(null);
+          if (name !== base.name) props.onRenamed(name);
+          else onSaved();
+        },
       },
-    });
+    );
   };
 
   return (

@@ -3,9 +3,12 @@
 
 use std::sync::Arc;
 
-use git_core::remote::{FetchOptions, FetchTarget, fetch_commands, summarize_fetch};
+use git_core::remote::{
+    FetchOptions, FetchTarget, fetch_all_remotes, fetch_commands, summarize_fetch,
+};
 
 use super::registry::{JobRegistry, JobSpec};
+use super::ssh::{default_remote, with_key};
 use super::target::JobTarget;
 use super::types::{FetchRequestDto, FetchTargetDto, JobId, JobKindDto};
 use crate::git_env::GitEnvError;
@@ -26,6 +29,12 @@ pub async fn start(
         FetchTargetDto::Remote(name) => FetchTarget::Remote(name),
     };
     let title = title(&target, request.prune);
+    // The remote of each step, for its SSH key: one per remote for Fetch all.
+    let remotes = match &target {
+        FetchTarget::Remote(name) => vec![name.clone()],
+        FetchTarget::All => fetch_all_remotes(&target_repo.repo.local()),
+        FetchTarget::Default => Vec::new(),
+    };
     let options = FetchOptions {
         target,
         prune: request.prune,
@@ -39,6 +48,19 @@ pub async fn start(
         &options,
     )
     .map_err(GitEnvError::from)?;
+    let steps = if remotes.len() == steps.len() {
+        steps
+            .into_iter()
+            .zip(&remotes)
+            .map(|(step, remote)| with_key(step, registry, &target_repo, remote))
+            .collect()
+    } else {
+        let remote = default_remote(&target_repo);
+        steps
+            .into_iter()
+            .map(|step| with_key(step, registry, &target_repo, &remote))
+            .collect()
+    };
     Ok(registry.start(JobSpec {
         kind: JobKindDto::Fetch,
         title,

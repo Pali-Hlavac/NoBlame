@@ -8,6 +8,7 @@ pub mod remote_commands;
 mod remote_password;
 mod remote_settings;
 mod remote_settings_types;
+mod remote_ssh;
 mod remote_types;
 pub mod remote_web;
 mod remotes;

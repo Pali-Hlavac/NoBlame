@@ -15,10 +15,12 @@ use git_core::repo::Repository;
 use tokio_util::sync::CancellationToken;
 
 use super::remote_settings_types::{ConfigValueDto, RemoteEditDto, RemoteSettingsDto};
+use super::remote_ssh;
 use super::service::{git, git_dir_or_work_tree};
 use crate::error::{AppError, ErrorCode};
 use crate::git_config::config_error;
 use crate::repository::{RepoId, RepoSessions, RepositoryError, blocking};
+use crate::ssh_keys::SshKeysStore;
 
 /// The sections the editor shows; the rest of the config (user, aliases, signing keys) stays
 /// in the backend.
@@ -95,9 +97,11 @@ pub(super) async fn entries(git: &Git, dir: &Path) -> Result<Vec<ScopedEntry>, A
 /// The settings of the remote `name`.
 pub async fn settings(
     sessions: &RepoSessions,
+    ssh: &SshKeysStore,
     id: RepoId,
     name: String,
 ) -> Result<RemoteSettingsDto, AppError> {
+    let ssh_key = remote_ssh::key(sessions, ssh, id, &name);
     let (git, dir) = setup(sessions, id)?;
     let entries = entries(&git, &dir).await?;
     let refs = refs(dir, name.clone()).await?;
@@ -106,6 +110,7 @@ pub async fn settings(
         head: refs.head,
         branches: refs.branches,
         local_branches: refs.local_branches,
+        ssh_key,
         entries: entries
             .into_iter()
             .filter(shown)
@@ -134,10 +139,13 @@ pub async fn preview(
 /// Saves `edit`: all of it, or nothing (what ran is undone).
 pub async fn apply(
     sessions: &RepoSessions,
+    ssh: &SshKeysStore,
     id: RepoId,
     edit: RemoteEditDto,
 ) -> Result<(), AppError> {
     let session = sessions.get(id)?;
+    let old_name = edit.name.clone();
+    let renamed = edit.new_name.clone().filter(|new| *new != edit.name);
     let (git, dir) = setup(sessions, id)?;
     let _writing = session.lock_writes().await;
     let plan = plan(&git, &dir, edit).await?;
@@ -146,5 +154,9 @@ pub async fn apply(
     }
     apply_remote_edit(&git, &dir, &plan, &CancellationToken::new())
         .await
-        .map_err(plan_error)
+        .map_err(plan_error)?;
+    if let Some(new_name) = renamed {
+        remote_ssh::follow(sessions, ssh, id, &old_name, Some(&new_name));
+    }
+    Ok(())
 }

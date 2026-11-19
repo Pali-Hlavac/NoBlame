@@ -27,6 +27,7 @@ const SETTINGS: RemoteSettingsDto = {
   head: "main",
   branches: ["main", "topic"],
   localBranches: ["main"],
+  sshKey: null,
   entries: [
     {
       key: "remote.origin.url",

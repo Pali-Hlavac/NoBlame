@@ -6,6 +6,7 @@ export const REMOTE_TABS = [
   { id: "fetch", label: "Fetch" },
   { id: "push", label: "Push" },
   { id: "branches", label: "Branches" },
+  { id: "connection", label: "Connection" },
   { id: "advanced", label: "Advanced" },
 ] as const;
 

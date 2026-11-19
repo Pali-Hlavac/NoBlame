@@ -11,6 +11,7 @@ use git_core::remote::{
 };
 
 use super::registry::{JobRegistry, JobSpec};
+use super::ssh::{default_remote, with_key};
 use super::target::JobTarget;
 use super::types::{JobId, JobKindDto, PullModeDto, PullRequestDto, PushRequestDto, PushWhatDto};
 use git_core::diff::parse_object_id;
@@ -49,7 +50,12 @@ pub async fn pull(
         kind: JobKindDto::Pull,
         title,
         repo_path: request.path,
-        steps: vec![pull_command(&target.git, &work_tree, mode, submodules)],
+        steps: vec![with_key(
+            pull_command(&target.git, &work_tree, mode, submodules),
+            registry,
+            &target,
+            &default_remote(&target),
+        )],
         describe: Box::new(|output| describe_pull(&output.stdout_lossy(), &output.stderr_lossy())),
         hint: Some(pull_hint),
         on_end: None,
@@ -153,6 +159,7 @@ fn start_push(
     title: String,
 ) -> Result<JobId, RepositoryError> {
     let command = push_command(&target.git, &target.dir, &options).map_err(GitEnvError::from)?;
+    let command = with_key(command, registry, target, &options.remote);
     Ok(registry.start(JobSpec {
         kind: JobKindDto::Push,
         title,

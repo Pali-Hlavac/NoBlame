@@ -37,6 +37,7 @@ const SETTINGS: RemoteSettingsDto = {
   head: "main",
   branches: ["dev", "main"],
   localBranches: ["main", "spike"],
+  sshKey: null,
   entries: [
     local("remote.upstream.url", "https://h/original.git"),
     local("branch.main.remote", "upstream"),

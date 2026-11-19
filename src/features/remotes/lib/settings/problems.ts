@@ -33,6 +33,13 @@ export function draftProblems(
     const pushTrouble = pushUrls.map(urlProblem).find(Boolean);
     if (pushTrouble) problems.set("pushurl", pushTrouble);
   }
+  const [proxy] = valuesOf(base, draft, `remote.${base.name}.proxy`);
+  if (proxy && !/^[a-z][a-z0-9+.-]*:\/\/[^/\s]+/i.test(proxy)) {
+    problems.set("proxy", "Enter the proxy's address, such as http://proxy.example.com:8080.");
+  }
+  if (draft.sshKey?.trim().endsWith(".pub")) {
+    problems.set("sshKey", "Choose the private key, not the .pub file.");
+  }
   const fetchKey = `remote.${base.name}.fetch`;
   const fetch = readFetch(base.name, valuesOf(base, draft, fetchKey));
   if (draft.keys.has(canonicalKey(fetchKey)) && fetch.kind === "chosen") {

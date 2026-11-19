@@ -6,10 +6,12 @@ use tauri::State;
 use super::remote_password;
 use super::remote_settings;
 use super::remote_settings_types::{RemoteEditDto, RemoteSettingsDto};
+use super::remote_ssh;
 use super::remote_types::{AddRemoteRequestDto, RemoteDto};
 use super::remotes;
 use crate::error::CommandResult;
 use crate::repository::{RepoId, RepoSessions};
+use crate::ssh_keys::SshKeysStore;
 
 /// The remotes with their URLs, remote branches and the local branches tracking them.
 #[tauri::command]
@@ -37,10 +39,13 @@ pub async fn add_remote(
 #[specta::specta]
 pub async fn remove_remote(
     sessions: State<'_, RepoSessions>,
+    ssh: State<'_, SshKeysStore>,
     id: RepoId,
     name: String,
 ) -> CommandResult<String> {
-    Ok(remotes::remove(&sessions, id, name).await?)
+    let said = remotes::remove(&sessions, id, name.clone()).await?;
+    remote_ssh::follow(&sessions, &ssh, id, &name, None);
+    Ok(said)
 }
 
 /// The settings of one remote for the remote editor, every scope, secrets hidden.
@@ -48,10 +53,11 @@ pub async fn remove_remote(
 #[specta::specta]
 pub async fn get_remote_settings(
     sessions: State<'_, RepoSessions>,
+    ssh: State<'_, SshKeysStore>,
     id: RepoId,
     name: String,
 ) -> CommandResult<RemoteSettingsDto> {
-    remote_settings::settings(&sessions, id, name).await
+    remote_settings::settings(&sessions, &ssh, id, name).await
 }
 
 /// The commands saving the editor's changes would run (secrets hidden); empty: no change.
@@ -70,10 +76,25 @@ pub async fn preview_remote_changes(
 #[specta::specta]
 pub async fn apply_remote_changes(
     sessions: State<'_, RepoSessions>,
+    ssh: State<'_, SshKeysStore>,
     id: RepoId,
     edit: RemoteEditDto,
 ) -> CommandResult<()> {
-    remote_settings::apply(&sessions, id, edit).await
+    remote_settings::apply(&sessions, &ssh, id, edit).await
+}
+
+/// Chooses the SSH private key NoBlame uses for `name` (None forgets it); NoBlame's own
+/// setting, passed as `GIT_SSH_COMMAND` when it talks to that remote.
+#[tauri::command]
+#[specta::specta]
+pub async fn set_remote_ssh_key(
+    sessions: State<'_, RepoSessions>,
+    ssh: State<'_, SshKeysStore>,
+    id: RepoId,
+    name: String,
+    key: Option<String>,
+) -> CommandResult<()> {
+    remote_ssh::choose(&sessions, &ssh, id, &name, key)
 }
 
 /// Moves the passwords written into `name`'s URLs to the credential helper; how many moved.

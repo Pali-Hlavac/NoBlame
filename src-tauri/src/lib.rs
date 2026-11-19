@@ -17,6 +17,7 @@ mod operations;
 mod patches;
 mod repository;
 mod settings;
+pub(crate) mod ssh_keys;
 pub mod storage;
 mod updates;
 mod windows;
@@ -66,6 +67,7 @@ pub fn run(request: LaunchRequest) {
             repository::init(app)?;
             workbench::init(app)?;
             jobs::init(app);
+            ssh_keys::init(app)?;
             windows::init(app)?;
             windows::launch(app.handle(), request)?;
             Ok(())

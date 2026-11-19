@@ -11,6 +11,8 @@ import { SettingRow } from "./SettingRow";
 interface ChoiceSettingProps {
   /** The registry id of the setting. */
   id: string;
+  /** The key when the registry cannot name it (HTTP settings keyed by the server). */
+  gitKey?: string;
   base: RemoteSettingsDto;
   draft: Draft;
   onChange: (draft: Draft) => void;
@@ -28,7 +30,7 @@ export function ChoiceSetting(props: ChoiceSettingProps) {
   const { base, draft, onChange, choices } = props;
   const id = useId();
   const setting = remoteSetting(props.id);
-  const key = setting.key?.(base.name) ?? "";
+  const key = props.gitKey ?? setting.key?.(base.name) ?? "";
   const value = valuesOf(base, draft, key).at(-1) ?? "";
   const known = value === "" || choices.some(([choice]) => choice === value);
   return (
@@ -36,6 +38,7 @@ export function ChoiceSetting(props: ChoiceSettingProps) {
       setting={setting}
       remote={base.name}
       controlId={id}
+      shownKey={key}
       inherited={value ? [] : inheritedValues(base, key)}
       unavailable={props.unavailable}
       warning={props.warn?.(value)}

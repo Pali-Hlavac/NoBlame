@@ -42,6 +42,7 @@ const SETTINGS: RemoteSettingsDto = {
   head: "main",
   branches: ["main"],
   localBranches: ["main"],
+  sshKey: null,
   entries: [
     local("remote.origin.url", "https://ada:***@github.com/ada/app.git", true),
     local("http.https://github.com/.proxy", "http://proxy.example:8080"),

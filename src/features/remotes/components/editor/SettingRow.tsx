@@ -21,6 +21,8 @@ interface SettingRowProps {
   unavailable?: string;
   /** A warning about the value chosen. */
   warning?: string;
+  /** The git key shown, when the registry's is a pattern (`http.<server>/.sslVerify`). */
+  shownKey?: string;
   children: ReactNode;
 }
 
@@ -33,6 +35,7 @@ export function SettingRow({
   unavailable,
   warning,
   group = false,
+  shownKey,
   children,
 }: SettingRowProps) {
   const last = inherited.at(-1);
@@ -58,7 +61,7 @@ export function SettingRow({
         {setting.key ? (
           <>
             {" "}
-            <code className="font-mono">{setting.key(remote)}</code>
+            <code className="font-mono">{shownKey ?? setting.key(remote)}</code>
           </>
         ) : null}
       </p>

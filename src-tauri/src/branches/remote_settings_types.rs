@@ -71,6 +71,8 @@ pub struct RemoteSettingsDto {
     pub branches: Vec<String>,
     /// The local branches, sorted (one may be set to track the remote).
     pub local_branches: Vec<String>,
+    /// The SSH private key NoBlame uses for this remote (its own setting), if one is chosen.
+    pub ssh_key: Option<String>,
     /// The settings the editor shows (remotes, URL rewrites, branches, push, pull, fetch, HTTP,
     /// credentials, LFS) of every scope, in the order git reads them.
     pub entries: Vec<ConfigValueDto>,

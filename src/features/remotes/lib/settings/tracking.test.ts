@@ -16,6 +16,7 @@ const BASE: RemoteSettingsDto = {
   head: "main",
   branches: ["main", "dev"],
   localBranches: ["main", "dev", "spike"],
+  sshKey: null,
   entries: [
     local("branch.main.remote", "origin"),
     local("branch.main.merge", "refs/heads/main"),

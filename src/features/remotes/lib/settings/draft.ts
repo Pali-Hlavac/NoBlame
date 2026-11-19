@@ -29,10 +29,12 @@ export interface Draft {
   readonly head: string | null;
   /** Changed keys, by canonical key. */
   readonly keys: ReadonlyMap<string, DraftKey>;
+  /** The SSH key NoBlame uses for the remote (its own setting, not git's); null: none. */
+  readonly sshKey: string | null;
 }
 
 export function emptyDraft(base: RemoteSettingsDto): Draft {
-  return { name: base.name, head: base.head, keys: new Map() };
+  return { name: base.name, head: base.head, keys: new Map(), sshKey: base.sshKey };
 }
 
 /** The values of `key` set in `scope` in what was read. */
@@ -104,7 +106,23 @@ export function remoteKeys(base: RemoteSettingsDto, draft: Draft): string[] {
 
 /** How many things the draft changes (keys, the default branch, the name). */
 export function changeCount(base: RemoteSettingsDto, draft: Draft): number {
-  return draft.keys.size + (draft.head !== base.head ? 1 : 0) + (draft.name !== base.name ? 1 : 0);
+  return (
+    draft.keys.size +
+    (draft.head !== base.head ? 1 : 0) +
+    (draft.name !== base.name ? 1 : 0) +
+    (sshKeyChanged(base, draft) ? 1 : 0)
+  );
+}
+
+/** Whether the draft changes the SSH key (saved apart from git's settings). */
+export function sshKeyChanged(base: RemoteSettingsDto, draft: Draft): boolean {
+  const key = draft.sshKey?.trim();
+  return (key === "" ? null : (key ?? null)) !== base.sshKey;
+}
+
+/** Whether the draft changes anything git stores (keys, default branch, name). */
+export function gitChanged(base: RemoteSettingsDto, draft: Draft): boolean {
+  return draft.keys.size > 0 || draft.head !== base.head || draft.name !== base.name;
 }
 
 /** What the backend checks and saves. */

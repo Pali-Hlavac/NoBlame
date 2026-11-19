@@ -343,6 +343,11 @@ export const commands = {
 	moveRemotePasswords: (id: number, name: string) => typedError<number, AppError>(__TAURI_INVOKE("move_remote_passwords", { id, name })),
 	/**  Opens `url` in the default browser. */
 	openWebPage: (url: string) => typedError<null, AppError>(__TAURI_INVOKE("open_web_page", { url })),
+	/**
+	 *  Chooses the SSH private key NoBlame uses for `name` (None forgets it); NoBlame's own
+	 *  setting, passed as `GIT_SSH_COMMAND` when it talks to that remote.
+	 */
+	setRemoteSshKey: (id: number, name: string, key: string | null) => typedError<null, AppError>(__TAURI_INVOKE("set_remote_ssh_key", { id, name, key })),
 	/**  Prompts waiting for an answer, oldest first (read on start and on `CredentialRequested`). */
 	listCredentialRequests: () => __TAURI_INVOKE<CredentialRequestDto[]>("list_credential_requests"),
 	/**  Answers a prompt; `null` cancels it (git then fails). False when it no longer waits. */
@@ -2377,6 +2382,8 @@ export type RemoteSettingsDto = {
 	branches: string[],
 	/**  The local branches, sorted (one may be set to track the remote). */
 	localBranches: string[],
+	/**  The SSH private key NoBlame uses for this remote (its own setting), if one is chosen. */
+	sshKey: string | null,
 	/**
 	 *  The settings the editor shows (remotes, URL rewrites, branches, push, pull, fetch, HTTP,
 	 *  credentials, LFS) of every scope, in the order git reads them.

@@ -12,6 +12,7 @@ mod lfs;
 mod registry;
 mod remote_check;
 mod script;
+mod ssh;
 mod steps;
 mod submodules;
 mod sync;

@@ -31,11 +31,26 @@ export function usePreviewRemoteChanges(repoId: number) {
   });
 }
 
-/** Saves `edit` all or nothing; the remotes, refs and settings are read again. */
+/**
+ * What a save writes: NoBlame's SSH key for the remote first (under its current name, so a bad
+ * path stops the save before git's settings change; a rename moves it along), then git's settings,
+ * all or nothing.
+ */
+export interface RemoteSave {
+  edit: RemoteEditDto | null;
+  /** The remote's current name and its key (null: none), when the key changed. */
+  sshKey: { remote: string; key: string | null } | null;
+}
+
+/** Saves the editor's changes; the remotes, refs and settings are read again. */
 export function useApplyRemoteChanges(repoId: number) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (edit: RemoteEditDto) => unwrap(commands.applyRemoteChanges(repoId, edit)),
+    mutationFn: async ({ edit, sshKey }: RemoteSave) => {
+      if (sshKey) await unwrap(commands.setRemoteSshKey(repoId, sshKey.remote, sshKey.key));
+      if (edit) await unwrap(commands.applyRemoteChanges(repoId, edit));
+      return null;
+    },
     meta: { silent: true, activity: "Saving the remote" },
     onSettled: () => queryClient.invalidateQueries({ queryKey: refKeys.all(repoId) }),
   });

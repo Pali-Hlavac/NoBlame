@@ -48,6 +48,7 @@ function settings(name: string): RemoteSettingsDto {
     head: "main",
     branches: ["main", "topic"],
     localBranches: ["main"],
+    sshKey: null,
     entries: [
       {
         key: `remote.${name}.url`,

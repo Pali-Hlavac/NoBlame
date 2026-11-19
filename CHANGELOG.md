@@ -27,6 +27,10 @@ All notable changes to NoBlame are documented here. The format follows
   GitLab, Bitbucket and Azure DevOps, **Open in browser**, moving a password written into a URL
   to the credential helper, and moving a server's proxy and certificate settings along when the
   URL moves to another server.
+- The remote editor's **Connection** tab: proxy, certificate checks and files, the Windows
+  certificate store, client certificates, extra headers, HTTP version and slow-connection limits
+  for the remote's server, and an **SSH key** per remote that NoBlame uses when it fetches,
+  pulls, pushes or tests that remote.
 - NoBlame is free software under the GNU General Public License, version 3 or later
   (`LICENSE`); About says so.
 

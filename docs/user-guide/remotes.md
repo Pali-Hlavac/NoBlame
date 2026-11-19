@@ -76,6 +76,12 @@ next to one fetch it. Click a remote to see its settings on the right.
   helper, which keeps it safer than the plain text of `.git/config`. If you move a remote to
   another server, NoBlame lists the proxy and certificate settings that were for the old server
   and offers to move them along.
+- **Connection**: for an https address, the proxy (or none for this remote), checking the
+  server's certificate (turning it off is risky, NoBlame says why), your company's certificate
+  file, the Windows certificate store, client certificates, extra headers, and limits for slow
+  connections. **SSH key** chooses the private key NoBlame uses for this remote: handy when you
+  have one key for work and one for your own projects. Only NoBlame uses it; in a terminal, set
+  it up in `~/.ssh/config`.
 - **Fetch**: whether fetching brings every branch or only the ones you name (patterns like
   `release/*` work too: fewer branches fetch faster in big repositories), which tags come along,
   and whether branches and tags deleted on the server are removed here. Removing tags also

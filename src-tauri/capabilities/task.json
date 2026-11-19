@@ -94,6 +94,7 @@
     "allow-ask-remote-default-branch",
     "allow-move-remote-passwords",
     "allow-open-web-page",
+    "allow-set-remote-ssh-key",
     "allow-run-script",
     "allow-list-remote-details",
     "allow-add-remote",

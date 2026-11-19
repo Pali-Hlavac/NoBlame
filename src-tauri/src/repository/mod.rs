@@ -27,6 +27,7 @@ pub use filter_types::GraphFilterDto;
 pub use graph_types::{
     CommitRowDto, FoundCommit, GoToCommit, GoToStatus, GraphSummary, RefLabel, ReloadedGraph,
 };
+pub(crate) use recent::same_path;
 pub(crate) use service::blocking;
 pub use sessions::RepoSessions;
 pub use types::{PathScopeDto, RepoId, RepoSummary};

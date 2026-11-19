@@ -8,6 +8,7 @@ const BASE: RemoteSettingsDto = {
   head: null,
   branches: [],
   localBranches: ["main"],
+  sshKey: null,
   entries: [
     {
       key: "remote.origin.vcs",

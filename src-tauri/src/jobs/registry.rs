@@ -74,6 +74,11 @@ pub struct JobRegistry {
 }
 
 impl JobRegistry {
+    /// The SSH keys chosen per remote in the remote editor (`crate::ssh_keys`).
+    pub fn ssh_keys(&self) -> Option<tauri::State<'_, crate::ssh_keys::SshKeysStore>> {
+        tauri::Manager::try_state(&self.app)
+    }
+
     pub fn new(app: AppHandle, askpass: Arc<Askpass>) -> Self {
         Self {
             app,

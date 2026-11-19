@@ -3,6 +3,7 @@
  * the other words people search for. The tabs render from it and the search reads it, so a new
  * setting is found as soon as it is listed (`search.ts`).
  */
+import { CONNECTION_SETTINGS } from "./registryConnection";
 import { BRANCH_SETTINGS, FETCH_SETTINGS, PUSH_SETTINGS } from "./registryTransfer";
 import type { RemoteSetting } from "./settingTypes";
 
@@ -78,6 +79,7 @@ export const REMOTE_SETTINGS: readonly RemoteSetting[] = [
   ...FETCH_SETTINGS,
   ...PUSH_SETTINGS,
   ...BRANCH_SETTINGS,
+  ...CONNECTION_SETTINGS,
 ];
 
 /** The setting with `id`; settings are listed above, so it exists. */
