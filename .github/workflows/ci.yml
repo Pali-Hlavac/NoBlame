@@ -109,6 +109,18 @@ jobs:
       - name: Smoke tests
         if: runner.os == 'Linux'
         run: xvfb-run --auto-servernum pnpm e2e
+      # The Edge WebDriver asks for WebView2's debugging port through WEBVIEW2_* variables, which
+      # WebView2 150 and later ignores in apps run as administrator, as everything is on GitHub's
+      # runners; a machine policy still reaches it (MicrosoftEdge/WebView2Feedback#5640). The
+      # runner is thrown away after the job, and the policy names noblame.exe only.
+      - name: Let the Edge WebDriver reach WebView2
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $key = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge\WebView2\AdditionalBrowserArguments'
+          New-Item -Path $key -Force | Out-Null
+          New-ItemProperty -Path $key -Name 'noblame.exe' -Value '--remote-debugging-port=0' `
+            -PropertyType String -Force | Out-Null
       - name: Smoke tests
         if: runner.os == 'Windows'
         run: pnpm e2e
@@ -118,25 +130,23 @@ jobs:
         if: failure() && runner.os == 'Windows'
         shell: pwsh
         run: |
-          $env:NOBLAME_PROFILE_DIR = Join-Path $env:RUNNER_TEMP "noblame-profile"
-          $env:WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS = "--remote-debugging-port=9222"
+          $profileDir = Join-Path $env:RUNNER_TEMP "noblame-profile"
+          $env:NOBLAME_PROFILE_DIR = $profileDir
           $out = Join-Path $env:RUNNER_TEMP "app-out.txt"
           $err = Join-Path $env:RUNNER_TEMP "app-err.txt"
           $app = Start-Process "target/e2e/debug/noblame.exe" -PassThru `
             -RedirectStandardOutput $out -RedirectStandardError $err
           Start-Sleep -Seconds 20
           if ($app.HasExited) { "The app exited with code $($app.ExitCode)." } else { "The app is running." }
-          try { (Invoke-WebRequest http://127.0.0.1:9222/json/version -UseBasicParsing).Content }
-          catch { "WebView2 does not answer on its debugging port: $_" }
-          Get-Process msedgewebview2 -ErrorAction SilentlyContinue | Select-Object Id, Path | Format-Table
+          # The port WebView2 chose, written where the Edge WebDriver looks for it.
+          $port = Join-Path $profileDir "webview\EBWebView\DevToolsActivePort"
+          if (Test-Path $port) { "DevToolsActivePort: $(Get-Content $port -TotalCount 1)" }
+          else { "No DevToolsActivePort in $port" }
           # The browser process (no --type=) shows whether the debugging port reached WebView2.
           "--- WebView2 browser processes"
           Get-CimInstance Win32_Process -Filter "Name = 'msedgewebview2.exe'" |
             Where-Object { $_.CommandLine -notmatch '--type=' } |
             ForEach-Object { "$($_.ProcessId) (parent $($_.ParentProcessId)): $($_.CommandLine)" }
-          "--- the app: $((Get-CimInstance Win32_Process -Filter "ProcessId = $($app.Id)").CommandLine)"
-          "--- WEBVIEW2_* variables"
-          Get-ChildItem env:WEBVIEW2* | ForEach-Object { "$($_.Name)=$($_.Value)" }
           "--- Edge and WebView2 policies"
           foreach ($root in 'HKLM:\SOFTWARE\Policies\Microsoft\Edge', 'HKCU:\SOFTWARE\Policies\Microsoft\Edge') {
             if (Test-Path $root) { Get-ChildItem $root -Recurse | Out-String; Get-ItemProperty $root | Out-String }

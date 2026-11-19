@@ -70,9 +70,13 @@ End to end:
 - The app is started without arguments: the Edge WebDriver passes `args` on as browser
   switches (`--c:\users\...\repo`, lowercased), which the command line refuses
   (exit code 2). The driver names the webview's folder and debugging port in
-  `WEBVIEW2_USER_DATA_FOLDER` and `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS`; the app passes both to
-  the webview itself (`storage::profile`), because on GitHub's Windows runners the webview ignored
-  the variables and the driver never reached it ("DevToolsActivePort file doesn't exist").
+  `WEBVIEW2_USER_DATA_FOLDER` and `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS`. WebView2 150 and later
+  ignores both in an app run as administrator, as everything is on GitHub's Windows runners
+  ("DevToolsActivePort file doesn't exist"; MicrosoftEdge/WebView2Feedback#5640, by design). The
+  app passes the folder to the webview itself (`storage::profile`); CI sets the machine policy
+  `HKLM\SOFTWARE\Policies\Microsoft\Edge\WebView2\AdditionalBrowserArguments`, value
+  `noblame.exe` = `--remote-debugging-port=0`, on the throwaway runner. Passing the port from the
+  app did not reach the webview there. Run locally as a normal user, nothing extra is needed.
 - macOS is not covered: WKWebView has no WebDriver (the roadmap's decision).
 
 ### Consequences

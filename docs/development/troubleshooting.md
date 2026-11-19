@@ -50,6 +50,10 @@ reader. Expected; see [background-jobs.md](../architecture/background-jobs.md).
 **`pnpm bindings` changed `bindings.ts`.** Commit the regenerated file; CI fails when it is out
 of date.
 
+**`pnpm e2e` on Windows fails with "DevToolsActivePort file doesn't exist".** The terminal runs
+as administrator: WebView2 150 and later then ignores the debugging port the Edge WebDriver asks
+for. Run it from a normal terminal (CI sets a machine policy instead; ADR 0016).
+
 ## Logs
 
 Set `RUST_LOG` (for example `RUST_LOG=noblame_lib=debug,git_core=debug`) before starting the app.
