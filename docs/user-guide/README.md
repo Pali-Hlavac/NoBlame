@@ -2,7 +2,7 @@
 
 NoBlame is a fast Git client for Windows, Linux and macOS, built for very large repositories.
 
-This guide describes version 0.1.0. You can open, create and clone repositories, browse their
+This guide describes version 0.2. You can open, create and clone repositories, browse their
 history in the commit graph, see what each commit changed, stage and commit, stash, work with
 branches, tags and remotes (fetch, pull, push), merge, cherry-pick, revert, reset and rebase
 (also interactively), resolve conflicts, get lost work back from the reflog, and initialize
