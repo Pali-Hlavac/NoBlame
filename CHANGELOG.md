@@ -6,6 +6,8 @@ All notable changes to NoBlame are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-19
+
 ### Added
 
 - The Remotes dialog became the remote editor: remotes on the left, the chosen one's settings

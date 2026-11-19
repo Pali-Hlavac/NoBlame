@@ -7,7 +7,7 @@ with Tauri 2, Rust and React.
 
 ![NoBlame with a repository's commit graph, its changed files and a diff, shown half in the light and half in the dark theme](assets/screenshot.png)
 
-> **Status: version 0.2, before the first release.** There are no installers yet; build it
+> **Status: version 0.3, before the first release.** There are no installers yet; build it
 > from source (below). Phase 1, the full Git client, is done ([roadmap](docs/roadmap.md)).
 
 ## What it does

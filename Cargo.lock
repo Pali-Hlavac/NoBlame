@@ -1668,7 +1668,7 @@ dependencies = [
 
 [[package]]
 name = "git-core"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "criterion",
  "gix",
@@ -3510,7 +3510,7 @@ dependencies = [
 
 [[package]]
 name = "noblame"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "clap",
  "getrandom 0.3.4",
@@ -3541,7 +3541,7 @@ dependencies = [
 
 [[package]]
 name = "noblame-repo-gen"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "clap",
  "tempfile",
