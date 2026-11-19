@@ -82,6 +82,16 @@ next to one fetch it. Click a remote to see its settings on the right.
   connections. **SSH key** chooses the private key NoBlame uses for this remote: handy when you
   have one key for work and one for your own projects. Only NoBlame uses it; in a terminal, set
   it up in `~/.ssh/config`.
+- **Credentials**: for an https address, which programs keep your sign-in (Git Credential
+  Manager, your system's password store, …) and where they are set up. NoBlame warns when there
+  is none, or when one keeps passwords in a file anyone can read. **Sign in** connects once so
+  the helper can ask and remember; **Forget the saved sign-in…** makes it forget, for example to
+  switch to another account. You can also set the user name for the server, a separate sign-in
+  for each repository on it and, for Azure DevOps, the account to use for the organization and
+  whether to sign in with your Microsoft account or a personal access token.
+- **LFS** (only in repositories that use Git LFS): where this remote keeps the contents of large
+  files, if not where Git LFS would look, and whether pushing first checks that nobody else has
+  locked the files you push.
 - **Fetch**: whether fetching brings every branch or only the ones you name (patterns like
   `release/*` work too: fewer branches fetch faster in big repositories), which tags come along,
   and whether branches and tags deleted on the server are removed here. Removing tags also

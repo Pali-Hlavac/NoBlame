@@ -198,6 +198,15 @@ pub fn lfs_pull_command(git: &Git, dir: &Path) -> GitCommand {
     lfs(git, dir).arg("pull")
 }
 
+/// Whether a repository uses Git LFS, cheaply and without git-lfs: git-lfs has stored objects
+/// (`<common dir>/lfs`), or the top `.gitattributes` sends files through `filter=lfs`.
+pub fn uses_lfs(common_dir: &Path, work_dir: Option<&Path>) -> bool {
+    common_dir.join("lfs").is_dir()
+        || work_dir
+            .and_then(|dir| std::fs::read_to_string(dir.join(".gitattributes")).ok())
+            .is_some_and(|attributes| attributes.contains("filter=lfs"))
+}
+
 #[cfg(test)]
 mod tests {
     use super::{LfsLock, LfsOwner, parse_lfs_files};

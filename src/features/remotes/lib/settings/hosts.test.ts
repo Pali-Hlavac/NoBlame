@@ -1,4 +1,4 @@
-import { otherProtocol, webPage } from "./hosts";
+import { azureOrganization, lfsEndpoint, otherProtocol, webPage } from "./hosts";
 
 describe("remote hosts", () => {
   it("finds the web page", () => {
@@ -39,5 +39,30 @@ describe("remote hosts", () => {
       url: "https://dev.azure.com/org/Proj/_git/Repo",
     });
     expect(otherProtocol("https://git.example.com/a/b.git")).toBeNull();
+  });
+});
+
+describe("addresses derived from a remote's URL", () => {
+  it("finds the Azure DevOps organization of an https URL", () => {
+    expect(azureOrganization("https://contoso@dev.azure.com/contoso/Web/_git/app")).toBe("contoso");
+    expect(azureOrganization("https://contoso.visualstudio.com/Web/_git/app")).toBe("contoso");
+    expect(azureOrganization("git@ssh.dev.azure.com:v3/contoso/Web/app")).toBeNull();
+    expect(azureOrganization("https://github.com/ada/app.git")).toBeNull();
+  });
+
+  it("works out the LFS server as git-lfs does", () => {
+    expect(lfsEndpoint("https://ada@github.com/ada/app.git")).toBe(
+      "https://github.com/ada/app.git/info/lfs",
+    );
+    expect(lfsEndpoint("https://dev.azure.com/c/Web/_git/app")).toBe(
+      "https://dev.azure.com/c/Web/_git/app.git/info/lfs",
+    );
+    expect(lfsEndpoint("git@github.com:ada/app.git")).toBe(
+      "https://github.com/ada/app.git/info/lfs",
+    );
+    expect(lfsEndpoint("ssh://git@git.example.com:2222/team/app")).toBe(
+      "https://git.example.com/team/app.git/info/lfs",
+    );
+    expect(lfsEndpoint("C:/repos/app.git")).toBeNull();
   });
 });

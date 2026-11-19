@@ -27,6 +27,7 @@ const SETTINGS: RemoteSettingsDto = {
   head: "main",
   branches: ["main", "topic"],
   localBranches: ["main"],
+  usesLfs: false,
   sshKey: null,
   entries: [
     {

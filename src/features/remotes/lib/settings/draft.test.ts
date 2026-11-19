@@ -16,6 +16,7 @@ const BASE: RemoteSettingsDto = {
   head: "main",
   branches: ["main"],
   localBranches: ["main"],
+  usesLfs: false,
   sshKey: null,
   entries: [
     { key: "remote.origin.prune", value: "false", scope: "global", file: null, secret: false },

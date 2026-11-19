@@ -44,6 +44,26 @@ export const HTTP_VERSION_CHOICES: readonly Choice[] = [
   ["HTTP/1.1", "HTTP/1.1"],
 ];
 
+export const PROVIDER_CHOICES: readonly Choice[] = [
+  ["github", "GitHub (also GitHub Enterprise)"],
+  ["gitlab", "GitLab"],
+  ["bitbucket", "Bitbucket"],
+  ["azure-repos", "Azure DevOps"],
+  ["generic", "Any other (user name and password or token)"],
+];
+
+export const AZURE_CREDENTIAL_CHOICES: readonly Choice[] = [
+  ["oauth", "A Microsoft account (OAuth)"],
+  ["pat", "A personal access token"],
+];
+
+export const MSAUTH_FLOW_CHOICES: readonly Choice[] = [
+  ["auto", "Whatever works best here"],
+  ["embedded", "A window of Git Credential Manager"],
+  ["system", "Your web browser"],
+  ["devicecode", "A code to type on another device"],
+];
+
 /** "yes" / "no" for a boolean value as git reads it; undefined stays unknown. */
 export function yesNo(value: string | undefined): string {
   if (value === undefined) return "no";

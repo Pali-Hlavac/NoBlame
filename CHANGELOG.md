@@ -31,6 +31,16 @@ All notable changes to NoBlame are documented here. The format follows
   certificate store, client certificates, extra headers, HTTP version and slow-connection limits
   for the remote's server, and an **SSH key** per remote that NoBlame uses when it fetches,
   pulls, pushes or tests that remote.
+- The remote editor's **Credentials** tab: the credential helpers Git asks for the remote's
+  server and where they are set (with a warning when there is none or one keeps passwords
+  unencrypted), **Sign in** and **Forget the saved sign-in…**, the server's user name, helpers,
+  a sign-in per repository and Git Credential Manager's kind of server, and for Azure DevOps the
+  account per organization, OAuth or personal access token, the Windows broker and the sign-in
+  flow.
+- The remote editor's **LFS** tab (in repositories using Git LFS): the remote's LFS server, its
+  server for pushing, and whether pushing checks locks first.
+- The remote editor's search finds only the settings shown for the remote (no Azure DevOps
+  settings for a GitHub remote, no HTTP settings for an SSH one).
 - NoBlame is free software under the GNU General Public License, version 3 or later
   (`LICENSE`); About says so.
 

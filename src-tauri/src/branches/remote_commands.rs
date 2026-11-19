@@ -107,3 +107,15 @@ pub async fn move_remote_passwords(
 ) -> CommandResult<u32> {
     remote_password::move_passwords(&sessions, id, name).await
 }
+
+/// Makes the credential helpers forget the sign-in kept for `name`'s http(s) addresses, so the
+/// next fetch or push asks again; how many addresses were forgotten.
+#[tauri::command]
+#[specta::specta]
+pub async fn forget_remote_credentials(
+    sessions: State<'_, RepoSessions>,
+    id: RepoId,
+    name: String,
+) -> CommandResult<u32> {
+    remote_password::forget(&sessions, id, name).await
+}

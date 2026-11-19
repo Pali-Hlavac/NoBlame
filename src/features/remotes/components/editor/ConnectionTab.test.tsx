@@ -32,6 +32,7 @@ function settings(url: string): RemoteSettingsDto {
     head: "main",
     branches: ["main"],
     localBranches: ["main"],
+    usesLfs: false,
     sshKey: null,
     entries: [{ key: "remote.origin.url", value: url, scope: "local", file: null, secret: false }],
   };

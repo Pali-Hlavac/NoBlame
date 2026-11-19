@@ -341,6 +341,11 @@ export const commands = {
 	applyRemoteChanges: (id: number, edit: RemoteEditDto) => typedError<null, AppError>(__TAURI_INVOKE("apply_remote_changes", { id, edit })),
 	/**  Moves the passwords written into `name`'s URLs to the credential helper; how many moved. */
 	moveRemotePasswords: (id: number, name: string) => typedError<number, AppError>(__TAURI_INVOKE("move_remote_passwords", { id, name })),
+	/**
+	 *  Makes the credential helpers forget the sign-in kept for `name`'s http(s) addresses, so the
+	 *  next fetch or push asks again; how many addresses were forgotten.
+	 */
+	forgetRemoteCredentials: (id: number, name: string) => typedError<number, AppError>(__TAURI_INVOKE("forget_remote_credentials", { id, name })),
 	/**  Opens `url` in the default browser. */
 	openWebPage: (url: string) => typedError<null, AppError>(__TAURI_INVOKE("open_web_page", { url })),
 	/**
@@ -2382,6 +2387,8 @@ export type RemoteSettingsDto = {
 	branches: string[],
 	/**  The local branches, sorted (one may be set to track the remote). */
 	localBranches: string[],
+	/**  Whether the repository uses Git LFS (the editor shows its LFS tab). */
+	usesLfs: boolean,
 	/**  The SSH private key NoBlame uses for this remote (its own setting), if one is chosen. */
 	sshKey: string | null,
 	/**

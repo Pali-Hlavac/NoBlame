@@ -8,6 +8,7 @@ const BASE: RemoteSettingsDto = {
   head: null,
   branches: [],
   localBranches: ["main"],
+  usesLfs: false,
   sshKey: null,
   entries: [
     {
@@ -41,5 +42,31 @@ describe("remote editor search", () => {
     const result = searchRemote("push", BASE, emptyDraft(BASE));
     expect(result?.counts.get("push")).toBeGreaterThan(3);
     expect(searchRemote("  ", BASE, emptyDraft(BASE))).toBeNull();
+  });
+});
+
+describe("search over settings that apply", () => {
+  const withUrl = (url: string, usesLfs = false): RemoteSettingsDto => ({
+    ...BASE,
+    usesLfs,
+    entries: [{ key: "remote.origin.url", value: url, scope: "local", file: null, secret: false }],
+  });
+  const found = (base: RemoteSettingsDto, query: string) =>
+    searchRemote(query, base, emptyDraft(base))?.matches.map((match) => match.id) ?? [];
+
+  it("finds only the settings the tabs show for the remote's URL", () => {
+    const azure = withUrl("https://dev.azure.com/contoso/Web/_git/app");
+    const ssh = withUrl("git@github.com:ada/app.git");
+    expect(found(azure, "personal access token")).toEqual(["azureCredentialType"]);
+    expect(found(withUrl("https://github.com/ada/app.git"), "personal access token")).toEqual([]);
+    expect(found(ssh, "proxy")).toEqual([]);
+    expect(found(ssh, "switch account")).toEqual([]);
+  });
+
+  it("finds LFS settings only when the LFS tab is shown", () => {
+    expect(found(withUrl("https://github.com/ada/app.git"), "locksverify")).toEqual([]);
+    expect(found(withUrl("https://github.com/ada/app.git", true), "locksverify")).toEqual([
+      "locksverify",
+    ]);
   });
 });

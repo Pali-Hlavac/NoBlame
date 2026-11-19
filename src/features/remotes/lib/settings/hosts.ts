@@ -76,3 +76,29 @@ export function otherProtocol(url: string): { kind: "https" | "ssh"; url: string
     ? { kind: "ssh", url: `git@${parsed.host}:${parsed.path}.git` }
     : { kind: "https", url: `https://${parsed.host}/${parsed.path}.git` };
 }
+
+/** The Azure DevOps organization of an https URL; null for SSH and other hosts. */
+export function azureOrganization(url: string): string | null {
+  const parsed = parse(url);
+  return parsed?.kind === "https" ? (azure(parsed)?.org ?? null) : null;
+}
+
+/**
+ * The LFS server git-lfs works out from a remote's URL: `<url>.git/info/lfs` (`<url>/info/lfs`
+ * when it ends in `.git`), over https for SSH addresses, without a user name; null for folders.
+ */
+export function lfsEndpoint(url: string): string | null {
+  const web = /^(https?):\/\/(?:[^@/]+@)?([^/]+)(\/.*?)\/?$/.exec(url);
+  const ssh =
+    /^ssh:\/\/(?:[^@/]+@)?([^/:]+)(?::\d+)?(\/.*?)\/?$/.exec(url) ??
+    /^(?:[^@/]+@)?([^/:]+):(?!\/\/)\/?(.+?)\/?$/.exec(url);
+  const [scheme, host, rawPath] = web
+    ? [web[1], web[2], web[3]]
+    : ssh
+      ? ["https", ssh[1], ssh[2]?.startsWith("/") ? ssh[2] : `/${ssh[2] ?? ""}`]
+      : [];
+  // A one-letter "host" is a Windows drive (`C:/repos/app`).
+  if (!scheme || !host || host.length === 1 || !rawPath || rawPath === "/") return null;
+  const path = rawPath.endsWith(".git") ? rawPath : `${rawPath}.git`;
+  return `${scheme}://${host.toLowerCase()}${path}/info/lfs`;
+}

@@ -1501,8 +1501,8 @@ Slices:
 - [x] Slice 4: Test connection, default branch from the remote, HTTPS ⇄ SSH, Open in browser,
       URL-keyed settings and passwords moved (2026-11-19)
 - [x] Slice 5: Connection tab, SSH key per remote (2026-11-19)
-- [ ] Slice 6: Credentials and LFS tabs
-- [ ] Slice 7: checks in the real app, user guide, ADR final
+- [x] Slice 6: Credentials and LFS tabs (2026-11-19)
+- [x] Slice 7: checks in the real app, user guide, ADR final (2026-11-19)
 
 #### Where we left off (2026-11-19, slice 1)
 
@@ -1582,6 +1582,32 @@ Slices:
   (the command it builds is unit tested).
 - Paused here at the owner's request (2026-11-19). Next: slice 6 (Credentials and LFS tabs),
   then slice 7 (checks, user guide, ADR accepted).
+
+#### Where we left off (2026-11-19, slices 6 and 7: M10 done)
+
+- Credentials tab (`CredentialsTab`, `HelpersInUse`, `CredentialActions`,
+  `lib/settings/credentials.ts`: git's URL matching of `credential.<url>.helper` with resets),
+  `forget_remote_credentials` (`git credential reject`, `url=` on stdin); Azure DevOps through
+  GCM's own keys (`credential.azrepos:org/<org>.username` instead of running `azure-repos
+bind`, `azreposCredentialType`, `msauthUseBroker`, `msauthFlow`, keyed by the server).
+- LFS tab (`LfsTab`; `usesLfs` from `.git/lfs` or `filter=lfs` in `.gitattributes`); the
+  registry's `applies` conditions (`conditions.ts`) shared by the tabs and the search.
+- Integration tests of the brief, all there: rename with tracking branches, several push URLs,
+  tagOpt, rollback, URLs with passwords (`remote_settings.rs`); chosen fetch refspecs, prune,
+  URL-keyed settings moved (`remote_settings_fetch.rs`); forgetting a credential
+  (`remote_connection.rs`).
+- Checked in the real app (my instance, its own profile, a throwaway repository whose helpers
+  were reset to a `store` file of its own): the helpers listed with the reset said; an Azure
+  DevOps remote (never contacted) saved `credential.azrepos:org/contoso.username` and
+  `credential.https://dev.azure.com.azreposCredentialType pat`; **Forget** removed exactly the
+  `git.example.invalid` entry from the store file; the LFS tab saved
+  `lfs.https://git.example.invalid/team/app.git/info/lfs.locksverify false`; **Test connection**
+  to a public GitHub repository over HTTPS: "Connected: 8 branches on the server". Found and
+  fixed: the search counted Azure DevOps settings for a GitHub remote (rows not shown); a GCM
+  path with spaces (`C:/Program\ Files/…`) was not recognised.
+- Not tried by me (the owner's accounts and network): GitHub over SSH with a real key, Azure
+  DevOps sign-in with GCM (OAuth, broker), a company proxy or certificate. The fork with `origin`
+  and `upstream` was checked in slice 3 on local remotes.
 
 ## Phase 2: shell integration
 

@@ -7,6 +7,7 @@ use std::path::{Path, PathBuf};
 
 use git_core::cli::Git;
 use git_core::config::{PlanError, ScopedEntry, read_all_scopes};
+use git_core::lfs::uses_lfs;
 use git_core::remote::{
     RemoteEdit, RemoteEditPlan, apply_remote_edit, describe_remote_edit, local_branch_names,
     plan_remote_edit, remote_branch_names, remote_head,
@@ -63,6 +64,7 @@ struct Refs {
     head: Option<String>,
     branches: Vec<String>,
     local_branches: Vec<String>,
+    uses_lfs: bool,
 }
 
 /// The default branch and remote branches of `name`, and the local branches, read afresh.
@@ -73,6 +75,7 @@ async fn refs(dir: PathBuf, name: String) -> Result<Refs, AppError> {
             .local();
         let internal = |message| AppError::new(ErrorCode::Internal, message);
         Ok(Refs {
+            uses_lfs: uses_lfs(repo.common_dir(), repo.workdir()),
             head: remote_head(&repo, &name),
             branches: remote_branch_names(&repo, &name).map_err(internal)?,
             local_branches: local_branch_names(&repo).map_err(internal)?,
@@ -110,6 +113,7 @@ pub async fn settings(
         head: refs.head,
         branches: refs.branches,
         local_branches: refs.local_branches,
+        uses_lfs: refs.uses_lfs,
         ssh_key,
         entries: entries
             .into_iter()

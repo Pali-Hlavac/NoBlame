@@ -58,7 +58,8 @@ Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 > M10 (the remote editor, ADR 0024) in progress: General and Advanced tabs, review and save all
 > or nothing (slice 1); Fetch and Push tabs, search (slice 2); Branches tab, fork preset
 > (slice 3); Test connection, HTTPS ⇄ SSH, Open in browser, passwords moved (slice 4); Connection
-> tab, SSH key per remote (slice 5).
+> tab, SSH key per remote (slice 5); Credentials and LFS tabs (slice 6); integration tests, checks,
+> ADR accepted (slice 7). M10 done.
 > Parts marked _(later)_ below are planned and do not exist yet.
 
 ## Architecture

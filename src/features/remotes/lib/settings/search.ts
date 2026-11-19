@@ -9,7 +9,7 @@ import type { RemoteSettingsDto } from "@/shared/ipc/bindings";
 
 import { canonicalKey, type Draft, inheritedValues, remoteKeys, valuesOf } from "./draft";
 import { REMOTE_SETTINGS } from "./registry";
-import { REMOTE_TABS, type RemoteTab, tabLabel } from "./settingTypes";
+import { type RemoteTab, tabLabel, visibleTabs } from "./settingTypes";
 
 export interface SearchMatch {
   readonly tab: RemoteTab;
@@ -41,9 +41,9 @@ export function searchRemote(
   const words = normalize(query).split(/\s+/).filter(Boolean);
   if (words.length === 0) return null;
   const matches: SearchMatch[] = [];
-  for (const { id: tab } of REMOTE_TABS) {
+  for (const tab of visibleTabs(base)) {
     for (const setting of REMOTE_SETTINGS) {
-      if (setting.tab !== tab) continue;
+      if (setting.tab !== tab || (setting.applies && !setting.applies(base, draft))) continue;
       const parts = [
         setting.label,
         setting.help,

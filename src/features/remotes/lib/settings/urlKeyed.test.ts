@@ -16,6 +16,7 @@ const BASE: RemoteSettingsDto = {
   head: null,
   branches: [],
   localBranches: [],
+  usesLfs: false,
   sshKey: null,
   entries: [
     local("remote.origin.url", "https://old.example/team/app.git"),

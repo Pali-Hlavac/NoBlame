@@ -1,5 +1,5 @@
-//! Talking to a remote without fetching, and moving a password to the credential helper,
-//! through the real `git`.
+//! Talking to a remote without fetching, moving a password to the credential helper and
+//! forgetting it, and whether a repository uses LFS, through the real `git`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 mod support;
@@ -8,9 +8,10 @@ use std::fs;
 
 use git_core::cli::Git;
 use git_core::config::read_all_scopes;
+use git_core::lfs::uses_lfs;
 use git_core::remote::{
-    connection_hint, describe_connection, has_credential_helper, ls_remote_command,
-    set_head_auto_command, split_password, store_password,
+    connection_hint, describe_connection, forget_credentials, has_credential_helper,
+    ls_remote_command, set_head_auto_command, split_password, store_password,
 };
 use support::Fixture;
 use tokio_util::sync::CancellationToken;
@@ -79,4 +80,34 @@ async fn gives_a_password_to_the_credential_helper() {
     store_password(&git(), &dir, &split, &cancel).await.unwrap();
     let stored = fs::read_to_string(&store).unwrap();
     assert!(stored.contains("ada:s3cret@example.com"), "{stored}");
+
+    // Forgetting by the URL as the remote has it (a password in it does not matter).
+    forget_credentials(
+        &git(),
+        &dir,
+        "https://ada:other@example.com/team/app.git",
+        &cancel,
+    )
+    .await
+    .unwrap();
+    let left = fs::read_to_string(&store).unwrap();
+    assert!(!left.contains("example.com"), "{left}");
+}
+
+#[test]
+fn knows_whether_a_repository_uses_lfs() {
+    let repo = Fixture::new();
+    let root = repo.path();
+    let git_dir = root.join(".git");
+    assert!(!uses_lfs(&git_dir, Some(&root)));
+    fs::write(
+        root.join(".gitattributes"),
+        "*.psd filter=lfs diff=lfs merge=lfs -text
+",
+    )
+    .unwrap();
+    assert!(uses_lfs(&git_dir, Some(&root)));
+    fs::remove_file(root.join(".gitattributes")).unwrap();
+    fs::create_dir_all(git_dir.join("lfs")).unwrap();
+    assert!(uses_lfs(&git_dir, None));
 }

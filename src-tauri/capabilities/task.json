@@ -93,6 +93,7 @@
     "allow-test-remote-connection",
     "allow-ask-remote-default-branch",
     "allow-move-remote-passwords",
+    "allow-forget-remote-credentials",
     "allow-open-web-page",
     "allow-set-remote-ssh-key",
     "allow-run-script",

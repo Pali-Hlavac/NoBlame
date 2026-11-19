@@ -5,6 +5,7 @@
  */
 import type { RemoteSettingsDto } from "@/shared/ipc/bindings";
 
+import { both, onWindows, overHttp } from "./conditions";
 import type { RemoteSetting } from "./settingTypes";
 
 const remoteKey = (name: string) => (remote: string) => `remote.${remote}.${name}`;
@@ -24,6 +25,7 @@ export const CONNECTION_SETTINGS: readonly RemoteSetting[] = [
   {
     id: "proxy",
     tab: "connection",
+    applies: overHttp,
     label: "Proxy",
     help: "The HTTP proxy this remote is reached through. Without a setting here, git uses http.proxy or the HTTPS_PROXY variable.",
     key: remoteKey("proxy"),
@@ -32,6 +34,7 @@ export const CONNECTION_SETTINGS: readonly RemoteSetting[] = [
   {
     id: "proxyAuthMethod",
     tab: "connection",
+    applies: overHttp,
     label: "Proxy sign-in",
     help: "How git signs in to the proxy.",
     key: remoteKey("proxyAuthMethod"),
@@ -40,6 +43,7 @@ export const CONNECTION_SETTINGS: readonly RemoteSetting[] = [
   {
     id: "sslVerify",
     tab: "connection",
+    applies: overHttp,
     label: "Verify the server's certificate",
     help: "Whether git checks that the server is who it says it is.",
     key: serverKey("sslVerify"),
@@ -48,6 +52,7 @@ export const CONNECTION_SETTINGS: readonly RemoteSetting[] = [
   {
     id: "sslCAInfo",
     tab: "connection",
+    applies: overHttp,
     label: "Certificate authority file",
     help: "A file of certificates to trust for this server, such as a company's own (PEM).",
     key: serverKey("sslCAInfo"),
@@ -56,6 +61,7 @@ export const CONNECTION_SETTINGS: readonly RemoteSetting[] = [
   {
     id: "sslCert",
     tab: "connection",
+    applies: overHttp,
     label: "Client certificate",
     help: "A certificate git shows the server to sign in, for servers that ask for one.",
     key: serverKey("sslCert"),
@@ -64,6 +70,7 @@ export const CONNECTION_SETTINGS: readonly RemoteSetting[] = [
   {
     id: "sslKey",
     tab: "connection",
+    applies: overHttp,
     label: "Client certificate key",
     help: "The private key of the client certificate.",
     key: serverKey("sslKey"),
@@ -72,6 +79,7 @@ export const CONNECTION_SETTINGS: readonly RemoteSetting[] = [
   {
     id: "sslBackend",
     tab: "connection",
+    applies: both(overHttp, onWindows),
     label: "Certificates come from",
     help: "Which library checks certificates on Windows: the Windows certificate store knows the certificates your company installed.",
     key: () => "http.sslBackend",
@@ -81,6 +89,7 @@ export const CONNECTION_SETTINGS: readonly RemoteSetting[] = [
   {
     id: "extraHeader",
     tab: "connection",
+    applies: overHttp,
     label: "Extra HTTP headers",
     help: "Headers sent with every request to this server, such as an authorization token. They are kept in plain text in .git/config.",
     key: serverKey("extraHeader"),
@@ -89,6 +98,7 @@ export const CONNECTION_SETTINGS: readonly RemoteSetting[] = [
   {
     id: "httpVersion",
     tab: "connection",
+    applies: overHttp,
     label: "HTTP version",
     help: "Which HTTP version git speaks to this server; some proxies only manage HTTP/1.1.",
     key: serverKey("version"),
@@ -97,6 +107,7 @@ export const CONNECTION_SETTINGS: readonly RemoteSetting[] = [
   {
     id: "postBuffer",
     tab: "connection",
+    applies: overHttp,
     label: "Push buffer size",
     help: "The largest push sent in one piece (bytes; k, m, g allowed). Raising it rarely helps; very old servers may need it.",
     key: serverKey("postBuffer"),
@@ -105,6 +116,7 @@ export const CONNECTION_SETTINGS: readonly RemoteSetting[] = [
   {
     id: "lowSpeedLimit",
     tab: "connection",
+    applies: overHttp,
     label: "Give up below this speed",
     help: "Bytes per second; git stops when less arrives for the time below.",
     key: serverKey("lowSpeedLimit"),
@@ -113,6 +125,7 @@ export const CONNECTION_SETTINGS: readonly RemoteSetting[] = [
   {
     id: "lowSpeedTime",
     tab: "connection",
+    applies: overHttp,
     label: "…for this long",
     help: "Seconds the speed may stay below the limit above before git gives up.",
     key: serverKey("lowSpeedTime"),

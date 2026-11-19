@@ -30,7 +30,10 @@ pub use connection::{
     connection_hint, describe_connection, describe_set_head, ls_remote_command,
     set_head_auto_command,
 };
-pub use credential::{UrlPassword, has_credential_helper, split_password, store_password};
+pub use credential::{
+    UrlPassword, forget_credentials, has_credential_helper, split_password, store_password,
+    without_password,
+};
 pub use fetch::{
     FetchOptions, FetchSummary, FetchTarget, fetch_all_remotes, fetch_command, fetch_commands,
     summarize_fetch,

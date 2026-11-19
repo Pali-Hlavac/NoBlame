@@ -8,8 +8,10 @@ import { panelId, tabId } from "../../lib/settings/words";
 import { AdvancedTab } from "./AdvancedTab";
 import { BranchesTab } from "./BranchesTab";
 import { ConnectionTab } from "./ConnectionTab";
+import { CredentialsTab } from "./CredentialsTab";
 import { FetchTab } from "./FetchTab";
 import { GeneralTab } from "./GeneralTab";
+import { LfsTab } from "./LfsTab";
 import { PushTab } from "./PushTab";
 
 interface TabPanelProps {
@@ -60,6 +62,10 @@ export function TabPanel({ repoId, idPrefix, tab, remotes, ...props }: TabPanelP
         <PushTab base={base} draft={draft} onChange={onChange} />
       ) : tab === "connection" ? (
         <ConnectionTab base={base} draft={draft} onChange={onChange} />
+      ) : tab === "credentials" ? (
+        <CredentialsTab repoId={repoId} {...props} />
+      ) : tab === "lfs" ? (
+        <LfsTab base={base} draft={draft} onChange={onChange} />
       ) : tab === "branches" ? (
         <BranchesTab base={base} draft={draft} onChange={onChange} remotes={remotes} />
       ) : (

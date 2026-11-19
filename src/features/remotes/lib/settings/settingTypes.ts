@@ -1,4 +1,7 @@
 /** The shape of the remote editor's settings registry, its tabs and git versions. */
+import type { RemoteSettingsDto } from "@/shared/ipc/bindings";
+
+import type { Draft } from "./draft";
 
 /** The editor's tabs, in order. */
 export const REMOTE_TABS = [
@@ -7,10 +10,21 @@ export const REMOTE_TABS = [
   { id: "push", label: "Push" },
   { id: "branches", label: "Branches" },
   { id: "connection", label: "Connection" },
+  { id: "credentials", label: "Credentials" },
+  { id: "lfs", label: "LFS" },
   { id: "advanced", label: "Advanced" },
 ] as const;
 
 export type RemoteTab = (typeof REMOTE_TABS)[number]["id"];
+
+/** The tabs shown for a remote: LFS only when the repository uses it or the remote sets it. */
+export function visibleTabs(base: RemoteSettingsDto): readonly RemoteTab[] {
+  const lfsUrl = `remote.${base.name}.lfs`;
+  const lfs =
+    base.usesLfs ||
+    base.entries.some((entry) => entry.scope === "local" && entry.key.startsWith(lfsUrl));
+  return REMOTE_TABS.map((tab) => tab.id).filter((tab) => tab !== "lfs" || lfs);
+}
 
 export function tabLabel(tab: RemoteTab): string {
   return REMOTE_TABS.find((candidate) => candidate.id === tab)?.label ?? tab;
@@ -31,6 +45,8 @@ export interface RemoteSetting {
   readonly synonyms: readonly string[];
   /** The oldest git that knows it. */
   readonly since?: GitRelease;
+  /** When it is shown (and found); always when not set. */
+  readonly applies?: (base: RemoteSettingsDto, draft: Draft) => boolean;
   /** It applies to every remote of the repository, not only this one. */
   readonly repositoryWide?: boolean;
 }

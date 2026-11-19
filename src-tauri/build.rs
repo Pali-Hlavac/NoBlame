@@ -107,6 +107,7 @@ const APP_COMMANDS: &[&str] = &[
     "test_remote_connection",
     "ask_remote_default_branch",
     "move_remote_passwords",
+    "forget_remote_credentials",
     "open_web_page",
     "set_remote_ssh_key",
     "run_script",

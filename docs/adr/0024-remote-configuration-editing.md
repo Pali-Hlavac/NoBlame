@@ -1,6 +1,6 @@
 # 0024: Editing a remote's configuration: CLI writes, all or nothing, secrets kept back
 
-- Status: Proposed (slice 1 built; accepted when M10 is done)
+- Status: Accepted (2026-11-19, M10 done)
 - Date: 2026-11-19
 - Milestone: M10
 
@@ -53,6 +53,13 @@ Option 2.
 - **Not git config**: the SSH key per remote (slice 5) is NoBlame's own setting, passed as
   `GIT_SSH_COMMAND` when NoBlame runs git for that remote, because git has no per-remote SSH key
   setting (`core.sshCommand` is per repository).
+- **URL-keyed settings move with the URL**: `http.<url>.*` and `credential.<url>.*` of the old
+  server are listed when a URL changes server and, when chosen, removed and written under the new
+  one in the same save.
+- **Credentials**: the editor never runs a credential helper to read a secret. Signing in is a
+  connection test the helpers answer; forgetting is `git credential reject`; GCM's Azure DevOps
+  account per organization is its own config key (`credential.azrepos:org/<org>.username`),
+  written like any other key instead of running `git credential-manager azure-repos bind`.
 
 ## Consequences
 

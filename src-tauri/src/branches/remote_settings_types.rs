@@ -71,6 +71,8 @@ pub struct RemoteSettingsDto {
     pub branches: Vec<String>,
     /// The local branches, sorted (one may be set to track the remote).
     pub local_branches: Vec<String>,
+    /// Whether the repository uses Git LFS (the editor shows its LFS tab).
+    pub uses_lfs: bool,
     /// The SSH private key NoBlame uses for this remote (its own setting), if one is chosen.
     pub ssh_key: Option<String>,
     /// The settings the editor shows (remotes, URL rewrites, branches, push, pull, fetch, HTTP,

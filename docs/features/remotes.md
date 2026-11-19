@@ -10,7 +10,8 @@ one fetch per remote, so it shows progress; **M10 slice 1 (2026-11-19)**: the re
 (General and Advanced tabs, review and save all or nothing); **slice 2**: Fetch and Push tabs,
 search; **slice 3**: Branches tab, the original of a fork; **slice 4**: Test connection, the
 server's default branch, HTTPS ⇄ SSH, Open in browser, passwords and old-server settings moved;
-**slice 5**: Connection tab, SSH key per remote. The job model is
+**slice 5**: Connection tab, SSH key per remote; **slice 6**: Credentials and LFS tabs;
+**slice 7**: the brief's integration tests, checks in the app, ADR 0024 accepted. The job model is
 [architecture/background-jobs.md](../architecture/background-jobs.md) (ADR 0011).
 
 ## Where
@@ -184,6 +185,39 @@ IdentitiesOnly=yes"`, where `<ssh>` is the environment's `GIT_SSH_COMMAND`, else
     bad path stops the save before git's settings change; a rename moves it, removing the remote
     forgets it. The review lists it as "NoBlame's own setting".
   - **Rarely needed**: `uploadpack`, `receivepack`, `serverOption` (several; git 2.48+).
+- **Credentials** tab (slice 6; for an http(s) URL, else it says SSH signs in with the key):
+  - **Helpers git asks** (read-only): every `credential.helper` and `credential.<url>.helper`
+    whose URL matches the remote's (scheme, host with `*` labels, port, path prefix, user; a
+    partial `host/path` too), in the order git reads the files, the draft standing for this
+    repository's; an empty value drops the ones before it (said so). Each is named (Git Credential
+    Manager, `store` with a red "not encrypted", `cache`, `wincred`, `osxkeychain`, libsecret, a
+    program of its own) with where it is set. None: a red line says git asks every time and keeps
+    nothing (`lib/settings/credentials.ts`).
+  - **Sign-in**: **Sign in** runs Test connection (the helper asks when nothing is saved and
+    keeps the answer); **Forget the saved sign-in…** asks, then `forget_remote_credentials`:
+    `git credential reject` with `url=<address>` on stdin (git splits it and applies
+    `useHttpPath`), once per http(s) address of the remote (URL and push URLs, passwords
+    dropped). Other repositories on the server share it, the confirmation says so.
+  - Settings keyed by the server, `credential.<server>.<name>` (the form GCM documents and reads
+    too): **Helpers for this server** (`helper`, several), **User name**, **A separate sign-in
+    per repository** (`useHttpPath`), and with GCM among the helpers **Kind of server**
+    (`provider`).
+  - **Azure DevOps, organization <org>** (for `dev.azure.com/<org>/…` and
+    `<org>.visualstudio.com`; red when GCM is not among the helpers): **Account for this
+    organization** (`credential.azrepos:org/<org>.username`, what `git credential-manager
+azure-repos bind --local` writes; GCM's `list` and `unbind` are not run), **Sign in to Azure
+    DevOps with** (`azreposCredentialType`: OAuth or PAT), **Sign in through Windows**
+    (`msauthUseBroker`, Windows only), **Where the Microsoft sign-in shows** (`msauthFlow`), each
+    keyed by the server.
+- **LFS** tab (slice 6; shown when the repository uses LFS: `<common dir>/lfs` exists or the top
+  `.gitattributes` has `filter=lfs` (`git_core::lfs::uses_lfs`, `RemoteSettingsDto.usesLfs`), or
+  the remote sets `lfsurl`): **LFS server** (`remote.<name>.lfsurl`; the placeholder is the one
+  git-lfs works out: `<url>.git/info/lfs`, https for SSH addresses), **LFS server for pushing**
+  (`lfspushurl`), **Check locks before pushing** (`lfs.<lfs server>.locksverify`, keyed by the
+  saved server; while a new one is typed it says to save first).
+- **Settings that apply**: a registry entry may carry `applies` (`lib/settings/conditions.ts`:
+  http(s) URL, Azure DevOps, GCM in use, Windows, an LFS server), and the tabs and the search use
+  the same conditions, so the search only counts what is on screen.
 - **Fetch** tab (slice 2): **What to fetch**: **Every branch** (`+refs/heads/*:refs/remotes/<name>/*`)
   or **Only these branches** (names or patterns with one `*`, such as `release/*`; one refspec
   each, `+refs/heads/<b>:refs/remotes/<name>/<b>`; at first the default branch); refspecs written
@@ -351,18 +385,20 @@ M5 slice 6. The **…** menu of a repository and its quick buttons
   `remove_remote`, `set_remote_url`, `unset_push_url`), `settings.rs` (`plan_remote_edit`,
   `describe_remote_edit`, `apply_remote_edit`), `connection.rs` (`ls_remote_command`,
   `set_head_auto_command`, `connection_hint`), `credential.rs` (`split_password`,
-  `store_password`, `has_credential_helper`), `refs.rs` (`remote_head`, `remote_branch_names`,
+  `store_password`, `forget_credentials`, `has_credential_helper`), `lfs.rs` (`uses_lfs`), `refs.rs` (`remote_head`, `remote_branch_names`,
   `local_branch_names`),
   `crates/git-core/src/config/` (`scoped.rs` every scope with its file, `plan.rs` the change
   plan, applying and undoing it, `secret.rs` hiding passwords and header values), `validate.rs`, `clone.rs`
   (`check_clone_target`, `clone_command`, `clone_hint`, `remove_partial_clone`), `fetch.rs`
   (`fetch_commands`, `fetch_all_remotes`). Tests: `tests/remote_manage.rs`, `tests/remote_clone.rs`,
   `tests/remote_settings.rs` (several keys and push URLs, default branch and rename at once,
-  hidden password kept, stale values refused, undone when a write or the rename fails).
+  hidden password kept, stale values refused, undone when a write or the rename fails),
+  `tests/remote_settings_fetch.rs` (only chosen branches and no tags fetched, pruning,
+  `http.<url>.*` and `credential.<url>.*` moved with the URL and read by git for the new one).
 - `src-tauri/src/jobs/remote_check.rs` (Test connection, Ask the server);
   `src-tauri/src/branches/remote_password.rs`, `remote_web.rs`; tests
-  `crates/git-core/tests/remote_connection.rs` (ls-remote, set-head, a password stored by a
-  `store` helper set up in the fixture only).
+  `crates/git-core/tests/remote_connection.rs` (ls-remote, set-head, a password stored and
+  forgotten by a `store` helper set up in the fixture only, LFS detected).
 - `src-tauri/src/branches/remotes.rs`, `remote_commands.rs`, `remote_types.rs`,
   `remote_settings.rs` and `remote_settings_types.rs` (the editor's commands);
   `src-tauri/src/jobs/clone.rs`, `steps.rs` (several commands in one job).
@@ -375,7 +411,10 @@ M5 slice 6. The **…** menu of a repository and its quick buttons
   to fetch; `search.ts`; `choices.ts`), `api/remoteSettings.ts`; the Fetch and Push tabs
   (`FetchTab`, `PushTab`, `ChoiceSetting`), `UrlActions` and `UrlNotices` (slice 4), the
   Connection tab (`ConnectionTab`, `ProxySetting`, `TextSetting`, `SshKeySetting`,
-  `lib/settings/registryConnection.ts`; test `editor/ConnectionTab.test.tsx`), the Branches tab (`BranchesTab`, `TrackBranch`,
+  `lib/settings/registryConnection.ts`; test `editor/ConnectionTab.test.tsx`), the Credentials
+  and LFS tabs (`CredentialsTab`, `HelpersInUse`, `CredentialActions`, `LfsTab`,
+  `lib/settings/registryCredentials.ts`, `credentials.ts`, `conditions.ts`; tests
+  `editor/CredentialsLfsTabs.test.tsx`, `lib/settings/credentials.test.ts`), the Branches tab (`BranchesTab`, `TrackBranch`,
   `lib/settings/tracking.ts`), the search (`EditorSearch`, `useEditorSearch`,
   `highlight.ts`); tests `RemotesDialog.test.tsx`, `editor/RemoteEditor.test.tsx`,
   `editor/FetchPushSearch.test.tsx`, `editor/BranchesTab.test.tsx`,

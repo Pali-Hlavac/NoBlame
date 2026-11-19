@@ -32,3 +32,11 @@ export function useMovePasswords(repoId: number) {
 export function openWebPage(url: string): Promise<null> {
   return unwrap(commands.openWebPage(url));
 }
+
+/** Makes the credential helpers forget the sign-in kept for `remote`'s addresses; how many. */
+export function useForgetCredentials(repoId: number) {
+  return useMutation({
+    mutationFn: (remote: string) => unwrap(commands.forgetRemoteCredentials(repoId, remote)),
+    meta: { silent: true, activity: "Forgetting the sign-in" },
+  });
+}

@@ -4,11 +4,12 @@
  * setting is found as soon as it is listed (`search.ts`).
  */
 import { CONNECTION_SETTINGS } from "./registryConnection";
+import { CREDENTIAL_SETTINGS, LFS_SETTINGS } from "./registryCredentials";
 import { BRANCH_SETTINGS, FETCH_SETTINGS, PUSH_SETTINGS } from "./registryTransfer";
 import type { RemoteSetting } from "./settingTypes";
 
 export type { GitRelease, RemoteSetting, RemoteTab } from "./settingTypes";
-export { REMOTE_TABS, tabLabel } from "./settingTypes";
+export { REMOTE_TABS, tabLabel, visibleTabs } from "./settingTypes";
 
 const remoteKey = (name: string) => (remote: string) => `remote.${remote}.${name}`;
 
@@ -80,6 +81,8 @@ export const REMOTE_SETTINGS: readonly RemoteSetting[] = [
   ...PUSH_SETTINGS,
   ...BRANCH_SETTINGS,
   ...CONNECTION_SETTINGS,
+  ...CREDENTIAL_SETTINGS,
+  ...LFS_SETTINGS,
 ];
 
 /** The setting with `id`; settings are listed above, so it exists. */

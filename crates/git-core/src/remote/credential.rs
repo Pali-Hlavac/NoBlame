@@ -108,6 +108,35 @@ pub async fn store_password(
     }
 }
 
+/// `url` without a password written into it (the user name stays).
+pub fn without_password(url: &str) -> String {
+    split_password(url).map_or_else(|| url.to_owned(), |split| split.url)
+}
+
+/// Tells the credential helpers to forget what they keep for `url` (`git credential reject`,
+/// the URL on stdin: git splits it and applies `useHttpPath` itself). A password in `url` is
+/// dropped first, so whatever password is kept for the user and server goes.
+pub async fn forget_credentials(
+    git: &Git,
+    dir: &Path,
+    url: &str,
+    cancel: &CancellationToken,
+) -> Result<(), String> {
+    let output = git
+        .command()
+        .current_dir(dir)
+        .args(["credential", "reject"])
+        .stdin(format!("url={}\n\n", without_password(url)))
+        .output(cancel)
+        .await
+        .map_err(|error| error.to_string())?;
+    if output.success() {
+        Ok(())
+    } else {
+        Err(output.combined())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::split_password;

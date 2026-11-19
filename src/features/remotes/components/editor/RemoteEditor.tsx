@@ -21,7 +21,7 @@ import {
   toEdit,
 } from "../../lib/settings/draft";
 import { draftProblems } from "../../lib/settings/problems";
-import { REMOTE_TABS, type RemoteTab } from "../../lib/settings/registry";
+import { REMOTE_TABS, type RemoteTab, visibleTabs } from "../../lib/settings/registry";
 import { EditorSearch } from "./EditorSearch";
 import { EditorTabs } from "./EditorTabs";
 import { HighlightContext } from "./highlight";
@@ -98,7 +98,8 @@ function Editor({ repoId, base, draft, onDraft, onSaved, ...props }: EditorProps
   const name = draft.name.trim();
   const search = useEditorSearch(base, draft, tab, setTab);
   const counts = search.result?.counts;
-  const tabs = REMOTE_TABS.map((candidate) => ({
+  const shown = visibleTabs(base);
+  const tabs = REMOTE_TABS.filter((candidate) => shown.includes(candidate.id)).map((candidate) => ({
     ...candidate,
     badge: counts ? String(counts.get(candidate.id) ?? 0) : undefined,
     dimmed: counts ? !counts.get(candidate.id) : false,
