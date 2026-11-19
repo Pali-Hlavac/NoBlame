@@ -43,8 +43,9 @@ Release builds update themselves (ADR 0017; `src-tauri/src/updates/`, `src/featu
 
 With `NOBLAME_PROFILE_DIR` set, NoBlame keeps everything under that folder instead of the
 platform's: `config/` (settings, layout, recent list, groups, window places, saved filters),
-`cache/` (the graph cache) and `webview/` (the webview's own storage; left to WebView2 when
-`WEBVIEW2_USER_DATA_FOLDER` names one). Such an instance runs on its own: no single-instance
+`cache/` (the graph cache) and `webview/` (the webview's own storage; the folder
+`WEBVIEW2_USER_DATA_FOLDER` names instead, when set, and `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS`
+is passed on too: the Edge WebDriver sets both). Such an instance runs on its own: no single-instance
 forwarding either way. The end-to-end tests use it (`src-tauri/src/storage/profile.rs`).
 
 ## Window places

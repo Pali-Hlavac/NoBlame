@@ -69,8 +69,10 @@ End to end:
   branch there. About four seconds once built.
 - The app is started without arguments: the Edge WebDriver passes `args` on as browser
   switches (`--c:\users\...\repo`, lowercased), which the command line refuses
-  (exit code 2). With `WEBVIEW2_USER_DATA_FOLDER` set by the driver, the profile leaves the
-  webview's folder to it (the driver waits for the webview to start there).
+  (exit code 2). The driver names the webview's folder and debugging port in
+  `WEBVIEW2_USER_DATA_FOLDER` and `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS`; the app passes both to
+  the webview itself (`storage::profile`), because on GitHub's Windows runners the webview ignored
+  the variables and the driver never reached it ("DevToolsActivePort file doesn't exist").
 - macOS is not covered: WKWebView has no WebDriver (the roadmap's decision).
 
 ### Consequences

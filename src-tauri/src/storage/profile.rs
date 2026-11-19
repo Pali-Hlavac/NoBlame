@@ -34,15 +34,35 @@ pub fn cache_dir<R: Runtime, M: Manager<R>>(app: &M) -> Option<PathBuf> {
     }
 }
 
-/// The webview's own storage (local storage, its caches), when a profile moves it. Left alone
-/// when the environment already names one (`WEBVIEW2_USER_DATA_FOLDER`: the Edge web driver
-/// picks its own and waits for the webview to start there).
+/// The webview's own storage (local storage, its caches): the folder the environment names
+/// (`WEBVIEW2_USER_DATA_FOLDER`: the Edge web driver picks its own and waits for the webview to
+/// start there), else the profile's when a profile is set, else the default.
 pub fn webview_dir() -> Option<PathBuf> {
-    if std::env::var_os(WEBVIEW2_DATA_ENV).is_some_and(|value| !value.is_empty()) {
-        return None;
-    }
-    profile_dir().map(|profile| profile.join("webview"))
+    env_value(WEBVIEW2_DATA_ENV)
+        .map(PathBuf::from)
+        .or_else(|| profile_dir().map(|profile| profile.join("webview")))
+}
+
+/// Arguments for the Windows webview the environment asks for
+/// (`WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS`: the Edge web driver's `--remote-debugging-port`),
+/// after the ones wry passes by default (giving any replaces those). The webview reads both
+/// variables itself on most machines, but ignored them on GitHub's Windows runners, so the
+/// end-to-end tests never reached it there; passed explicitly they work everywhere. Nobody sets
+/// them in normal use.
+pub fn webview_args() -> Option<String> {
+    env_value(WEBVIEW2_ARGS_ENV).map(|extra| format!("{WRY_DEFAULT_ARGS} {extra}"))
+}
+
+fn env_value(name: &str) -> Option<String> {
+    std::env::var(name)
+        .ok()
+        .filter(|value| !value.trim().is_empty())
 }
 
 /// Where the Windows webview keeps its data, when the environment says.
 const WEBVIEW2_DATA_ENV: &str = "WEBVIEW2_USER_DATA_FOLDER";
+/// Extra arguments for the Windows webview, when the environment says.
+const WEBVIEW2_ARGS_ENV: &str = "WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS";
+/// What wry passes when an app gives no arguments (wry 0.57, `webview2/mod.rs`): no mini menu or
+/// smart screen, and autoplay, which Tauri turns on.
+const WRY_DEFAULT_ARGS: &str = "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --autoplay-policy=no-user-gesture-required";

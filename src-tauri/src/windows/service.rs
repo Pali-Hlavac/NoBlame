@@ -136,12 +136,17 @@ fn show_in_theme(app: &AppHandle, window: &WebviewWindow) -> Result<(), WindowEr
     Ok(())
 }
 
-/// Keeps the webview's storage in the profile folder when one is set (`storage::profile`).
+/// Keeps the webview's storage in the profile folder when one is set, and passes the webview
+/// folder and arguments the environment names (`storage::profile`).
 fn in_profile<R: tauri::Runtime, M: Manager<R>>(
     builder: WebviewWindowBuilder<'_, R, M>,
 ) -> WebviewWindowBuilder<'_, R, M> {
-    match crate::storage::profile::webview_dir() {
+    let builder = match crate::storage::profile::webview_dir() {
         Some(dir) => builder.data_directory(dir),
+        None => builder,
+    };
+    match crate::storage::profile::webview_args() {
+        Some(args) => builder.additional_browser_args(&args),
         None => builder,
     }
 }
