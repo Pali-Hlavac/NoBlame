@@ -5208,7 +5208,6 @@ limitations under the License.
 Apache License 2.0 (Apache-2.0)
 
 Used by:
-  - notify-debouncer-mini 0.7.0 <https://github.com/notify-rs/notify.git>
   - notify-types 2.2.0 <https://github.com/notify-rs/notify.git>
 
                               Apache License

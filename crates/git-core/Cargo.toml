@@ -19,7 +19,6 @@ serde_json.workspace = true
 tokio = { workspace = true, features = ["process", "io-util", "macros", "rt"] }
 # Pinned: 8.2.1 was days old when added (2026-10-28). CC0-1.0 / MIT OR Apache-2.0.
 notify = "=8.2.0"
-notify-debouncer-mini = "=0.7.0"
 # MIT. Pure-Rust regexes: with Oniguruma the parser state is not `Send`, so it could not be
 # cached across threads. The grammars come from two-face.
 syntect = { version = "5.3", default-features = false, features = ["parsing", "regex-fancy"] }

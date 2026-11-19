@@ -11,9 +11,6 @@
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use notify::RecursiveMode;
-use notify_debouncer_mini::{DebounceEventResult, Debouncer, new_debouncer};
-
 /// Quiet time after the last event before changes are reported. Git operations touch many
 /// files (index, refs, logs) in quick succession; this reports them once.
 pub const DEBOUNCE: Duration = Duration::from_millis(300);
@@ -150,7 +147,7 @@ fn worktree_file(relative: &Path) -> Option<ChangeKind> {
 
 /// A running watcher; dropping it stops watching.
 pub struct RepoWatcher {
-    _debouncer: Debouncer<notify::RecommendedWatcher>,
+    _watcher: notify::RecommendedWatcher,
 }
 
 impl std::fmt::Debug for RepoWatcher {
@@ -172,15 +169,14 @@ impl RepoWatcher {
         #[cfg(target_os = "macos")]
         let paths = paths.canonical();
         let roots = watch_roots(&paths);
-        let mut debouncer = new_debouncer(DEBOUNCE, move |result: DebounceEventResult| {
-            let Ok(events) = result else { return };
+        let watcher = debounce::watch(&roots, DEBOUNCE, move |changed| {
             let mut changes = Changes::default();
             let mut work_files = Vec::new();
-            for event in events {
-                match classify(&paths, &event.path) {
-                    Some(ChangeKind::WorkTree) if !is_git_internal(&paths, &event.path) => {
+            for path in changed {
+                match classify(&paths, &path) {
+                    Some(ChangeKind::WorkTree) if !is_git_internal(&paths, &path) => {
                         if let Some(work_dir) = &paths.work_dir
-                            && let Ok(relative) = event.path.strip_prefix(work_dir)
+                            && let Ok(relative) = path.strip_prefix(work_dir)
                         {
                             work_files.push(relative.to_path_buf());
                         }
@@ -196,12 +192,7 @@ impl RepoWatcher {
                 on_change(changes);
             }
         })?;
-        for root in roots {
-            debouncer.watcher().watch(&root, RecursiveMode::Recursive)?;
-        }
-        Ok(Self {
-            _debouncer: debouncer,
-        })
+        Ok(Self { _watcher: watcher })
     }
 }
 
@@ -228,6 +219,7 @@ fn watch_roots(paths: &WatchPaths) -> Vec<PathBuf> {
     roots
 }
 
+mod debounce;
 mod ignore;
 
 pub use ignore::gitignore_filter;

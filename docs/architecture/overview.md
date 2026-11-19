@@ -80,7 +80,9 @@ and one webview per window that renders the UI in React. Decisions: [ADR 0001](.
   concurrent requests for the same graph wait for one build (a `tokio::sync::Mutex` per session).
 - **Watchers**: each repository session owns a `git_core::watch::RepoWatcher` (`notify`, its
   own thread). It is started on a blocking thread after the repository opens, because inotify
-  on Linux adds a watch per folder. Events are debounced (300 ms), sorted into refs, working
+  on Linux adds a watch per folder. Reads are dropped (inotify reports files being opened; the
+  ignore check reads `.git/index`, which would report itself), the rest is debounced (300 ms of
+  quiet, at most 1.2 s; `watch/debounce.rs`), sorted into refs, working
   tree and config changes, filtered through `.gitignore`, and sent as `repository-changed`. A watcher that
   cannot start (inotify limit) is logged; focus refresh still works.
 - **Window creation** happens in the setup hook, the single-instance callback or an `async`

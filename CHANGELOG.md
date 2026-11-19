@@ -51,6 +51,11 @@ All notable changes to NoBlame are documented here. The format follows
 - Passwords written into remote URLs no longer reach the window when a remote is edited: they
   show as `***` and are kept when saved unchanged (the old edit form received them).
 
+### Fixed
+
+- Linux: the repository watcher no longer takes its own reading of the repository for a change,
+  which refreshed the status again after every change.
+
 ## [0.2.1] - 2026-11-18
 
 ### Fixed
