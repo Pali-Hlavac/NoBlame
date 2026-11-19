@@ -112,3 +112,25 @@ jobs:
       - name: Smoke tests
         if: runner.os == 'Windows'
         run: pnpm e2e
+      # The Edge WebDriver starts the app without a console, so a crash or a hang there leaves
+      # no trace. When the smoke tests fail, start the app alone and say what it does.
+      - name: The app on its own (after a failure)
+        if: failure() && runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $env:NOBLAME_PROFILE_DIR = Join-Path $env:RUNNER_TEMP "noblame-profile"
+          $env:WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS = "--remote-debugging-port=9222"
+          $out = Join-Path $env:RUNNER_TEMP "app-out.txt"
+          $err = Join-Path $env:RUNNER_TEMP "app-err.txt"
+          $app = Start-Process "target/e2e/debug/noblame.exe" -PassThru `
+            -RedirectStandardOutput $out -RedirectStandardError $err
+          Start-Sleep -Seconds 20
+          if ($app.HasExited) { "The app exited with code $($app.ExitCode)." } else { "The app is running." }
+          try { (Invoke-WebRequest http://127.0.0.1:9222/json/version -UseBasicParsing).Content }
+          catch { "WebView2 does not answer on its debugging port: $_" }
+          Get-Process msedgewebview2 -ErrorAction SilentlyContinue | Select-Object Id, Path | Format-Table
+          $key = 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}'
+          "WebView2 runtime: $((Get-ItemProperty $key -ErrorAction SilentlyContinue).pv)"
+          "--- the app's output"
+          Get-Content $out, $err -ErrorAction SilentlyContinue
+          if (-not $app.HasExited) { Stop-Process -Id $app.Id -Force }
