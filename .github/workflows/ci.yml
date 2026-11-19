@@ -129,6 +129,19 @@ jobs:
           try { (Invoke-WebRequest http://127.0.0.1:9222/json/version -UseBasicParsing).Content }
           catch { "WebView2 does not answer on its debugging port: $_" }
           Get-Process msedgewebview2 -ErrorAction SilentlyContinue | Select-Object Id, Path | Format-Table
+          # The browser process (no --type=) shows whether the debugging port reached WebView2.
+          "--- WebView2 browser processes"
+          Get-CimInstance Win32_Process -Filter "Name = 'msedgewebview2.exe'" |
+            Where-Object { $_.CommandLine -notmatch '--type=' } |
+            ForEach-Object { "$($_.ProcessId) (parent $($_.ParentProcessId)): $($_.CommandLine)" }
+          "--- the app: $((Get-CimInstance Win32_Process -Filter "ProcessId = $($app.Id)").CommandLine)"
+          "--- WEBVIEW2_* variables"
+          Get-ChildItem env:WEBVIEW2* | ForEach-Object { "$($_.Name)=$($_.Value)" }
+          "--- Edge and WebView2 policies"
+          foreach ($root in 'HKLM:\SOFTWARE\Policies\Microsoft\Edge', 'HKCU:\SOFTWARE\Policies\Microsoft\Edge') {
+            if (Test-Path $root) { Get-ChildItem $root -Recurse | Out-String; Get-ItemProperty $root | Out-String }
+            else { "${root}: none" }
+          }
           $key = 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}'
           "WebView2 runtime: $((Get-ItemProperty $key -ErrorAction SilentlyContinue).pv)"
           "--- the app's output"
