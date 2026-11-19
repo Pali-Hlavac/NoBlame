@@ -77,7 +77,7 @@ describe("the Merge window", () => {
     git(fixture.repo, "switch", "--quiet", "main");
     const app = await App.start();
     try {
-      const windows = await app.windowCount();
+      const windows = await app.windowHandles();
       await app.invoke("open_task_window", { task: "merge", path: fixture.repo });
       await app.switchToNewWindow(windows);
       await app.focusField("Branch, tag, commit id or HEAD~2…");

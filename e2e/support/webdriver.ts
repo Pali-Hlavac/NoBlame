@@ -99,19 +99,20 @@ export class App {
     );
   }
 
-  /** Drives the window that opened last (a task window), once there is one more than `known`. */
-  async switchToNewWindow(known: number): Promise<void> {
-    const handles = await waitFor("a new window", async () => {
-      const all = (await call("GET", `/session/${this.session}/window/handles`)) as string[];
-      return all.length > known && all;
-    });
-    await call("POST", `/session/${this.session}/window`, { handle: handles.at(-1) });
+  /**
+   * Drives the window that is not among `known` (a task window that just opened). WebDriver
+   * lists handles in no promised order: WebKitWebDriver (Linux) does not put the newest last.
+   */
+  async switchToNewWindow(known: readonly string[]): Promise<void> {
+    const handle = await waitFor("a new window", async () =>
+      (await this.windowHandles()).find((candidate) => !known.includes(candidate)),
+    );
+    await call("POST", `/session/${this.session}/window`, { handle });
   }
 
-  /** How many windows the app has. */
-  async windowCount(): Promise<number> {
-    const all = (await call("GET", `/session/${this.session}/window/handles`)) as string[];
-    return all.length;
+  /** The handles of the app's windows. */
+  async windowHandles(): Promise<string[]> {
+    return (await call("GET", `/session/${this.session}/window/handles`)) as string[];
   }
 
   /** Runs `script` (a function body; `arguments` holds `args`) in the page. */
@@ -160,7 +161,10 @@ export class App {
     );
   }
 
-  /** Focuses the field labelled or with the placeholder `label`. */
+  /**
+   * Focuses the field labelled or with the placeholder `label`. While it cannot, the page says
+   * why (the window's title, the fields it has), which a timeout then reports.
+   */
   async focusField(label: string): Promise<void> {
     await waitFor(`the field “${label}”`, () =>
       this.run<boolean>(
@@ -169,9 +173,11 @@ export class App {
          const field = fields.find((f) => f.placeholder === label ||
            f.getAttribute("aria-label") === label ||
            (f.labels && [...f.labels].some((l) => l.textContent.trim() === label)));
-         if (!field) return false;
+         const names = fields.map((f) => f.placeholder || f.getAttribute("aria-label") || f.name);
+         if (!field) throw new Error("not in " + document.title + ", which has " + JSON.stringify(names));
          field.focus();
-         return document.activeElement === field;`,
+         if (document.activeElement !== field) throw new Error("found in " + document.title + " but it did not take the focus");
+         return true;`,
         label,
       ),
     );
