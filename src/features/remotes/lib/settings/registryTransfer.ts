@@ -1,4 +1,4 @@
-/** The remote editor's Fetch and Push settings (see `registry.ts`). */
+/** The remote editor's Fetch, Push and Branches settings (see `registry.ts`). */
 import type { RemoteSetting } from "./settingTypes";
 
 const remoteKey = (name: string) => (remote: string) => `remote.${remote}.${name}`;
@@ -115,6 +115,44 @@ export const PUSH_SETTINGS: readonly RemoteSetting[] = [
     help: "Signs the push itself with your key (a push certificate), for servers that check them. Not the same as signing commits.",
     key: repositoryKey("push.gpgSign"),
     synonyms: ["gpg", "sign", "certificate", "signed push"],
+    repositoryWide: true,
+  },
+];
+
+export const BRANCH_SETTINGS: readonly RemoteSetting[] = [
+  {
+    id: "upstreams",
+    tab: "branches",
+    label: "Branches that track this remote",
+    help: "Each local branch pulls from its upstream and compares itself with it. A branch can push somewhere else (Push to), and pull by merging or rebasing.",
+    key: null,
+    synonyms: [
+      "upstream",
+      "tracking",
+      "set-upstream",
+      "branch.merge",
+      "pushRemote",
+      "push remote",
+      "branch rebase",
+      "pull mode",
+    ],
+  },
+  {
+    id: "pullRebase",
+    tab: "branches",
+    label: "Pulling joins the commits by",
+    help: "What pulling does when both sides have new commits, for branches that do not say otherwise.",
+    key: repositoryKey("pull.rebase"),
+    synonyms: ["rebase", "merge", "pull", "pull.rebase"],
+    repositoryWide: true,
+  },
+  {
+    id: "pullFf",
+    tab: "branches",
+    label: "Fast-forward when pulling",
+    help: "Whether pulling may make a merge commit, or only moves the branch forward when it can.",
+    key: repositoryKey("pull.ff"),
+    synonyms: ["fast-forward", "ff-only", "merge commit", "pull.ff"],
     repositoryWide: true,
   },
 ];

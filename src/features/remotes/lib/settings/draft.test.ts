@@ -15,6 +15,7 @@ const BASE: RemoteSettingsDto = {
   name: "origin",
   head: "main",
   branches: ["main"],
+  localBranches: ["main"],
   entries: [
     { key: "remote.origin.prune", value: "false", scope: "global", file: null, secret: false },
     { key: "remote.origin.pushurl", value: "a", scope: "local", file: null, secret: false },

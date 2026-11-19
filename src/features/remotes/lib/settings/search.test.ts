@@ -7,6 +7,7 @@ const BASE: RemoteSettingsDto = {
   name: "origin",
   head: null,
   branches: [],
+  localBranches: ["main"],
   entries: [
     {
       key: "remote.origin.vcs",

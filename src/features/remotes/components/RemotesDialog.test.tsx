@@ -14,6 +14,7 @@ const ipc = vi.hoisted(() => ({
   getRemoteSettings: vi.fn(),
   previewRemoteChanges: vi.fn(),
   applyRemoteChanges: vi.fn(),
+  setGitConfig: vi.fn(),
 }));
 const jobs = vi.hoisted(() => ({ startFetch: vi.fn(), startJob: vi.fn() }));
 
@@ -25,7 +26,7 @@ vi.mock("@/features/repositories", () => ({
   repositoryName: () => "app",
 }));
 vi.mock("sonner", () => ({
-  toast: Object.assign(vi.fn(), { success: vi.fn(), info: vi.fn() }),
+  toast: Object.assign(vi.fn(), { success: vi.fn(), info: vi.fn(), error: vi.fn() }),
 }));
 
 function ok<T>(data: T) {
@@ -46,6 +47,7 @@ function settings(name: string): RemoteSettingsDto {
     name,
     head: "main",
     branches: ["main", "topic"],
+    localBranches: ["main"],
     entries: [
       {
         key: `remote.${name}.url`,
@@ -74,6 +76,7 @@ describe("Remotes dialog", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     ipc.listRemoteDetails.mockReturnValue(ok([ORIGIN]));
+    ipc.setGitConfig.mockReturnValue(ok(null));
     ipc.getRemoteSettings.mockImplementation((_id: number, name: string) => ok(settings(name)));
   });
 
@@ -111,6 +114,23 @@ describe("Remotes dialog", () => {
         target: { type: "remote", name: "upstream" },
         prune: false,
       });
+    });
+  });
+
+  it("adds the original of a fork and keeps pushing to the fork", async () => {
+    const user = userEvent.setup();
+    ipc.addRemote.mockReturnValue(ok(""));
+    ipc.setGitConfig.mockReturnValue(ok(null));
+    renderDialogs();
+    await user.click(await screen.findByRole("button", { name: "Add remote…" }));
+    await user.click(screen.getByRole("button", { name: "Add the original as upstream" }));
+    const form = screen.getByRole("form", { name: "Add a remote" });
+    expect(within(form).getByLabelText("Name")).toHaveValue("upstream");
+    expect(within(form).getByRole("checkbox", { name: /Keep pushing to origin/ })).toBeChecked();
+    await user.type(within(form).getByLabelText("URL"), "https://example.com/original/app.git");
+    await user.click(within(form).getByRole("button", { name: "Add remote" }));
+    await waitFor(() => {
+      expect(ipc.setGitConfig).toHaveBeenCalledWith(1, "local", "remote.pushDefault", "origin");
     });
   });
 

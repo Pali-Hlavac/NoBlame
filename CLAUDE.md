@@ -56,7 +56,8 @@ Built with Tauri 2 (Rust) and React + TypeScript. Plan and status:
 > update key, the release workflow and guide (ADR 0017; slice 6). M9 is done but for the logo's
 > artwork (the owner's); before the first release: identifier, keys (`release.md`). Licence: GPL-3.0-or-later.
 > M10 (the remote editor, ADR 0024) in progress: General and Advanced tabs, review and save all
-> or nothing (slice 1); Fetch and Push tabs, search (slice 2).
+> or nothing (slice 1); Fetch and Push tabs, search (slice 2); Branches tab, fork preset
+> (slice 3).
 > Parts marked _(later)_ below are planned and do not exist yet.
 
 ## Architecture

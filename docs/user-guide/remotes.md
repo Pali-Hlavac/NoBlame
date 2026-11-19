@@ -60,7 +60,9 @@ next to one fetch it. Click a remote to see its settings on the right.
 
 - **Add remote…**: give it a name (`origin` for the main one, `upstream` for the project you
   forked from) and its address, the same you would give `git clone`. Leave **Fetch its
-  branches now** ticked to download its branches straight away.
+  branches now** ticked to download its branches straight away. Forked a project? Click **Add
+  the original as upstream**: NoBlame names it `upstream` and, with **Keep pushing to origin**,
+  your pushes still go to your fork while you pull the original's changes.
 - **General**: its **Name** (renaming also renames its branches here, and your branches keep
   tracking it), its **URL**, and **Push URLs** for when you push somewhere else than you fetch
   from. Add several push URLs to send every push to all of them, for example to keep a mirror
@@ -74,6 +76,10 @@ next to one fetch it. Click a remote to see its settings on the right.
   to, while you pull from the original), **Mirror** (every push makes the remote an exact copy of
   this repository; NoBlame asks first, because it deletes and overwrites there), and the
   repository's own push options, which apply to every remote.
+- **Branches**: your branches that follow this remote. Change which of its branches each one
+  follows (its upstream), or stop following; where it pushes, if not to the usual remote; and
+  whether pulling merges or rebases it. **Track** makes another of your branches follow this
+  remote. Below, how pulling works for every branch of the repository.
 - **Advanced**: every setting git keeps for this remote, as git names them. You can change,
   add or remove values; settings that come from your user settings are shown with the file they
   are in. Address rewrites (`insteadOf`) are listed too.

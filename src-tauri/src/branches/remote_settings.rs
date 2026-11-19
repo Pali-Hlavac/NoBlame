@@ -8,8 +8,8 @@ use std::path::{Path, PathBuf};
 use git_core::cli::Git;
 use git_core::config::{PlanError, ScopedEntry, read_all_scopes};
 use git_core::remote::{
-    RemoteEdit, RemoteEditPlan, apply_remote_edit, describe_remote_edit, plan_remote_edit,
-    remote_branch_names, remote_head,
+    RemoteEdit, RemoteEditPlan, apply_remote_edit, describe_remote_edit, local_branch_names,
+    plan_remote_edit, remote_branch_names, remote_head,
 };
 use git_core::repo::Repository;
 use tokio_util::sync::CancellationToken;
@@ -56,16 +56,27 @@ fn plan_error(error: PlanError) -> AppError {
     }
 }
 
-/// The default branch and remote branches of `name`, read afresh.
-async fn refs(dir: PathBuf, name: String) -> Result<(Option<String>, Vec<String>), AppError> {
-    let read = blocking(move || -> Result<_, RepositoryError> {
-        let repo = Repository::discover(&dir)?.local();
-        let branches = remote_branch_names(&repo, &name)
-            .map_err(|message| AppError::new(ErrorCode::Internal, message));
-        Ok((remote_head(&repo, &name), branches))
+/// What the editor reads from the refs, afresh.
+struct Refs {
+    head: Option<String>,
+    branches: Vec<String>,
+    local_branches: Vec<String>,
+}
+
+/// The default branch and remote branches of `name`, and the local branches, read afresh.
+async fn refs(dir: PathBuf, name: String) -> Result<Refs, AppError> {
+    blocking(move || -> Result<Refs, AppError> {
+        let repo = Repository::discover(&dir)
+            .map_err(RepositoryError::from)?
+            .local();
+        let internal = |message| AppError::new(ErrorCode::Internal, message);
+        Ok(Refs {
+            head: remote_head(&repo, &name),
+            branches: remote_branch_names(&repo, &name).map_err(internal)?,
+            local_branches: local_branch_names(&repo).map_err(internal)?,
+        })
     })
-    .await??;
-    Ok((read.0, read.1?))
+    .await?
 }
 
 fn setup(sessions: &RepoSessions, id: RepoId) -> Result<(Git, PathBuf), RepositoryError> {
@@ -86,11 +97,12 @@ pub async fn settings(
 ) -> Result<RemoteSettingsDto, AppError> {
     let (git, dir) = setup(sessions, id)?;
     let entries = entries(&git, &dir).await?;
-    let (head, branches) = refs(dir, name.clone()).await?;
+    let refs = refs(dir, name.clone()).await?;
     Ok(RemoteSettingsDto {
         name,
-        head,
-        branches,
+        head: refs.head,
+        branches: refs.branches,
+        local_branches: refs.local_branches,
         entries: entries
             .into_iter()
             .filter(shown)
@@ -102,7 +114,7 @@ pub async fn settings(
 async fn plan(git: &Git, dir: &Path, edit: RemoteEditDto) -> Result<RemoteEditPlan, AppError> {
     let edit = RemoteEdit::from(edit);
     let current = entries(git, dir).await?;
-    let (head, _) = refs(dir.to_path_buf(), edit.name.clone()).await?;
+    let head = refs(dir.to_path_buf(), edit.name.clone()).await?.head;
     plan_remote_edit(&current, head.as_deref(), &edit).map_err(plan_error)
 }
 

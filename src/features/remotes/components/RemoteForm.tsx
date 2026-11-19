@@ -6,7 +6,7 @@ import { useRepositoryPath } from "@/features/repositories";
 import { InlineError } from "@/shared/components/InlineError";
 import { Button } from "@/shared/ui/button";
 
-import { useAddRemote } from "../api/remotes";
+import { useAddRemote, useSetPushDefault } from "../api/remotes";
 import { remoteNameProblem, urlProblem } from "../lib/remotes";
 import { Checkbox, FIELD } from "./form";
 
@@ -24,10 +24,14 @@ export function RemoteForm({ repoId, taken, onAdded, onCancel }: RemoteFormProps
   const id = useId();
   const path = useRepositoryPath(repoId);
   const add = useAddRemote(repoId);
+  const pushDefault = useSetPushDefault(repoId);
   const [name, setName] = useState(taken.includes("origin") ? "" : "origin");
   const [url, setUrl] = useState("");
   const [fetchNow, setFetchNow] = useState(true);
+  const [keepPushing, setKeepPushing] = useState(true);
   const trimmed = name.trim();
+  // The original project of a fork: pull from it, keep pushing to the fork (origin).
+  const forkPreset = trimmed === "upstream" && taken.includes("origin");
   const problem = remoteNameProblem(trimmed, taken) ?? urlProblem(url);
 
   const submit = () => {
@@ -37,6 +41,13 @@ export function RemoteForm({ repoId, taken, onAdded, onCancel }: RemoteFormProps
       {
         onSuccess: () => {
           toast.success(`Added the remote ${trimmed}`);
+          if (forkPreset && keepPushing) {
+            pushDefault.mutate("origin", {
+              onError: (error) => {
+                toast.error(`Pushing still goes where it went: ${error.message}`);
+              },
+            });
+          }
           if (fetchNow && path !== undefined) {
             startJob(
               startFetch({ path, target: { type: "remote", name: trimmed }, prune: false }),
@@ -88,9 +99,29 @@ export function RemoteForm({ repoId, taken, onAdded, onCancel }: RemoteFormProps
           }}
         />
       </div>
+      {taken.includes("origin") && !taken.includes("upstream") && trimmed === "" ? (
+        <p className="text-xs text-muted-foreground">
+          Forked a project?{" "}
+          <button
+            type="button"
+            className="underline underline-offset-2 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            onClick={() => {
+              setName("upstream");
+            }}
+          >
+            Add the original as upstream
+          </button>
+          , to pull its changes while pushing to your fork.
+        </p>
+      ) : null}
       <Checkbox checked={fetchNow} onChange={setFetchNow}>
         Fetch its branches now
       </Checkbox>
+      {forkPreset ? (
+        <Checkbox checked={keepPushing} onChange={setKeepPushing}>
+          Keep pushing to origin (your fork): sets remote.pushDefault to origin
+        </Checkbox>
+      ) : null}
       {problem && (name !== "" || url !== "") && (
         <p className="text-xs text-destructive">{problem}</p>
       )}

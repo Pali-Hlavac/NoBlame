@@ -145,6 +145,7 @@ function Editor({ repoId, base, draft, onDraft, onSaved, ...props }: EditorProps
           draft={draft}
           onChange={onDraft}
           problems={problems}
+          remotes={[base.name, ...props.otherRemotes].sort((a, b) => a.localeCompare(b))}
           onRemove={props.onRemove}
         />
       </HighlightContext>

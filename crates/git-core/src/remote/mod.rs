@@ -15,6 +15,7 @@ mod prompt;
 mod pull;
 mod push;
 mod redact;
+mod refs;
 mod remotes;
 mod settings;
 mod validate;
@@ -39,9 +40,10 @@ pub use push::{
     summarize_push,
 };
 pub use redact::redact_credentials;
+pub use refs::{local_branch_names, remote_branch_names, remote_head};
 pub use remotes::{UpstreamPush, remote_names, upstream_push};
 pub use settings::{
     HeadChange, RemoteEdit, RemoteEditPlan, apply_remote_edit, describe_remote_edit,
-    plan_remote_edit, remote_branch_names, remote_head,
+    plan_remote_edit,
 };
 pub use validate::{validate_remote_name, validate_url};

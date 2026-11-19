@@ -8,7 +8,7 @@ branch, any branch with options and force with lease, tags, deleting on a remote
 (2026-11-07)**: managing remotes (add, edit, remove), clone as a job, and Fetch all remotes as
 one fetch per remote, so it shows progress; **M10 slice 1 (2026-11-19)**: the remote editor
 (General and Advanced tabs, review and save all or nothing); **slice 2**: Fetch and Push tabs,
-search. The job model is
+search; **slice 3**: Branches tab, the original of a fork. The job model is
 [architecture/background-jobs.md](../architecture/background-jobs.md) (ADR 0011).
 
 ## Where
@@ -150,6 +150,20 @@ remote…** below the list shows the form to add one.
   mirror push deletes and overwrites), and the repository's own push settings, under "For every
   remote of this repository": `push.followTags`, `push.autoSetupRemote`,
   `push.recurseSubmodules`, `push.gpgSign`.
+- **Branches** tab (slice 3): the local branches whose upstream is on this remote
+  (`branch.<b>.remote` = the remote), each with its **Upstream** (one of the remote's branches
+  here, written as `branch.<b>.merge = refs/heads/<x>` like `git branch --set-upstream-to`, or
+  **Stop tracking**: both keys removed; the branch stays listed until the dialog closes, so it can
+  be set back), **Push to** (`branch.<b>.pushRemote`; "as the repository says" names
+  `remote.pushDefault` or the remote) and **Pull by** (`branch.<b>.rebase`: merge, rebase,
+  rebase keeping merges). **Make <branch> track <remote>/<branch>** sets the upstream of a local
+  branch that does not track it yet. "Pulling, for every branch of this repository": `pull.rebase`
+  and `pull.ff`. The local branches come with the settings (`localBranches`, read with gix).
+- **The original of a fork** (slice 3): in **Add remote**, next to an `origin`, "Forked a
+  project? Add the original as upstream" fills in the name `upstream`; with that name and an
+  `origin`, **Keep pushing to origin** (on) sets `remote.pushDefault = origin` after adding
+  (`set_git_config`, this repository), so pulls come from the original and pushes go to the fork.
+  Branches can then track `upstream` in its Branches tab once it is fetched.
 - **Search** (slice 2): the box above the tabs (**Ctrl+F**, the Find commits key, while the editor
   is open; it does not reach the graph behind) finds settings by label, help, git key, synonyms
   ("refspec", "certificate", "mirror") and tab, and Advanced keys by key and value; case and
@@ -285,7 +299,8 @@ M5 slice 6. The **…** menu of a repository and its quick buttons
   (`upstream_push`; test `finds_where_the_current_branch_pushes`).
 - `crates/git-core/src/remote/manage.rs` (`remote_details`, `add_remote`, `rename_remote`,
   `remove_remote`, `set_remote_url`, `unset_push_url`), `settings.rs` (`plan_remote_edit`,
-  `describe_remote_edit`, `apply_remote_edit`, `remote_head`, `remote_branch_names`),
+  `describe_remote_edit`, `apply_remote_edit`), `refs.rs` (`remote_head`, `remote_branch_names`,
+  `local_branch_names`),
   `crates/git-core/src/config/` (`scoped.rs` every scope with its file, `plan.rs` the change
   plan, applying and undoing it, `secret.rs` hiding passwords and header values), `validate.rs`, `clone.rs`
   (`check_clone_target`, `clone_command`, `clone_hint`, `remove_partial_clone`), `fetch.rs`
@@ -302,9 +317,10 @@ M5 slice 6. The **…** menu of a repository and its quick buttons
   `lib/settings/` (`registry.ts` and `registryTransfer.ts` every setting with its tab, help, key
   and synonyms; `draft.ts` the unsaved changes; `problems.ts`; `rewrites.ts`; `refspecs.ts` what
   to fetch; `search.ts`; `choices.ts`), `api/remoteSettings.ts`; the Fetch and Push tabs
-  (`FetchTab`, `PushTab`, `ChoiceSetting`), the search (`EditorSearch`, `useEditorSearch`,
+  (`FetchTab`, `PushTab`, `ChoiceSetting`), the Branches tab (`BranchesTab`, `TrackBranch`,
+  `lib/settings/tracking.ts`), the search (`EditorSearch`, `useEditorSearch`,
   `highlight.ts`); tests `RemotesDialog.test.tsx`, `editor/RemoteEditor.test.tsx`,
-  `editor/FetchPushSearch.test.tsx`, `lib/settings/draft.test.ts`, `refspecs.test.ts`,
+  `editor/FetchPushSearch.test.tsx`, `editor/BranchesTab.test.tsx`, `lib/settings/tracking.test.ts`, `lib/settings/draft.test.ts`, `refspecs.test.ts`,
   `search.test.ts`,
   `CloneDialog.test.tsx`, `lib/clone.test.ts`.
 - `src/features/jobs/components/OutputWindow.tsx`, `OutputConsole.tsx`, `store/output.ts`,

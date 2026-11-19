@@ -29,6 +29,7 @@ const SETTINGS: RemoteSettingsDto = {
   name: "origin",
   head: "main",
   branches: ["main"],
+  localBranches: ["main"],
   entries: [
     {
       key: "remote.origin.url",

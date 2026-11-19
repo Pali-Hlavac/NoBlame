@@ -5,7 +5,6 @@
 
 use std::path::Path;
 
-use gix::bstr::ByteSlice;
 use tokio_util::sync::CancellationToken;
 
 use crate::cli::Git;
@@ -14,7 +13,7 @@ use crate::config::{
     quote, restore,
 };
 
-use super::validate::{REMOTES, validate_remote_name};
+use super::validate::validate_remote_name;
 
 /// A change of the remote's default branch (`refs/remotes/<name>/HEAD`), by branch name.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -52,43 +51,6 @@ impl RemoteEditPlan {
     pub fn is_empty(&self) -> bool {
         self.keys.is_empty() && self.head.is_none() && self.new_name.is_none()
     }
-}
-
-/// The branch `refs/remotes/<name>/HEAD` points at, if it is set.
-pub fn remote_head(repo: &gix::Repository, name: &str) -> Option<String> {
-    let reference = repo
-        .try_find_reference(format!("{REMOTES}{name}/HEAD").as_str())
-        .ok()??;
-    let target = reference
-        .target()
-        .try_name()?
-        .as_bstr()
-        .to_str_lossy()
-        .into_owned();
-    target
-        .strip_prefix(&format!("{REMOTES}{name}/"))
-        .map(str::to_owned)
-}
-
-/// The remote branches of `name` here (`refs/remotes/<name>/…` without `HEAD`), sorted.
-pub fn remote_branch_names(repo: &gix::Repository, name: &str) -> Result<Vec<String>, String> {
-    let prefix = format!("{REMOTES}{name}/");
-    let mut names = Vec::new();
-    let platform = repo.references().map_err(|error| error.to_string())?;
-    for reference in platform
-        .remote_branches()
-        .map_err(|error| error.to_string())?
-    {
-        let reference = reference.map_err(|error| error.to_string())?;
-        let full = reference.name().as_bstr().to_str_lossy();
-        if let Some(branch) = full.strip_prefix(&prefix)
-            && branch != "HEAD"
-        {
-            names.push(branch.to_owned());
-        }
-    }
-    names.sort();
-    Ok(names)
 }
 
 /// Checks `edit` against `current` (every scope's settings, read now) and the default branch

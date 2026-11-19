@@ -1497,7 +1497,7 @@ Slices:
 
 - [x] Slice 1: foundation, General, Advanced, review and save (2026-11-19)
 - [x] Slice 2: Fetch and Push tabs, search (2026-11-19)
-- [ ] Slice 3: Branches tab, fork preset
+- [x] Slice 3: Branches tab, fork preset (2026-11-19)
 - [ ] Slice 4: Test connection, default branch from the remote, HTTPS ⇄ SSH, Open in browser,
       URL-keyed settings and passwords moved
 - [ ] Slice 5: Connection tab, SSH key per remote
@@ -1540,6 +1540,20 @@ Slices:
   dialog (Radix handles Escape in the capture phase, before the field): the dialog now ignores
   Escape while a search box has text (test added).
 - Next: slice 3 (Branches tab, the fork preset).
+
+#### Where we left off (2026-11-19, slice 3)
+
+- Branches tab: the branches tracking the remote (`tracking.ts`), upstream / push remote / pull
+  mode per branch, making another branch track it (`TrackBranch`), `pull.rebase` and `pull.ff`.
+  Upstreams are written through the editor's plan (`branch.<b>.remote` + `merge`, as
+  `--set-upstream-to` writes them), so they save all or nothing with the rest; the Branches
+  module's Set upstream stays as it was.
+- The fork preset lives in Add remote (not a tab): "Add the original as upstream" next to an
+  `origin`, and Keep pushing to origin (`remote.pushDefault`, `set_git_config`) after adding.
+- git-core `remote/refs.rs` (the remote's default branch and branches, the local branches);
+  `RemoteSettingsDto.localBranches`.
+- Next: slice 4 (Test connection, default branch from the server, HTTPS ⇄ SSH, Open in browser,
+  moving URL-keyed settings and passwords).
 
 ## Phase 2: shell integration
 

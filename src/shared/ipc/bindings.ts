@@ -2363,6 +2363,8 @@ export type RemoteSettingsDto = {
 	head: string | null,
 	/**  Its remote branches here, sorted. */
 	branches: string[],
+	/**  The local branches, sorted (one may be set to track the remote). */
+	localBranches: string[],
 	/**
 	 *  The settings the editor shows (remotes, URL rewrites, branches, push, pull, fetch, HTTP,
 	 *  credentials, LFS) of every scope, in the order git reads them.

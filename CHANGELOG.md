@@ -18,6 +18,10 @@ All notable changes to NoBlame are documented here. The format follows
   removing what was deleted on the server, leaving a remote out of Fetch all, fetch now) and
   **Push** tab (the default remote for pushing, mirror with a confirmation, the repository's push
   options), and a search over all tabs (Ctrl+F) by name, help text or Git setting name.
+- The remote editor's **Branches** tab: the branches tracking the remote with their upstream,
+  where they push and how they pull, making another branch track it, and how the repository
+  pulls. Adding a remote offers the original of a fork as `upstream` and keeps pushing to
+  `origin`.
 - NoBlame is free software under the GNU General Public License, version 3 or later
   (`LICENSE`); About says so.
 

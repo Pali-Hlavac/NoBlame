@@ -6,6 +6,7 @@ import type { Draft } from "../../lib/settings/draft";
 import type { RemoteTab } from "../../lib/settings/registry";
 import { panelId, tabId } from "../../lib/settings/words";
 import { AdvancedTab } from "./AdvancedTab";
+import { BranchesTab } from "./BranchesTab";
 import { FetchTab } from "./FetchTab";
 import { GeneralTab } from "./GeneralTab";
 import { PushTab } from "./PushTab";
@@ -18,11 +19,13 @@ interface TabPanelProps {
   draft: Draft;
   onChange: (draft: Draft) => void;
   problems: ReadonlyMap<string, string>;
+  /** Every remote's name, this one included. */
+  remotes: readonly string[];
   onRemove: () => void;
 }
 
 /** The open tab's settings. */
-export function TabPanel({ repoId, idPrefix, tab, ...props }: TabPanelProps) {
+export function TabPanel({ repoId, idPrefix, tab, remotes, ...props }: TabPanelProps) {
   const path = useRepositoryPath(repoId);
   const { base, draft, onChange } = props;
   const onFetch =
@@ -53,6 +56,8 @@ export function TabPanel({ repoId, idPrefix, tab, ...props }: TabPanelProps) {
         />
       ) : tab === "push" ? (
         <PushTab base={base} draft={draft} onChange={onChange} />
+      ) : tab === "branches" ? (
+        <BranchesTab base={base} draft={draft} onChange={onChange} remotes={remotes} />
       ) : (
         <AdvancedTab base={base} draft={draft} onChange={onChange} />
       )}

@@ -43,6 +43,14 @@ export function useAddRemote(repoId: number) {
   );
 }
 
+/** Makes `remote` the one pushing goes to by default (`remote.pushDefault`, this repository). */
+export function useSetPushDefault(repoId: number) {
+  return useRemoteChange(repoId, "Setting where pushing goes", async (remote: string) => {
+    await unwrap(commands.setGitConfig(repoId, "local", "remote.pushDefault", remote));
+    return "";
+  });
+}
+
 export function useRemoveRemote(repoId: number) {
   return useRemoteChange(repoId, "Removing the remote", (name: string) =>
     unwrap(commands.removeRemote(repoId, name)),
