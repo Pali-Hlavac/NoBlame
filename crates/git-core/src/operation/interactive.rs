@@ -155,7 +155,9 @@ pub async fn interactive_plan(
     let output = checked(output)?;
     let fields: Vec<&[u8]> = output.stdout.split(|byte| *byte == 0).collect();
     let commits = fields
-        .chunks_exact(4)
+        .as_chunks::<4>()
+        .0
+        .iter()
         .map(|record| PlannedCommit {
             id: String::from_utf8_lossy(record[0]).trim().to_owned(),
             author: String::from_utf8_lossy(record[1]).into_owned(),

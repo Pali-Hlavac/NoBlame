@@ -1,0 +1,6 @@
+# The Rust version for building, linting and CI, so a new Rust release cannot turn CI red
+# without a change here. Raise it on purpose: change the version, run `pnpm check`, fix new lints.
+[toolchain]
+channel = "1.100.0"
+profile = "minimal"
+components = ["rustfmt", "clippy"]

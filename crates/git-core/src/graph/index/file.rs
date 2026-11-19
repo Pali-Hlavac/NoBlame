@@ -150,8 +150,10 @@ impl<'a> Reader<'a> {
     fn u32s(&mut self, count: usize) -> Result<Vec<u32>, IndexFileError> {
         let bytes = self.take(count * 4)?;
         Ok(bytes
-            .chunks_exact(4)
-            .map(|chunk| u32::from_le_bytes(array(chunk)))
+            .as_chunks::<4>()
+            .0
+            .iter()
+            .map(|chunk| u32::from_le_bytes(*chunk))
             .collect())
     }
 }

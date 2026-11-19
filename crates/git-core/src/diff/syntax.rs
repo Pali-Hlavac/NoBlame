@@ -148,11 +148,11 @@ impl Highlighter {
         let (mut state, mut stack) = checkpoints[from].clone();
         let mut wanted = lines.iter().copied().peekable();
         let mut found = Vec::new();
-        for position in from * step..last {
+        let lines_shown = self.shown.iter().copied().enumerate();
+        for (position, line) in lines_shown.take(last).skip(from * step) {
             if position.is_multiple_of(step) && position / step == checkpoints.len() {
                 checkpoints.push((state.clone(), stack.clone()));
             }
-            let line = self.shown[position];
             let text = side.raw_line(line).to_str_lossy();
             let Ok(ops) = state.parse_line(&text, syntaxes()) else {
                 break;

@@ -153,6 +153,8 @@ mod tests {
     }
 
     #[test]
+    // One range of lines is meant, not the numbers in it.
+    #[allow(clippy::single_range_in_vec_init)]
     fn a_whole_range_with_context_takes_every_change_in_it() {
         let selection = LineSelection {
             removed: vec![1..=4],

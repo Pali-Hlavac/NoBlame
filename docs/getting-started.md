@@ -6,12 +6,12 @@ How to build, run and test NoBlame from source.
 
 All platforms:
 
-| Tool    | Version                     | Notes                                                            |
-| ------- | --------------------------- | ---------------------------------------------------------------- |
-| Rust    | stable, at least 1.88       | via [rustup](https://rustup.rs); `rustfmt` and `clippy` included |
-| Node.js | at least 22.12              |                                                                  |
-| pnpm    | 9.15 (see `packageManager`) | `corepack enable` picks the right version                        |
-| git     | at least 2.39               | NoBlame runs the user's git; tests run it too                    |
+| Tool    | Version                       | Notes                                                                                    |
+| ------- | ----------------------------- | ---------------------------------------------------------------------------------------- |
+| Rust    | 1.100 (`rust-toolchain.toml`) | via [rustup](https://rustup.rs), which installs that version with `rustfmt` and `clippy` |
+| Node.js | at least 22.12                |                                                                                          |
+| pnpm    | 9.15 (see `packageManager`)   | `corepack enable` picks the right version                                                |
+| git     | at least 2.39                 | NoBlame runs the user's git; tests run it too                                            |
 
 ### Windows
 

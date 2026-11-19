@@ -229,7 +229,8 @@ React feature component
   checked), so closed repositories can be fetched; results reach open tabs via the watcher.
 - **Windows build "Access is denied"** running build scripts: Defender/Smart App Control;
   exclude the repo folder. Test binaries need the manifest embedded by `build.rs`.
-- **Pinned versions**: `specta`/`tauri-specta` `=2.0.0-rc.26` + `specta-typescript =0.0.13`
+- **Pinned versions**: Rust in `rust-toolchain.toml` (CI installs the same; raise it on purpose and fix
+  the new lints); `specta`/`tauri-specta` `=2.0.0-rc.26` + `specta-typescript =0.0.13`
   (upgrade together); `dockview-react`, `dockview`, `dockview-core` exactly `8.4.1` (overrides in
   `package.json`; upgrade together); TypeScript `~6.0` until typescript-eslint supports 7; jsdom 27 (jsdom 30
   needs Node ≥ 22.22).
