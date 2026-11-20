@@ -47,13 +47,6 @@ jobs:
       # Signs the updates (tauri signer generate); the public half is the variable above.
       TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
       TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-      # macOS: Developer ID signing and notarization, read by the bundler.
-      APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-      APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-      APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-      APPLE_ID: ${{ secrets.APPLE_ID }}
-      APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
       # Steps cannot test secrets in `if`; this says whether there is a Windows certificate.
       WINDOWS_CERTIFICATE_SET: ${{ secrets.WINDOWS_CERTIFICATE != '' }}
     steps:
@@ -88,6 +81,28 @@ jobs:
           $certificate = Import-PfxCertificate -FilePath $pfx -CertStoreLocation Cert:\CurrentUser\My -Password $password
           Remove-Item $pfx
           "WINDOWS_CERTIFICATE_THUMBPRINT=$($certificate.Thumbprint)" >> $env:GITHUB_ENV
+      # macOS: Developer ID signing and notarization, read by the bundler from APPLE_*. A missing
+      # secret still makes an empty variable, and the bundler signs as soon as APPLE_CERTIFICATE
+      # exists (an empty one fails: "Unable to decode the provided data"), so only the secrets
+      # that are set are passed on.
+      - name: Apple signing (when its secrets are set)
+        if: runner.os == 'macOS'
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        shell: bash
+        run: |
+          for name in APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY \
+            APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID; do
+            if [ -n "${!name}" ]; then
+              { echo "$name<<NOBLAME_EOF"; echo "${!name}"; echo "NOBLAME_EOF"; } >> "$GITHUB_ENV"
+            fi
+          done
+          [ -n "$APPLE_CERTIFICATE" ] || echo "No Apple certificate: the app is not signed or notarized."
       - name: What this build signs
         run: node scripts/release-config.mjs
       - uses: tauri-apps/tauri-action@v0
