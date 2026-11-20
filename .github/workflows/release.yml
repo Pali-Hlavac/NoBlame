@@ -1,8 +1,8 @@
 name: Release
 
-# A version tag (v0.2.0) builds the installers for Windows, macOS and Linux and puts them on a
-# draft GitHub release with the update feed (latest.json); publishing the draft is a person's
-# step. What is signed depends on the repository's secrets (docs/development/release.md):
+# A version tag (v0.2.0) makes a draft GitHub release with the changelog's section as its text,
+# builds the installers for Windows, macOS and Linux and uploads them into it with the update
+# feed (latest.json); publishing the draft is a person's step. What is signed depends on the repository's secrets (docs/development/release.md):
 # without them the installers are unsigned and the builds do not update themselves.
 on:
   push:
@@ -22,9 +22,43 @@ jobs:
           node-version: 22
       - run: node scripts/release-version.mjs --check "${GITHUB_REF_NAME}"
 
+  # One draft for the tag, made here by tag name only, before the builds upload into it. When
+  # tauri-action made it, it named the commit (target_commitish) and GitHub refused the workflow's
+  # token ("Resource not accessible by integration", v0.3.0); it also let the three builds race to
+  # make one each. A draft already there for the tag (made by hand, or by an earlier attempt) is
+  # used as it is, so making it by hand and re-running still works.
+  draft:
+    name: Draft release
+    needs: check
+    runs-on: ubuntu-24.04
+    outputs:
+      id: ${{ steps.draft.outputs.id }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          id=$(gh api "repos/$GITHUB_REPOSITORY/releases" --paginate \
+            --jq ".[] | select(.tag_name == \"$TAG\") | .id" | head -n 1)
+          if [ -z "$id" ]; then
+            # The changelog's section for this version is the release's text.
+            awk -v heading="## [${TAG#v}]" '
+              index($0, "## [") == 1 { if (found) exit; found = (index($0, heading) == 1); next }
+              found' CHANGELOG.md > notes.md
+            id=$(gh api "repos/$GITHUB_REPOSITORY/releases" -f tag_name="$TAG" \
+              -f name="NoBlame $TAG" -F draft=true -F body=@notes.md --jq .id)
+            echo "Made a draft release for $TAG."
+          else
+            echo "Using the release already there for $TAG."
+          fi
+          [ -n "$id" ] || { echo "No release for $TAG."; exit 1; }
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+
   build:
     name: Build (${{ matrix.name }})
-    needs: check
+    needs: draft
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -109,9 +143,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: NoBlame ${{ github.ref_name }}
+          # Uploads into the draft made above; with an id the action neither looks for a release
+          # nor makes one. The body is only the update feed's notes.
+          releaseId: ${{ needs.draft.outputs.id }}
           releaseBody: See CHANGELOG.md for what changed.
-          releaseDraft: true
           includeUpdaterJson: ${{ env.TAURI_SIGNING_PRIVATE_KEY != '' }}
           args: --config src-tauri/tauri.release.json ${{ matrix.args }}

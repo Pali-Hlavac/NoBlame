@@ -1609,6 +1609,19 @@ bind`, `azreposCredentialType`, `msauthUseBroker`, `msauthFlow`, keyed by the se
   DevOps sign-in with GCM (OAuth, broker), a company proxy or certificate. The fork with `origin`
   and `upstream` was checked in slice 3 on local remotes.
 
+#### Where we left off (2026-11-20, release 0.3.0)
+
+- v0.3.0 (tag at `c4f2292`) has Windows and Linux installers on a draft release the owner made by
+  hand; the workflow could not make it. macOS failed on an empty Apple certificate (no Apple
+  secrets yet), fixed after the tag, so macOS comes with **0.3.1**. A re-run cannot help: it
+  uses the tagged workflow.
+- Fixed after the tag, all in CI and tests: the Draft release job, Apple secrets passed only
+  when set, WebView2's machine policy for Windows end to end. What we learned:
+  [release.md](development/release.md#when-the-release-workflow-fails) and
+  [troubleshooting.md](development/troubleshooting.md#ci).
+- To confirm with 0.3.1: the Draft release job makes the draft without help; macOS builds
+  unsigned; Windows end to end stays green.
+
 ## Phase 2: shell integration
 
 Thin native add-ons that only build a command line and launch `noblame`. ADR 0018.

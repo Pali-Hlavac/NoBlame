@@ -64,12 +64,39 @@ again (they keep working).
    changelog section, and commit: `chore: release 0.2.0`.
 4. Tag and push: `git tag v0.2.0 && git push origin main v0.2.0`.
 5. The release workflow (`.github/workflows/release.yml`) checks the tag against the three
-   versions and the changelog, then builds on Windows (x64: NSIS and MSI), macOS (universal:
-   `.app`, `.dmg`) and Ubuntu 22.04 (AppImage, `.deb`, `.rpm`; the oldest supported glibc). It
-   signs what the secrets allow (`scripts/release-config.mjs` writes the additions to
-   `tauri.conf.json`) and uploads everything to a **draft** release with `latest.json`.
-6. Check the draft (below), paste the changelog section into its text, then publish it. Only a
-   published release is `releases/latest`, which the update feed points at.
+   versions and the changelog, makes a **draft** release for the tag with the changelog's
+   section as its text (or uses one already there), then builds on Windows (x64: NSIS and MSI),
+   macOS (universal: `.app`, `.dmg`) and Ubuntu 22.04 (AppImage, `.deb`, `.rpm`; the oldest
+   supported glibc). It signs what the secrets allow (`scripts/release-config.mjs` writes the
+   additions to `tauri.conf.json`) and uploads everything into the draft with `latest.json`.
+6. Check the draft (below), then publish it. Only a published release is `releases/latest`,
+   which the update feed points at. Each platform uploads on its own: a draft can be published
+   without one, and a later re-run of that job adds its files.
+
+## When the release workflow fails
+
+What we learned releasing 0.3.0:
+
+- **A re-run uses the workflow as it was at the tagged commit.** A fix to `release.yml` pushed
+  afterwards reaches only the next tag. Rather than moving a pushed tag, release the next patch
+  version.
+- **"Resource not accessible by integration" making the release**, although the job's token has
+  `Contents: write` (Set up job → GITHUB_TOKEN Permissions). tauri-action named the commit
+  (`target_commitish`) when making the release, and GitHub refused the workflow's token; making
+  the draft by hand worked. The Draft release job now makes it by tag name only. If it is
+  refused anyway: on the Releases page, Draft a new release, choose the existing tag, Save draft,
+  then Re-run failed jobs: the job finds that draft and the builds upload into it. The
+  repository's Settings → Actions → Workflow permissions does not matter here (the workflow asks
+  for `contents: write` itself).
+- **A secret the repository does not have is an empty variable, not a missing one.** The bundler
+  signs for macOS as soon as `APPLE_CERTIFICATE` exists, so an empty one failed the build
+  ("SecKeychainItemImport: Unable to decode the provided data"). Secrets read by tools that test
+  only whether a variable exists are passed on only when set (the Apple signing step).
+- **macOS runners are scarce**: GitHub cancels a macOS job it has no machine for; re-run it later.
+  Public repositories have free minutes; jobs stop after 6 hours.
+- **Unsigned installers warn**: Windows SmartScreen ("Windows protected your PC" → More info → Run
+  anyway); macOS refuses to open the app until it is allowed in System Settings → Privacy &
+  Security. Signing needs the certificates above.
 
 ## Checks before publishing
 

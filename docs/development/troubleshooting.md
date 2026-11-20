@@ -54,6 +54,37 @@ of date.
 as administrator: WebView2 150 and later then ignores the debugging port the Edge WebDriver asks
 for. Run it from a normal terminal (CI sets a machine policy instead; ADR 0016).
 
+## CI
+
+What CI taught us (November 2026); releases have their own list in [release.md](release.md).
+
+**Clippy fails on CI but not locally.** CI installs the Rust version in `rust-toolchain.toml`;
+a newer Rust brings new lints. Raise the pinned version on purpose and fix them together.
+
+**A test passes locally but fails on CI's git.** The runners have no git identity: tests that
+commit or merge go through the fixture (`tests/support`), which sets one (`try_git` when the
+command is expected to fail, as a merge with conflicts).
+
+**Windows end to end: "DevToolsActivePort file doesn't exist".** See Tests above: everything on
+GitHub's Windows runners runs as administrator, and the job sets the WebView2 machine policy.
+When it fails, the step "The app on its own" starts the app alone and prints WebView2's command
+line, the port file and the policies. GitHub's Windows machines differ: a re-run can pass where
+the first attempt failed, so read a single green run with care.
+
+**Linux end to end: the wrong window.** WebDriver lists window handles in no fixed order; tests
+switch to the handle that was not there before (`switchToNewWindow`).
+
+**Unpacking a download on a Windows runner.** PowerShell's `Expand-Archive` broke there; the
+scripts use Windows' own `tar.exe` by its full path (Git's GNU `tar` on `PATH` cannot open zip
+files).
+
+**Linux: the watcher reports changes nobody made.** inotify reports files being opened and read;
+the watcher drops reads (`watch/debounce.rs`), or its own ignore check reading `.git/index`
+comes back as a change.
+
+**A new push cancels the running CI.** `cancel-in-progress` in `ci.yml`: wait for a run to finish
+before pushing again when you need its result.
+
 ## Logs
 
 Set `RUST_LOG` (for example `RUST_LOG=noblame_lib=debug,git_core=debug`) before starting the app.
