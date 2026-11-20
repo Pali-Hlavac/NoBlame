@@ -6,6 +6,13 @@ All notable changes to NoBlame are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-11-20
+
+### Fixed
+
+- macOS: the release includes the macOS app (0.3.0 shipped for Windows and Linux only). It is
+  not signed yet: the first time, allow it in System Settings → Privacy & Security.
+
 ## [0.3.0] - 2026-11-19
 
 ### Added
